@@ -39,7 +39,7 @@
     <repository>
       <id>github</id>
       <name>volkotyk</name>
-      <url>https://maven.pkg.github.com/volkotyk/operaton-cockpit-plugins</url>
+      <url>https://maven.pkg.github.com/datakurre/operaton-cockpit-plugins</url>
     </repository>
   </distributionManagement>
 </project>
