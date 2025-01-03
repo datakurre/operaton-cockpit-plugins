@@ -68,12 +68,14 @@ jobs:
       - name: test and build JAR
         run: |
           mkdir -p ./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts
-          cp -r ./* ./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts || true
+          cp *.js ./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts
+          mkdir -p ./src/main/resources/META-INF/resources/webjars/operaton/app/cockpit/scripts
+          cp *.js ./src/main/resources/META-INF/resources/webjars/operaton/app/cockpit/scripts
           mvn package -ntp
       - name: Upload new versions in maven registry
         run: |
           if [[ ${{ github.event_name }} == 'pull_request' ]]; then
-            mvn deploy -ntp -Drepo.login=${{ github.actor }} -Drepo.pwd=${{ secrets.GH_TOKEN }} -s .m2/settings.xml -DskipTests
+            mvn deploy -ntp -Drepo.login=${{ github.actor }} -Drepo.pwd=${{ secrets.GITHUB_TOKEN }} -s .m2/settings.xml -DskipTests
           fi
   release:
     name: Publish Release
@@ -104,17 +106,17 @@ jobs:
       - name: Create Release Tag
         uses: softcannery/.github/actions/release-tag@master
         with:
-          git-token: ${{ secrets.GH_TOKEN }}
+          git-token: ${{ secrets.GITHUB_TOKEN }}
           version: v${{ needs.build-maven.outputs.version }}
       - name: test and build JAR
         run: mvn package -ntp -Dmaven.test.skip
       - name: Upload new versions in maven registry
         run: |
-          mvn deploy -ntp -Drepo.login=${{ github.actor }} -Drepo.pwd=${{ secrets.GH_TOKEN }} -s .m2/settings.xml -DskipTests
+          mvn deploy -ntp -Drepo.login=${{ github.actor }} -Drepo.pwd=${{ secrets.GITHUB_TOKEN }} -s .m2/settings.xml -DskipTests
       - name: Release it
         run: |
           export PREV_VERSION=$(gh release list | grep Latest | awk '{print $3}')
           gh release create v$NEW_VERSION --title v$NEW_VERSION --notes-start-tag $PREV_VERSION --generate-notes --latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_VERSION: ${{ needs.build-maven.outputs.version }}
