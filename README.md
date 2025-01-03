@@ -1,7 +1,7 @@
 Minimal "history plugins" for Operaton and Camunda 7 Cockpit
 ============================================================
 
-Note: Due to Camunda 7 EOL in October 2025, these plugins have been tested to be compatible with [Operaton 1.0.0-beta-2](https://operaton.org) and the repository has been renamed.
+Note: Due to Camunda 7 EOL in October 2025, these plugins have been tested to be compatible with [Operaton 1.0.0-beta-1 and 2](https://operaton.org) and the repository has been renamed.
 
 ![Minimal history plugin in action.](plugin.gif)
 
