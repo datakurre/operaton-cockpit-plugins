@@ -111,7 +111,9 @@ jobs:
       - name: test and build JAR
         run: |
           mkdir -p ./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts
-          cp -r ./* ./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts || true
+          cp *.js ./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts
+          mkdir -p ./src/main/resources/META-INF/resources/webjars/operaton/app/cockpit/scripts
+          cp *.js ./src/main/resources/META-INF/resources/webjars/operaton/app/cockpit/scripts
           mvn package -ntp -Dmaven.test.skip
       - name: Upload new versions in maven registry
         run: |
