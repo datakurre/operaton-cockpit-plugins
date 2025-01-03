@@ -4,7 +4,7 @@
 
   <groupId>org.operaton.bpm.extension</groupId>
   <artifactId>mini-history-plugin</artifactId>
-  <version>.1</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>mini-history-plugin</name>
