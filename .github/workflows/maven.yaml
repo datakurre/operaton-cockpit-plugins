@@ -107,7 +107,10 @@ jobs:
           git-token: ${{ secrets.GH_TOKEN }}
           version: v${{ needs.build-maven.outputs.version }}
       - name: test and build JAR
-        run: mvn package -ntp -Dmaven.test.skip
+        run: |
+          mkdir -p ./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts
+          cp -r ./* ./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts || true
+          mvn package -ntp -Dmaven.test.skip
       - name: Upload new versions in maven registry
         run: |
           mvn deploy -ntp -Drepo.login=${{ github.actor }} -Drepo.pwd=${{ secrets.GH_TOKEN }} -s .m2/settings.xml -DskipTests
