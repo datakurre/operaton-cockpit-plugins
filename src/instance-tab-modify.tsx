@@ -91,7 +91,7 @@ export default [
     id: 'instanceTabModify',
     pluginPoint: 'cockpit.processInstance.runtime.tab',
     properties: {
-      label: 'Modify',
+      label: 'Модификация',
     },
     render: (node: Element, { api, processInstanceId }: InstancePluginParams) => {
       (async () => {

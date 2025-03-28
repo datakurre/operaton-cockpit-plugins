@@ -105,16 +105,16 @@ const VariablesTable: React.FC<Props> = ({ instance, activities, variables }) =>
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Name',
+        Header: 'Имя',
         accessor: 'name',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'Type',
+        Header: 'Тип',
         accessor: 'type',
       },
       {
-        Header: 'Value',
+        Header: 'Значение',
         accessor: 'value',
         Cell: ({ data, row, value }: any) => {
           const raw = data[row.index];
@@ -139,11 +139,11 @@ const VariablesTable: React.FC<Props> = ({ instance, activities, variables }) =>
         },
       },
       {
-        Header: 'Scope',
+        Header: 'Процесс',
         accessor: 'scope',
       },
       {
-        Header: 'Created',
+        Header: 'Создано',
         accessor: 'createTime',
         Cell: ({ value }: any) =>
           value

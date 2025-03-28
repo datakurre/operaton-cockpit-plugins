@@ -16,7 +16,7 @@ const AuditLogTable: React.FC<Props> = ({ activities, decisions }) => {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Activity Name',
+        Header: 'Имя активности',
         accessor: 'activityName',
         Cell: ({ value }: any) => {
           const baseUrl = `${window.location.href.split('#')[0]}/`
@@ -37,7 +37,7 @@ const AuditLogTable: React.FC<Props> = ({ activities, decisions }) => {
         },
       },
       {
-        Header: 'Start Time',
+        Header: 'Начало',
         accessor: 'startDate',
         Cell: ({ value }: any) => (
           <Clippy value={value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}>
@@ -46,7 +46,7 @@ const AuditLogTable: React.FC<Props> = ({ activities, decisions }) => {
         ),
       },
       {
-        Header: 'End Time',
+        Header: 'Завершение',
         accessor: 'endDate',
         Cell: ({ value }: any) => (
           <Clippy value={value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}>
@@ -55,22 +55,22 @@ const AuditLogTable: React.FC<Props> = ({ activities, decisions }) => {
         ),
       },
       {
-        Header: 'Duration',
+        Header: 'Продолжительность',
         accessor: 'duration',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'Type',
+        Header: 'Тип',
         accessor: 'type',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'User',
+        Header: 'Пользователь',
         accessor: 'assignee',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'Canceled',
+        Header: 'Завершено',
         accessor: 'canceled',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },

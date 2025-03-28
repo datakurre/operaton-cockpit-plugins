@@ -10,7 +10,7 @@ export default [
     id: 'tasklistTabAuditLog',
     pluginPoint: 'tasklist.task.detail',
     properties: {
-      label: 'Audit Log',
+      label: 'Активности',
     },
     render: (node: Element, { api, taskId }: TaskListPluginParams) => {
       (async () => {

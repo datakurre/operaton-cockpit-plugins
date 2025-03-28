@@ -187,7 +187,7 @@ export default [
     id: 'definitionTabHistoricInstances',
     pluginPoint: 'cockpit.processDefinition.runtime.tab',
     properties: {
-      label: 'History',
+      label: 'История',
     },
     render: (node: Element) => hooks.setHistoryTabNode(node),
   },
@@ -315,35 +315,35 @@ export default [
                           <div className="ctn-column">
                             <dl className="process-information">
                               <dt>
-                                <Clippy value={instance.id}>Instance ID:</Clippy>
+                                <Clippy value={instance.id}>ID экземпляра:</Clippy>
                               </dt>
                               <dd>{instance.id}</dd>
                               <dt>
-                                <Clippy value={instance.businessKey || 'null'}>Business Key:</Clippy>
+                                <Clippy value={instance.businessKey || 'null'}>Бизнес-ключ:</Clippy>
                               </dt>
                               <dd>{instance.businessKey || 'null'}</dd>
                               <dt>
-                                <Clippy value={instance.processDefinitionVersion}>Definition Version:</Clippy>
+                                <Clippy value={instance.processDefinitionVersion}>Версия схемы:</Clippy>
                               </dt>
                               <dd>{instance.processDefinitionVersion}</dd>
                               <dt>
-                                <Clippy value={instance.processdefinitionid}>Definition ID:</Clippy>
+                                <Clippy value={instance.processdefinitionid}>ID схемы:</Clippy>
                               </dt>
                               <dd>{instance.processDefinitionId}</dd>
                               <dt>
-                                <Clippy value={instance.processDefinitionKey}>Definition Key:</Clippy>
+                                <Clippy value={instance.processDefinitionKey}>Ключ схемы:</Clippy>
                               </dt>
                               <dd>{instance.processDefinitionKey}</dd>
                               <dt>
-                                <Clippy value={instance.processDefinitionName}>Definition Name:</Clippy>
+                                <Clippy value={instance.processDefinitionName}>Имя схемы:</Clippy>
                               </dt>
                               <dd>{instance.processDefinitionName}</dd>
                               <dt>
-                                <Clippy value={instance.tenantId || 'null'}>Tenant ID:</Clippy>
+                                <Clippy value={instance.tenantId || 'null'}>ID клиента:</Clippy>
                               </dt>
                               <dd>{instance.tenantId || 'null'}</dd>
                               <dt>
-                                <Clippy value={instance.superProcessInstanceId}>Super Process instance ID:</Clippy>
+                                <Clippy value={instance.superProcessInstanceId}>ID родительского экземпляра процесса:</Clippy>
                               </dt>
                               <dd>
                                 {(instance.superProcessInstanceId && (
@@ -375,10 +375,10 @@ export default [
                       <Tabs className="ctn-row ctn-content-bottom ctn-tabbed" selectedTabClassName="active">
                         <TabList className="nav nav-tabs">
                           <Tab>
-                            <a>Audit Log</a>
+                            <a>Активности</a>
                           </Tab>
                           <Tab>
-                            <a>Variables</a>
+                            <a>Переменные</a>
                           </Tab>
                         </TabList>
                         <TabPanel className="ctn-tabbed-content ctn-scroll">

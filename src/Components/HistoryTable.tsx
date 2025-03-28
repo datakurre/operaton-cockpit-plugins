@@ -14,12 +14,12 @@ const HistoryTable: React.FC<Props> = ({ instances }) => {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'State',
+        Header: 'Состояние',
         accessor: 'state',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'Instance ID',
+        Header: 'ID экземпляра',
 
         Cell: ({ value }: any) => (
           <Clippy value={value}>
@@ -29,7 +29,7 @@ const HistoryTable: React.FC<Props> = ({ instances }) => {
         accessor: 'id',
       },
       {
-        Header: 'Start Time',
+        Header: 'Начало',
         accessor: 'startTime',
         Cell: ({ value }: any) => (
           <Clippy value={value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}>
@@ -38,7 +38,7 @@ const HistoryTable: React.FC<Props> = ({ instances }) => {
         ),
       },
       {
-        Header: 'End Time',
+        Header: 'Завершение',
         accessor: 'endTime',
         Cell: ({ value }: any) => (
           <Clippy value={value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}>
@@ -47,7 +47,7 @@ const HistoryTable: React.FC<Props> = ({ instances }) => {
         ),
       },
       {
-        Header: 'Business Key',
+        Header: 'Бизнес ключ',
         accessor: 'businessKey',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },

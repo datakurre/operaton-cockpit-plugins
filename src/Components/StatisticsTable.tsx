@@ -14,27 +14,27 @@ const StatisticsTable: React.FC<Props> = ({ activities }) => {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Activity Name',
+        Header: 'Имя активности',
         accessor: 'activityName',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'Instances',
+        Header: 'Экземпляры',
         accessor: 'instances',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'Total',
+        Header: 'Всего',
         accessor: 'duration',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'Average',
+        Header: 'Среднее',
         accessor: 'average',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },
       {
-        Header: 'Median',
+        Header: 'Медианное',
         accessor: 'median',
         Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
       },

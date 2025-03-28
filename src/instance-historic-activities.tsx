@@ -75,7 +75,7 @@ export default [
     id: 'instanceTabHistoricActivities',
     pluginPoint: 'cockpit.processInstance.runtime.tab',
     properties: {
-      label: 'Audit Log',
+      label: 'Активности',
     },
     render: (node: Element, { api, processInstanceId }: InstancePluginParams) => {
       (async () => {

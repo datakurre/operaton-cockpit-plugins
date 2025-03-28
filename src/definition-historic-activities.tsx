@@ -231,7 +231,7 @@ export default [
     id: 'definitionHistoricActivitiesStatisticsTab',
     pluginPoint: 'cockpit.processDefinition.runtime.tab',
     properties: {
-      label: 'Statistics',
+      label: 'Статистика',
     },
     render: (node: Element) => hooks.setStatistics(node),
   },
