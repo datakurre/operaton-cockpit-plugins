@@ -24,6 +24,7 @@ export const filter: <T>(iterable: T[], condition: (x: T) => boolean) => T[] = (
 };
 
 export interface PluginSettings {
+  autoRefresh: boolean;
   showHistoricBadges: boolean;
   showSequenceFlow: boolean;
   leftPaneSize: number | null;
@@ -38,6 +39,7 @@ export const loadSettings = (): PluginSettings => {
   try {
     const raw: any = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
     return {
+      autoRefresh: !!raw?.autoRefresh || !!parsed.autoRefresh,
       showHistoricBadges: !!raw?.showHistoricBadges || !!parsed.showHistoricBadges,
       showSequenceFlow: !!raw?.showSequenceFlow || !!parsed.showSequenceFlow,
       leftPaneSize: !!raw?.leftPaneSize ? raw.leftPaneSize : null,
@@ -45,6 +47,7 @@ export const loadSettings = (): PluginSettings => {
     };
   } catch (e) {
     return {
+      autoRefresh: false,
       showHistoricBadges: false,
       showSequenceFlow: false,
       leftPaneSize: null,
