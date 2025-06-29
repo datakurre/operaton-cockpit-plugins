@@ -7000,6 +7000,7 @@ var loadSettings = function () {
     try {
         var raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
         return {
+            autoRefresh: !!(raw === null || raw === void 0 ? void 0 : raw.autoRefresh) || !!parsed.autoRefresh,
             showHistoricBadges: !!(raw === null || raw === void 0 ? void 0 : raw.showHistoricBadges) || !!parsed.showHistoricBadges,
             showSequenceFlow: !!(raw === null || raw === void 0 ? void 0 : raw.showSequenceFlow) || !!parsed.showSequenceFlow,
             leftPaneSize: !!(raw === null || raw === void 0 ? void 0 : raw.leftPaneSize) ? raw.leftPaneSize : null,
@@ -7008,6 +7009,7 @@ var loadSettings = function () {
     }
     catch (e) {
         return {
+            autoRefresh: false,
             showHistoricBadges: false,
             showSequenceFlow: false,
             leftPaneSize: null,

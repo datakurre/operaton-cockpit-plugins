@@ -9346,6 +9346,7 @@ var loadSettings = function () {
     try {
         var raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
         return {
+            autoRefresh: !!(raw === null || raw === void 0 ? void 0 : raw.autoRefresh) || !!parsed.autoRefresh,
             showHistoricBadges: !!(raw === null || raw === void 0 ? void 0 : raw.showHistoricBadges) || !!parsed.showHistoricBadges,
             showSequenceFlow: !!(raw === null || raw === void 0 ? void 0 : raw.showSequenceFlow) || !!parsed.showSequenceFlow,
             leftPaneSize: !!(raw === null || raw === void 0 ? void 0 : raw.leftPaneSize) ? raw.leftPaneSize : null,
@@ -9354,6 +9355,7 @@ var loadSettings = function () {
     }
     catch (e) {
         return {
+            autoRefresh: false,
             showHistoricBadges: false,
             showSequenceFlow: false,
             leftPaneSize: null,
@@ -59835,14 +59837,14 @@ var classnames = {exports: {}};
 var classnamesExports = classnames.exports;
 var r = /*@__PURE__*/getDefaultExportFromCjs(classnamesExports);
 
-function _typeof(obj) {
+function _typeof(o) {
   "@babel/helpers - typeof";
 
-  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-  }, _typeof(obj);
+  return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+    return typeof o;
+  } : function (o) {
+    return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+  }, _typeof(o);
 }
 
 function requiredArgs(required, args) {
@@ -63586,68 +63588,64 @@ function isWithinInterval(dirtyDate, interval) {
   return time >= startTime && time <= endTime;
 }
 
-function _arrayLikeToArray(arr, len) {
-  if (len == null || len > arr.length) len = arr.length;
-  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-  return arr2;
+function _arrayLikeToArray(r, a) {
+  (null == a || a > r.length) && (a = r.length);
+  for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+  return n;
 }
 
-function _unsupportedIterableToArray(o, minLen) {
-  if (!o) return;
-  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-  var n = Object.prototype.toString.call(o).slice(8, -1);
-  if (n === "Object" && o.constructor) n = o.constructor.name;
-  if (n === "Map" || n === "Set") return Array.from(o);
-  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+function _unsupportedIterableToArray(r, a) {
+  if (r) {
+    if ("string" == typeof r) return _arrayLikeToArray(r, a);
+    var t = {}.toString.call(r).slice(8, -1);
+    return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+  }
 }
 
-function _createForOfIteratorHelper(o, allowArrayLike) {
-  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-  if (!it) {
-    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-      if (it) o = it;
-      var i = 0;
-      var F = function F() {};
+function _createForOfIteratorHelper(r, e) {
+  var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+  if (!t) {
+    if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
+      t && (r = t);
+      var _n = 0,
+        F = function F() {};
       return {
         s: F,
         n: function n() {
-          if (i >= o.length) return {
-            done: true
-          };
-          return {
-            done: false,
-            value: o[i++]
+          return _n >= r.length ? {
+            done: !0
+          } : {
+            done: !1,
+            value: r[_n++]
           };
         },
-        e: function e(_e) {
-          throw _e;
+        e: function e(r) {
+          throw r;
         },
         f: F
       };
     }
     throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
-  var normalCompletion = true,
-    didErr = false,
-    err;
+  var o,
+    a = !0,
+    u = !1;
   return {
     s: function s() {
-      it = it.call(o);
+      t = t.call(r);
     },
     n: function n() {
-      var step = it.next();
-      normalCompletion = step.done;
-      return step;
+      var r = t.next();
+      return a = r.done, r;
     },
-    e: function e(_e2) {
-      didErr = true;
-      err = _e2;
+    e: function e(r) {
+      u = !0, o = r;
     },
     f: function f() {
       try {
-        if (!normalCompletion && it["return"] != null) it["return"]();
+        a || null == t["return"] || t["return"]();
       } finally {
-        if (didErr) throw err;
+        if (u) throw o;
       }
     }
   };
@@ -63665,134 +63663,103 @@ function assign(target, object) {
   return target;
 }
 
-function _assertThisInitialized$1(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-  return self;
+function _assertThisInitialized$1(e) {
+  if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  return e;
 }
 
-function _setPrototypeOf$1(o, p) {
-  _setPrototypeOf$1 = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-  return _setPrototypeOf$1(o, p);
+function _setPrototypeOf$1(t, e) {
+  return _setPrototypeOf$1 = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) {
+    return t.__proto__ = e, t;
+  }, _setPrototypeOf$1(t, e);
 }
 
-function _inherits$1(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
+function _inherits$1(t, e) {
+  if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function");
+  t.prototype = Object.create(e && e.prototype, {
     constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
+      value: t,
+      writable: !0,
+      configurable: !0
     }
-  });
-  Object.defineProperty(subClass, "prototype", {
-    writable: false
-  });
-  if (superClass) _setPrototypeOf$1(subClass, superClass);
+  }), Object.defineProperty(t, "prototype", {
+    writable: !1
+  }), e && _setPrototypeOf$1(t, e);
 }
 
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
-  };
-  return _getPrototypeOf(o);
+function _getPrototypeOf(t) {
+  return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) {
+    return t.__proto__ || Object.getPrototypeOf(t);
+  }, _getPrototypeOf(t);
 }
 
 function _isNativeReflectConstruct() {
-  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-  if (Reflect.construct.sham) return false;
-  if (typeof Proxy === "function") return true;
   try {
-    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
-    return true;
-  } catch (e) {
-    return false;
-  }
+    var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+  } catch (t) {}
+  return (_isNativeReflectConstruct = function _isNativeReflectConstruct() {
+    return !!t;
+  })();
 }
 
-function _possibleConstructorReturn$1(self, call) {
-  if (call && (_typeof(call) === "object" || typeof call === "function")) {
-    return call;
-  } else if (call !== void 0) {
-    throw new TypeError("Derived constructors may only return object or undefined");
-  }
-  return _assertThisInitialized$1(self);
+function _possibleConstructorReturn$1(t, e) {
+  if (e && ("object" == _typeof(e) || "function" == typeof e)) return e;
+  if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined");
+  return _assertThisInitialized$1(t);
 }
 
-function _createSuper(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct();
-  return function _createSuperInternal() {
-    var Super = _getPrototypeOf(Derived),
-      result;
-    if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-    return _possibleConstructorReturn$1(this, result);
+function _createSuper(t) {
+  var r = _isNativeReflectConstruct();
+  return function () {
+    var e,
+      o = _getPrototypeOf(t);
+    if (r) {
+      var s = _getPrototypeOf(this).constructor;
+      e = Reflect.construct(o, arguments, s);
+    } else e = o.apply(this, arguments);
+    return _possibleConstructorReturn$1(this, e);
   };
 }
 
-function _classCallCheck$2(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
+function _classCallCheck$2(a, n) {
+  if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
 }
 
-function _toPrimitive(input, hint) {
-  if (_typeof(input) !== "object" || input === null) return input;
-  var prim = input[Symbol.toPrimitive];
-  if (prim !== undefined) {
-    var res = prim.call(input, hint || "default");
-    if (_typeof(res) !== "object") return res;
+function toPrimitive(t, r) {
+  if ("object" != _typeof(t) || !t) return t;
+  var e = t[Symbol.toPrimitive];
+  if (void 0 !== e) {
+    var i = e.call(t, r || "default");
+    if ("object" != _typeof(i)) return i;
     throw new TypeError("@@toPrimitive must return a primitive value.");
   }
-  return (hint === "string" ? String : Number)(input);
+  return ("string" === r ? String : Number)(t);
 }
 
-function _toPropertyKey(arg) {
-  var key = _toPrimitive(arg, "string");
-  return _typeof(key) === "symbol" ? key : String(key);
+function toPropertyKey(t) {
+  var i = toPrimitive(t, "string");
+  return "symbol" == _typeof(i) ? i : i + "";
 }
 
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
+function _defineProperties(e, r) {
+  for (var t = 0; t < r.length; t++) {
+    var o = r[t];
+    o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, toPropertyKey(o.key), o);
   }
 }
-function _createClass$1(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  Object.defineProperty(Constructor, "prototype", {
-    writable: false
-  });
-  return Constructor;
+function _createClass$1(e, r, t) {
+  return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", {
+    writable: !1
+  }), e;
 }
 
-function _defineProperty(obj, key, value) {
-  key = _toPropertyKey(key);
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-  return obj;
+function _defineProperty(e, r, t) {
+  return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+    value: t,
+    enumerable: !0,
+    configurable: !0,
+    writable: !0
+  }) : e[r] = t, e;
 }
 
 var TIMEZONE_UNIT_PRIORITY = 10;
@@ -69472,6 +69439,50 @@ var Page = function (_a) {
                 } }, children)));
 };
 
+var PageLink = function (_a) {
+    var label = _a.label, page = _a.page, isDisabled = _a.isDisabled, isActive = _a.isActive, onPage = _a.onPage;
+    var pageClicked = function (e, page) {
+        e.preventDefault();
+        if (!isDisabled) {
+            onPage(page);
+        }
+    };
+    return (React.createElement("li", { role: "menuitem", className: "pagination-page ".concat(isActive ? 'active' : '', " ").concat(isDisabled ? 'disabled' : ''), key: label },
+        React.createElement("a", { href: "#", className: isDisabled ? 'disabled' : '', onClick: function (e) { return pageClicked(e, page); } }, label)));
+};
+
+var Pagination = function (_a) {
+    var currentPage = _a.currentPage, total = _a.total, perPage = _a.perPage, onPage = _a.onPage, _b = _a.showPages, showPages = _b === void 0 ? 7 : _b;
+    var range = function (start, end) {
+        var length = end - start + 1;
+        return Array.from({ length: length }, function (_, idx) { return idx + start; });
+    };
+    var pageCount = React.useMemo(function () {
+        return Math.ceil(total / perPage);
+    }, [total, perPage]);
+    var paginationRange = React.useMemo(function () {
+        if (pageCount < showPages) {
+            return range(1, pageCount);
+        }
+        if (currentPage > pageCount - Math.floor(showPages / 2)) {
+            return range(pageCount - showPages + 1, pageCount);
+        }
+        if (currentPage > Math.floor(showPages / 2)) {
+            return range(currentPage - Math.floor(showPages / 2), currentPage + Math.floor(showPages / 2));
+        }
+        return range(1, showPages);
+    }, [total, perPage, showPages, currentPage, pageCount]);
+    var pageClicked = function (page) {
+        onPage((page - 1) * perPage, page);
+    };
+    return (React.createElement("nav", null, pageCount > 1 && (React.createElement("ul", { className: "pagination-sm pagination", role: "menu" },
+        React.createElement(PageLink, { label: "First", page: 1, isActive: false, isDisabled: currentPage === 1, onPage: pageClicked }),
+        React.createElement(PageLink, { label: "Previous", page: currentPage - 1, isActive: false, isDisabled: currentPage === 1, onPage: pageClicked }),
+        paginationRange.map(function (page) { return (React.createElement(PageLink, { label: "".concat(page), page: page, isActive: currentPage === page, isDisabled: false, onPage: pageClicked })); }),
+        React.createElement(PageLink, { label: "Next", page: currentPage + 1, isActive: false, isDisabled: currentPage === pageCount, onPage: pageClicked }),
+        React.createElement(PageLink, { label: "Last", page: pageCount, isActive: false, isDisabled: currentPage === pageCount, onPage: pageClicked })))));
+};
+
 var Portal = function (_a) {
     var children = _a.children, node = _a.node;
     return ReactDOM.createPortal(children, node);
@@ -71448,50 +71459,6 @@ var VariablesTable = function (_a) {
                 return React.createElement("td", __assign$1({}, cell.getCellProps()), cell.render('Cell'));
             })));
         }))));
-};
-
-var PageLink = function (_a) {
-    var label = _a.label, page = _a.page, isDisabled = _a.isDisabled, isActive = _a.isActive, onPage = _a.onPage;
-    var pageClicked = function (e, page) {
-        e.preventDefault();
-        if (!isDisabled) {
-            onPage(page);
-        }
-    };
-    return (React.createElement("li", { role: "menuitem", className: "pagination-page ".concat(isActive ? "active" : "", " ").concat(isDisabled ? "disabled" : ""), key: label },
-        React.createElement("a", { href: "#", className: isDisabled ? "disabled" : "", onClick: function (e) { return pageClicked(e, page); } }, label)));
-};
-
-var Pagination = function (_a) {
-    var currentPage = _a.currentPage, total = _a.total, perPage = _a.perPage, onPage = _a.onPage, _b = _a.showPages, showPages = _b === void 0 ? 7 : _b;
-    var range = function (start, end) {
-        var length = end - start + 1;
-        return Array.from({ length: length }, function (_, idx) { return idx + start; });
-    };
-    var pageCount = React.useMemo(function () {
-        return Math.ceil(total / perPage);
-    }, [total, perPage]);
-    var paginationRange = React.useMemo(function () {
-        if (pageCount < showPages) {
-            return range(1, pageCount);
-        }
-        if (currentPage > pageCount - Math.floor(showPages / 2)) {
-            return range((pageCount - showPages) + 1, pageCount);
-        }
-        if (currentPage > Math.floor(showPages / 2)) {
-            return range(currentPage - Math.floor(showPages / 2), currentPage + Math.floor(showPages / 2));
-        }
-        return range(1, showPages);
-    }, [total, perPage, showPages, currentPage, pageCount]);
-    var pageClicked = function (page) {
-        onPage((page - 1) * perPage, page);
-    };
-    return (React.createElement("nav", null, pageCount > 1 && React.createElement("ul", { className: "pagination-sm pagination", role: "menu" },
-        React.createElement(PageLink, { label: "First", page: 1, isActive: false, isDisabled: currentPage === 1, onPage: pageClicked }),
-        React.createElement(PageLink, { label: "Previous", page: currentPage - 1, isActive: false, isDisabled: currentPage === 1, onPage: pageClicked }),
-        paginationRange.map(function (page) { return (React.createElement(PageLink, { label: "".concat(page), page: page, isActive: currentPage === page, isDisabled: false, onPage: pageClicked })); }),
-        React.createElement(PageLink, { label: "Next", page: currentPage + 1, isActive: false, isDisabled: currentPage === pageCount, onPage: pageClicked }),
-        React.createElement(PageLink, { label: "Last", page: pageCount, isActive: false, isDisabled: currentPage === pageCount, onPage: pageClicked }))));
 };
 
 var InstanceQueryAutoCompleteHandler = /** @class */ (function (_super) {
