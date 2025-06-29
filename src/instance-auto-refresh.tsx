@@ -14,7 +14,7 @@ export default [
         toggleAutoRefreshButton.style.cssText = `
           position: absolute;
           right: 15px;
-          bottom: 115px;
+          bottom: 120px;
         `;
         viewer._container.appendChild(toggleAutoRefreshButton);
         createRoot(toggleAutoRefreshButton!).render(
