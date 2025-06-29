@@ -2,3 +2,5 @@
 node_modules/
 camunda-cockpit-ui.js
 *.map
+.devenv*
+devenv.local.nix

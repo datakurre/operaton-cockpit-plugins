@@ -1,0 +1,9 @@
+{
+  package.podman.enable = true;
+  package.vscodium.enable = true;
+  package.vscodium.features = [
+    "unfree"
+    "vim"
+    "copilot"
+  ];
+}

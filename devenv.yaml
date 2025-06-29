@@ -1,0 +1,17 @@
+inputs:
+  nixpkgs:
+    url: github:nixos/nixpkgs/nixos-24.11
+  unstable:
+    url: github:nixos/nixpkgs/master
+  devenv-module-podman:
+    url: gitlab:vasara-bpm/devenv-module-podman
+    flake: false
+  devenv-module-vscodium:
+    url: github:datakurre/devenv-module-vscodium
+    flake: false
+  nix-vscode-extensions:
+    url: github:nix-community/nix-vscode-extensions
+allowUnfree: true
+imports:
+- devenv-module-podman
+- devenv-module-vscodium
