@@ -62,6 +62,17 @@ export default [
       if (warning.code === 'THIS_IS_UNDEFINED') { return; }
       superOnWarn(warning);
     },
+    input: "src/instance-auto-refresh.tsx",
+    output: {
+      file: "instance-auto-refresh.js",
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
     input: "src/instance-route-history.tsx",
     output: {
       file: "instance-route-history.js",

@@ -26,6 +26,7 @@ export default {
   //   // with a file called 'customScript.js' in it
   //   // 'my-custom-script/customScript'
           'scripts/definition-historic-activities.js',
+          'scripts/instance-auto-refresh.js',
           'scripts/instance-historic-activities.js',
           'scripts/instance-route-history.js'
        // 'scripts/instance-tab-modify.js'
