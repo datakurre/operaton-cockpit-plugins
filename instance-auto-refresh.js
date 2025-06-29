@@ -31,6 +31,17 @@ PERFORMANCE OF THIS SOFTWARE.
 /* global Reflect, Promise */
 
 
+var __assign$1 = function() {
+    __assign$1 = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign$1.apply(this, arguments);
+};
+
 function __awaiter(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -503,2182 +514,85 @@ var m = reactDomExports;
   m.hydrateRoot;
 }
 
-function _extends() {
-  return _extends = Object.assign ? Object.assign.bind() : function (n) {
-    for (var e = 1; e < arguments.length; e++) {
-      var t = arguments[e];
-      for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
-    }
-    return n;
-  }, _extends.apply(null, arguments);
-}
+___$insertStylesToHeader(".toggle-auto-refresh-button {\n  background: #ffffff;\n  border-radius: 1px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover {\n  background: #e6e6e6;\n}");
 
-function _objectWithoutPropertiesLoose(r, e) {
-  if (null == r) return {};
+var DefaultContext = {
+  color: undefined,
+  size: undefined,
+  className: undefined,
+  style: undefined,
+  attr: undefined
+};
+var IconContext = React.createContext && React.createContext(DefaultContext);
+
+var __assign = undefined && undefined.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+    return t;
+  };
+  return __assign.apply(this, arguments);
+};
+var __rest = undefined && undefined.__rest || function (s, e) {
   var t = {};
-  for (var n in r) if ({}.hasOwnProperty.call(r, n)) {
-    if (-1 !== e.indexOf(n)) continue;
-    t[n] = r[n];
+  for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
   }
   return t;
-}
-
-//      
-var charCodeOfDot = ".".charCodeAt(0);
-var reEscapeChar = /\\(\\)?/g;
-var rePropName = RegExp( // Match anything that isn't a dot or bracket.
-"[^.[\\]]+" + "|" + // Or match property names within brackets.
-"\\[(?:" + // Match a non-string expression.
-"([^\"'][^[]*)" + "|" + // Or match strings (supports escaping characters).
-"([\"'])((?:(?!\\2)[^\\\\]|\\\\.)*?)\\2" + ")\\]" + "|" + // Or match "" as the space between consecutive dots or empty brackets.
-"(?=(?:\\.|\\[\\])(?:\\.|\\[\\]|$))", "g");
-/**
- * Converts `string` to a property path array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the property path array.
- */
-
-var stringToPath = function stringToPath(string) {
-  var result = [];
-
-  if (string.charCodeAt(0) === charCodeOfDot) {
-    result.push("");
-  }
-
-  string.replace(rePropName, function (match, expression, quote, subString) {
-    var key = match;
-
-    if (quote) {
-      key = subString.replace(reEscapeChar, "$1");
-    } else if (expression) {
-      key = expression.trim();
-    }
-
-    result.push(key);
-  });
-  return result;
 };
-
-var keysCache = {};
-var keysRegex = /[.[\]]+/;
-
-var toPath = function toPath(key) {
-  if (key === null || key === undefined || !key.length) {
-    return [];
-  }
-
-  if (typeof key !== "string") {
-    throw new Error("toPath() expects a string");
-  }
-
-  if (keysCache[key] == null) {
-    /**
-     * The following patch fixes issue 456, introduced since v4.20.3:
-     *
-     * Before v4.20.3, i.e. in v4.20.2, a `key` like 'choices[]' would map to ['choices']
-     * (e.g. an array of choices used where 'choices[]' is name attribute of an input of type checkbox).
-     *
-     * Since v4.20.3, a `key` like 'choices[]' would map to ['choices', ''] which is wrong and breaks
-     * this kind of inputs e.g. in React.
-     *
-     * v4.20.3 introduced an unwanted breaking change, this patch fixes it, see the issue at the link below.
-     *
-     * @see https://github.com/final-form/final-form/issues/456
-     */
-    if (key.endsWith("[]")) {
-      // v4.20.2 (a `key` like 'choices[]' should map to ['choices'], which is fine).
-      keysCache[key] = key.split(keysRegex).filter(Boolean);
-    } else {
-      // v4.20.3 (a `key` like 'choices[]' maps to ['choices', ''], which breaks applications relying on inputs like `<input type="checkbox" name="choices[]" />`).
-      keysCache[key] = stringToPath(key);
-    }
-  }
-
-  return keysCache[key];
-};
-
-//      
-
-var getIn = function getIn(state, complexKey) {
-  // Intentionally using iteration rather than recursion
-  var path = toPath(complexKey);
-  var current = state;
-
-  for (var i = 0; i < path.length; i++) {
-    var key = path[i];
-
-    if (current === undefined || current === null || typeof current !== "object" || Array.isArray(current) && isNaN(key)) {
-      return undefined;
-    }
-
-    current = current[key];
-  }
-
-  return current;
-};
-
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-
-var setInRecursor = function setInRecursor(current, index, path, value, destroyArrays) {
-  if (index >= path.length) {
-    // end of recursion
-    return value;
-  }
-
-  var key = path[index]; // determine type of key
-
-  if (isNaN(key)) {
-    var _extends2;
-
-    // object set
-    if (current === undefined || current === null) {
-      var _ref;
-
-      // recurse
-      var _result2 = setInRecursor(undefined, index + 1, path, value, destroyArrays); // delete or create an object
-
-
-      return _result2 === undefined ? undefined : (_ref = {}, _ref[key] = _result2, _ref);
-    }
-
-    if (Array.isArray(current)) {
-      throw new Error("Cannot set a non-numeric property on an array");
-    } // current exists, so make a copy of all its values, and add/update the new one
-
-
-    var _result = setInRecursor(current[key], index + 1, path, value, destroyArrays);
-
-    if (_result === undefined) {
-      var numKeys = Object.keys(current).length;
-
-      if (current[key] === undefined && numKeys === 0) {
-        // object was already empty
-        return undefined;
-      }
-
-      if (current[key] !== undefined && numKeys <= 1) {
-        // only key we had was the one we are deleting
-        if (!isNaN(path[index - 1]) && !destroyArrays) {
-          // we are in an array, so return an empty object
-          return {};
-        } else {
-          return undefined;
-        }
-      }
-
-      current[key];
-          var _final = _objectWithoutPropertiesLoose(current, [key].map(_toPropertyKey));
-
-      return _final;
-    } // set result in key
-
-
-    return _extends({}, current, (_extends2 = {}, _extends2[key] = _result, _extends2));
-  } // array set
-
-
-  var numericKey = Number(key);
-
-  if (current === undefined || current === null) {
-    // recurse
-    var _result3 = setInRecursor(undefined, index + 1, path, value, destroyArrays); // if nothing returned, delete it
-
-
-    if (_result3 === undefined) {
-      return undefined;
-    } // create an array
-
-
-    var _array = [];
-    _array[numericKey] = _result3;
-    return _array;
-  }
-
-  if (!Array.isArray(current)) {
-    throw new Error("Cannot set a numeric property on an object");
-  } // recurse
-
-
-  var existingValue = current[numericKey];
-  var result = setInRecursor(existingValue, index + 1, path, value, destroyArrays); // current exists, so make a copy of all its values, and add/update the new one
-
-  var array = [].concat(current);
-
-  if (destroyArrays && result === undefined) {
-    array.splice(numericKey, 1);
-
-    if (array.length === 0) {
-      return undefined;
-    }
-  } else {
-    array[numericKey] = result;
-  }
-
-  return array;
-};
-
-var setIn = function setIn(state, key, value, destroyArrays) {
-  if (destroyArrays === void 0) {
-    destroyArrays = false;
-  }
-
-  if (state === undefined || state === null) {
-    throw new Error("Cannot call setIn() with " + String(state) + " state");
-  }
-
-  if (key === undefined || key === null) {
-    throw new Error("Cannot call setIn() with " + String(key) + " key");
-  } // Recursive function needs to accept and return State, but public API should
-  // only deal with Objects
-
-
-  return setInRecursor(state, 0, toPath(key), value, destroyArrays);
-};
-
-var FORM_ERROR = "FINAL_FORM/form-error";
-var ARRAY_ERROR = "FINAL_FORM/array-error";
-
-//      
-/**
- * Converts internal field state to published field state
- */
-
-function publishFieldState(formState, field) {
-  var errors = formState.errors,
-      initialValues = formState.initialValues,
-      lastSubmittedValues = formState.lastSubmittedValues,
-      submitErrors = formState.submitErrors,
-      submitFailed = formState.submitFailed,
-      submitSucceeded = formState.submitSucceeded,
-      submitting = formState.submitting,
-      values = formState.values;
-  var active = field.active,
-      blur = field.blur,
-      change = field.change,
-      data = field.data,
-      focus = field.focus,
-      modified = field.modified,
-      modifiedSinceLastSubmit = field.modifiedSinceLastSubmit,
-      name = field.name,
-      touched = field.touched,
-      validating = field.validating,
-      visited = field.visited;
-  var value = getIn(values, name);
-  var error = getIn(errors, name);
-
-  if (error && error[ARRAY_ERROR]) {
-    error = error[ARRAY_ERROR];
-  }
-
-  var submitError = submitErrors && getIn(submitErrors, name);
-  var initial = initialValues && getIn(initialValues, name);
-  var pristine = field.isEqual(initial, value);
-  var dirtySinceLastSubmit = !!(lastSubmittedValues && !field.isEqual(getIn(lastSubmittedValues, name), value));
-  var valid = !error && !submitError;
-  return {
-    active: active,
-    blur: blur,
-    change: change,
-    data: data,
-    dirty: !pristine,
-    dirtySinceLastSubmit: dirtySinceLastSubmit,
-    error: error,
-    focus: focus,
-    initial: initial,
-    invalid: !valid,
-    length: Array.isArray(value) ? value.length : undefined,
-    modified: modified,
-    modifiedSinceLastSubmit: modifiedSinceLastSubmit,
-    name: name,
-    pristine: pristine,
-    submitError: submitError,
-    submitFailed: submitFailed,
-    submitSucceeded: submitSucceeded,
-    submitting: submitting,
-    touched: touched,
-    valid: valid,
-    value: value,
-    visited: visited,
-    validating: validating
-  };
-}
-
-//      
-var fieldSubscriptionItems = ["active", "data", "dirty", "dirtySinceLastSubmit", "error", "initial", "invalid", "length", "modified", "modifiedSinceLastSubmit", "pristine", "submitError", "submitFailed", "submitSucceeded", "submitting", "touched", "valid", "value", "visited", "validating"];
-
-//      
-var shallowEqual$1 = function shallowEqual(a, b) {
-  if (a === b) {
-    return true;
-  }
-
-  if (typeof a !== "object" || !a || typeof b !== "object" || !b) {
-    return false;
-  }
-
-  var keysA = Object.keys(a);
-  var keysB = Object.keys(b);
-
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-
-  var bHasOwnProperty = Object.prototype.hasOwnProperty.bind(b);
-
-  for (var idx = 0; idx < keysA.length; idx++) {
-    var key = keysA[idx];
-
-    if (!bHasOwnProperty(key) || a[key] !== b[key]) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-//      
-function subscriptionFilter (dest, src, previous, subscription, keys, shallowEqualKeys) {
-  var different = false;
-  keys.forEach(function (key) {
-    if (subscription[key]) {
-      dest[key] = src[key];
-
-      if (!previous || (~shallowEqualKeys.indexOf(key) ? !shallowEqual$1(src[key], previous[key]) : src[key] !== previous[key])) {
-        different = true;
-      }
-    }
-  });
-  return different;
-}
-
-//      
-var shallowEqualKeys$1 = ["data"];
-/**
- * Filters items in a FieldState based on a FieldSubscription
- */
-
-var filterFieldState = function filterFieldState(state, previousState, subscription, force) {
-  var result = {
-    blur: state.blur,
-    change: state.change,
-    focus: state.focus,
-    name: state.name
-  };
-  var different = subscriptionFilter(result, state, previousState, subscription, fieldSubscriptionItems, shallowEqualKeys$1) || !previousState;
-  return different || force ? result : undefined;
-};
-
-//      
-var formSubscriptionItems = ["active", "dirty", "dirtyFields", "dirtyFieldsSinceLastSubmit", "dirtySinceLastSubmit", "error", "errors", "hasSubmitErrors", "hasValidationErrors", "initialValues", "invalid", "modified", "modifiedSinceLastSubmit", "pristine", "submitting", "submitError", "submitErrors", "submitFailed", "submitSucceeded", "touched", "valid", "validating", "values", "visited"];
-
-//      
-var shallowEqualKeys = ["touched", "visited"];
-/**
- * Filters items in a FormState based on a FormSubscription
- */
-
-function filterFormState(state, previousState, subscription, force) {
-  var result = {};
-  var different = subscriptionFilter(result, state, previousState, subscription, formSubscriptionItems, shallowEqualKeys) || !previousState;
-  return different || force ? result : undefined;
-}
-
-//      
-
-var memoize = function memoize(fn) {
-  var lastArgs;
-  var lastResult;
-  return function () {
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    if (!lastArgs || args.length !== lastArgs.length || args.some(function (arg, index) {
-      return !shallowEqual$1(lastArgs[index], arg);
-    })) {
-      lastArgs = args;
-      lastResult = fn.apply(void 0, args);
-    }
-
-    return lastResult;
-  };
-};
-
-var isPromise = (function (obj) {
-  return !!obj && (typeof obj === "object" || typeof obj === "function") && typeof obj.then === "function";
-});
-
-var version$1 = "4.20.9";
-
-var tripleEquals = function tripleEquals(a, b) {
-  return a === b;
-};
-
-var hasAnyError = function hasAnyError(errors) {
-  return Object.keys(errors).some(function (key) {
-    var value = errors[key];
-
-    if (value && typeof value === "object" && !(value instanceof Error)) {
-      return hasAnyError(value);
-    }
-
-    return typeof value !== "undefined";
-  });
-};
-
-function convertToExternalFormState(_ref) {
-  var active = _ref.active,
-      dirtySinceLastSubmit = _ref.dirtySinceLastSubmit,
-      modifiedSinceLastSubmit = _ref.modifiedSinceLastSubmit,
-      error = _ref.error,
-      errors = _ref.errors,
-      initialValues = _ref.initialValues,
-      pristine = _ref.pristine,
-      submitting = _ref.submitting,
-      submitFailed = _ref.submitFailed,
-      submitSucceeded = _ref.submitSucceeded,
-      submitError = _ref.submitError,
-      submitErrors = _ref.submitErrors,
-      valid = _ref.valid,
-      validating = _ref.validating,
-      values = _ref.values;
-  return {
-    active: active,
-    dirty: !pristine,
-    dirtySinceLastSubmit: dirtySinceLastSubmit,
-    modifiedSinceLastSubmit: modifiedSinceLastSubmit,
-    error: error,
-    errors: errors,
-    hasSubmitErrors: !!(submitError || submitErrors && hasAnyError(submitErrors)),
-    hasValidationErrors: !!(error || hasAnyError(errors)),
-    invalid: !valid,
-    initialValues: initialValues,
-    pristine: pristine,
-    submitting: submitting,
-    submitFailed: submitFailed,
-    submitSucceeded: submitSucceeded,
-    submitError: submitError,
-    submitErrors: submitErrors,
-    valid: valid,
-    validating: validating > 0,
-    values: values
-  };
-}
-
-function notifySubscriber(subscriber, subscription, state, lastState, filter, force) {
-  var notification = filter(state, lastState, subscription, force);
-
-  if (notification) {
-    subscriber(notification);
-    return true;
-  }
-
-  return false;
-}
-
-function notify(_ref2, state, lastState, filter, force) {
-  var entries = _ref2.entries;
-  Object.keys(entries).forEach(function (key) {
-    var entry = entries[Number(key)]; // istanbul ignore next
-
-    if (entry) {
-      var subscription = entry.subscription,
-          subscriber = entry.subscriber,
-          notified = entry.notified;
-
-      if (notifySubscriber(subscriber, subscription, state, lastState, filter, force || !notified)) {
-        entry.notified = true;
-      }
-    }
+function Tree2Element(tree) {
+  return tree && tree.map(function (node, i) {
+    return React.createElement(node.tag, __assign({
+      key: i
+    }, node.attr), Tree2Element(node.child));
   });
 }
-
-function createForm(config) {
-  if (!config) {
-    throw new Error("No config specified");
-  }
-
-  var debug = config.debug,
-      destroyOnUnregister = config.destroyOnUnregister,
-      keepDirtyOnReinitialize = config.keepDirtyOnReinitialize,
-      initialValues = config.initialValues,
-      mutators = config.mutators,
-      onSubmit = config.onSubmit,
-      validate = config.validate,
-      validateOnBlur = config.validateOnBlur;
-
-  if (!onSubmit) {
-    throw new Error("No onSubmit function specified");
-  }
-
-  var state = {
-    subscribers: {
-      index: 0,
-      entries: {}
-    },
-    fieldSubscribers: {},
-    fields: {},
-    formState: {
-      asyncErrors: {},
-      dirtySinceLastSubmit: false,
-      modifiedSinceLastSubmit: false,
-      errors: {},
-      initialValues: initialValues && _extends({}, initialValues),
-      invalid: false,
-      pristine: true,
-      submitting: false,
-      submitFailed: false,
-      submitSucceeded: false,
-      resetWhileSubmitting: false,
-      valid: true,
-      validating: 0,
-      values: initialValues ? _extends({}, initialValues) : {}
-    },
-    lastFormState: undefined
+function GenIcon(data) {
+  // eslint-disable-next-line react/display-name
+  return function (props) {
+    return React.createElement(IconBase, __assign({
+      attr: __assign({}, data.attr)
+    }, props), Tree2Element(data.child));
   };
-  var inBatch = 0;
-  var validationPaused = false;
-  var validationBlocked = false;
-  var preventNotificationWhileValidationPaused = false;
-  var nextAsyncValidationKey = 0;
-  var asyncValidationPromises = {};
-
-  var clearAsyncValidationPromise = function clearAsyncValidationPromise(key) {
-    return function (result) {
-      delete asyncValidationPromises[key];
-      return result;
-    };
+}
+function IconBase(props) {
+  var elem = function (conf) {
+    var attr = props.attr,
+      size = props.size,
+      title = props.title,
+      svgProps = __rest(props, ["attr", "size", "title"]);
+    var computedSize = size || conf.size || "1em";
+    var className;
+    if (conf.className) className = conf.className;
+    if (props.className) className = (className ? className + " " : "") + props.className;
+    return React.createElement("svg", __assign({
+      stroke: "currentColor",
+      fill: "currentColor",
+      strokeWidth: "0"
+    }, conf.attr, attr, svgProps, {
+      className: className,
+      style: __assign(__assign({
+        color: props.color || conf.color
+      }, conf.style), props.style),
+      height: computedSize,
+      width: computedSize,
+      xmlns: "http://www.w3.org/2000/svg"
+    }), title && React.createElement("title", null, title), props.children);
   };
-
-  var changeValue = function changeValue(state, name, mutate) {
-    var before = getIn(state.formState.values, name);
-    var after = mutate(before);
-    state.formState.values = setIn(state.formState.values, name, after) || {};
-  };
-
-  var renameField = function renameField(state, from, to) {
-    if (state.fields[from]) {
-      var _extends2, _extends3;
-
-      state.fields = _extends({}, state.fields, (_extends2 = {}, _extends2[to] = _extends({}, state.fields[from], {
-        name: to,
-        // rebind event handlers
-        blur: function blur() {
-          return api.blur(to);
-        },
-        change: function change(value) {
-          return api.change(to, value);
-        },
-        focus: function focus() {
-          return api.focus(to);
-        },
-        lastFieldState: undefined
-      }), _extends2));
-      delete state.fields[from];
-      state.fieldSubscribers = _extends({}, state.fieldSubscribers, (_extends3 = {}, _extends3[to] = state.fieldSubscribers[from], _extends3));
-      delete state.fieldSubscribers[from];
-      var value = getIn(state.formState.values, from);
-      state.formState.values = setIn(state.formState.values, from, undefined) || {};
-      state.formState.values = setIn(state.formState.values, to, value);
-      delete state.lastFormState;
-    }
-  }; // bind state to mutators
-
-
-  var getMutatorApi = function getMutatorApi(key) {
-    return function () {
-      // istanbul ignore next
-      if (mutators) {
-        // ^^ causes branch coverage warning, but needed to appease the Flow gods
-        var mutatableState = {
-          formState: state.formState,
-          fields: state.fields,
-          fieldSubscribers: state.fieldSubscribers,
-          lastFormState: state.lastFormState
-        };
-
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-
-        var returnValue = mutators[key](args, mutatableState, {
-          changeValue: changeValue,
-          getIn: getIn,
-          renameField: renameField,
-          resetFieldState: api.resetFieldState,
-          setIn: setIn,
-          shallowEqual: shallowEqual$1
-        });
-        state.formState = mutatableState.formState;
-        state.fields = mutatableState.fields;
-        state.fieldSubscribers = mutatableState.fieldSubscribers;
-        state.lastFormState = mutatableState.lastFormState;
-        runValidation(undefined, function () {
-          notifyFieldListeners();
-          notifyFormListeners();
-        });
-        return returnValue;
-      }
-    };
-  };
-
-  var mutatorsApi = mutators ? Object.keys(mutators).reduce(function (result, key) {
-    result[key] = getMutatorApi(key);
-    return result;
-  }, {}) : {};
-
-  var runRecordLevelValidation = function runRecordLevelValidation(setErrors) {
-    var promises = [];
-
-    if (validate) {
-      var errorsOrPromise = validate(_extends({}, state.formState.values)); // clone to avoid writing
-
-      if (isPromise(errorsOrPromise)) {
-        promises.push(errorsOrPromise.then(function (errors) {
-          return setErrors(errors, true);
-        }));
-      } else {
-        setErrors(errorsOrPromise, false);
-      }
-    }
-
-    return promises;
-  };
-
-  var getValidators = function getValidators(field) {
-    return Object.keys(field.validators).reduce(function (result, index) {
-      var validator = field.validators[Number(index)]();
-
-      if (validator) {
-        result.push(validator);
-      }
-
-      return result;
-    }, []);
-  };
-
-  var runFieldLevelValidation = function runFieldLevelValidation(field, setError) {
-    var promises = [];
-    var validators = getValidators(field);
-
-    if (validators.length) {
-      var error;
-      validators.forEach(function (validator) {
-        var errorOrPromise = validator(getIn(state.formState.values, field.name), state.formState.values, validator.length === 0 || validator.length === 3 ? publishFieldState(state.formState, state.fields[field.name]) : undefined);
-
-        if (errorOrPromise && isPromise(errorOrPromise)) {
-          field.validating = true;
-          var promise = errorOrPromise.then(function (error) {
-            if (state.fields[field.name]) {
-              state.fields[field.name].validating = false;
-              setError(error);
-            }
-          }); // errors must be resolved, not rejected
-
-          promises.push(promise);
-        } else if (!error) {
-          // first registered validator wins
-          error = errorOrPromise;
-        }
-      });
-      setError(error);
-    }
-
-    return promises;
-  };
-
-  var runValidation = function runValidation(fieldChanged, callback) {
-    if (validationPaused) {
-      validationBlocked = true;
-      callback();
-      return;
-    }
-
-    var fields = state.fields,
-        formState = state.formState;
-
-    var safeFields = _extends({}, fields);
-
-    var fieldKeys = Object.keys(safeFields);
-
-    if (!validate && !fieldKeys.some(function (key) {
-      return getValidators(safeFields[key]).length;
-    })) {
-      callback();
-      return; // no validation rules
-    } // pare down field keys to actually validate
-
-
-    var limitedFieldLevelValidation = false;
-
-    if (fieldChanged) {
-      var changedField = safeFields[fieldChanged];
-
-      if (changedField) {
-        var validateFields = changedField.validateFields;
-
-        if (validateFields) {
-          limitedFieldLevelValidation = true;
-          fieldKeys = validateFields.length ? validateFields.concat(fieldChanged) : [fieldChanged];
-        }
-      }
-    }
-
-    var recordLevelErrors = {};
-    var asyncRecordLevelErrors = {};
-    var fieldLevelErrors = {};
-    var promises = [].concat(runRecordLevelValidation(function (errors, wasAsync) {
-      if (wasAsync) {
-        asyncRecordLevelErrors = errors || {};
-      } else {
-        recordLevelErrors = errors || {};
-      }
-    }), fieldKeys.reduce(function (result, name) {
-      return result.concat(runFieldLevelValidation(fields[name], function (error) {
-        fieldLevelErrors[name] = error;
-      }));
-    }, []));
-    var hasAsyncValidations = promises.length > 0;
-    var asyncValidationPromiseKey = ++nextAsyncValidationKey;
-    var promise = Promise.all(promises).then(clearAsyncValidationPromise(asyncValidationPromiseKey)); // backwards-compat: add promise to submit-blocking promises iff there are any promises to await
-
-    if (hasAsyncValidations) {
-      asyncValidationPromises[asyncValidationPromiseKey] = promise;
-    }
-
-    var processErrors = function processErrors(afterAsync) {
-      var merged = _extends({}, limitedFieldLevelValidation ? formState.errors : {}, recordLevelErrors, afterAsync ? asyncRecordLevelErrors // new async errors
-      : formState.asyncErrors);
-
-      var forEachError = function forEachError(fn) {
-        fieldKeys.forEach(function (name) {
-          if (fields[name]) {
-            // make sure field is still registered
-            // field-level errors take precedent over record-level errors
-            var recordLevelError = getIn(recordLevelErrors, name);
-            var errorFromParent = getIn(merged, name);
-            var hasFieldLevelValidation = getValidators(safeFields[name]).length;
-            var fieldLevelError = fieldLevelErrors[name];
-            fn(name, hasFieldLevelValidation && fieldLevelError || validate && recordLevelError || (!recordLevelError && !limitedFieldLevelValidation ? errorFromParent : undefined));
-          }
-        });
-      };
-
-      forEachError(function (name, error) {
-        merged = setIn(merged, name, error) || {};
-      });
-      forEachError(function (name, error) {
-        if (error && error[ARRAY_ERROR]) {
-          var existing = getIn(merged, name);
-          var copy = [].concat(existing);
-          copy[ARRAY_ERROR] = error[ARRAY_ERROR];
-          merged = setIn(merged, name, copy);
-        }
-      });
-
-      if (!shallowEqual$1(formState.errors, merged)) {
-        formState.errors = merged;
-      }
-
-      if (afterAsync) {
-        formState.asyncErrors = asyncRecordLevelErrors;
-      }
-
-      formState.error = recordLevelErrors[FORM_ERROR];
-    };
-
-    if (hasAsyncValidations) {
-      // async validations are running, ensure validating is true before notifying
-      state.formState.validating++;
-      callback();
-    } // process sync errors
-
-
-    processErrors(false); // sync errors have been set. notify listeners while we wait for others
-
-    callback();
-
-    if (hasAsyncValidations) {
-      var afterPromise = function afterPromise() {
-        state.formState.validating--;
-        callback();
-      };
-
-      promise.then(function () {
-        if (nextAsyncValidationKey > asyncValidationPromiseKey) {
-          // if this async validator has been superseded by another, ignore its results
-          return;
-        }
-
-        processErrors(true);
-      }).then(afterPromise, afterPromise);
-    }
-  };
-
-  var notifyFieldListeners = function notifyFieldListeners(name) {
-    if (inBatch) {
-      return;
-    }
-
-    var fields = state.fields,
-        fieldSubscribers = state.fieldSubscribers,
-        formState = state.formState;
-
-    var safeFields = _extends({}, fields);
-
-    var notifyField = function notifyField(name) {
-      var field = safeFields[name];
-      var fieldState = publishFieldState(formState, field);
-      var lastFieldState = field.lastFieldState;
-      field.lastFieldState = fieldState;
-      var fieldSubscriber = fieldSubscribers[name];
-
-      if (fieldSubscriber) {
-        notify(fieldSubscriber, fieldState, lastFieldState, filterFieldState, lastFieldState === undefined);
-      }
-    };
-
-    if (name) {
-      notifyField(name);
-    } else {
-      Object.keys(safeFields).forEach(notifyField);
-    }
-  };
-
-  var markAllFieldsTouched = function markAllFieldsTouched() {
-    Object.keys(state.fields).forEach(function (key) {
-      state.fields[key].touched = true;
-    });
-  };
-
-  var hasSyncErrors = function hasSyncErrors() {
-    return !!(state.formState.error || hasAnyError(state.formState.errors));
-  };
-
-  var calculateNextFormState = function calculateNextFormState() {
-    var fields = state.fields,
-        formState = state.formState,
-        lastFormState = state.lastFormState;
-
-    var safeFields = _extends({}, fields);
-
-    var safeFieldKeys = Object.keys(safeFields); // calculate dirty/pristine
-
-    var foundDirty = false;
-    var dirtyFields = safeFieldKeys.reduce(function (result, key) {
-      var dirty = !safeFields[key].isEqual(getIn(formState.values, key), getIn(formState.initialValues || {}, key));
-
-      if (dirty) {
-        foundDirty = true;
-        result[key] = true;
-      }
-
-      return result;
-    }, {});
-    var dirtyFieldsSinceLastSubmit = safeFieldKeys.reduce(function (result, key) {
-      // istanbul ignore next
-      var nonNullLastSubmittedValues = formState.lastSubmittedValues || {}; // || {} is for flow, but causes branch coverage complaint
-
-      if (!safeFields[key].isEqual(getIn(formState.values, key), getIn(nonNullLastSubmittedValues, key))) {
-        result[key] = true;
-      }
-
-      return result;
-    }, {});
-    formState.pristine = !foundDirty;
-    formState.dirtySinceLastSubmit = !!(formState.lastSubmittedValues && Object.values(dirtyFieldsSinceLastSubmit).some(function (value) {
-      return value;
-    }));
-    formState.modifiedSinceLastSubmit = !!(formState.lastSubmittedValues && // Object.values would treat values as mixed (facebook/flow#2221)
-    Object.keys(safeFields).some(function (value) {
-      return safeFields[value].modifiedSinceLastSubmit;
-    }));
-    formState.valid = !formState.error && !formState.submitError && !hasAnyError(formState.errors) && !(formState.submitErrors && hasAnyError(formState.submitErrors));
-    var nextFormState = convertToExternalFormState(formState);
-
-    var _safeFieldKeys$reduce = safeFieldKeys.reduce(function (result, key) {
-      result.modified[key] = safeFields[key].modified;
-      result.touched[key] = safeFields[key].touched;
-      result.visited[key] = safeFields[key].visited;
-      return result;
-    }, {
-      modified: {},
-      touched: {},
-      visited: {}
-    }),
-        modified = _safeFieldKeys$reduce.modified,
-        touched = _safeFieldKeys$reduce.touched,
-        visited = _safeFieldKeys$reduce.visited;
-
-    nextFormState.dirtyFields = lastFormState && shallowEqual$1(lastFormState.dirtyFields, dirtyFields) ? lastFormState.dirtyFields : dirtyFields;
-    nextFormState.dirtyFieldsSinceLastSubmit = lastFormState && shallowEqual$1(lastFormState.dirtyFieldsSinceLastSubmit, dirtyFieldsSinceLastSubmit) ? lastFormState.dirtyFieldsSinceLastSubmit : dirtyFieldsSinceLastSubmit;
-    nextFormState.modified = lastFormState && shallowEqual$1(lastFormState.modified, modified) ? lastFormState.modified : modified;
-    nextFormState.touched = lastFormState && shallowEqual$1(lastFormState.touched, touched) ? lastFormState.touched : touched;
-    nextFormState.visited = lastFormState && shallowEqual$1(lastFormState.visited, visited) ? lastFormState.visited : visited;
-    return lastFormState && shallowEqual$1(lastFormState, nextFormState) ? lastFormState : nextFormState;
-  };
-
-  var callDebug = function callDebug() {
-    return debug && "development" !== "production" && debug(calculateNextFormState(), Object.keys(state.fields).reduce(function (result, key) {
-      result[key] = state.fields[key];
-      return result;
-    }, {}));
-  };
-
-  var notifying = false;
-  var scheduleNotification = false;
-
-  var notifyFormListeners = function notifyFormListeners() {
-    if (notifying) {
-      scheduleNotification = true;
-    } else {
-      notifying = true;
-      callDebug();
-
-      if (!inBatch && !(validationPaused && preventNotificationWhileValidationPaused)) {
-        var lastFormState = state.lastFormState;
-        var nextFormState = calculateNextFormState();
-
-        if (nextFormState !== lastFormState) {
-          state.lastFormState = nextFormState;
-          notify(state.subscribers, nextFormState, lastFormState, filterFormState);
-        }
-      }
-
-      notifying = false;
-
-      if (scheduleNotification) {
-        scheduleNotification = false;
-        notifyFormListeners();
-      }
-    }
-  };
-
-  var beforeSubmit = function beforeSubmit() {
-    return Object.keys(state.fields).some(function (name) {
-      return state.fields[name].beforeSubmit && state.fields[name].beforeSubmit() === false;
-    });
-  };
-
-  var afterSubmit = function afterSubmit() {
-    return Object.keys(state.fields).forEach(function (name) {
-      return state.fields[name].afterSubmit && state.fields[name].afterSubmit();
-    });
-  };
-
-  var resetModifiedAfterSubmit = function resetModifiedAfterSubmit() {
-    return Object.keys(state.fields).forEach(function (key) {
-      return state.fields[key].modifiedSinceLastSubmit = false;
-    });
-  }; // generate initial errors
-
-
-  runValidation(undefined, function () {
-    notifyFormListeners();
-  });
-  var api = {
-    batch: function batch(fn) {
-      inBatch++;
-      fn();
-      inBatch--;
-      notifyFieldListeners();
-      notifyFormListeners();
-    },
-    blur: function blur(name) {
-      var fields = state.fields,
-          formState = state.formState;
-      var previous = fields[name];
-
-      if (previous) {
-        // can only blur registered fields
-        delete formState.active;
-        fields[name] = _extends({}, previous, {
-          active: false,
-          touched: true
-        });
-
-        if (validateOnBlur) {
-          runValidation(name, function () {
-            notifyFieldListeners();
-            notifyFormListeners();
-          });
-        } else {
-          notifyFieldListeners();
-          notifyFormListeners();
-        }
-      }
-    },
-    change: function change(name, value) {
-      var fields = state.fields,
-          formState = state.formState;
-
-      if (getIn(formState.values, name) !== value) {
-        changeValue(state, name, function () {
-          return value;
-        });
-        var previous = fields[name];
-
-        if (previous) {
-          // only track modified for registered fields
-          fields[name] = _extends({}, previous, {
-            modified: true,
-            modifiedSinceLastSubmit: !!formState.lastSubmittedValues
-          });
-        }
-
-        if (validateOnBlur) {
-          notifyFieldListeners();
-          notifyFormListeners();
-        } else {
-          runValidation(name, function () {
-            notifyFieldListeners();
-            notifyFormListeners();
-          });
-        }
-      }
-    },
-
-    get destroyOnUnregister() {
-      return !!destroyOnUnregister;
-    },
-
-    set destroyOnUnregister(value) {
-      destroyOnUnregister = value;
-    },
-
-    focus: function focus(name) {
-      var field = state.fields[name];
-
-      if (field && !field.active) {
-        state.formState.active = name;
-        field.active = true;
-        field.visited = true;
-        notifyFieldListeners();
-        notifyFormListeners();
-      }
-    },
-    mutators: mutatorsApi,
-    getFieldState: function getFieldState(name) {
-      var field = state.fields[name];
-      return field && field.lastFieldState;
-    },
-    getRegisteredFields: function getRegisteredFields() {
-      return Object.keys(state.fields);
-    },
-    getState: function getState() {
-      return calculateNextFormState();
-    },
-    initialize: function initialize(data) {
-      var fields = state.fields,
-          formState = state.formState;
-
-      var safeFields = _extends({}, fields);
-
-      var values = typeof data === "function" ? data(formState.values) : data;
-
-      if (!keepDirtyOnReinitialize) {
-        formState.values = values;
-      }
-      /**
-       * Hello, inquisitive code reader! Thanks for taking the time to dig in!
-       *
-       * The following code is the way it is to allow for non-registered deep
-       * field values to be set via initialize()
-       */
-      // save dirty values
-
-
-      var savedDirtyValues = keepDirtyOnReinitialize ? Object.keys(safeFields).reduce(function (result, key) {
-        var field = safeFields[key];
-        var pristine = field.isEqual(getIn(formState.values, key), getIn(formState.initialValues || {}, key));
-
-        if (!pristine) {
-          result[key] = getIn(formState.values, key);
-        }
-
-        return result;
-      }, {}) : {}; // update initalValues and values
-
-      formState.initialValues = values;
-      formState.values = values; // restore the dirty values
-
-      Object.keys(savedDirtyValues).forEach(function (key) {
-        formState.values = setIn(formState.values, key, savedDirtyValues[key]) || {};
-      });
-      runValidation(undefined, function () {
-        notifyFieldListeners();
-        notifyFormListeners();
-      });
-    },
-    isValidationPaused: function isValidationPaused() {
-      return validationPaused;
-    },
-    pauseValidation: function pauseValidation(preventNotification) {
-      if (preventNotification === void 0) {
-        preventNotification = true;
-      }
-
-      validationPaused = true;
-      preventNotificationWhileValidationPaused = preventNotification;
-    },
-    registerField: function registerField(name, subscriber, subscription, fieldConfig) {
-      if (subscription === void 0) {
-        subscription = {};
-      }
-
-      if (!state.fieldSubscribers[name]) {
-        state.fieldSubscribers[name] = {
-          index: 0,
-          entries: {}
-        };
-      }
-
-      var index = state.fieldSubscribers[name].index++; // save field subscriber callback
-
-      state.fieldSubscribers[name].entries[index] = {
-        subscriber: memoize(subscriber),
-        subscription: subscription,
-        notified: false
-      }; // create initial field state if not exists
-
-      var field = state.fields[name] || {
-        active: false,
-        afterSubmit: fieldConfig && fieldConfig.afterSubmit,
-        beforeSubmit: fieldConfig && fieldConfig.beforeSubmit,
-        data: fieldConfig && fieldConfig.data || {},
-        isEqual: fieldConfig && fieldConfig.isEqual || tripleEquals,
-        lastFieldState: undefined,
-        modified: false,
-        modifiedSinceLastSubmit: false,
-        name: name,
-        touched: false,
-        valid: true,
-        validateFields: fieldConfig && fieldConfig.validateFields,
-        validators: {},
-        validating: false,
-        visited: false
-      }; // Mutators can create a field in order to keep the field states
-      // We must update this field when registerField is called afterwards
-
-      field.blur = field.blur || function () {
-        return api.blur(name);
-      };
-
-      field.change = field.change || function (value) {
-        return api.change(name, value);
-      };
-
-      field.focus = field.focus || function () {
-        return api.focus(name);
-      };
-
-      state.fields[name] = field;
-      var haveValidator = false;
-      var silent = fieldConfig && fieldConfig.silent;
-
-      var notify = function notify() {
-        if (silent && state.fields[name]) {
-          notifyFieldListeners(name);
-        } else {
-          notifyFormListeners();
-          notifyFieldListeners();
-        }
-      };
-
-      if (fieldConfig) {
-        haveValidator = !!(fieldConfig.getValidator && fieldConfig.getValidator());
-
-        if (fieldConfig.getValidator) {
-          state.fields[name].validators[index] = fieldConfig.getValidator;
-        }
-
-        var noValueInFormState = getIn(state.formState.values, name) === undefined;
-
-        if (fieldConfig.initialValue !== undefined && (noValueInFormState || getIn(state.formState.values, name) === getIn(state.formState.initialValues, name)) // only initialize if we don't yet have any value for this field
-        ) {
-          state.formState.initialValues = setIn(state.formState.initialValues || {}, name, fieldConfig.initialValue);
-          state.formState.values = setIn(state.formState.values, name, fieldConfig.initialValue);
-          runValidation(undefined, notify);
-        } // only use defaultValue if we don't yet have any value for this field
-
-
-        if (fieldConfig.defaultValue !== undefined && fieldConfig.initialValue === undefined && getIn(state.formState.initialValues, name) === undefined && noValueInFormState) {
-          state.formState.values = setIn(state.formState.values, name, fieldConfig.defaultValue);
-        }
-      }
-
-      if (haveValidator) {
-        runValidation(undefined, notify);
-      } else {
-        notify();
-      }
-
-      return function () {
-        var validatorRemoved = false; // istanbul ignore next
-
-        if (state.fields[name]) {
-          // state.fields[name] may have been removed by a mutator
-          validatorRemoved = !!(state.fields[name].validators[index] && state.fields[name].validators[index]());
-          delete state.fields[name].validators[index];
-        }
-
-        var hasFieldSubscribers = !!state.fieldSubscribers[name];
-
-        if (hasFieldSubscribers) {
-          // state.fieldSubscribers[name] may have been removed by a mutator
-          delete state.fieldSubscribers[name].entries[index];
-        }
-
-        var lastOne = hasFieldSubscribers && !Object.keys(state.fieldSubscribers[name].entries).length;
-
-        if (lastOne) {
-          delete state.fieldSubscribers[name];
-          delete state.fields[name];
-
-          if (validatorRemoved) {
-            state.formState.errors = setIn(state.formState.errors, name, undefined) || {};
-          }
-
-          if (destroyOnUnregister) {
-            state.formState.values = setIn(state.formState.values, name, undefined, true) || {};
-          }
-        }
-
-        if (!silent) {
-          if (validatorRemoved) {
-            runValidation(undefined, function () {
-              notifyFormListeners();
-              notifyFieldListeners();
-            });
-          } else if (lastOne) {
-            // values or errors may have changed
-            notifyFormListeners();
-          }
-        }
-      };
-    },
-    reset: function reset(initialValues) {
-      if (initialValues === void 0) {
-        initialValues = state.formState.initialValues;
-      }
-
-      if (state.formState.submitting) {
-        state.formState.resetWhileSubmitting = true;
-      }
-
-      state.formState.submitFailed = false;
-      state.formState.submitSucceeded = false;
-      delete state.formState.submitError;
-      delete state.formState.submitErrors;
-      delete state.formState.lastSubmittedValues;
-      api.initialize(initialValues || {});
-    },
-
-    /**
-     * Resets all field flags (e.g. touched, visited, etc.) to their initial state
-     */
-    resetFieldState: function resetFieldState(name) {
-      state.fields[name] = _extends({}, state.fields[name], {
-        active: false,
-        lastFieldState: undefined,
-        modified: false,
-        touched: false,
-        valid: true,
-        validating: false,
-        visited: false
-      });
-      runValidation(undefined, function () {
-        notifyFieldListeners();
-        notifyFormListeners();
-      });
-    },
-
-    /**
-     * Returns the form to a clean slate; that is:
-     * - Clear all values
-     * - Resets all fields to their initial state
-     */
-    restart: function restart(initialValues) {
-      if (initialValues === void 0) {
-        initialValues = state.formState.initialValues;
-      }
-
-      api.batch(function () {
-        for (var name in state.fields) {
-          api.resetFieldState(name);
-          state.fields[name] = _extends({}, state.fields[name], {
-            active: false,
-            lastFieldState: undefined,
-            modified: false,
-            modifiedSinceLastSubmit: false,
-            touched: false,
-            valid: true,
-            validating: false,
-            visited: false
-          });
-        }
-
-        api.reset(initialValues);
-      });
-    },
-    resumeValidation: function resumeValidation() {
-      validationPaused = false;
-      preventNotificationWhileValidationPaused = false;
-
-      if (validationBlocked) {
-        // validation was attempted while it was paused, so run it now
-        runValidation(undefined, function () {
-          notifyFieldListeners();
-          notifyFormListeners();
-        });
-      }
-
-      validationBlocked = false;
-    },
-    setConfig: function setConfig(name, value) {
-      switch (name) {
-        case "debug":
-          debug = value;
-          break;
-
-        case "destroyOnUnregister":
-          destroyOnUnregister = value;
-          break;
-
-        case "initialValues":
-          api.initialize(value);
-          break;
-
-        case "keepDirtyOnReinitialize":
-          keepDirtyOnReinitialize = value;
-          break;
-
-        case "mutators":
-          mutators = value;
-
-          if (value) {
-            Object.keys(mutatorsApi).forEach(function (key) {
-              if (!(key in value)) {
-                delete mutatorsApi[key];
-              }
-            });
-            Object.keys(value).forEach(function (key) {
-              mutatorsApi[key] = getMutatorApi(key);
-            });
-          } else {
-            Object.keys(mutatorsApi).forEach(function (key) {
-              delete mutatorsApi[key];
-            });
-          }
-
-          break;
-
-        case "onSubmit":
-          onSubmit = value;
-          break;
-
-        case "validate":
-          validate = value;
-          runValidation(undefined, function () {
-            notifyFieldListeners();
-            notifyFormListeners();
-          });
-          break;
-
-        case "validateOnBlur":
-          validateOnBlur = value;
-          break;
-
-        default:
-          throw new Error("Unrecognised option " + name);
-      }
-    },
-    submit: function submit() {
-      var formState = state.formState;
-
-      if (formState.submitting) {
-        return;
-      }
-
-      delete formState.submitErrors;
-      delete formState.submitError;
-      formState.lastSubmittedValues = _extends({}, formState.values);
-
-      if (hasSyncErrors()) {
-        markAllFieldsTouched();
-        resetModifiedAfterSubmit();
-        state.formState.submitFailed = true;
-        notifyFormListeners();
-        notifyFieldListeners();
-        return; // no submit for you!!
-      }
-
-      var asyncValidationPromisesKeys = Object.keys(asyncValidationPromises);
-
-      if (asyncValidationPromisesKeys.length) {
-        // still waiting on async validation to complete...
-        Promise.all(asyncValidationPromisesKeys.map(function (key) {
-          return asyncValidationPromises[Number(key)];
-        })).then(api.submit, console.error);
-        return;
-      }
-
-      var submitIsBlocked = beforeSubmit();
-
-      if (submitIsBlocked) {
-        return;
-      }
-
-      var resolvePromise;
-      var completeCalled = false;
-
-      var complete = function complete(errors) {
-        formState.submitting = false;
-        var resetWhileSubmitting = formState.resetWhileSubmitting;
-
-        if (resetWhileSubmitting) {
-          formState.resetWhileSubmitting = false;
-        }
-
-        if (errors && hasAnyError(errors)) {
-          formState.submitFailed = true;
-          formState.submitSucceeded = false;
-          formState.submitErrors = errors;
-          formState.submitError = errors[FORM_ERROR];
-          markAllFieldsTouched();
-        } else {
-          if (!resetWhileSubmitting) {
-            formState.submitFailed = false;
-            formState.submitSucceeded = true;
-          }
-
-          afterSubmit();
-        }
-
-        notifyFormListeners();
-        notifyFieldListeners();
-        completeCalled = true;
-
-        if (resolvePromise) {
-          resolvePromise(errors);
-        }
-
-        return errors;
-      };
-
-      formState.submitting = true;
-      formState.submitFailed = false;
-      formState.submitSucceeded = false;
-      formState.lastSubmittedValues = _extends({}, formState.values);
-      resetModifiedAfterSubmit(); // onSubmit is either sync, callback or async with a Promise
-
-      var result = onSubmit(formState.values, api, complete);
-
-      if (!completeCalled) {
-        if (result && isPromise(result)) {
-          // onSubmit is async with a Promise
-          notifyFormListeners(); // let everyone know we are submitting
-
-          notifyFieldListeners(); // notify fields also
-
-          return result.then(complete, function (error) {
-            complete();
-            throw error;
-          });
-        } else if (onSubmit.length >= 3) {
-          // must be async, so we should return a Promise
-          notifyFormListeners(); // let everyone know we are submitting
-
-          notifyFieldListeners(); // notify fields also
-
-          return new Promise(function (resolve) {
-            resolvePromise = resolve;
-          });
-        } else {
-          // onSubmit is sync
-          complete(result);
-        }
-      }
-    },
-    subscribe: function subscribe(subscriber, subscription) {
-      if (!subscriber) {
-        throw new Error("No callback given.");
-      }
-
-      if (!subscription) {
-        throw new Error("No subscription provided. What values do you want to listen to?");
-      }
-
-      var memoized = memoize(subscriber);
-      var subscribers = state.subscribers;
-      var index = subscribers.index++;
-      subscribers.entries[index] = {
-        subscriber: memoized,
-        subscription: subscription,
-        notified: false
-      };
-      var nextFormState = calculateNextFormState();
-      notifySubscriber(memoized, subscription, nextFormState, nextFormState, filterFormState, true);
-      return function () {
-        delete subscribers.entries[index];
-      };
-    }
-  };
-  return api;
+  return IconContext !== undefined ? React.createElement(IconContext.Consumer, null, function (conf) {
+    return elem(conf);
+  }) : elem(DefaultContext);
 }
 
-var _excluded$3 = ["render", "children", "component"];
-// shared logic between components that use either render prop,
-// children render function, or component prop
-function renderComponent(props, lazyProps, name) {
-  var render = props.render,
-      children = props.children,
-      component = props.component,
-      rest = _objectWithoutPropertiesLoose(props, _excluded$3);
-
-  if (component) {
-    return /*#__PURE__*/reactExports.createElement(component, Object.assign(lazyProps, rest, {
-      children: children,
-      render: render
-    }));
-  }
-
-  if (render) {
-    return render(children === undefined ? Object.assign(lazyProps, rest) : // inject children back in
-    Object.assign(lazyProps, rest, {
-      children: children
-    }));
-  }
-
-  if (typeof children !== "function") {
-    throw new Error("Must specify either a render prop, a render function as children, or a component prop to " + name);
-  }
-
-  return children(Object.assign(lazyProps, rest));
+// THIS FILE IS AUTO GENERATED
+function TbRefreshOff (props) {
+  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 24 24","strokeWidth":"2","stroke":"currentColor","fill":"none","strokeLinecap":"round","strokeLinejoin":"round"},"child":[{"tag":"path","attr":{"stroke":"none","d":"M0 0h24v24H0z","fill":"none"}},{"tag":"path","attr":{"d":"M20 11a8.1 8.1 0 0 0 -11.271 -6.305m-2.41 1.624a8.083 8.083 0 0 0 -1.819 2.681m-.5 -4v4h4"}},{"tag":"path","attr":{"d":"M4 13a8.1 8.1 0 0 0 13.671 4.691m2.329 -1.691v-1h-1"}},{"tag":"path","attr":{"d":"M3 3l18 18"}}]})(props);
+}function TbRefresh (props) {
+  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 24 24","strokeWidth":"2","stroke":"currentColor","fill":"none","strokeLinecap":"round","strokeLinejoin":"round"},"child":[{"tag":"path","attr":{"stroke":"none","d":"M0 0h24v24H0z","fill":"none"}},{"tag":"path","attr":{"d":"M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"}},{"tag":"path","attr":{"d":"M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"}}]})(props);
 }
-
-function useWhenValueChanges(value, callback, isEqual) {
-  if (isEqual === void 0) {
-    isEqual = function isEqual(a, b) {
-      return a === b;
-    };
-  }
-
-  var previous = React.useRef(value);
-  React.useEffect(function () {
-    if (!isEqual(value, previous.current)) {
-      callback();
-      previous.current = value;
-    }
-  });
-}
-
-/**
- * A simple hook to create a constant value that lives for
- * the lifetime of the component.
- *
- * Plagiarized from https://github.com/Andarist/use-constant
- *
- * Do NOT reuse this code unless you know what you're doing.
- * Use Andarist's hook; it's more fault tolerant to things like
- * falsy values.
- *
- * @param {Function} init - A function to generate the value
- */
-
-function useConstant(init) {
-  var ref = React.useRef();
-
-  if (!ref.current) {
-    ref.current = init();
-  }
-
-  return ref.current;
-}
-
-var shallowEqual = function shallowEqual(a, b) {
-  if (a === b) {
-    return true;
-  }
-
-  if (typeof a !== "object" || !a || typeof b !== "object" || !b) {
-    return false;
-  }
-
-  var keysA = Object.keys(a);
-  var keysB = Object.keys(b);
-
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-
-  var bHasOwnProperty = Object.prototype.hasOwnProperty.bind(b);
-
-  for (var idx = 0; idx < keysA.length; idx++) {
-    var key = keysA[idx];
-
-    if (!bHasOwnProperty(key) || a[key] !== b[key]) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-var isSyntheticEvent = function isSyntheticEvent(candidate) {
-  return !!(candidate && typeof candidate.stopPropagation === "function");
-};
-
-var ReactFinalFormContext = /*#__PURE__*/reactExports.createContext();
-
-function useLatest(value) {
-  var ref = React.useRef(value);
-  React.useEffect(function () {
-    ref.current = value;
-  });
-  return ref;
-}
-
-var version = "6.5.8";
-
-var addLazyState = function addLazyState(dest, state, keys) {
-  keys.forEach(function (key) {
-    Object.defineProperty(dest, key, {
-      get: function get() {
-        return state[key];
-      },
-      enumerable: true
-    });
-  });
-};
-
-var addLazyFormState = function addLazyFormState(dest, state) {
-  return addLazyState(dest, state, ["active", "dirty", "dirtyFields", "dirtySinceLastSubmit", "dirtyFieldsSinceLastSubmit", "error", "errors", "hasSubmitErrors", "hasValidationErrors", "initialValues", "invalid", "modified", "modifiedSinceLastSubmit", "pristine", "submitError", "submitErrors", "submitFailed", "submitSucceeded", "submitting", "touched", "valid", "validating", "values", "visited"]);
-};
-var addLazyFieldMetaState = function addLazyFieldMetaState(dest, state) {
-  return addLazyState(dest, state, ["active", "data", "dirty", "dirtySinceLastSubmit", "error", "initial", "invalid", "length", "modified", "modifiedSinceLastSubmit", "pristine", "submitError", "submitFailed", "submitSucceeded", "submitting", "touched", "valid", "validating", "visited"]);
-};
-
-var _excluded$2 = ["debug", "decorators", "destroyOnUnregister", "form", "initialValues", "initialValuesEqual", "keepDirtyOnReinitialize", "mutators", "onSubmit", "subscription", "validate", "validateOnBlur"];
-var versions = {
-  "final-form": version$1,
-  "react-final-form": version
-};
-var all$1 = formSubscriptionItems.reduce(function (result, key) {
-  result[key] = true;
-  return result;
-}, {});
-
-function ReactFinalForm(_ref) {
-  var debug = _ref.debug,
-      _ref$decorators = _ref.decorators,
-      decorators = _ref$decorators === void 0 ? [] : _ref$decorators,
-      destroyOnUnregister = _ref.destroyOnUnregister,
-      alternateFormApi = _ref.form,
-      initialValues = _ref.initialValues,
-      initialValuesEqual = _ref.initialValuesEqual,
-      keepDirtyOnReinitialize = _ref.keepDirtyOnReinitialize,
-      mutators = _ref.mutators,
-      onSubmit = _ref.onSubmit,
-      _ref$subscription = _ref.subscription,
-      subscription = _ref$subscription === void 0 ? all$1 : _ref$subscription,
-      validate = _ref.validate,
-      validateOnBlur = _ref.validateOnBlur,
-      rest = _objectWithoutPropertiesLoose(_ref, _excluded$2);
-
-  var config = {
-    debug: debug,
-    destroyOnUnregister: destroyOnUnregister,
-    initialValues: initialValues,
-    keepDirtyOnReinitialize: keepDirtyOnReinitialize,
-    mutators: mutators,
-    onSubmit: onSubmit,
-    validate: validate,
-    validateOnBlur: validateOnBlur
-  };
-  var form = useConstant(function () {
-    var f = alternateFormApi || createForm(config); // pause validation until children register all fields on first render (unpaused in useEffect() below)
-
-    f.pauseValidation();
-    return f;
-  }); // synchronously register and unregister to query form state for our subscription on first render
-
-  var _React$useState = reactExports.useState(function () {
-    var initialState = {};
-    form.subscribe(function (state) {
-      initialState = state;
-    }, subscription)();
-    return initialState;
-  }),
-      state = _React$useState[0],
-      setState = _React$useState[1]; // save a copy of state that can break through the closure
-  // on the shallowEqual() line below.
-
-
-  var stateRef = useLatest(state);
-  reactExports.useEffect(function () {
-    // We have rendered, so all fields are now registered, so we can unpause validation
-    form.isValidationPaused() && form.resumeValidation();
-    var unsubscriptions = [form.subscribe(function (s) {
-      if (!shallowEqual(s, stateRef.current)) {
-        setState(s);
-      }
-    }, subscription)].concat(decorators ? decorators.map(function (decorator) {
-      return (// this noop ternary is to appease the flow gods
-        // istanbul ignore next
-        decorator(form)
-      );
-    }) : []);
-    return function () {
-      form.pauseValidation(); // pause validation so we don't revalidate on every field deregistration
-
-      unsubscriptions.reverse().forEach(function (unsubscribe) {
-        return unsubscribe();
-      }); // don't need to resume validation here; either unmounting, or will re-run this hook with new deps
-    }; // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, decorators); // warn about decorator changes
-
-
-  useWhenValueChanges(debug, function () {
-    form.setConfig("debug", debug);
-  });
-  useWhenValueChanges(destroyOnUnregister, function () {
-    form.destroyOnUnregister = !!destroyOnUnregister;
-  });
-  useWhenValueChanges(keepDirtyOnReinitialize, function () {
-    form.setConfig("keepDirtyOnReinitialize", keepDirtyOnReinitialize);
-  });
-  useWhenValueChanges(initialValues, function () {
-    form.setConfig("initialValues", initialValues);
-  }, initialValuesEqual || shallowEqual);
-  useWhenValueChanges(mutators, function () {
-    form.setConfig("mutators", mutators);
-  });
-  useWhenValueChanges(onSubmit, function () {
-    form.setConfig("onSubmit", onSubmit);
-  });
-  useWhenValueChanges(validate, function () {
-    form.setConfig("validate", validate);
-  });
-  useWhenValueChanges(validateOnBlur, function () {
-    form.setConfig("validateOnBlur", validateOnBlur);
-  });
-
-  var handleSubmit = function handleSubmit(event) {
-    if (event) {
-      // sometimes not true, e.g. React Native
-      if (typeof event.preventDefault === "function") {
-        event.preventDefault();
-      }
-
-      if (typeof event.stopPropagation === "function") {
-        // prevent any outer forms from receiving the event too
-        event.stopPropagation();
-      }
-    }
-
-    return form.submit();
-  };
-
-  var renderProps = {
-    form: _extends({}, form, {
-      reset: function reset(eventOrValues) {
-        if (isSyntheticEvent(eventOrValues)) {
-          // it's a React SyntheticEvent, call reset with no arguments
-          form.reset();
-        } else {
-          form.reset(eventOrValues);
-        }
-      }
-    }),
-    handleSubmit: handleSubmit
-  };
-  addLazyFormState(renderProps, state);
-  return /*#__PURE__*/reactExports.createElement(ReactFinalFormContext.Provider, {
-    value: form
-  }, renderComponent(_extends({}, rest, {
-    __versions: versions
-  }), renderProps, "ReactFinalForm"));
-}
-
-function useForm(componentName) {
-  var form = reactExports.useContext(ReactFinalFormContext);
-
-  if (!form) {
-    throw new Error((componentName || "useForm") + " must be used inside of a <Form> component");
-  }
-
-  return form;
-}
-
-var isReactNative = typeof window !== "undefined" && window.navigator && window.navigator.product && window.navigator.product === "ReactNative";
-
-var getSelectedValues = function getSelectedValues(options) {
-  var result = [];
-
-  if (options) {
-    for (var index = 0; index < options.length; index++) {
-      var option = options[index];
-
-      if (option.selected) {
-        result.push(option.value);
-      }
-    }
-  }
-
-  return result;
-};
-
-var getValue = function getValue(event, currentValue, valueProp, isReactNative) {
-  if (!isReactNative && event.nativeEvent && event.nativeEvent.text !== undefined) {
-    return event.nativeEvent.text;
-  }
-
-  if (isReactNative && event.nativeEvent) {
-    return event.nativeEvent.text;
-  }
-
-  var detypedEvent = event;
-  var _detypedEvent$target = detypedEvent.target,
-      type = _detypedEvent$target.type,
-      value = _detypedEvent$target.value,
-      checked = _detypedEvent$target.checked;
-
-  switch (type) {
-    case "checkbox":
-      if (valueProp !== undefined) {
-        // we are maintaining an array, not just a boolean
-        if (checked) {
-          // add value to current array value
-          return Array.isArray(currentValue) ? currentValue.concat(valueProp) : [valueProp];
-        } else {
-          // remove value from current array value
-          if (!Array.isArray(currentValue)) {
-            return currentValue;
-          }
-
-          var index = currentValue.indexOf(valueProp);
-
-          if (index < 0) {
-            return currentValue;
-          } else {
-            return currentValue.slice(0, index).concat(currentValue.slice(index + 1));
-          }
-        }
-      } else {
-        // it's just a boolean
-        return !!checked;
-      }
-
-    case "select-multiple":
-      return getSelectedValues(event.target.options);
-
-    default:
-      return value;
-  }
-};
-
-/**
- * Creates a callback, even with closures, that will be
- * instance === for the lifetime of the component, always
- * calling the most recent version of the function and its
- * closures.
- */
-
-function useConstantCallback(callback) {
-  var ref = reactExports.useRef(callback);
-  reactExports.useEffect(function () {
-    ref.current = callback;
-  });
-  return reactExports.useCallback(function () {
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return ref.current.apply(null, args);
-  }, []);
-}
-
-var all = fieldSubscriptionItems.reduce(function (result, key) {
-  result[key] = true;
-  return result;
-}, {});
-
-var defaultFormat = function defaultFormat(value, name) {
-  return value === undefined ? "" : value;
-};
-
-var defaultParse = function defaultParse(value, name) {
-  return value === "" ? undefined : value;
-};
-
-var defaultIsEqual = function defaultIsEqual(a, b) {
-  return a === b;
-};
-
-function useField(name, config) {
-  if (config === void 0) {
-    config = {};
-  }
-
-  var _config = config,
-      afterSubmit = _config.afterSubmit,
-      allowNull = _config.allowNull,
-      component = _config.component,
-      data = _config.data,
-      defaultValue = _config.defaultValue,
-      _config$format = _config.format,
-      format = _config$format === void 0 ? defaultFormat : _config$format,
-      formatOnBlur = _config.formatOnBlur,
-      initialValue = _config.initialValue,
-      multiple = _config.multiple,
-      _config$parse = _config.parse,
-      parse = _config$parse === void 0 ? defaultParse : _config$parse,
-      _config$subscription = _config.subscription,
-      subscription = _config$subscription === void 0 ? all : _config$subscription,
-      type = _config.type,
-      validateFields = _config.validateFields,
-      _value = _config.value;
-  var form = useForm("useField");
-  var configRef = useLatest(config);
-
-  var register = function register(callback, silent) {
-    return (// avoid using `state` const in any closures created inside `register`
-      // because they would refer `state` from current execution context
-      // whereas actual `state` would defined in the subsequent `useField` hook
-      // execution
-      // (that would be caused by `setState` call performed in `register` callback)
-      form.registerField(name, callback, subscription, {
-        afterSubmit: afterSubmit,
-        beforeSubmit: function beforeSubmit() {
-          var _configRef$current = configRef.current,
-              beforeSubmit = _configRef$current.beforeSubmit,
-              formatOnBlur = _configRef$current.formatOnBlur,
-              _configRef$current$fo = _configRef$current.format,
-              format = _configRef$current$fo === void 0 ? defaultFormat : _configRef$current$fo;
-
-          if (formatOnBlur) {
-            var _ref = form.getFieldState(name),
-                value = _ref.value;
-
-            var formatted = format(value, name);
-
-            if (formatted !== value) {
-              form.change(name, formatted);
-            }
-          }
-
-          return beforeSubmit && beforeSubmit();
-        },
-        data: data,
-        defaultValue: defaultValue,
-        getValidator: function getValidator() {
-          return configRef.current.validate;
-        },
-        initialValue: initialValue,
-        isEqual: function isEqual(a, b) {
-          return (configRef.current.isEqual || defaultIsEqual)(a, b);
-        },
-        silent: silent,
-        validateFields: validateFields
-      })
-    );
-  };
-
-  var firstRender = reactExports.useRef(true); // synchronously register and unregister to query field state for our subscription on first render
-
-  var _React$useState = reactExports.useState(function () {
-    var initialState = {}; // temporarily disable destroyOnUnregister
-
-    // temporarily disable destroyOnUnregister
-    var destroyOnUnregister = form.destroyOnUnregister;
-    form.destroyOnUnregister = false;
-    register(function (state) {
-      initialState = state;
-    }, true)(); // return destroyOnUnregister to its original value
-
-    // return destroyOnUnregister to its original value
-    form.destroyOnUnregister = destroyOnUnregister;
-    return initialState;
-  }),
-      state = _React$useState[0],
-      setState = _React$useState[1];
-
-  reactExports.useEffect(function () {
-    return register(function (state) {
-      if (firstRender.current) {
-        firstRender.current = false;
-      } else {
-        setState(state);
-      }
-    }, false);
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps
-  [name, data, defaultValue, // If we want to allow inline fat-arrow field-level validation functions, we
-  // cannot reregister field every time validate function !==.
-  // validate,
-  initialValue // The validateFields array is often passed as validateFields={[]}, creating
-  // a !== new array every time. If it needs to be changed, a rerender/reregister
-  // can be forced by changing the key prop
-  // validateFields
-  ]);
-  var meta = {};
-  addLazyFieldMetaState(meta, state);
-  var input = {
-    name: name,
-
-    get value() {
-      var value = state.value;
-
-      if (formatOnBlur) {
-        if (component === "input") {
-          value = defaultFormat(value);
-        }
-      } else {
-        value = format(value, name);
-      }
-
-      if (value === null && !allowNull) {
-        value = "";
-      }
-
-      if (type === "checkbox" || type === "radio") {
-        return _value;
-      } else if (component === "select" && multiple) {
-        return value || [];
-      }
-
-      return value;
-    },
-
-    get checked() {
-      var value = state.value;
-
-      if (type === "checkbox") {
-        value = format(value, name);
-
-        if (_value === undefined) {
-          return !!value;
-        } else {
-          return !!(Array.isArray(value) && ~value.indexOf(_value));
-        }
-      } else if (type === "radio") {
-        return format(value, name) === _value;
-      }
-
-      return undefined;
-    },
-
-    onBlur: useConstantCallback(function (event) {
-      state.blur();
-
-      if (formatOnBlur) {
-        /**
-         * Here we must fetch the value directly from Final Form because we cannot
-         * trust that our `state` closure has the most recent value. This is a problem
-         * if-and-only-if the library consumer has called `onChange()` immediately
-         * before calling `onBlur()`, but before the field has had a chance to receive
-         * the value update from Final Form.
-         */
-        var fieldState = form.getFieldState(state.name);
-        state.change(format(fieldState.value, state.name));
-      }
-    }),
-    onChange: useConstantCallback(function (event) {
-
-      var value = event && event.target ? getValue(event, state.value, _value, isReactNative) : event;
-      state.change(parse(value, name));
-    }),
-    onFocus: useConstantCallback(function (event) {
-      return state.focus();
-    })
-  };
-
-  if (multiple) {
-    input.multiple = multiple;
-  }
-
-  if (type !== undefined) {
-    input.type = type;
-  }
-
-  var renderProps = {
-    input: input,
-    meta: meta
-  }; // assign to force Flow check
-
-  return renderProps;
-}
-
-var _excluded = ["afterSubmit", "allowNull", "beforeSubmit", "children", "component", "data", "defaultValue", "format", "formatOnBlur", "initialValue", "isEqual", "multiple", "name", "parse", "subscription", "type", "validate", "validateFields", "value"];
-var Field = /*#__PURE__*/reactExports.forwardRef(function Field(_ref, ref) {
-  var afterSubmit = _ref.afterSubmit,
-      allowNull = _ref.allowNull,
-      beforeSubmit = _ref.beforeSubmit,
-      children = _ref.children,
-      component = _ref.component,
-      data = _ref.data,
-      defaultValue = _ref.defaultValue,
-      format = _ref.format,
-      formatOnBlur = _ref.formatOnBlur,
-      initialValue = _ref.initialValue,
-      isEqual = _ref.isEqual,
-      multiple = _ref.multiple,
-      name = _ref.name,
-      parse = _ref.parse,
-      subscription = _ref.subscription,
-      type = _ref.type,
-      validate = _ref.validate,
-      validateFields = _ref.validateFields,
-      value = _ref.value,
-      rest = _objectWithoutPropertiesLoose(_ref, _excluded);
-
-  var field = useField(name, {
-    afterSubmit: afterSubmit,
-    allowNull: allowNull,
-    beforeSubmit: beforeSubmit,
-    children: children,
-    component: component,
-    data: data,
-    defaultValue: defaultValue,
-    format: format,
-    formatOnBlur: formatOnBlur,
-    initialValue: initialValue,
-    isEqual: isEqual,
-    multiple: multiple,
-    parse: parse,
-    subscription: subscription,
-    type: type,
-    validate: validate,
-    validateFields: validateFields,
-    value: value
-  });
-
-  if (typeof children === "function") {
-    return children(_extends({}, field, rest));
-  }
-
-  if (typeof component === "string") {
-    // ignore meta, combine input with any other props
-    return /*#__PURE__*/reactExports.createElement(component, _extends({}, field.input, {
-      children: children,
-      ref: ref
-    }, rest));
-  }
-
-  if (!name) {
-    throw new Error("prop name cannot be undefined in <Field> component");
-  }
-
-  return renderComponent(_extends({
-    children: children,
-    component: component,
-    ref: ref
-  }, rest), field, "Field(" + name + ")");
-});
 
 var headers = function (api) {
     return {
@@ -2687,11 +601,16 @@ var headers = function (api) {
         'X-XSRF-TOKEN': api.CSRFToken,
     };
 };
-var post = function (api, path, params, payload) { return __awaiter(void 0, void 0, void 0, function () {
-    var query, res, _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0, function () {
+    var query, res, _a, _b, _c, _d, _e, _f, _g;
+    return __generator(this, function (_h) {
+        switch (_h.label) {
             case 0:
+                // XXX: Workaround a possible bug where engine api has been parsed wrong
+                if (api.engine.match(/\/#\//)) {
+                    api.engine = api.engine.split('/#/')[0].replace(/.*\//g, '');
+                    api.engineApi = api.baseApi + '/engine/' + api.engine;
+                }
                 params = params || {};
                 if (['/history/activity-instance', '/history/variable-instance', '/history/decision-instance'].includes(path) &&
                     !(params === null || params === void 0 ? void 0 : params.maxResults)) {
@@ -2700,113 +619,843 @@ var post = function (api, path, params, payload) { return __awaiter(void 0, void
                 query = new URLSearchParams(params).toString();
                 if (!query) return [3 /*break*/, 2];
                 return [4 /*yield*/, fetch("".concat(api.engineApi).concat(path, "?").concat(query), {
-                        method: 'post',
+                        method: 'get',
                         headers: headers(api),
-                        body: payload,
                     })];
             case 1:
-                _a = _b.sent();
+                _a = _h.sent();
                 return [3 /*break*/, 4];
             case 2: return [4 /*yield*/, fetch("".concat(api.engineApi).concat(path), {
-                    method: 'post',
+                    method: 'get',
                     headers: headers(api),
-                    body: payload,
                 })];
             case 3:
-                _a = _b.sent();
-                _b.label = 4;
+                _a = _h.sent();
+                _h.label = 4;
             case 4:
                 res = _a;
-                if (!(res.headers.get('Content-Type') || '').startsWith('application/json')) return [3 /*break*/, 6];
+                if (!(res.status === 200 && (res.headers.get('Content-Type') || '').startsWith('application/json'))) return [3 /*break*/, 6];
                 return [4 /*yield*/, res.json()];
-            case 5: return [2 /*return*/, _b.sent()];
-            case 6: return [4 /*yield*/, res.text()];
-            case 7: return [2 /*return*/, _b.sent()];
+            case 5: return [2 /*return*/, _h.sent()];
+            case 6:
+                if (!(res.headers.get('Content-Type') || '').startsWith('application/json')) return [3 /*break*/, 8];
+                _c = (_b = console).debug;
+                _d = [res.status, path];
+                return [4 /*yield*/, res.json()];
+            case 7:
+                _c.apply(_b, _d.concat([_h.sent()]));
+                return [3 /*break*/, 10];
+            case 8:
+                _f = (_e = console).debug;
+                _g = [res.status, path];
+                return [4 /*yield*/, res.text()];
+            case 9:
+                _f.apply(_e, _g.concat([_h.sent()]));
+                _h.label = 10;
+            case 10: return [2 /*return*/, []];
         }
     });
 }); };
 
-// TODO:
-// * get available activitity Ids
-// * option list instead of input field
-// * check activity Ids have token
-// * only allow submit once
-var MoveTokenForm = function (_a) {
+const token = '%[a-f0-9]{2}';
+const singleMatcher = new RegExp('(' + token + ')|([^%]+?)', 'gi');
+const multiMatcher = new RegExp('(' + token + ')+', 'gi');
+
+function decodeComponents(components, split) {
+	try {
+		// Try to decode the entire string first
+		return [decodeURIComponent(components.join(''))];
+	} catch {
+		// Do nothing
+	}
+
+	if (components.length === 1) {
+		return components;
+	}
+
+	split = split || 1;
+
+	// Split the array in 2 parts
+	const left = components.slice(0, split);
+	const right = components.slice(split);
+
+	return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
+}
+
+function decode$1(input) {
+	try {
+		return decodeURIComponent(input);
+	} catch {
+		let tokens = input.match(singleMatcher) || [];
+
+		for (let i = 1; i < tokens.length; i++) {
+			input = decodeComponents(tokens, i).join('');
+
+			tokens = input.match(singleMatcher) || [];
+		}
+
+		return input;
+	}
+}
+
+function customDecodeURIComponent(input) {
+	// Keep track of all the replacements and prefill the map with the `BOM`
+	const replaceMap = {
+		'%FE%FF': '\uFFFD\uFFFD',
+		'%FF%FE': '\uFFFD\uFFFD',
+	};
+
+	let match = multiMatcher.exec(input);
+	while (match) {
+		try {
+			// Decode as big chunks as possible
+			replaceMap[match[0]] = decodeURIComponent(match[0]);
+		} catch {
+			const result = decode$1(match[0]);
+
+			if (result !== match[0]) {
+				replaceMap[match[0]] = result;
+			}
+		}
+
+		match = multiMatcher.exec(input);
+	}
+
+	// Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
+	replaceMap['%C2'] = '\uFFFD';
+
+	const entries = Object.keys(replaceMap);
+
+	for (const key of entries) {
+		// Replace all decoded components
+		input = input.replace(new RegExp(key, 'g'), replaceMap[key]);
+	}
+
+	return input;
+}
+
+function decodeUriComponent(encodedURI) {
+	if (typeof encodedURI !== 'string') {
+		throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
+	}
+
+	try {
+		// Try the built in decoder first
+		return decodeURIComponent(encodedURI);
+	} catch {
+		// Fallback to a more advanced decoder
+		return customDecodeURIComponent(encodedURI);
+	}
+}
+
+function splitOnFirst(string, separator) {
+	if (!(typeof string === 'string' && typeof separator === 'string')) {
+		throw new TypeError('Expected the arguments to be of type `string`');
+	}
+
+	if (string === '' || separator === '') {
+		return [];
+	}
+
+	const separatorIndex = string.indexOf(separator);
+
+	if (separatorIndex === -1) {
+		return [];
+	}
+
+	return [
+		string.slice(0, separatorIndex),
+		string.slice(separatorIndex + separator.length)
+	];
+}
+
+function includeKeys(object, predicate) {
+	const result = {};
+
+	if (Array.isArray(predicate)) {
+		for (const key of predicate) {
+			const descriptor = Object.getOwnPropertyDescriptor(object, key);
+			if (descriptor?.enumerable) {
+				Object.defineProperty(result, key, descriptor);
+			}
+		}
+	} else {
+		// `Reflect.ownKeys()` is required to retrieve symbol properties
+		for (const key of Reflect.ownKeys(object)) {
+			const descriptor = Object.getOwnPropertyDescriptor(object, key);
+			if (descriptor.enumerable) {
+				const value = object[key];
+				if (predicate(key, value, object)) {
+					Object.defineProperty(result, key, descriptor);
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+const isNullOrUndefined = value => value === null || value === undefined;
+
+// eslint-disable-next-line unicorn/prefer-code-point
+const strictUriEncode = string => encodeURIComponent(string).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
+
+const encodeFragmentIdentifier = Symbol('encodeFragmentIdentifier');
+
+function encoderForArrayFormat(options) {
+	switch (options.arrayFormat) {
+		case 'index': {
+			return key => (result, value) => {
+				const index = result.length;
+
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result, [encode(key, options), '[', index, ']'].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '[', encode(index, options), ']=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'bracket': {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						[encode(key, options), '[]'].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '[]=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'colon-list-separator': {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						[encode(key, options), ':list='].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), ':list=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'comma':
+		case 'separator':
+		case 'bracket-separator': {
+			const keyValueSep = options.arrayFormat === 'bracket-separator'
+				? '[]='
+				: '=';
+
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				// Translate null to an empty string so that it doesn't serialize as 'null'
+				value = value === null ? '' : value;
+
+				if (result.length === 0) {
+					return [[encode(key, options), keyValueSep, encode(value, options)].join('')];
+				}
+
+				return [[result, encode(value, options)].join(options.arrayFormatSeparator)];
+			};
+		}
+
+		default: {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						encode(key, options),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '=', encode(value, options)].join(''),
+				];
+			};
+		}
+	}
+}
+
+function parserForArrayFormat(options) {
+	let result;
+
+	switch (options.arrayFormat) {
+		case 'index': {
+			return (key, value, accumulator) => {
+				result = /\[(\d*)]$/.exec(key);
+
+				key = key.replace(/\[\d*]$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = {};
+				}
+
+				accumulator[key][result[1]] = value;
+			};
+		}
+
+		case 'bracket': {
+			return (key, value, accumulator) => {
+				result = /(\[])$/.exec(key);
+				key = key.replace(/\[]$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = [value];
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], value];
+			};
+		}
+
+		case 'colon-list-separator': {
+			return (key, value, accumulator) => {
+				result = /(:list)$/.exec(key);
+				key = key.replace(/:list$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = [value];
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], value];
+			};
+		}
+
+		case 'comma':
+		case 'separator': {
+			return (key, value, accumulator) => {
+				const isArray = typeof value === 'string' && value.includes(options.arrayFormatSeparator);
+				const isEncodedArray = (typeof value === 'string' && !isArray && decode(value, options).includes(options.arrayFormatSeparator));
+				value = isEncodedArray ? decode(value, options) : value;
+				const newValue = isArray || isEncodedArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : (value === null ? value : decode(value, options));
+				accumulator[key] = newValue;
+			};
+		}
+
+		case 'bracket-separator': {
+			return (key, value, accumulator) => {
+				const isArray = /(\[])$/.test(key);
+				key = key.replace(/\[]$/, '');
+
+				if (!isArray) {
+					accumulator[key] = value ? decode(value, options) : value;
+					return;
+				}
+
+				const arrayValue = value === null
+					? []
+					: value.split(options.arrayFormatSeparator).map(item => decode(item, options));
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = arrayValue;
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], ...arrayValue];
+			};
+		}
+
+		default: {
+			return (key, value, accumulator) => {
+				if (accumulator[key] === undefined) {
+					accumulator[key] = value;
+					return;
+				}
+
+				accumulator[key] = [...[accumulator[key]].flat(), value];
+			};
+		}
+	}
+}
+
+function validateArrayFormatSeparator(value) {
+	if (typeof value !== 'string' || value.length !== 1) {
+		throw new TypeError('arrayFormatSeparator must be single character string');
+	}
+}
+
+function encode(value, options) {
+	if (options.encode) {
+		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
+	}
+
+	return value;
+}
+
+function decode(value, options) {
+	if (options.decode) {
+		return decodeUriComponent(value);
+	}
+
+	return value;
+}
+
+function keysSorter(input) {
+	if (Array.isArray(input)) {
+		return input.sort();
+	}
+
+	if (typeof input === 'object') {
+		return keysSorter(Object.keys(input))
+			.sort((a, b) => Number(a) - Number(b))
+			.map(key => input[key]);
+	}
+
+	return input;
+}
+
+function removeHash(input) {
+	const hashStart = input.indexOf('#');
+	if (hashStart !== -1) {
+		input = input.slice(0, hashStart);
+	}
+
+	return input;
+}
+
+function getHash(url) {
+	let hash = '';
+	const hashStart = url.indexOf('#');
+	if (hashStart !== -1) {
+		hash = url.slice(hashStart);
+	}
+
+	return hash;
+}
+
+function parseValue(value, options) {
+	if (options.parseNumbers && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+		value = Number(value);
+	} else if (options.parseBooleans && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+		value = value.toLowerCase() === 'true';
+	}
+
+	return value;
+}
+
+function extract(input) {
+	input = removeHash(input);
+	const queryStart = input.indexOf('?');
+	if (queryStart === -1) {
+		return '';
+	}
+
+	return input.slice(queryStart + 1);
+}
+
+function parse(query, options) {
+	options = {
+		decode: true,
+		sort: true,
+		arrayFormat: 'none',
+		arrayFormatSeparator: ',',
+		parseNumbers: false,
+		parseBooleans: false,
+		...options,
+	};
+
+	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+	const formatter = parserForArrayFormat(options);
+
+	// Create an object with no prototype
+	const returnValue = Object.create(null);
+
+	if (typeof query !== 'string') {
+		return returnValue;
+	}
+
+	query = query.trim().replace(/^[?#&]/, '');
+
+	if (!query) {
+		return returnValue;
+	}
+
+	for (const parameter of query.split('&')) {
+		if (parameter === '') {
+			continue;
+		}
+
+		const parameter_ = options.decode ? parameter.replace(/\+/g, ' ') : parameter;
+
+		let [key, value] = splitOnFirst(parameter_, '=');
+
+		if (key === undefined) {
+			key = parameter_;
+		}
+
+		// Missing `=` should be `null`:
+		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
+		value = value === undefined ? null : (['comma', 'separator', 'bracket-separator'].includes(options.arrayFormat) ? value : decode(value, options));
+		formatter(decode(key, options), value, returnValue);
+	}
+
+	for (const [key, value] of Object.entries(returnValue)) {
+		if (typeof value === 'object' && value !== null) {
+			for (const [key2, value2] of Object.entries(value)) {
+				value[key2] = parseValue(value2, options);
+			}
+		} else {
+			returnValue[key] = parseValue(value, options);
+		}
+	}
+
+	if (options.sort === false) {
+		return returnValue;
+	}
+
+	// TODO: Remove the use of `reduce`.
+	// eslint-disable-next-line unicorn/no-array-reduce
+	return (options.sort === true ? Object.keys(returnValue).sort() : Object.keys(returnValue).sort(options.sort)).reduce((result, key) => {
+		const value = returnValue[key];
+		if (Boolean(value) && typeof value === 'object' && !Array.isArray(value)) {
+			// Sort object keys, not values
+			result[key] = keysSorter(value);
+		} else {
+			result[key] = value;
+		}
+
+		return result;
+	}, Object.create(null));
+}
+
+function stringify(object, options) {
+	if (!object) {
+		return '';
+	}
+
+	options = {encode: true,
+		strict: true,
+		arrayFormat: 'none',
+		arrayFormatSeparator: ',', ...options};
+
+	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+	const shouldFilter = key => (
+		(options.skipNull && isNullOrUndefined(object[key]))
+		|| (options.skipEmptyString && object[key] === '')
+	);
+
+	const formatter = encoderForArrayFormat(options);
+
+	const objectCopy = {};
+
+	for (const [key, value] of Object.entries(object)) {
+		if (!shouldFilter(key)) {
+			objectCopy[key] = value;
+		}
+	}
+
+	const keys = Object.keys(objectCopy);
+
+	if (options.sort !== false) {
+		keys.sort(options.sort);
+	}
+
+	return keys.map(key => {
+		const value = object[key];
+
+		if (value === undefined) {
+			return '';
+		}
+
+		if (value === null) {
+			return encode(key, options);
+		}
+
+		if (Array.isArray(value)) {
+			if (value.length === 0 && options.arrayFormat === 'bracket-separator') {
+				return encode(key, options) + '[]';
+			}
+
+			return value
+				.reduce(formatter(key), [])
+				.join('&');
+		}
+
+		return encode(key, options) + '=' + encode(value, options);
+	}).filter(x => x.length > 0).join('&');
+}
+
+function parseUrl(url, options) {
+	options = {
+		decode: true,
+		...options,
+	};
+
+	let [url_, hash] = splitOnFirst(url, '#');
+
+	if (url_ === undefined) {
+		url_ = url;
+	}
+
+	return {
+		url: url_?.split('?')?.[0] ?? '',
+		query: parse(extract(url), options),
+		...(options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}),
+	};
+}
+
+function stringifyUrl(object, options) {
+	options = {
+		encode: true,
+		strict: true,
+		[encodeFragmentIdentifier]: true,
+		...options,
+	};
+
+	const url = removeHash(object.url).split('?')[0] || '';
+	const queryFromUrl = extract(object.url);
+
+	const query = {
+		...parse(queryFromUrl, {sort: false}),
+		...object.query,
+	};
+
+	let queryString = stringify(query, options);
+	if (queryString) {
+		queryString = `?${queryString}`;
+	}
+
+	let hash = getHash(object.url);
+	if (object.fragmentIdentifier) {
+		const urlObjectForFragmentEncode = new URL(url);
+		urlObjectForFragmentEncode.hash = object.fragmentIdentifier;
+		hash = options[encodeFragmentIdentifier] ? urlObjectForFragmentEncode.hash : `#${object.fragmentIdentifier}`;
+	}
+
+	return `${url}${queryString}${hash}`;
+}
+
+function pick(input, filter, options) {
+	options = {
+		parseFragmentIdentifier: true,
+		[encodeFragmentIdentifier]: false,
+		...options,
+	};
+
+	const {url, query, fragmentIdentifier} = parseUrl(input, options);
+
+	return stringifyUrl({
+		url,
+		query: includeKeys(query, filter),
+		fragmentIdentifier,
+	}, options);
+}
+
+function exclude(input, filter, options) {
+	const exclusionFilter = Array.isArray(filter) ? key => !filter.includes(key) : (key, value) => !filter(key, value);
+
+	return pick(input, exclusionFilter, options);
+}
+
+var queryString = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    exclude: exclude,
+    extract: extract,
+    parse: parse,
+    parseUrl: parseUrl,
+    pick: pick,
+    stringify: stringify,
+    stringifyUrl: stringifyUrl
+});
+
+var SETTINGS_KEY = 'minimal-history-plugin';
+var loadSettings = function () {
+    var parsed = queryString.parse(location.hash.substring(location.hash.split('?', 1)[0].length + 1));
+    try {
+        var raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+        return {
+            autoRefresh: !!(raw === null || raw === void 0 ? void 0 : raw.autoRefresh) || !!parsed.autoRefresh,
+            showHistoricBadges: !!(raw === null || raw === void 0 ? void 0 : raw.showHistoricBadges) || !!parsed.showHistoricBadges,
+            showSequenceFlow: !!(raw === null || raw === void 0 ? void 0 : raw.showSequenceFlow) || !!parsed.showSequenceFlow,
+            leftPaneSize: !!(raw === null || raw === void 0 ? void 0 : raw.leftPaneSize) ? raw.leftPaneSize : null,
+            topPaneSize: !!(raw === null || raw === void 0 ? void 0 : raw.topPaneSize) ? raw.topPaneSize : null,
+        };
+    }
+    catch (e) {
+        return {
+            autoRefresh: false,
+            showHistoricBadges: false,
+            showSequenceFlow: false,
+            leftPaneSize: null,
+            topPaneSize: null,
+        };
+    }
+};
+var saveSettings = function (settings) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+};
+
+var LAST_ACTIVITY_KEY = "lastHistoricActivity_";
+var ToggleAutoRefreshButton = function (_a) {
     var api = _a.api, processInstanceId = _a.processInstanceId;
-    var _b = reactExports.useState(false), submitted = _b[0], setSubmitted = _b[1];
-    var onSubmit = function (_a) {
-        var startActivityId = _a.startActivityId, cancelActivityId = _a.cancelActivityId, annotation = _a.annotation;
-        return __awaiter(void 0, void 0, void 0, function () {
-            var payload;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+    var _b = reactExports.useState(loadSettings().autoRefresh), autoRefresh = _b[0], setAutoRefresh = _b[1];
+    var previousActivityData = reactExports.useState(JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]'))[0];
+    reactExports.useEffect(function () {
+        saveSettings(__assign$1(__assign$1({}, loadSettings()), { autoRefresh: autoRefresh }));
+    }, [autoRefresh]);
+    reactExports.useEffect(function () {
+        var intervalId;
+        var poll = function () { return __awaiter(void 0, void 0, void 0, function () {
+            var latestActivityId, injector, $route;
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        if (!(startActivityId && cancelActivityId)) return [3 /*break*/, 2];
-                        payload = {
-                            skipCustomListeners: true,
-                            skipIoMappings: true,
-                            instructions: [
-                                {
-                                    type: 'startBeforeActivity',
-                                    activityId: startActivityId,
-                                    variables: {},
-                                },
-                                {
-                                    type: 'cancel',
-                                    activityId: cancelActivityId,
-                                    variables: {},
-                                },
-                            ],
-                            annotation: annotation,
-                        };
-                        setSubmitted(true);
-                        return [4 /*yield*/, post(api, "/process-instance/".concat(processInstanceId, "/modification"), {}, JSON.stringify(payload))];
+                        if (!autoRefresh) {
+                            console.log('Auto refresh is off, stopping polling');
+                            if (intervalId) {
+                                clearInterval(intervalId);
+                            }
+                            localStorage.removeItem(LAST_ACTIVITY_KEY);
+                            return [2 /*return*/];
+                        }
+                        if (!window.location.href.includes(processInstanceId)) {
+                            console.log('Process instance no longer in URL, stopping polling');
+                            if (intervalId) {
+                                clearInterval(intervalId);
+                            }
+                            localStorage.removeItem(LAST_ACTIVITY_KEY);
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, get(api, '/history/activity-instance', {
+                                processInstanceId: processInstanceId,
+                                sortBy: 'endTime',
+                                sortOrder: 'desc',
+                                maxResults: '1',
+                            })];
                     case 1:
-                        _b.sent();
-                        _b.label = 2;
-                    case 2: return [2 /*return*/];
+                        latestActivityId = ((_b = (_a = (_c.sent())) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.id) || null;
+                        if (latestActivityId === null) {
+                            console.log('No activities found, stopping polling');
+                            if (intervalId) {
+                                clearInterval(intervalId);
+                            }
+                            localStorage.removeItem(LAST_ACTIVITY_KEY);
+                            return [2 /*return*/];
+                        }
+                        if (previousActivityData[0] !== null && latestActivityId !== previousActivityData[0]) {
+                            console.log('New activity detected, updating lastHistoricActivity');
+                            // Save activity ID and interval ID as array
+                            localStorage.setItem(LAST_ACTIVITY_KEY + processInstanceId, JSON.stringify([latestActivityId, (intervalId === null || intervalId === void 0 ? void 0 : intervalId.toString()) || null]));
+                            injector = angular.element(document.body).injector();
+                            $route = injector.get('$route');
+                            $route.reload();
+                        }
+                        localStorage.setItem(LAST_ACTIVITY_KEY + processInstanceId, JSON.stringify([latestActivityId, (intervalId === null || intervalId === void 0 ? void 0 : intervalId.toString()) || null]));
+                        return [2 /*return*/];
                 }
             });
-        });
-    };
-    return (React.createElement(ReactFinalForm, { onSubmit: onSubmit, render: function (_a) {
-            var handleSubmit = _a.handleSubmit;
-            return (React.createElement("form", { onSubmit: handleSubmit },
-                React.createElement("h2", { style: { fontSize: '100%', fontWeight: 'bold' } }, "Move token"),
-                React.createElement("table", { className: "cam-table" },
-                    React.createElement("thead", null,
-                        React.createElement("th", null,
-                            React.createElement("label", { htmlFor: "cancelActivityId" }, "From")),
-                        React.createElement("th", null,
-                            React.createElement("label", { htmlFor: "startActivityId" }, "To")),
-                        React.createElement("th", null,
-                            React.createElement("label", { htmlFor: "annotation" }, "Reason"))),
-                    React.createElement("tbody", null,
-                        React.createElement("tr", null,
-                            React.createElement("td", null,
-                                React.createElement(Field, { className: "form-control", name: "cancelActivityId", component: "input" })),
-                            React.createElement("td", null,
-                                React.createElement(Field, { className: "form-control", name: "startActivityId", component: "input" })),
-                            React.createElement("td", null,
-                                React.createElement(Field, { className: "form-control", name: "annotation", component: "input" })),
-                            React.createElement("td", null,
-                                React.createElement("button", { type: "submit", disabled: submitted }, "Move"))))),
-                React.createElement("p", null, "Warning! Use with extreme care. This form could be used to terminate process inadvertently.")));
-        } }));
+        }); };
+        var startPolling = function () {
+            var lastIntervalId = previousActivityData[1];
+            if (lastIntervalId) {
+                clearInterval(parseInt(lastIntervalId));
+            }
+            intervalId = setInterval(poll, 1000); // Poll every 1 second
+            localStorage.setItem(LAST_ACTIVITY_KEY + processInstanceId, JSON.stringify([previousActivityData[0], intervalId.toString()]));
+        };
+        // Start polling if autoRefresh is enabled
+        if (autoRefresh) {
+            console.log('Auto refresh is on, starting polling');
+            startPolling();
+        }
+        // Cleanup
+        return function () {
+            if (intervalId) {
+                clearInterval(intervalId);
+                localStorage.removeItem(LAST_ACTIVITY_KEY);
+            }
+        };
+    }, [autoRefresh, previousActivityData]);
+    return (React.createElement("button", { className: "toggle-auto-refresh-button", title: !autoRefresh ? 'Auto refresh view' : 'Auto refresh view off', "aria-label": !autoRefresh ? 'Auto refresh view' : 'Auto refresh view off', onClick: function () { return setAutoRefresh(!autoRefresh); } }, !!autoRefresh ? (React.createElement(TbRefresh, { style: { opacity: !autoRefresh ? '0.33' : '1.0', fontSize: '133%' } })) : (React.createElement(TbRefreshOff, { style: { opacity: !autoRefresh ? '0.33' : '1.0', fontSize: '133%' } }))));
 };
-var instanceTabModify = [
+
+var instanceAutoRefresh = [
     {
-        id: 'instanceTabModify',
-        pluginPoint: 'cockpit.processInstance.runtime.tab',
-        properties: {
-            label: 'Modify',
-        },
-        render: function (node, _a) {
+        id: 'instanceDiagramAutoRefresh',
+        pluginPoint: 'cockpit.processInstance.diagram.plugin',
+        render: function (viewer, _a) {
             var api = _a.api, processInstanceId = _a.processInstanceId;
             (function () { return __awaiter(void 0, void 0, void 0, function () {
+                var toggleAutoRefreshButton;
                 return __generator(this, function (_a) {
-                    createRoot(node).render(React.createElement(React.StrictMode, null,
-                        React.createElement(MoveTokenForm, { api: api, processInstanceId: processInstanceId })));
+                    toggleAutoRefreshButton = document.createElement('div');
+                    toggleAutoRefreshButton.style.cssText = "\n          position: absolute;\n          right: 15px;\n          bottom: 115px;\n        ";
+                    viewer._container.appendChild(toggleAutoRefreshButton);
+                    createRoot(toggleAutoRefreshButton).render(React.createElement(React.StrictMode, null,
+                        React.createElement(ToggleAutoRefreshButton, { api: api, processInstanceId: processInstanceId })));
                     return [2 /*return*/];
                 });
             }); })();
@@ -2814,4 +1463,4 @@ var instanceTabModify = [
     },
 ];
 
-export { instanceTabModify as default };
+export { instanceAutoRefresh as default };
