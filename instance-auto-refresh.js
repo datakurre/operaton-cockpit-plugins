@@ -1361,26 +1361,26 @@ var LAST_ACTIVITY_KEY = "lastHistoricActivity_";
 var ToggleAutoRefreshButton = function (_a) {
     var api = _a.api, processInstanceId = _a.processInstanceId;
     var _b = reactExports.useState(loadSettings().autoRefresh), autoRefresh = _b[0], setAutoRefresh = _b[1];
-    var previousActivityData = reactExports.useState(JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]'))[0];
     reactExports.useEffect(function () {
+        if (!autoRefresh) {
+            var previousActivityData = JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]');
+            if (previousActivityData[1]) {
+                console.log('Auto refresh is off, clearing last activity data');
+                clearInterval(parseInt(previousActivityData[1]));
+            }
+            localStorage.removeItem(LAST_ACTIVITY_KEY + processInstanceId);
+        }
         saveSettings(__assign$1(__assign$1({}, loadSettings()), { autoRefresh: autoRefresh }));
     }, [autoRefresh]);
     reactExports.useEffect(function () {
         var intervalId;
         var poll = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var latestActivityId, injector, $route;
+            var previousActivityData, latestActivityId, injector, $route;
             var _a, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        if (!autoRefresh) {
-                            console.log('Auto refresh is off, stopping polling');
-                            if (intervalId) {
-                                clearInterval(intervalId);
-                            }
-                            localStorage.removeItem(LAST_ACTIVITY_KEY);
-                            return [2 /*return*/];
-                        }
+                        previousActivityData = JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]');
                         if (!window.location.href.includes(processInstanceId)) {
                             console.log('Process instance no longer in URL, stopping polling');
                             if (intervalId) {
@@ -1419,6 +1419,7 @@ var ToggleAutoRefreshButton = function (_a) {
             });
         }); };
         var startPolling = function () {
+            var previousActivityData = JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]');
             var lastIntervalId = previousActivityData[1];
             if (lastIntervalId) {
                 clearInterval(parseInt(lastIntervalId));
@@ -1438,7 +1439,7 @@ var ToggleAutoRefreshButton = function (_a) {
                 localStorage.removeItem(LAST_ACTIVITY_KEY);
             }
         };
-    }, [autoRefresh, previousActivityData]);
+    }, [autoRefresh]);
     return (React.createElement("button", { className: "toggle-auto-refresh-button", title: !autoRefresh ? 'Auto refresh view' : 'Auto refresh view off', "aria-label": !autoRefresh ? 'Auto refresh view' : 'Auto refresh view off', onClick: function () { return setAutoRefresh(!autoRefresh); } }, !!autoRefresh ? (React.createElement(TbRefresh, { style: { opacity: !autoRefresh ? '0.33' : '1.0', fontSize: '133%' } })) : (React.createElement(TbRefreshOff, { style: { opacity: !autoRefresh ? '0.33' : '1.0', fontSize: '133%' } }))));
 };
 
