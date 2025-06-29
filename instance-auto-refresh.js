@@ -1453,7 +1453,7 @@ var instanceAutoRefresh = [
                 var toggleAutoRefreshButton;
                 return __generator(this, function (_a) {
                     toggleAutoRefreshButton = document.createElement('div');
-                    toggleAutoRefreshButton.style.cssText = "\n          position: absolute;\n          right: 15px;\n          bottom: 115px;\n        ";
+                    toggleAutoRefreshButton.style.cssText = "\n          position: absolute;\n          right: 15px;\n          bottom: 120px;\n        ";
                     viewer._container.appendChild(toggleAutoRefreshButton);
                     createRoot(toggleAutoRefreshButton).render(React.createElement(React.StrictMode, null,
                         React.createElement(ToggleAutoRefreshButton, { api: api, processInstanceId: processInstanceId })));
