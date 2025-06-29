@@ -13,11 +13,18 @@ const LAST_ACTIVITY_KEY = `lastHistoricActivity_`;
 
 export const ToggleAutoRefreshButton = ({ api, processInstanceId }: any) => {
   const [autoRefresh, setAutoRefresh] = useState(loadSettings().autoRefresh);
-  const [previousActivityData] = useState<[string | null, string | null]>(
-    JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]')
-  );
 
   useEffect(() => {
+    if (!autoRefresh) {
+      const previousActivityData = JSON.parse(
+        localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]'
+      );
+      if (previousActivityData[1]) {
+        console.log('Auto refresh is off, clearing last activity data');
+        clearInterval(parseInt(previousActivityData[1]));
+      }
+      localStorage.removeItem(LAST_ACTIVITY_KEY + processInstanceId);
+    }
     saveSettings({
       ...loadSettings(),
       autoRefresh,
@@ -28,14 +35,9 @@ export const ToggleAutoRefreshButton = ({ api, processInstanceId }: any) => {
     let intervalId: NodeJS.Timeout | undefined;
 
     const poll = async () => {
-      if (!autoRefresh) {
-        console.log('Auto refresh is off, stopping polling');
-        if (intervalId) {
-          clearInterval(intervalId);
-        }
-        localStorage.removeItem(LAST_ACTIVITY_KEY);
-        return;
-      }
+      const previousActivityData = JSON.parse(
+        localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]'
+      );
 
       if (!window.location.href.includes(processInstanceId)) {
         console.log('Process instance no longer in URL, stopping polling');
@@ -87,6 +89,10 @@ export const ToggleAutoRefreshButton = ({ api, processInstanceId }: any) => {
     };
 
     const startPolling = () => {
+      const previousActivityData = JSON.parse(
+        localStorage.getItem(LAST_ACTIVITY_KEY + processInstanceId) || '[null, null]'
+      );
+
       const lastIntervalId = previousActivityData[1];
       if (lastIntervalId) {
         clearInterval(parseInt(lastIntervalId));
@@ -112,7 +118,7 @@ export const ToggleAutoRefreshButton = ({ api, processInstanceId }: any) => {
         localStorage.removeItem(LAST_ACTIVITY_KEY);
       }
     };
-  }, [autoRefresh, previousActivityData]);
+  }, [autoRefresh]);
 
   return (
     <button
