@@ -2,6 +2,7 @@ import './ToggleHistoryViewButton.scss';
 
 import React, { useEffect, useState } from 'react';
 import { FaHistory } from 'react-icons/fa';
+
 import { loadSettings, saveSettings } from '../utils/misc';
 
 export const ToggleHistoryStatisticsButton = ({ onToggleHistoryStatistics }: any) => {

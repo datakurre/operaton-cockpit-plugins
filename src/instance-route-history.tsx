@@ -16,13 +16,13 @@ import Container from './Components/Container';
 import FilterBox from './Components/FilterBox';
 import HistoryTable from './Components/HistoryTable';
 import Page from './Components/Page';
+import Pagination from './Components/Pagination';
 import Portal from './Components/Portal';
 import { ToggleHistoryViewButton } from './Components/ToggleHistoryViewButton';
 import VariablesTable from './Components/VariablesTable';
 import { DefinitionPluginParams, RoutePluginParams } from './types';
 import { get, post } from './utils/api';
 import { PluginSettings, loadSettings, saveSettings } from './utils/misc';
-import Pagination from "./Components/Pagination";
 
 class InstanceQueryAutoCompleteHandler extends GridDataAutoCompleteHandler {
   query = '';
@@ -95,16 +95,14 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
 
   const [instances, setInstances]: any = useState([] as any[]);
   const [instancesCount, setInstancesCount] = useState(0);
-  const [currentPage, setCurrentPage]  = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(50);
   const [firstResult, setFirstResult] = useState(0);
   // FETCH
 
   useEffect(() => {
     (async () => {
-      setInstancesCount(
-        (await get(api, '/history/process-instance/count', { processDefinitionId })).count
-      )
+      setInstancesCount((await get(api, '/history/process-instance/count', { processDefinitionId })).count);
 
       setInstances(
         await post(
@@ -165,7 +163,7 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
 
   const pageClicked = (firstResult: number, page: number) => {
     setCurrentPage(page);
-    setFirstResult(firstResult)
+    setFirstResult(firstResult);
   };
 
   return historyTabNode ? (
@@ -347,10 +345,10 @@ export default [
                               </dt>
                               <dd>
                                 {(instance.superProcessInstanceId && (
-                                    <a href={`#/history/process-instance/${instance.superProcessInstanceId}`}>
-                                      {instance.superProcessInstanceId}
-                                    </a>
-                                  )) ||
+                                  <a href={`#/history/process-instance/${instance.superProcessInstanceId}`}>
+                                    {instance.superProcessInstanceId}
+                                  </a>
+                                )) ||
                                   'null'}
                               </dd>
                               <dt>
