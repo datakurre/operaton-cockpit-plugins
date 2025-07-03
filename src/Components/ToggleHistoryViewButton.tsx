@@ -1,4 +1,4 @@
-import './ToggleHistoryViewButton.scss';
+import './Button.scss';
 
 import React, { useEffect, useState } from 'react';
 import { FaHistory } from 'react-icons/fa';

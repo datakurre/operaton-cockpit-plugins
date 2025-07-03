@@ -1,4 +1,4 @@
-import './ToggleAutoRefreshButton.scss';
+import './Button.scss';
 
 import React, { useEffect, useState } from 'react';
 import { TbRefresh, TbRefreshOff } from 'react-icons/tb';
