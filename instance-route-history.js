@@ -59610,11 +59610,26 @@ var clearSequenceFlow = function (nodes) {
     }
 };
 
-___$insertStylesToHeader(".toggle-history-view-button {\n  background: #ffffff;\n  border-radius: 1px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-history-view-button:hover {\n  background: #e6e6e6;\n}");
+// THIS FILE IS AUTO GENERATED
+function IoMdLocate (props) {
+  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M256 176c-44.004 0-80.001 36-80.001 80 0 44.004 35.997 80 80.001 80 44.005 0 79.999-35.996 79.999-80 0-44-35.994-80-79.999-80zm190.938 58.667c-9.605-88.531-81.074-160-169.605-169.599V32h-42.666v33.067c-88.531 9.599-160 81.068-169.604 169.599H32v42.667h33.062c9.604 88.531 81.072 160 169.604 169.604V480h42.666v-33.062c88.531-9.604 160-81.073 169.605-169.604H480v-42.667h-33.062zM256 405.333c-82.137 0-149.334-67.198-149.334-149.333 0-82.136 67.197-149.333 149.334-149.333 82.135 0 149.332 67.198 149.332 149.333S338.135 405.333 256 405.333z"}}]})(props);
+}
+
+var ResetZoomButton = function (_a) {
+    var onResetZoom = _a.onResetZoom;
+    return (React.createElement("button", { onClick: onResetZoom, title: "Reset Zoom", "aria-label": "Reset Zoom", className: "reset-zoom-button" },
+        React.createElement(IoMdLocate, { size: 25 })));
+};
+
+___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-sequence-flow-button,\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-sequence-flow-button:hover,\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}");
 
 // THIS FILE IS AUTO GENERATED
 function FaHistory (props) {
   return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M504 255.531c.253 136.64-111.18 248.372-247.82 248.468-59.015.042-113.223-20.53-155.822-54.911-11.077-8.94-11.905-25.541-1.839-35.607l11.267-11.267c8.609-8.609 22.353-9.551 31.891-1.984C173.062 425.135 212.781 440 256 440c101.705 0 184-82.311 184-184 0-101.705-82.311-184-184-184-48.814 0-93.149 18.969-126.068 49.932l50.754 50.754c10.08 10.08 2.941 27.314-11.313 27.314H24c-8.837 0-16-7.163-16-16V38.627c0-14.254 17.234-21.393 27.314-11.314l49.372 49.372C129.209 34.136 189.552 8 256 8c136.81 0 247.747 110.78 248 247.531zm-180.912 78.784l9.823-12.63c8.138-10.463 6.253-25.542-4.21-33.679L288 256.349V152c0-13.255-10.745-24-24-24h-16c-13.255 0-24 10.745-24 24v135.651l65.409 50.874c10.463 8.137 25.541 6.253 33.679-4.21z"}}]})(props);
+}function FaMinus (props) {
+  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 448 512"},"child":[{"tag":"path","attr":{"d":"M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"}}]})(props);
+}function FaPlus (props) {
+  return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 448 512"},"child":[{"tag":"path","attr":{"d":"M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"}}]})(props);
 }
 
 var ToggleHistoryViewButton = function (_a) {
@@ -59627,8 +59642,6 @@ var ToggleHistoryViewButton = function (_a) {
         React.createElement(FaHistory, { style: { opacity: !showHistoryView ? '0.33' : '1.0', fontSize: '133%' } })));
 };
 
-___$insertStylesToHeader(".toggle-sequence-flow-button {\n  background: #ffffff;\n  border-radius: 1px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-sequence-flow-button:hover {\n  background: #e6e6e6;\n}");
-
 // THIS FILE IS AUTO GENERATED
 function GiStrikingArrows (props) {
   return GenIcon({"tag":"svg","attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M136.564 31.01l239.67 149.595c-12.418 21.234-20.756 28.302-45.027 46.936l156.3-26.33-85.603-125.474c4.936 24.85 8.85 38.5.75 60.49L136.568 31.01h-.004zM21.524 42.75l83.13 325.893c-21.017 5.232-30.98 3.262-58.875-3.96l124.046 113.45 13.426-166.844c-10.836 23.322-15.94 37.197-34.342 46.82L21.523 42.75zm64.353.215l252.2 353.16c-23.285 16.947-36.38 19.583-73.83 24.9l200.66 71.74L407.7 286.944c-2.477 33.743-2.313 53.14-20.37 74.09L85.877 42.965z"}}]})(props);
@@ -59637,12 +59650,29 @@ function GiStrikingArrows (props) {
 var ToggleSequenceFlowButton = function (_a) {
     var onToggleSequenceFlow = _a.onToggleSequenceFlow;
     var _b = reactExports.useState(loadSettings().showSequenceFlow), showSequenceFlow = _b[0], setShowSequenceFlow = _b[1];
+    console.log('Set sequence flow: ', showSequenceFlow);
     reactExports.useEffect(function () {
         onToggleSequenceFlow(showSequenceFlow);
         saveSettings(__assign$1(__assign$1({}, loadSettings()), { showSequenceFlow: showSequenceFlow }));
     }, [showSequenceFlow]);
     return (React.createElement("button", { className: "toggle-sequence-flow-button", title: !showSequenceFlow ? 'Show sequence flow' : 'Hide sequence flow', "aria-label": !showSequenceFlow ? 'Show sequence flow' : 'Hide sequence flow', onClick: function () { return setShowSequenceFlow(!showSequenceFlow); } },
         React.createElement(GiStrikingArrows, { style: { opacity: !showSequenceFlow ? '0.33' : '1.0', fontSize: '133%' } })));
+};
+
+var ZoomInButton = function (_a) {
+    var onZoomIn = _a.onZoomIn;
+    return (React.createElement("button", { onClick: onZoomIn, title: "Zoom In", "aria-label": "Zoom In", className: "zoom-in-button", style: {
+            marginBottom: 0,
+        } },
+        React.createElement(FaPlus, { size: 20 })));
+};
+
+var ZoomOutButton = function (_a) {
+    var onZoomOut = _a.onZoomOut;
+    return (React.createElement("button", { onClick: onZoomOut, title: "Zoom Out", "aria-label": "Zoom Out", className: "zoom-out-button", style: {
+            marginTop: -1,
+        } },
+        React.createElement(FaMinus, { size: 20 })));
 };
 
 var BPMNViewer = function (diagram) { return __awaiter(void 0, void 0, void 0, function () {
@@ -59706,7 +59736,7 @@ var BPMN = function (_a) {
     var ref = reactExports.useRef(null);
     reactExports.useEffect(function () {
         (function () { return __awaiter(void 0, void 0, void 0, function () {
-            var viewer, canvas, buttons, sequenceFlow_1;
+            var viewer, canvas_1, buttons, sequenceFlow_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, BPMNViewer(diagramXML)];
@@ -59715,11 +59745,11 @@ var BPMN = function (_a) {
                         if (ref.current !== null) {
                             ref.current.innerHTML = '';
                             viewer.attachTo(ref.current);
-                            canvas = viewer.get('canvas');
-                            canvas.zoom('fit-viewport');
+                            canvas_1 = viewer.get('canvas');
+                            canvas_1.zoom('fit-viewport');
                             renderActivities(viewer, activities !== null && activities !== void 0 ? activities : []);
                             buttons = document.createElement('div');
-                            buttons.style.cssText = "\n          position: absolute;\n          right: 15px;\n          top: 15px;\n        ";
+                            buttons.style.cssText = "\n        display: flex;\n        flex-direction: column;\n          position: absolute;\n          right: 15px;\n          top: 15px;\n          bottom: 45px;\n        ";
                             viewer._container.appendChild(buttons);
                             sequenceFlow_1 = [];
                             createRoot$2(buttons).render(React.createElement(React.StrictMode, null,
@@ -59737,7 +59767,11 @@ var BPMN = function (_a) {
                                                 window.location.href.split('#')[0] +
                                                     window.location.hash.split('?')[0].replace(/^#\/history\/process-instance/, '#/process-instance');
                                         }
-                                    }, initial: true })) : null));
+                                    }, initial: true })) : null,
+                                React.createElement("div", { style: { marginTop: 'auto', display: 'flex', flexDirection: 'column' } },
+                                    React.createElement(ResetZoomButton, { onResetZoom: function () { return canvas_1.zoom('fit-viewport'); } }),
+                                    React.createElement(ZoomInButton, { onZoomIn: function () { return canvas_1.zoom(canvas_1.zoom() + 0.1); } }),
+                                    React.createElement(ZoomOutButton, { onZoomOut: function () { return canvas_1.zoom(canvas_1.zoom() - 0.1); } }))));
                         }
                         return [2 /*return*/];
                 }
@@ -71665,7 +71699,7 @@ var instanceRouteHistory = [
             var settings = loadSettings();
             if (processInstanceId) {
                 (function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var instance, _a, version, diagram, activities, variables, decisions, decisionByActivity, activityById;
+                    var instance, _a, version, definition, diagram, activities, variables, decisions, decisionByActivity, activityById;
                     return __generator(this, function (_b) {
                         switch (_b.label) {
                             case 0: return [4 /*yield*/, get(api, "/history/process-instance/".concat(processInstanceId))];
@@ -71673,13 +71707,14 @@ var instanceRouteHistory = [
                                 instance = _b.sent();
                                 return [4 /*yield*/, Promise.all([
                                         get(api, "/version"),
+                                        get(api, "/process-definition/".concat(instance.processDefinitionId)),
                                         get(api, "/process-definition/".concat(instance.processDefinitionId, "/xml")),
                                         get(api, '/history/activity-instance', { processInstanceId: processInstanceId }),
                                         get(api, '/history/variable-instance', { processInstanceId: processInstanceId }),
                                         get(api, '/history/decision-instance', { processInstanceId: processInstanceId }),
                                     ])];
                             case 2:
-                                _a = _b.sent(), version = _a[0].version, diagram = _a[1], activities = _a[2], variables = _a[3], decisions = _a[4];
+                                _a = _b.sent(), version = _a[0].version, definition = _a[1], diagram = _a[2], activities = _a[3], variables = _a[4], decisions = _a[5];
                                 decisionByActivity = new Map(decisions.map(function (decision) { return [decision.activityInstanceId, decision.id]; }));
                                 activityById = new Map(activities.map(function (activity) { return [activity.id, activity]; }));
                                 activities.sort(function (a, b) {
@@ -71723,13 +71758,14 @@ var instanceRouteHistory = [
                                                                     React.createElement("dd", null, instance.id),
                                                                     React.createElement("dt", null,
                                                                         React.createElement(Clippy, { value: instance.businessKey || 'null' }, "Business Key:")),
-                                                                    React.createElement("dd", null, instance.businessKey || 'null'),
+                                                                    React.createElement("dd", null, instance.businessKey || React.createElement("code", null, "null")),
                                                                     React.createElement("dt", null,
                                                                         React.createElement(Clippy, { value: instance.processDefinitionVersion }, "Definition Version:")),
                                                                     React.createElement("dd", null, instance.processDefinitionVersion),
                                                                     React.createElement("dt", null,
                                                                         React.createElement(Clippy, { value: instance.processdefinitionid }, "Definition ID:")),
-                                                                    React.createElement("dd", null, instance.processDefinitionId),
+                                                                    React.createElement("dd", null,
+                                                                        React.createElement("a", { href: "#/process-definition/".concat(instance.processDefinitionId, "/runtime") }, instance.processDefinitionId)),
                                                                     React.createElement("dt", null,
                                                                         React.createElement(Clippy, { value: instance.processDefinitionKey }, "Definition Key:")),
                                                                     React.createElement("dd", null, instance.processDefinitionKey),
@@ -71737,14 +71773,17 @@ var instanceRouteHistory = [
                                                                         React.createElement(Clippy, { value: instance.processDefinitionName }, "Definition Name:")),
                                                                     React.createElement("dd", null, instance.processDefinitionName),
                                                                     React.createElement("dt", null,
-                                                                        React.createElement(Clippy, { value: instance.tenantId || 'null' }, "Tenant ID:")),
-                                                                    React.createElement("dd", null, instance.tenantId || 'null'),
+                                                                        React.createElement(Clippy, { value: instance.tenantId || React.createElement("code", null, "null") }, "Tenant ID:")),
+                                                                    React.createElement("dd", null, instance.tenantId || React.createElement("code", null, "null")),
+                                                                    React.createElement("dt", null,
+                                                                        React.createElement(Clippy, { value: definition.deploymentId }, "Deployment ID:")),
+                                                                    React.createElement("dd", null,
+                                                                        React.createElement("a", { href: "#/repository?deployment=".concat(definition.deploymentId, "&resourceName=").concat(definition.resource, "&deploymentsQuery=%5B%7B%22type%22%3A%22id%22%2C%22operator%22%3A%22eq%22%2C%22value%22%3A%22").concat(definition.deploymentId, "%22%7D%5D") }, definition.deploymentId)),
                                                                     React.createElement("dt", null,
                                                                         React.createElement(Clippy, { value: instance.superProcessInstanceId }, "Super Process instance ID:")),
-                                                                    React.createElement("dd", null, (instance.superProcessInstanceId && (React.createElement("a", { href: "#/history/process-instance/".concat(instance.superProcessInstanceId) }, instance.superProcessInstanceId))) ||
-                                                                        'null'),
+                                                                    React.createElement("dd", null, (instance.superProcessInstanceId && (React.createElement("a", { href: "#/history/process-instance/".concat(instance.superProcessInstanceId) }, instance.superProcessInstanceId))) || React.createElement("code", null, "null")),
                                                                     React.createElement("dt", null,
-                                                                        React.createElement(Clippy, { value: instance.state }, "State")),
+                                                                        React.createElement(Clippy, { value: instance.state }, "State:")),
                                                                     React.createElement("dd", null, instance.state)))),
                                                         React.createElement(Ae$2.Pane, null,
                                                             React.createElement(BPMN, { activities: activities, diagramXML: diagram.bpmn20Xml, className: "ctn-content", style: { width: '100%', height: '100%' }, showRuntimeToggle: instance.state === 'ACTIVE' })))),

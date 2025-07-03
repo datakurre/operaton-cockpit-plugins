@@ -514,7 +514,7 @@ var m = reactDomExports;
   m.hydrateRoot;
 }
 
-___$insertStylesToHeader(".toggle-auto-refresh-button {\n  background: #ffffff;\n  border-radius: 1px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover {\n  background: #e6e6e6;\n}");
+___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-sequence-flow-button,\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-sequence-flow-button:hover,\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}");
 
 var DefaultContext = {
   color: undefined,
