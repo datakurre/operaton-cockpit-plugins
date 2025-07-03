@@ -328,7 +328,11 @@ export default [
                               <dt>
                                 <Clippy value={instance.processdefinitionid}>Definition ID:</Clippy>
                               </dt>
-                              <dd>{instance.processDefinitionId}</dd>
+                              <dd>
+                                <a href={`#/process-definition/${instance.processDefinitionId}/runtime`}>
+                                  {instance.processDefinitionId}
+                                </a>
+                              </dd>
                               <dt>
                                 <Clippy value={instance.processDefinitionKey}>Definition Key:</Clippy>
                               </dt>
@@ -363,7 +367,7 @@ export default [
                                   'null'}
                               </dd>
                               <dt>
-                                <Clippy value={instance.state}>State</Clippy>
+                                <Clippy value={instance.state}>State:</Clippy>
                               </dt>
                               <dd>{instance.state}</dd>
                             </dl>
