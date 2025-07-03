@@ -320,7 +320,7 @@ export default [
                               <dt>
                                 <Clippy value={instance.businessKey || 'null'}>Business Key:</Clippy>
                               </dt>
-                              <dd>{instance.businessKey || 'null'}</dd>
+                              <dd>{instance.businessKey || <code>null</code>}</dd>
                               <dt>
                                 <Clippy value={instance.processDefinitionVersion}>Definition Version:</Clippy>
                               </dt>
@@ -342,9 +342,9 @@ export default [
                               </dt>
                               <dd>{instance.processDefinitionName}</dd>
                               <dt>
-                                <Clippy value={instance.tenantId || 'null'}>Tenant ID:</Clippy>
+                                <Clippy value={instance.tenantId || <code>null</code>}>Tenant ID:</Clippy>
                               </dt>
-                              <dd>{instance.tenantId || 'null'}</dd>
+                              <dd>{instance.tenantId || <code>null</code>}</dd>
                               <dt>
                                 <Clippy value={definition.deploymentId}>Deployment ID:</Clippy>
                               </dt>
@@ -363,8 +363,7 @@ export default [
                                   <a href={`#/history/process-instance/${instance.superProcessInstanceId}`}>
                                     {instance.superProcessInstanceId}
                                   </a>
-                                )) ||
-                                  'null'}
+                                )) || <code>null</code>}
                               </dd>
                               <dt>
                                 <Clippy value={instance.state}>State:</Clippy>
