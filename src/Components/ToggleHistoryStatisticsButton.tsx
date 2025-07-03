@@ -1,4 +1,4 @@
-import './ToggleHistoryViewButton.scss';
+import './Button.scss';
 
 import React, { useEffect, useState } from 'react';
 import { FaHistory } from 'react-icons/fa';
@@ -16,7 +16,7 @@ export const ToggleHistoryStatisticsButton = ({ onToggleHistoryStatistics }: any
   }, [showHistoricBadges]);
   return (
     <button
-      className="toggle-history-view-button"
+      className="toggle-history-statistics-button"
       title={!showHistoricBadges ? 'Show history instance statistics' : 'Hide history instance statistics'}
       aria-label={!showHistoricBadges ? 'Show history instance statistics' : 'Hide history instance statistics'}
       onClick={() => setShowHistoricBadges(!showHistoricBadges)}

@@ -1,6 +1,12 @@
-.toggle-sequence-flow-button {
+.toggle-auto-refresh-button,
+.toggle-history-view-button,
+.toggle-history-statistics-button,
+.toggle-sequence-flow-button,
+.zoom-in-button,
+.zoom-out-button,
+.reset-zoom-button {
   background: #ffffff;
-  border-radius: 1px;
+  border-radius: 2px;
   border: 1px solid #cccccc;
   padding: 0;
   width: 30px;

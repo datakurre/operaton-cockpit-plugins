@@ -8,8 +8,11 @@ import { createRoot } from 'react-dom/client';
 
 import RobotModule from '../RobotModule';
 import { clearSequenceFlow, renderSequenceFlow } from '../utils/bpmn';
+import ResetZoomButton from './ResetZoomButton';
 import { ToggleHistoryViewButton } from './ToggleHistoryViewButton';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';
+import ZoomInButton from './ZoomInButton';
+import ZoomOutButton from './ZoomOutButton';
 
 export const BPMNViewer = async (diagram: string) => {
   const model = new BpmnViewer({
@@ -84,9 +87,12 @@ const BPMN: React.FC<Props> = ({ activities, className, diagramXML, style, showR
 
         const buttons = document.createElement('div');
         buttons.style.cssText = `
+        display: flex;
+        flex-direction: column;
           position: absolute;
           right: 15px;
           top: 15px;
+          bottom: 45px;
         `;
         viewer._container.appendChild(buttons);
         let sequenceFlow: any[] = [];
@@ -113,6 +119,11 @@ const BPMN: React.FC<Props> = ({ activities, className, diagramXML, style, showR
                 initial={true}
               />
             ) : null}
+            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column' }}>
+              <ResetZoomButton onResetZoom={() => canvas.zoom('fit-viewport')} />
+              <ZoomInButton onZoomIn={() => canvas.zoom(canvas.zoom() + 0.1)} />
+              <ZoomOutButton onZoomOut={() => canvas.zoom(canvas.zoom() - 0.1)} />
+            </div>
           </React.StrictMode>
         );
       }
