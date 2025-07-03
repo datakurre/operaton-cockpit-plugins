@@ -248,8 +248,9 @@ export default [
       if (processInstanceId) {
         (async () => {
           const instance = await get(api, `/history/process-instance/${processInstanceId}`);
-          const [{ version }, diagram, activities, variables, decisions] = await Promise.all([
+          const [{ version }, definition, diagram, activities, variables, decisions] = await Promise.all([
             get(api, `/version`),
+            get(api, `/process-definition/${instance.processDefinitionId}`),
             get(api, `/process-definition/${instance.processDefinitionId}/xml`),
             get(api, '/history/activity-instance', { processInstanceId }),
             get(api, '/history/variable-instance', { processInstanceId }),
@@ -340,6 +341,16 @@ export default [
                                 <Clippy value={instance.tenantId || 'null'}>Tenant ID:</Clippy>
                               </dt>
                               <dd>{instance.tenantId || 'null'}</dd>
+                              <dt>
+                                <Clippy value={definition.deploymentId}>Deployment ID:</Clippy>
+                              </dt>
+                              <dd>
+                                <a
+                                  href={`#/repository?deployment=${definition.deploymentId}&resourceName=${definition.resource}&deploymentsQuery=%5B%7B%22type%22%3A%22id%22%2C%22operator%22%3A%22eq%22%2C%22value%22%3A%22${definition.deploymentId}%22%7D%5D`}
+                                >
+                                  {definition.deploymentId}
+                                </a>
+                              </dd>
                               <dt>
                                 <Clippy value={instance.superProcessInstanceId}>Super Process instance ID:</Clippy>
                               </dt>
