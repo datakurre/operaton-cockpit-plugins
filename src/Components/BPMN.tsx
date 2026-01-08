@@ -76,34 +76,44 @@ const BPMN: React.FC<Props> = ({ activities, className, diagramXML, style, showR
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    (async () => {
-      const viewer: any = await BPMNViewer(diagramXML);
-      if (ref.current !== null) {
+    const executeViewerSetup = async () => {
+      if (ref.current && ref.current.clientHeight && ref.current.clientHeight > 0) {
+        const viewer: any = await BPMNViewer(diagramXML);
         ref.current.innerHTML = '';
         viewer.attachTo(ref.current);
+
         const canvas = viewer.get('canvas');
-        canvas.zoom('fit-viewport');
+        setTimeout(() => {
+          canvas.zoom('fit-viewport', 'auto');
+          canvas.scroll({ dx: 0, dy: 0 });
+        });
+
         renderActivities(viewer, activities ?? []);
 
         const buttons = document.createElement('div');
         buttons.style.cssText = `
-        display: flex;
-        flex-direction: column;
-          position: absolute;
-          right: 15px;
-          top: 15px;
-          bottom: 45px;
-        `;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            bottom: 45px;
+          `;
         viewer._container.appendChild(buttons);
-        let sequenceFlow: any[] = [];
+        const sequenceFlow: any[] = [];
         createRoot(buttons!).render(
           <React.StrictMode>
             <ToggleSequenceFlowButton
               onToggleSequenceFlow={(value: boolean) => {
                 if (value) {
-                  sequenceFlow = renderSequenceFlow(viewer, activities ?? []);
+                  if (sequenceFlow.length === 0) {
+                    sequenceFlow.splice(0, sequenceFlow.length, ...renderSequenceFlow(viewer, activities ?? []));
+                  }
                 } else {
-                  clearSequenceFlow(sequenceFlow);
+                  if (sequenceFlow.length > 0) {
+                    clearSequenceFlow(sequenceFlow);
+                    sequenceFlow.length = 0;
+                  }
                 }
               }}
             />
@@ -120,14 +130,32 @@ const BPMN: React.FC<Props> = ({ activities, className, diagramXML, style, showR
               />
             ) : null}
             <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column' }}>
-              <ResetZoomButton onResetZoom={() => canvas.zoom('fit-viewport')} />
+              <ResetZoomButton
+                onResetZoom={() => {
+                  canvas.zoom('fit-viewport', 'auto');
+                  canvas.scroll({ dx: 0, dy: 0 });
+                }}
+              />
               <ZoomInButton onZoomIn={() => canvas.zoom(canvas.zoom() + 0.1)} />
               <ZoomOutButton onZoomOut={() => canvas.zoom(canvas.zoom() - 0.1)} />
             </div>
           </React.StrictMode>
         );
       }
-    })();
+    };
+
+    const observer = new ResizeObserver(() => {
+      if (ref.current?.clientHeight || 0 > 0) {
+        setTimeout(executeViewerSetup);
+        if (ref.current) {
+          observer.unobserve(ref.current);
+        }
+      }
+    });
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
   }, [diagramXML]);
 
   return <div className={className} ref={ref} style={style} />;

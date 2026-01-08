@@ -7,7 +7,6 @@ import { loadSettings, saveSettings } from '../utils/misc';
 
 export const ToggleSequenceFlowButton = ({ onToggleSequenceFlow }: any) => {
   const [showSequenceFlow, setShowSequenceFlow] = useState(loadSettings().showSequenceFlow);
-  console.log('Set sequence flow: ', showSequenceFlow);
   useEffect(() => {
     onToggleSequenceFlow(showSequenceFlow);
     saveSettings({
