@@ -54,15 +54,20 @@ export default [
           top: 15px;
         `;
         viewer._container.appendChild(toggleSequenceFlowButton);
-        let sequenceFlow: any[] = [];
+        const sequenceFlow: any[] = [];
         createRoot(toggleSequenceFlowButton!).render(
           <React.StrictMode>
             <ToggleSequenceFlowButton
               onToggleSequenceFlow={(value: boolean) => {
                 if (value) {
-                  sequenceFlow = renderSequenceFlow(viewer, activities ?? []);
+                  if (sequenceFlow.length === 0) {
+                    sequenceFlow.splice(0, sequenceFlow.length, ...renderSequenceFlow(viewer, activities ?? []));
+                  }
                 } else {
-                  clearSequenceFlow(sequenceFlow);
+                  if (sequenceFlow.length > 0) {
+                    clearSequenceFlow(sequenceFlow);
+                    sequenceFlow.length = 0;
+                  }
                 }
               }}
             />
