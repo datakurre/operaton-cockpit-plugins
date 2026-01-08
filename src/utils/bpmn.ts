@@ -1,8 +1,8 @@
-import { Activity, Point } from 'bpmn-moddle';
 import { filter, forEach, map, uniqueBy } from 'min-dash';
 import { query as domQuery } from 'min-dom';
 import { createCurve } from 'svg-curves';
 import { append as svgAppend, attr as svgAttr, create as svgCreate, remove as svgRemove } from 'tiny-svg';
+import BPMNModdle from 'bpmn-moddle';
 
 const FILL = '#52B415';
 
@@ -11,7 +11,7 @@ interface XY {
   y: number;
 }
 
-const getConnections = (activities: any[], elementRegistry: any): Activity[] => {
+const getConnections = (activities: any[], elementRegistry: any): BPMNModdle.Activity[] => {
   const validActivity: Map<string, boolean> = new Map();
   const startTimesById: Map<string, any[]> = new Map();
   const endTimesById: Map<string, any[]> = new Map();
@@ -33,9 +33,9 @@ const getConnections = (activities: any[], elementRegistry: any): Activity[] => 
       startTimesById.set(activity.activityId, [activity.startTime || 'Z']);
     }
   }
-  const elementById: Map<string, Activity> = new Map(
+  const elementById: Map<string, BPMNModdle.Activity> = new Map(
     map(activities, (activity: any) => {
-      const element = elementRegistry.get(activity.activityId) as Activity;
+      const element = elementRegistry.get(activity.activityId) as BPMNModdle.Activity;
 
       // Side effect! Populate connectionDenyList for gateways by sorting outgoing
       // paths in ascending order by their target activity start time and list everything
@@ -53,16 +53,16 @@ const getConnections = (activities: any[], elementRegistry: any): Activity[] => 
             return startTimesA.length <= idx
               ? 1
               : startTimesB.length <= idx
-              ? -1
-              : startA < myEndTime
-              ? 1
-              : startB < myEndTime
-              ? -1
-              : startA > startB
-              ? 1
-              : startA < startB
-              ? -1
-              : 0;
+                ? -1
+                : startA < myEndTime
+                  ? 1
+                  : startB < myEndTime
+                    ? -1
+                    : startA > startB
+                      ? 1
+                      : startA < startB
+                        ? -1
+                        : 0;
           });
           activeConnections.push(element.outgoing[0].id);
         }
@@ -88,7 +88,7 @@ const getConnections = (activities: any[], elementRegistry: any): Activity[] => 
           return false;
         }
         const incomingEndTimes = validActivity.get(connection.source.id)
-          ? endTimesById.get(connection.source.id) ?? []
+          ? (endTimesById.get(connection.source.id) ?? [])
           : [];
         return incomingEndTimes.reduce(
           (acc: boolean, iET: string) =>
@@ -113,7 +113,7 @@ const getConnections = (activities: any[], elementRegistry: any): Activity[] => 
     }
   };
 
-  let connections: Activity[] = [];
+  let connections: BPMNModdle.Activity[] = [];
 
   forEach(Array.from(elementById.keys() as any), (activityId: any) => {
     connections = uniqueBy('id' as any, [...connections, ...getActivityConnections(activityId)]) as any;
@@ -122,7 +122,7 @@ const getConnections = (activities: any[], elementRegistry: any): Activity[] => 
   return connections;
 };
 
-const getMid = (shape: Point): XY => {
+const getMid = (shape: BPMNModdle.Bounds): XY => {
   return {
     x: shape.x + shape.width / 2,
     y: shape.y + shape.height / 2,
@@ -214,5 +214,40 @@ export const renderSequenceFlow = (viewer: any, activities: any[]): any[] => {
 export const clearSequenceFlow = (nodes: any[]) => {
   for (const node of nodes) {
     svgRemove(node);
+  }
+};
+
+export const renderActivities = (viewer: any, activities: any[]) => {
+  const counter: Record<string, number> = {};
+  for (const activity of activities) {
+    const id = activity.activityId;
+    counter[id] = counter[id] ? counter[id] + 1 : 1;
+  }
+
+  const seen: Record<string, boolean> = {};
+  const overlays = viewer.get('overlays');
+  for (const activity of activities) {
+    const id = activity.activityId;
+    if (seen[id]) {
+      continue;
+    } else {
+      seen[id] = true;
+    }
+
+    const overlay = document.createElement('span');
+    overlay.innerText = `${counter[id]}`;
+    overlay.className = 'badge';
+    overlay.style.cssText = `
+      background: lightgray;
+      border: 1px solid #143d52;
+      color: #143d52;
+    `;
+    overlays.add(id.split('#')[0], {
+      position: {
+        bottom: 17,
+        right: 10,
+      },
+      html: overlay,
+    });
   }
 };
