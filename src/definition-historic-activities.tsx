@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Expression, GridDataAutoCompleteHandler } from 'react-filter-box';
+import { Expression, GridDataAutoCompleteHandler } from '@waylay/react-filter-box';
 
 import FilterBox from './Components/FilterBox';
 import Portal from './Components/Portal';

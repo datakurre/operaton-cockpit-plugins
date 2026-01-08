@@ -5,7 +5,7 @@ import './instance-route-history.scss';
 import { Allotment } from 'allotment';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Expression, GridDataAutoCompleteHandler } from 'react-filter-box';
+import { Expression, GridDataAutoCompleteHandler } from '@waylay/react-filter-box';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 
 import AuditLogTable from './Components/AuditLogTable';
@@ -22,7 +22,7 @@ import { ToggleHistoryViewButton } from './Components/ToggleHistoryViewButton';
 import VariablesTable from './Components/VariablesTable';
 import { DefinitionPluginParams, RoutePluginParams } from './types';
 import { get, post } from './utils/api';
-import { PluginSettings, loadSettings, saveSettings } from './utils/misc';
+import { loadSettings, saveSettings } from './utils/misc';
 
 class InstanceQueryAutoCompleteHandler extends GridDataAutoCompleteHandler {
   query = '';
