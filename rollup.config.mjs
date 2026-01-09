@@ -118,4 +118,16 @@ export default [
     },
     plugins,
   },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/instance-action-unlock.tsx",
+    output: {
+      file: "instance-action-unlock.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
 ];
