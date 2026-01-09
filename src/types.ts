@@ -20,6 +20,13 @@ export interface DefinitionPluginParams {
 export interface InstancePluginParams {
   api: API;
   processInstanceId: string;
+  processDefinitionId?: string;
+  processData?: {
+    id: string;
+    definitionId?: string;
+    processDefinitionId?: string;
+    [key: string]: any;
+  };
 }
 
 export interface TaskListPluginParams {
