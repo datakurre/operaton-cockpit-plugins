@@ -10,11 +10,14 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
   - [src/instance-historic-activities.tsx](src/instance-historic-activities.tsx): Adds audit-log tab and diagram overlays for a process instance, including sequence-flow highlighting.
   - [src/instance-route-history.tsx](src/instance-route-history.tsx): Full history route (`#/history/process-instance/:id`) with breadcrumbs, BPMN viewer, audit log, variables, pagination, and filter box.
   - [src/instance-auto-refresh.tsx](src/instance-auto-refresh.tsx): Diagram plugin exposing a toggle for auto-refresh on an instance view.
+  - [src/instance-tab-modify.tsx](src/instance-tab-modify.tsx): Process instance modification tab with sub-tabs for modifying process flow (start/cancel activities) and correlating messages. Includes a visual form builder for variables with type-specific inputs and comprehensive validation.
+  - [src/instance-action-unlock.tsx](src/instance-action-unlock.tsx): Process instance action button that provides a dialog for unlocking external tasks that are locked by workers, with batch selection and individual retry capabilities.
   - [src/tasklist-audit-log.tsx](src/tasklist-audit-log.tsx): Tasklist detail tab that loads the instance audit log.
-  - [src/instance-tab-modify.tsx](src/instance-tab-modify.tsx) and [src/RobotModule/index.ts](src/RobotModule/index.ts): Additional Cockpit extensions and BPMN module utilities.
+  - [src/RobotModule/index.ts](src/RobotModule/index.ts): Additional BPMN module utilities for diagram rendering.
 - Shared pieces:
   - API helpers and CSRF-aware fetch wrappers in [src/utils/api.ts](src/utils/api.ts).
   - BPMN overlay/sequence-flow rendering helpers in [src/utils/bpmn.ts](src/utils/bpmn.ts).
+  - BPMN XML parsing utilities in [src/utils/bpmnParsing.ts](src/utils/bpmnParsing.ts) for extracting activities, sequence flows, and message definitions.
   - Local storage + querystring settings utilities in [src/utils/misc.ts](src/utils/misc.ts).
   - Reusable UI components live under [src/Components/](src/Components/), including:
     - [FilterBox.tsx](src/Components/FilterBox.tsx): Query filter UI with CodeMirror editor, custom autocomplete, and date picker integration
@@ -23,6 +26,9 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
     - [BreadcrumbsPanel.tsx](src/Components/BreadcrumbsPanel.tsx): Navigation breadcrumbs
     - [Pagination.tsx](src/Components/Pagination.tsx): Pagination controls
     - [Portal.tsx](src/Components/Portal.tsx): React portal for rendering into Cockpit DOM nodes
+    - [Tabs.tsx](src/Components/Tabs.tsx): Tab navigation component with active state management
+    - [VariableBuilder.tsx](src/Components/VariableBuilder.tsx): Dynamic variable input builder with type-specific controls (String, Integer, Boolean, JSON, Date, etc.) and form validation
+    - [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Message correlation form with BPMN message parsing and variable configuration
     - Various toggle buttons and UI controls
   - Plugin parameter typings in [src/types.ts](src/types.ts).
 

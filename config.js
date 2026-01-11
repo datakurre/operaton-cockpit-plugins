@@ -10,9 +10,10 @@ export default {
   //   // 'my-custom-script/customScript'
           'scripts/definition-historic-activities.js',
           'scripts/instance-auto-refresh.js',
+          'scripts/instance-action-unlock.js',
           'scripts/instance-historic-activities.js',
-          'scripts/instance-route-history.js'
-       // 'scripts/instance-tab-modify.hjs'
+          'scripts/instance-route-history.js',
+          'scripts/instance-tab-modify.js'
      ],
   // requireJsConfig: {
   //   // AngularJS module names

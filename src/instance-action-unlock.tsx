@@ -97,9 +97,7 @@ const UnlockDialog: React.FC<UnlockDialogProps> = ({ api, processInstanceId }) =
     setError(null);
 
     try {
-      const unlockPromises = Array.from(selectedTasks).map(taskId =>
-        post(api, `/external-task/${taskId}/unlock`)
-      );
+      const unlockPromises = Array.from(selectedTasks).map(taskId => post(api, `/external-task/${taskId}/unlock`));
 
       await Promise.all(unlockPromises);
 
@@ -221,20 +219,13 @@ const UnlockDialog: React.FC<UnlockDialogProps> = ({ api, processInstanceId }) =
                           style={{ marginRight: '0.5em', marginTop: '0.2em' }}
                         />
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: 'bold', marginBottom: '0.25em' }}>
-                            {task.topicName}
-                          </div>
+                          <div style={{ fontWeight: 'bold', marginBottom: '0.25em' }}>{task.topicName}</div>
                           <div style={{ fontSize: '0.9em', color: '#666' }}>
                             <div>Activity: {task.activityId}</div>
                             <div>Worker: {task.workerId}</div>
-                            <div>
-                              Lock expires:{' '}
-                              {new Date(task.lockExpirationTime).toLocaleString()}
-                            </div>
+                            <div>Lock expires: {new Date(task.lockExpirationTime).toLocaleString()}</div>
                             {task.errorMessage && (
-                              <div style={{ color: '#d9534f', marginTop: '0.25em' }}>
-                                Error: {task.errorMessage}
-                              </div>
+                              <div style={{ color: '#d9534f', marginTop: '0.25em' }}>Error: {task.errorMessage}</div>
                             )}
                           </div>
                         </div>
@@ -260,14 +251,8 @@ const UnlockDialog: React.FC<UnlockDialogProps> = ({ api, processInstanceId }) =
             <button onClick={handleClose} className="btn btn-default" disabled={unlocking}>
               Close
             </button>
-            <button
-              onClick={handleUnlock}
-              className="btn btn-primary"
-              disabled={selectedTasks.size === 0 || unlocking}
-            >
-              {unlocking
-                ? 'Unlocking...'
-                : `Unlock ${selectedTasks.size} task${selectedTasks.size !== 1 ? 's' : ''}`}
+            <button onClick={handleUnlock} className="btn btn-primary" disabled={selectedTasks.size === 0 || unlocking}>
+              {unlocking ? 'Unlocking...' : `Unlock ${selectedTasks.size} task${selectedTasks.size !== 1 ? 's' : ''}`}
             </button>
           </div>
         </div>
