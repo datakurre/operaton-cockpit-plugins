@@ -13,8 +13,9 @@ inputs:
   devenv-module-devcontainer:
     url: github:datakurre/devenv-module-devcontainer
     flake: false
+allowUnfree: true
 imports:
 - devenv-module-mvn2nix
 - devenv-module-operaton
 - devenv-module-devcontainer
-allowUnfree: true
+profile: shell

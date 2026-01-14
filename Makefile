@@ -1,9 +1,11 @@
+DEVCONTAINER_PROFILE ?= devcontainer
+
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: build
-build: ## Build the project
+build: node_modules ## Build the project
 	npm run build
 
 develop: ## Launch opinionated IDE
@@ -13,7 +15,7 @@ up: ## Launch devenv fixture
 	devenv up
 
 .PHONY: watch
-watch: ## Watch for changes and rebuild
+watch: node_modules ## Watch for changes and rebuild
 	npm run watch
 
 .PHONY: check
@@ -33,3 +35,6 @@ prettier-format:
 .PHONY: upgrade
 upgrade: ## Upgrade dependencies
 	npm run upgrade
+
+node_modules:
+	npm ci
