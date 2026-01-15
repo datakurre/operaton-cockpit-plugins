@@ -58,8 +58,4 @@ in
   profiles.devcontainer.module = {
     imports = [ devcontainer ];
   };
-
-  packages = [
-    pkgs.gemini-cli
-  ];
 }
