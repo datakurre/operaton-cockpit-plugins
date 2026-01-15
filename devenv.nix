@@ -58,27 +58,4 @@ in
   profiles.devcontainer.module = {
     imports = [ devcontainer ];
   };
-
-  profiles.devcontainer-rhel.module = {
-    imports = [ devcontainer ];
-    devcontainer.tweaks = [
-      "vscode"
-      "gpg-agent"
-    ];
-    devcontainer.settings.customizations.vscode.extensions = [
-      "vscodevim.vim"
-    ];
-  };
-
-  profiles.devcontainer-nixos.module = {
-    imports = [ devcontainer ];
-    devcontainer.tweaks = [
-      "podman"
-      "vscode"
-      "gpg-agent"
-    ];
-    devcontainer.settings.customizations.vscode.extensions = [
-      "vscodevim.vim"
-    ];
-  };
 }

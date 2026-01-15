@@ -1,5 +1,3 @@
-DEVCONTAINER_PROFILE ?= devcontainer
-
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -9,7 +7,7 @@ build: node_modules ## Build the project
 	npm run build
 
 develop: ## Launch opinionated IDE
-	devenv --profile full-vim shell -- code .
+	devenv --profile devcontainer shell -- code .
 
 up: ## Launch devenv fixture
 	devenv up
