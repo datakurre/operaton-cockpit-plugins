@@ -1,0 +1,267 @@
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { InstanceDiagramAutoRefresh } from '../InstanceDiagramAutoRefresh';
+import { InstanceDiagramHistoricActivities } from '../InstanceDiagramHistoricActivities';
+import { InstanceTabAuditLog } from '../InstanceTabAuditLog';
+import { TasklistTabAuditLog } from '../TasklistTabAuditLog';
+import { setFetchFunction, resetFetchFunction } from '../../utils/api';
+import { mockApi } from '../../__mocks__/api';
+
+// Mock bpmn utilities
+jest.mock('../../utils/bpmn', () => ({
+  renderSequenceFlow: jest.fn().mockReturnValue([]),
+  clearSequenceFlow: jest.fn(),
+}));
+
+/**
+ * Creates a mock fetch that routes based on URL patterns.
+ */
+function createRoutedMockFetch(routes: Record<string, unknown>) {
+  return (url: string) => {
+    let data: unknown = [];
+    for (const [pattern, responseData] of Object.entries(routes)) {
+      if (url.includes(pattern)) {
+        data = responseData;
+        break;
+      }
+    }
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      headers: {
+        get: (name: string) => (name === 'Content-Type' ? 'application/json' : null),
+      },
+      json: async () => data,
+      text: async () => JSON.stringify(data),
+    });
+  };
+}
+
+describe('InstanceDiagramAutoRefresh', () => {
+  let mockViewerContainer: HTMLDivElement;
+  let mockViewer: { get: jest.Mock; _container: HTMLDivElement };
+
+  beforeEach(() => {
+    mockViewerContainer = document.createElement('div');
+    document.body.appendChild(mockViewerContainer);
+    mockViewer = {
+      get: jest.fn().mockReturnValue({
+        add: jest.fn(),
+      }),
+      _container: mockViewerContainer,
+    };
+  });
+
+  afterEach(() => {
+    document.body.removeChild(mockViewerContainer);
+  });
+
+  it('should render ToggleAutoRefreshButton', async () => {
+    render(<InstanceDiagramAutoRefresh api={mockApi} processInstanceId="test-id" viewer={mockViewer} />);
+
+    await waitFor(() => {
+      const button = screen.getByRole('button');
+      expect(button).toBeInTheDocument();
+      expect(button).toHaveAttribute('title', 'Auto refresh view');
+    });
+  });
+
+  it('should pass api and processInstanceId to inner component', async () => {
+    render(<InstanceDiagramAutoRefresh api={mockApi} processInstanceId="custom-instance-id" viewer={mockViewer} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button')).toBeInTheDocument();
+    });
+  });
+});
+
+describe('InstanceDiagramHistoricActivities', () => {
+  const mockViewer = {
+    get: jest.fn().mockReturnValue({
+      add: jest.fn(),
+    }),
+    _container: document.createElement('div'),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    resetFetchFunction();
+  });
+
+  afterEach(() => {
+    resetFetchFunction();
+  });
+
+  it('should render ToggleSequenceFlowButton after loading activities', async () => {
+    const activities = [{ activityId: 'task1', activityName: 'Task 1', endTime: '2024-01-01T10:00:00.000Z' }];
+    setFetchFunction(
+      createRoutedMockFetch({
+        'activity-instance': activities,
+      })
+    );
+
+    render(<InstanceDiagramHistoricActivities api={mockApi} processInstanceId="test-id" viewer={mockViewer} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button')).toBeInTheDocument();
+    });
+
+    expect(screen.getByTitle('Show sequence flow')).toBeInTheDocument();
+  });
+
+  it('should not render anything while loading', () => {
+    // Mock fetch that never resolves
+    setFetchFunction(() => new Promise(() => {}));
+
+    const { container } = render(
+      <InstanceDiagramHistoricActivities api={mockApi} processInstanceId="test-id" viewer={mockViewer} />
+    );
+
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('should add overlays for activities', async () => {
+    const activities = [
+      { activityId: 'task1', activityName: 'Task 1', endTime: '2024-01-01T10:00:00.000Z' },
+      { activityId: 'task1', activityName: 'Task 1', endTime: '2024-01-01T11:00:00.000Z' },
+      { activityId: 'task2', activityName: 'Task 2', endTime: '2024-01-01T12:00:00.000Z' },
+    ];
+    const mockOverlays = { add: jest.fn() };
+    mockViewer.get.mockReturnValue(mockOverlays);
+    setFetchFunction(
+      createRoutedMockFetch({
+        'activity-instance': activities,
+      })
+    );
+
+    render(<InstanceDiagramHistoricActivities api={mockApi} processInstanceId="test-id" viewer={mockViewer} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button')).toBeInTheDocument();
+    });
+
+    // Should add overlays for each unique activity
+    expect(mockOverlays.add).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('InstanceTabAuditLog', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    resetFetchFunction();
+  });
+
+  afterEach(() => {
+    resetFetchFunction();
+  });
+
+  it('should show loading state initially', () => {
+    setFetchFunction(() => new Promise(() => {}));
+
+    render(<InstanceTabAuditLog api={mockApi} processInstanceId="test-id" />);
+
+    // LoadingSpinner has text twice: once visible and once in screen reader span
+    expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  it('should render AuditLogTable with fetched data', async () => {
+    const activities = [
+      { activityId: 'task1', activityInstanceId: 'inst1', activityName: 'Task 1', endTime: '2024-01-01T10:00:00.000Z' },
+    ];
+    setFetchFunction(
+      createRoutedMockFetch({
+        'activity-instance': activities,
+        'decision-instance': [],
+      })
+    );
+
+    render(<InstanceTabAuditLog api={mockApi} processInstanceId="test-id" />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
+
+    // Should have rendered the table
+    expect(screen.getByRole('table')).toBeInTheDocument();
+  });
+
+  it('should show error message on fetch failure', async () => {
+    // Suppress console.error for this error handling test
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    setFetchFunction(jest.fn().mockRejectedValue(new Error('Network error')));
+
+    render(<InstanceTabAuditLog api={mockApi} processInstanceId="test-id" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to load audit log data.')).toBeInTheDocument();
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
+  });
+});
+
+describe('TasklistTabAuditLog', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    resetFetchFunction();
+  });
+
+  afterEach(() => {
+    resetFetchFunction();
+  });
+
+  it('should show message when no task is selected', () => {
+    render(<TasklistTabAuditLog api={mockApi} taskId={undefined} />);
+
+    expect(screen.getByText('No task selected.')).toBeInTheDocument();
+  });
+
+  it('should show loading state when task is provided', () => {
+    setFetchFunction(() => new Promise(() => {}));
+
+    render(<TasklistTabAuditLog api={mockApi} taskId="task-123" />);
+
+    // LoadingSpinner has text twice: once visible and once in screen reader span
+    expect(screen.getByRole('status')).toBeInTheDocument();
+  });
+
+  it('should fetch task and audit data when taskId is provided', async () => {
+    const taskData = { processInstanceId: 'instance-123' };
+    const activities = [
+      { activityId: 'task1', activityInstanceId: 'inst1', activityName: 'Task 1', endTime: '2024-01-01T10:00:00.000Z' },
+    ];
+    setFetchFunction(
+      createRoutedMockFetch({
+        '/task/': taskData,
+        'activity-instance': activities,
+        'decision-instance': [],
+      })
+    );
+
+    render(<TasklistTabAuditLog api={mockApi} taskId="task-123" />);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('table')).toBeInTheDocument();
+  });
+
+  it('should show error message on fetch failure', async () => {
+    // Suppress console.error for this error handling test
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    setFetchFunction(jest.fn().mockRejectedValue(new Error('Network error')));
+
+    render(<TasklistTabAuditLog api={mockApi} taskId="task-123" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to load audit log data.')).toBeInTheDocument();
+    });
+
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
+  });
+});
