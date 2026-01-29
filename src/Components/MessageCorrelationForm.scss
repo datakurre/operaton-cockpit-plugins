@@ -1,0 +1,13 @@
+/**
+ * Styles for MessageCorrelationForm component.
+ * Provides styling for the message correlation form UI.
+ */
+
+.message-correlation-form {
+  padding: 10px;
+
+  &__info-text {
+    font-size: 0.9em;
+    color: #666;
+  }
+}
