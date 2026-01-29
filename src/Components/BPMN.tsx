@@ -7,130 +7,170 @@ import React, { useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import RobotModule from '../RobotModule';
-import { clearSequenceFlow, renderSequenceFlow } from '../utils/bpmn';
+import { Canvas } from '../services/ViewerService';
+import { HistoricActivityInstance } from '../types';
+import { clearSequenceFlow, renderSequenceFlow, renderActivities } from '../utils/bpmn';
+import { ZOOM_INCREMENT } from '../utils/constants';
 import ResetZoomButton from './ResetZoomButton';
 import { ToggleHistoryViewButton } from './ToggleHistoryViewButton';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';
 import ZoomInButton from './ZoomInButton';
 import ZoomOutButton from './ZoomOutButton';
 
-export const BPMNViewer = async (diagram: string) => {
+/** Type for module declarations used by BpmnViewer */
+type ModuleDeclaration = Record<string, unknown>;
+
+/** Interface for BPMN viewer instance */
+interface BpmnViewerInstance {
+  _container: HTMLElement;
+  get: (serviceName: string) => unknown;
+  attachTo: (element: HTMLElement) => void;
+  importXML: (xml: string) => Promise<{ warnings: string[] }>;
+}
+
+/**
+ * Creates a BPMN viewer instance with the given diagram XML.
+ * Configures the viewer with Camunda platform behaviors, tooltips, and modeling module.
+ * @param diagram - The BPMN 2.0 XML string to display
+ * @returns Promise resolving to the configured BpmnViewer instance
+ */
+export const createBPMNViewer = async (diagram: string): Promise<BpmnViewerInstance> => {
+  const additionalModules: ModuleDeclaration[] = [
+    camundaPlatformBehaviors as ModuleDeclaration,
+    RobotModule as ModuleDeclaration,
+    tooltips as ModuleDeclaration,
+    ModelingModule as ModuleDeclaration,
+  ];
   const model = new BpmnViewer({
-    additionalModules: [camundaPlatformBehaviors, RobotModule, tooltips, ModelingModule],
+    additionalModules,
     moddleExtensions: {
       camunda: camundaModdle,
     },
-  });
+  }) as unknown as BpmnViewerInstance;
   try {
     await model.importXML(diagram);
-  } catch (e) {
+  } catch {
     // nothing we can do
   }
   return model;
 };
 
+/** Props for the BPMNViewer component */
 interface Props {
-  activities?: any[];
+  /** Array of activities to highlight on the diagram */
+  activities?: HistoricActivityInstance[];
+  /** Additional CSS class name */
   className?: string;
+  /** BPMN 2.0 XML diagram content */
   diagramXML: string;
+  /** Inline styles for the viewer container */
   style?: Record<string, string | number>;
+  /** Whether to show the runtime/history toggle button */
   showRuntimeToggle: boolean;
 }
 
-const renderActivities = (viewer: any, activities: any[]) => {
-  const counter: Record<string, number> = {};
-  for (const activity of activities) {
-    const id = activity.activityId;
-    counter[id] = counter[id] ? counter[id] + 1 : 1;
-  }
-
-  const seen: Record<string, boolean> = {};
-  const overlays = viewer.get('overlays');
-  for (const activity of activities) {
-    const id = activity.activityId;
-    if (seen[id]) {
-      continue;
-    } else {
-      seen[id] = true;
-    }
-
-    const overlay = document.createElement('span');
-    overlay.innerText = `${counter[id]}`;
-    overlay.className = 'badge';
-    overlay.style.cssText = `
-   background: lightgray;
-   border: 1px solid #143d52;
-   color: #143d52;
- `;
-    overlays.add(id.split('#')[0], {
-      position: {
-        bottom: 17,
-        right: 10,
-      },
-      html: overlay,
-    });
-  }
-};
-
-const BPMN: React.FC<Props> = ({ activities, className, diagramXML, style, showRuntimeToggle }) => {
+/**
+ * BPMN diagram viewer component.
+ * Renders a navigable BPMN diagram with zoom controls and optional history overlays.
+ */
+const BPMNViewer: React.FC<Props> = ({ activities, className, diagramXML, style, showRuntimeToggle }) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    (async () => {
-      const viewer: any = await BPMNViewer(diagramXML);
-      if (ref.current !== null) {
+    const executeViewerSetup = async (): Promise<void> => {
+      if (ref.current?.clientHeight !== undefined && ref.current.clientHeight > 0) {
+        const viewer = await createBPMNViewer(diagramXML);
         ref.current.innerHTML = '';
         viewer.attachTo(ref.current);
-        const canvas = viewer.get('canvas');
-        canvas.zoom('fit-viewport');
-        renderActivities(viewer, activities ?? []);
+
+        const canvas = viewer.get('canvas') as Canvas;
+        setTimeout(() => {
+          canvas.zoom('fit-viewport', { x: 0, y: 0 });
+          canvas.scroll({ dx: 0, dy: 0 });
+        });
+
+        renderActivities(viewer as unknown as BpmnViewerInstance, activities ?? []);
 
         const buttons = document.createElement('div');
         buttons.style.cssText = `
-        display: flex;
-        flex-direction: column;
-          position: absolute;
-          right: 15px;
-          top: 15px;
-          bottom: 45px;
-        `;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            bottom: 45px;
+          `;
         viewer._container.appendChild(buttons);
-        let sequenceFlow: any[] = [];
-        createRoot(buttons!).render(
+        const sequenceFlow: SVGElement[] = [];
+        createRoot(buttons).render(
           <React.StrictMode>
             <ToggleSequenceFlowButton
               onToggleSequenceFlow={(value: boolean) => {
                 if (value) {
-                  sequenceFlow = renderSequenceFlow(viewer, activities ?? []);
+                  if (sequenceFlow.length === 0) {
+                    sequenceFlow.splice(0, sequenceFlow.length, ...renderSequenceFlow(viewer, activities ?? []));
+                  }
                 } else {
-                  clearSequenceFlow(sequenceFlow);
+                  if (sequenceFlow.length > 0) {
+                    clearSequenceFlow(sequenceFlow);
+                    sequenceFlow.length = 0;
+                  }
                 }
               }}
             />
             {showRuntimeToggle ? (
               <ToggleHistoryViewButton
-                onToggleHistoryView={(value: boolean) => {
+                onToggleHistoryView={(value: boolean): void => {
                   if (!value) {
-                    window.location.href =
-                      window.location.href.split('#')[0] +
-                      window.location.hash.split('?')[0].replace(/^#\/history\/process-instance/, '#/process-instance');
+                    const hash = window.location.hash;
+                    const hashPart = hash !== '' ? hash.split('?')[0] : '';
+                    const basePath = window.location.href.split('#')[0] ?? '';
+                    const newHash =
+                      hashPart !== undefined && hashPart !== ''
+                        ? hashPart.replace(/^#\/history\/process-instance/, '#/process-instance')
+                        : '';
+                    window.location.href = `${basePath}${newHash}`;
                   }
                 }}
-                initial={true}
+                initial
               />
             ) : null}
             <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column' }}>
-              <ResetZoomButton onResetZoom={() => canvas.zoom('fit-viewport')} />
-              <ZoomInButton onZoomIn={() => canvas.zoom(canvas.zoom() + 0.1)} />
-              <ZoomOutButton onZoomOut={() => canvas.zoom(canvas.zoom() - 0.1)} />
+              <ResetZoomButton
+                onResetZoom={(): void => {
+                  canvas.zoom('fit-viewport', { x: 0, y: 0 });
+                  canvas.scroll({ dx: 0, dy: 0 });
+                }}
+              />
+              <ZoomInButton onZoomIn={(): number => canvas.zoom(canvas.zoom() + ZOOM_INCREMENT)} />
+              <ZoomOutButton onZoomOut={(): number => canvas.zoom(canvas.zoom() - ZOOM_INCREMENT)} />
             </div>
           </React.StrictMode>
         );
       }
-    })();
+    };
+
+    const observer = new ResizeObserver(() => {
+      if ((ref.current?.clientHeight ?? 0) > 0) {
+        void (async () => {
+          await executeViewerSetup();
+        })();
+        if (ref.current) {
+          observer.unobserve(ref.current);
+        }
+      }
+    });
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+    // Note: activities and showRuntimeToggle are intentionally excluded from deps
+    // as we only want to set up the viewer when diagramXML changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diagramXML]);
 
   return <div className={className} ref={ref} style={style} />;
 };
 
-export default BPMN;
+export default BPMNViewer;
+export { BPMNViewer as BPMN };

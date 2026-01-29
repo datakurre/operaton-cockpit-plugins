@@ -1,37 +1,72 @@
-import moment from 'moment';
 import React from 'react';
-import { GoChevronDown, GoChevronUp } from 'react-icons/go';
-import { TiMinus } from 'react-icons/ti';
-import { useSortBy, useTable } from 'react-table';
+import { CellProps, Column } from 'react-table';
 
+import { HistoricActivityInstance } from '../types';
+import { formatDateTime } from '../utils/formatting';
 import { asctime } from '../utils/misc';
 import { Clippy } from './Clippy';
+import SortableTable from './SortableTable';
+
+/**
+ * Nested activity info structure used in the activity name column accessor.
+ * Contains data needed to render links to related instances.
+ */
+interface ActivityNameValue {
+  activityName: string;
+  activityType: string;
+  id: string;
+  calledProcessInstanceId: string;
+  endTime: string | null;
+}
+
+/**
+ * Row data structure for the audit log table.
+ * Derived from HistoricActivityInstance with formatted dates.
+ */
+interface ActivityRow {
+  /** Full activity object for extracting linked instance data */
+  activityName: ActivityNameValue;
+  /** Start time as Date object for sorting */
+  startDate: Date;
+  /** End time as Date object or null if not ended */
+  endDate: Date | null;
+  /** Human-readable duration string */
+  duration: string;
+  /** Activity type (e.g., userTask, serviceTask) */
+  type: string;
+  /** User assigned to the activity (for user tasks) */
+  assignee: string;
+  /** Whether the activity was canceled */
+  canceled: string;
+}
 
 interface Props {
-  activities: any[];
+  activities: HistoricActivityInstance[];
   decisions: Map<string, string>;
 }
 
+/**
+ * Audit log table displaying historic activity instances with timing,
+ * assignee, and navigation links to related process/decision instances.
+ */
 const AuditLogTable: React.FC<Props> = ({ activities, decisions }) => {
-  const columns = React.useMemo(
+  const columns = React.useMemo<Column<ActivityRow>[]>(
     () => [
       {
         Header: 'Activity Name',
-        accessor: 'activityName',
-        Cell: ({ value }: any) => {
-          const baseUrl = `${window.location.href.split('#')[0]}/`
+        accessor: (row: ActivityRow): ActivityNameValue => row.activityName,
+        Cell: ({ value }: CellProps<ActivityRow, ActivityNameValue>) => {
+          const baseUrl = `${window.location.href.split('#')[0] ?? ''}/`
             .replace(/\/+$/, '/')
             .replace(/\/app\/tasklist\//, '/app/cockpit/');
           if (value.activityType === 'businessRuleTask' && decisions.has(value.id)) {
-            return <a href={`${baseUrl}#/decision-instance/${decisions.get(value.id)}`}>{value.activityName}</a>;
+            return <a href={`${baseUrl}#/decision-instance/${decisions.get(value.id) ?? ''}`}>{value.activityName}</a>;
           } else if (value.activityType === 'callActivity' && value.calledProcessInstanceId && value.endTime) {
             return (
               <a href={`${baseUrl}#/history/process-instance/${value.calledProcessInstanceId}`}>{value.activityName}</a>
             );
           } else if (value.activityType === 'callActivity' && value.calledProcessInstanceId) {
-            return (
-              <a href={`${baseUrl}#/process-instance/${value.calledProcessInstanceId}/runtime`}>{value.activityName}</a>
-            );
+            return <a href={`${baseUrl}#/process-instance/${value.calledProcessInstanceId}`}>{value.activityName}</a>;
           }
           return <Clippy value={value.activityName}>{value.activityName}</Clippy>;
         },
@@ -39,106 +74,67 @@ const AuditLogTable: React.FC<Props> = ({ activities, decisions }) => {
       {
         Header: 'Start Time',
         accessor: 'startDate',
-        Cell: ({ value }: any) => (
-          <Clippy value={value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}>
-            {value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}
-          </Clippy>
-        ),
+        Cell: ({ value }: CellProps<ActivityRow, Date>) => {
+          const formatted = formatDateTime(value);
+          return <Clippy value={formatted}>{formatted}</Clippy>;
+        },
       },
       {
         Header: 'End Time',
         accessor: 'endDate',
-        Cell: ({ value }: any) => (
-          <Clippy value={value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}>
-            {value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}
-          </Clippy>
-        ),
+        Cell: ({ value }: CellProps<ActivityRow, Date | null>) => {
+          const formatted = value ? formatDateTime(value) : '';
+          return <Clippy value={formatted}>{formatted}</Clippy>;
+        },
       },
       {
         Header: 'Duration',
         accessor: 'duration',
-        Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
+        Cell: ({ value }: CellProps<ActivityRow, string>) => <span style={{ whiteSpace: 'nowrap' }}>{value}</span>,
       },
       {
         Header: 'Type',
         accessor: 'type',
-        Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
+        Cell: ({ value }: CellProps<ActivityRow, string>) => <Clippy value={value}>{value}</Clippy>,
       },
       {
         Header: 'User',
         accessor: 'assignee',
-        Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
+        Cell: ({ value }: CellProps<ActivityRow, string>) => <Clippy value={value}>{value}</Clippy>,
       },
       {
         Header: 'Canceled',
         accessor: 'canceled',
-        Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
+        Cell: ({ value }: CellProps<ActivityRow, string>) => <Clippy value={value}>{value}</Clippy>,
       },
     ],
-    [activities, decisions]
+    [decisions]
   );
-  const data = React.useMemo(
+  const data = React.useMemo<ActivityRow[]>(
     () =>
-      activities.map((activity: any) => {
+      activities.map((activity: HistoricActivityInstance): ActivityRow => {
+        const startTime = activity.startTime ? new Date(activity.startTime) : new Date(0);
+        const endTime = activity.endTime ? new Date(activity.endTime) : null;
         return {
-          activityName: activity,
-          startDate: moment(activity.startTime),
-          endDate: activity.endTime ? moment(activity.endTime) : '',
-          duration: activity.endTime
-            ? asctime(new Date(activity.endTime).getTime() - new Date(activity.startTime).getTime())
-            : '',
-          type: activity.activityType,
-          assignee: activity.assignee,
+          activityName: {
+            activityName: activity.activityName ?? '',
+            activityType: activity.activityType ?? '',
+            id: activity.id ?? '',
+            calledProcessInstanceId: activity.calledProcessInstanceId ?? '',
+            endTime: activity.endTime ?? null,
+          },
+          startDate: startTime,
+          endDate: endTime,
+          duration: endTime ? asctime(endTime.getTime() - startTime.getTime()) : '',
+          type: activity.activityType ?? '',
+          assignee: activity.assignee ?? '',
           canceled: activity.canceled ? 'true' : 'false',
         };
       }),
-    [activities, decisions]
+    [activities]
   );
-  const tableInstance = useTable({ columns: columns as any, data }, useSortBy);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
-  return (
-    <table className="cam-table" {...getTableProps()}>
-      <thead>
-        {headerGroups.map(headerGroup => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              /* @ts-ignore */
-              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                {column.render('Header')}
-                <span style={{ position: 'absolute', fontSize: '125%' }}>
-                  {
-                    /* @ts-ignore */
-                    column.isSorted ? (
-                      /* @ts-ignore */
-                      column.isSortedDesc ? (
-                        <GoChevronDown style={{ color: '#155cb5' }} />
-                      ) : (
-                        <GoChevronUp style={{ color: '#155cb5' }} />
-                      )
-                    ) : (
-                      <TiMinus style={{ color: '#155cb5' }} />
-                    )
-                  }
-                </span>
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map(row => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map(cell => {
-                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>;
-              })}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
+
+  return <SortableTable<ActivityRow> columns={columns} data={data} ariaLabel="Audit log table" />;
 };
 
 export default AuditLogTable;

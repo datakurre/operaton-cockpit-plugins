@@ -14,7 +14,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ version, api, children
       <div
         className="ctn-main"
         style={
-          version.match(/^7\.14.*/)
+          /^7\.14.*/.exec(version)
             ? {}
             : {
                 top: '0px',

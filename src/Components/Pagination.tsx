@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import PageLink from './PageLink';
 
@@ -7,18 +7,22 @@ interface Props {
   perPage: number;
   total: number;
   showPages?: number;
-  onPage: (firstResult: number, page: number) => any;
+  onPage: (firstResult: number, page: number) => void;
 }
 
+/**
+ * Pagination component for navigating through paged data.
+ * Renders first/previous/next/last links and page numbers.
+ */
 const Pagination: React.FC<Props> = ({ currentPage, total, perPage, onPage, showPages = 7 }) => {
-  const range = (start: number, end: number) => {
-    let length = end - start + 1;
+  const range = (start: number, end: number): number[] => {
+    const length = end - start + 1;
     return Array.from({ length }, (_, idx) => idx + start);
   };
 
   const pageCount = React.useMemo(() => {
     return Math.ceil(total / perPage);
-  }, [total, perPage]) as number;
+  }, [total, perPage]);
 
   const paginationRange = React.useMemo(() => {
     if (pageCount < showPages) {
@@ -34,11 +38,15 @@ const Pagination: React.FC<Props> = ({ currentPage, total, perPage, onPage, show
     }
 
     return range(1, showPages);
-  }, [total, perPage, showPages, currentPage, pageCount]);
+    // pageCount is derived from total/perPage, so we don't need them as deps
+  }, [showPages, currentPage, pageCount]);
 
-  const pageClicked = (page: number) => {
-    onPage((page - 1) * perPage, page);
-  };
+  const pageClicked = useCallback(
+    (page: number) => {
+      onPage((page - 1) * perPage, page);
+    },
+    [onPage, perPage]
+  );
 
   return (
     <nav>
@@ -52,9 +60,10 @@ const Pagination: React.FC<Props> = ({ currentPage, total, perPage, onPage, show
             isDisabled={currentPage === 1}
             onPage={pageClicked}
           />
-          {paginationRange!.map(page => (
+          {paginationRange.map(page => (
             <PageLink
-              label={`${page}`}
+              key={page}
+              label={String(page)}
               page={page}
               isActive={currentPage === page}
               isDisabled={false}

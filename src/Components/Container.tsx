@@ -1,8 +1,6 @@
 import React from 'react';
 
-interface Props {}
-
-const Container: React.FC<React.PropsWithChildren<Props>> = ({ children }) => {
+const Container: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
     <div className="ctn-fixed-view">
       <div className="ctn-content-container">{children}</div>
