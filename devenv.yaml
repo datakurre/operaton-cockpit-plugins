@@ -1,17 +1,21 @@
+# yaml-language-server: $schema=https://devenv.sh/devenv.schema.json
 inputs:
   nixpkgs:
-    url: github:nixos/nixpkgs/nixos-24.11
-  unstable:
     url: github:nixos/nixpkgs/master
-  devenv-module-podman:
-    url: gitlab:vasara-bpm/devenv-module-podman
+  mvn2nix:
+    url: gitlab:vasara-bpm/mvn2nix
+  devenv-module-mvn2nix:
+    url: gitlab:vasara-bpm/devenv-module-mvn2nix
     flake: false
-  devenv-module-vscodium:
-    url: github:datakurre/devenv-module-vscodium
+  devenv-module-operaton:
+    url: gitlab:vasara-bpm/devenv-module-operaton
     flake: false
-  nix-vscode-extensions:
-    url: github:nix-community/nix-vscode-extensions
+  devenv-module-devcontainer:
+    url: github:datakurre/devenv-module-devcontainer
+    flake: false
 allowUnfree: true
 imports:
-- devenv-module-podman
-- devenv-module-vscodium
+- devenv-module-mvn2nix
+- devenv-module-operaton
+- devenv-module-devcontainer
+profile: shell

@@ -1,6 +1,45 @@
-.idea/
+# Dependencies
 node_modules/
-camunda-cockpit-ui.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+# Build outputs
 *.map
+camunda-cockpit-ui.js
+dist/
+build/
+*.tsbuildinfo
+# IDE and Editor files
+.idea/
+.vscode/settings.json
+.vscode/launch.json
+*.swp
+*.swo
+*~
+.DS_Store
+# Development environment
+.devcontainer.json
 .devenv*
 devenv.local.nix
+.direnv/
+.envrc
+# Testing and Coverage
+coverage/
+.nyc_output/
+*.lcov
+# Temporary and Cache files
+.cache/
+.temp/
+tmp/
+*.tmp
+*.log
+# OS files
+Thumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
+# Personal notes and TODO files
+TODO*
+.scratch/
