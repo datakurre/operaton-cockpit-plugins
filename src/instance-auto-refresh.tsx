@@ -1,28 +1,32 @@
+import './Components/Button.scss';
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { ToggleAutoRefreshButton } from './Components/ToggleAutoRefeshButton';
+import { InstanceDiagramAutoRefresh } from './Components/InstanceDiagramAutoRefresh';
 import { InstancePluginParams } from './types';
+
+/** Interface for BPMN viewer instance */
+interface BpmnViewerInstance {
+  _container: HTMLElement;
+  get: (serviceName: string) => unknown;
+}
 
 export default [
   {
     id: 'instanceDiagramAutoRefresh',
     pluginPoint: 'cockpit.processInstance.diagram.plugin',
-    render: (viewer: any, { api, processInstanceId }: InstancePluginParams) => {
-      (async () => {
-        const toggleAutoRefreshButton = document.createElement('div');
-        toggleAutoRefreshButton.style.cssText = `
-          position: absolute;
-          right: 15px;
-          bottom: 120px;
-        `;
-        viewer._container.appendChild(toggleAutoRefreshButton);
-        createRoot(toggleAutoRefreshButton!).render(
-          <React.StrictMode>
-            <ToggleAutoRefreshButton api={api} processInstanceId={processInstanceId} />
-          </React.StrictMode>
-        );
-      })();
+    render: (viewer: BpmnViewerInstance, { api, processInstanceId }: InstancePluginParams): void => {
+      // Create a minimal mount point for React - the ViewerButtonsPortal
+      // inside InstanceDiagramAutoRefresh handles button positioning
+      const mountPoint = document.createElement('div');
+      mountPoint.style.display = 'contents';
+      viewer._container.appendChild(mountPoint);
+      createRoot(mountPoint).render(
+        <React.StrictMode>
+          <InstanceDiagramAutoRefresh api={api} processInstanceId={processInstanceId} viewer={viewer} />
+        </React.StrictMode>
+      );
     },
   },
 ];

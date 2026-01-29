@@ -1,66 +1,34 @@
-import 'allotment/dist/style.css';
-
+import './Components/Button.scss';
 import './instance-route-history.scss';
 
-import { Allotment } from 'allotment';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Expression, GridDataAutoCompleteHandler } from 'react-filter-box';
-import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
+import { Expression } from '@waylay/react-filter-box';
 
-import AuditLogTable from './Components/AuditLogTable';
-import BPMN from './Components/BPMN';
 import BreadcrumbsPanel from './Components/BreadcrumbsPanel';
-import { Clippy } from './Components/Clippy';
-import Container from './Components/Container';
 import FilterBox from './Components/FilterBox';
 import HistoryTable from './Components/HistoryTable';
+import HistoryViewLayout from './Components/HistoryViewLayout';
 import Page from './Components/Page';
 import Pagination from './Components/Pagination';
 import Portal from './Components/Portal';
 import { ToggleHistoryViewButton } from './Components/ToggleHistoryViewButton';
-import VariablesTable from './Components/VariablesTable';
+import { ViewerButtonsPortal } from './Components/ViewerButtonsPortal';
 import { DefinitionPluginParams, RoutePluginParams } from './types';
-import { get, post } from './utils/api';
-import { PluginSettings, loadSettings, saveSettings } from './utils/misc';
-
-class InstanceQueryAutoCompleteHandler extends GridDataAutoCompleteHandler {
-  query = '';
-
-  setQuery(query: string) {
-    this.query = query;
-  }
-
-  hasCategory(category: string) {
-    return true;
-  }
-
-  needCategories(): string[] {
-    return super
-      .needCategories()
-      .filter((value: string) => !(['key', 'started', 'finished'].includes(value) && this.query.includes(value)));
-  }
-
-  needOperators(parsedCategory: string) {
-    if (parsedCategory === 'started') {
-      return ['after'];
-    }
-    if (parsedCategory === 'finished') {
-      return ['before'];
-    }
-    if (parsedCategory === 'key') {
-      return ['==', 'like'];
-    }
-    return ['==', 'like', 'ilike'];
-  }
-
-  needValues(parsedCategory: string, parsedOperator: string) {
-    if (parsedOperator === 'after' || parsedOperator === 'before') {
-      return [{ customType: 'date' }];
-    }
-    return super.needValues(parsedCategory, parsedOperator);
-  }
-}
+import {
+  get,
+  post,
+  getHistoricProcessInstance,
+  getVersion,
+  getProcessDefinition,
+  getProcessDefinitionXml,
+  getActivities,
+  getVariables,
+  getDecisions,
+} from './utils/api';
+import { DEFAULT_PAGE_SIZE } from './utils/constants';
+import { createInstanceQueryHandler } from './utils/filterAutocomplete';
+import { sortActivitiesByEndTime, sortByName, mapDecisionsByActivity } from './utils/misc';
 
 const InstanceQueryOptions = [
   {
@@ -77,96 +45,127 @@ const InstanceQueryOptions = [
   },
 ];
 
-const initialState: Record<string, any> = {
+/** Interface for parsed filter tokens from filter expressions */
+interface ParsedFilterTokens {
+  startedAfter?: string;
+  finishedBefore?: string;
+  processInstanceBusinessKey?: string;
+  processInstanceBusinessKeyLike?: string;
+  variables?: { name: string; operator: string; value: string }[];
+  variableNamesIgnoreCase?: boolean;
+  variableValuesIgnoreCase?: boolean;
+}
+
+/** Interface for BPMN viewer instance */
+interface BpmnViewerInstance {
+  _container: HTMLElement;
+  get: (serviceName: string) => unknown;
+}
+
+const initialState: Record<string, Element | null> = {
   historyTabNode: null,
 };
 
-const hooks: Record<string, any> = {
-  setHistoryTabNode: (node: Element) => (initialState.historyTabNode = node),
+const hooks: Record<string, (node: Element) => void> = {
+  setHistoryTabNode: (node: Element): void => {
+    initialState['historyTabNode'] = node;
+  },
 };
 
+/**
+ * Plugin component for displaying historic process instance list.
+ * Manages filter parsing, pagination, and history table rendering.
+ */
 const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinitionId }) => {
-  const [autoCompleteHandler] = useState(new InstanceQueryAutoCompleteHandler([], InstanceQueryOptions));
+  const [autoCompleteHandler] = useState(() => createInstanceQueryHandler([], InstanceQueryOptions));
   const [expressions, setExpressions] = useState([] as Expression[]);
-  const [query, setQuery] = useState({} as Record<string, string | number | null>);
-  const [historyTabNode, setHistoryTabNode] = useState(initialState.historyTabNode);
+  const [query, setQuery] = useState({} as ParsedFilterTokens);
+  const [historyTabNode, setHistoryTabNode] = useState<Element | null>(initialState['historyTabNode'] ?? null);
 
-  hooks.setHistoryTabNode = setHistoryTabNode;
+  hooks['setHistoryTabNode'] = setHistoryTabNode;
 
-  const [instances, setInstances]: any = useState([] as any[]);
+  const [instances, setInstances] = useState<Record<string, unknown>[]>([]);
   const [instancesCount, setInstancesCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(50);
+  const [perPage] = useState(DEFAULT_PAGE_SIZE);
   const [firstResult, setFirstResult] = useState(0);
   // FETCH
 
   useEffect(() => {
-    (async () => {
-      setInstancesCount((await get(api, '/history/process-instance/count', { processDefinitionId })).count);
+    void (async () => {
+      const countResult = (await get(api, '/history/process-instance/count', { processDefinitionId })) as {
+        count: number;
+      };
+      setInstancesCount(countResult.count);
 
       setInstances(
-        await post(
+        (await post(
           api,
           '/history/process-instance',
-          { maxResults: `${perPage}`, firstResult: `${firstResult}` },
+          { maxResults: String(perPage), firstResult: String(firstResult) },
           JSON.stringify({
             sortBy: 'endTime',
             sortOrder: 'desc',
             processDefinitionId,
             ...query,
           })
-        )
+        )) as Record<string, unknown>[]
       );
     })();
-  }, [query, firstResult]);
+  }, [api, processDefinitionId, perPage, query, firstResult]);
 
+  /* eslint-disable complexity */
+  // Filter parsing requires handling multiple expression types with different operator mappings
   useEffect(() => {
-    const query: any = {};
-    const variables = [];
+    const parsedQuery: ParsedFilterTokens = {};
+    const variables: { name: string; operator: string; value: string }[] = [];
     for (const { category, operator, value } of expressions) {
-      if (category === 'started' && operator === 'after' && !isNaN(new Date(`${value}`).getTime())) {
-        query['startedAfter'] = `${value}T00:00:00.000+0000`;
-      } else if (category === 'finished' && operator === 'before' && !isNaN(new Date(`${value}`).getTime())) {
-        query['finishedBefore'] = `${value}T00:00:00.000+0000`;
+      const strValue = value ?? '';
+      const categoryStr = category ?? '';
+      if (category === 'started' && operator === 'after' && !isNaN(new Date(strValue).getTime())) {
+        parsedQuery.startedAfter = `${strValue}T00:00:00.000+0000`;
+      } else if (category === 'finished' && operator === 'before' && !isNaN(new Date(strValue).getTime())) {
+        parsedQuery.finishedBefore = `${strValue}T00:00:00.000+0000`;
       } else if (category === 'key' && operator === '==') {
-        query.processInstanceBusinessKey = value;
+        parsedQuery.processInstanceBusinessKey = strValue;
       } else if (category === 'key' && operator === 'like') {
-        query.processInstanceBusinessKeyLike = value;
+        parsedQuery.processInstanceBusinessKeyLike = strValue;
       } else if (operator === '==') {
         variables.push({
-          name: category,
+          name: categoryStr,
           operator: 'eq',
-          value: value,
+          value: strValue,
         });
       } else if (operator === 'like' || operator === 'ilike') {
         variables.push({
-          name: category,
+          name: categoryStr,
           operator: 'like',
-          value: value,
+          value: strValue,
         });
       }
       if (operator === 'ilike') {
-        query.variableNamesIgnoreCase = true;
-        query.variableValuesIgnoreCase = true;
+        parsedQuery.variableNamesIgnoreCase = true;
+        parsedQuery.variableValuesIgnoreCase = true;
       }
     }
-    if (variables.length) {
-      query['variables'] = variables;
+    if (variables.length > 0) {
+      parsedQuery.variables = variables;
     }
-    setQuery(query);
+    setQuery(parsedQuery);
   }, [expressions]);
+  /* eslint-enable complexity */
 
   // Hack to ensure long living HTML node for filter box
-  if (historyTabNode && !Array.from(historyTabNode.children).includes(root)) {
+  if (historyTabNode !== null && !Array.from(historyTabNode.children).includes(root)) {
     historyTabNode.appendChild(root);
   }
 
-  const pageClicked = (firstResult: number, page: number) => {
+  const pageClicked = (firstResult: number, page: number): void => {
     setCurrentPage(page);
     setFirstResult(firstResult);
   };
 
-  return historyTabNode ? (
+  return historyTabNode !== null ? (
     <Portal node={root}>
       <FilterBox
         options={InstanceQueryOptions}
@@ -174,8 +173,8 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
         onParseOk={setExpressions}
         defaultQuery={(): string => ''}
       />
-      {instances.length ? <HistoryTable instances={instances} /> : null}
-      <Pagination currentPage={currentPage} perPage={perPage} total={instancesCount} onPage={pageClicked}></Pagination>
+      {instances.length > 0 ? <HistoryTable instances={instances} /> : null}
+      <Pagination currentPage={currentPage} perPage={perPage} total={instancesCount} onPage={pageClicked} />
     </Portal>
   ) : null;
 };
@@ -187,13 +186,15 @@ export default [
     properties: {
       label: 'History',
     },
-    render: (node: Element) => hooks.setHistoryTabNode(node),
+    render: (node: Element): void => {
+      hooks['setHistoryTabNode']?.(node);
+    },
   },
   {
     id: 'definitionHistoricInstancesPlugin',
     pluginPoint: 'cockpit.processDefinition.runtime.action',
-    render: (node: Element, { api, processDefinitionId }: DefinitionPluginParams) => {
-      createRoot(node!).render(
+    render: (node: Element, { api, processDefinitionId }: DefinitionPluginParams): void => {
+      createRoot(node).render(
         <React.StrictMode>
           <Plugin root={node} api={api} processDefinitionId={processDefinitionId} />
         </React.StrictMode>
@@ -203,33 +204,32 @@ export default [
   {
     id: 'instanceDiagramHistoricToggle',
     pluginPoint: 'cockpit.processInstance.diagram.plugin',
-    render: (viewer: any) => {
-      (async () => {
-        const buttons = document.createElement('div');
-        buttons.style.cssText = `
-          position: absolute;
-          right: 15px;
-          top: 60px;
-        `;
-        viewer._container.appendChild(buttons);
-        createRoot(buttons!).render(
-          <React.StrictMode>
+    render: (viewer: BpmnViewerInstance): void => {
+      // Create a minimal mount point for React - the ViewerButtonsPortal handles positioning
+      const mountPoint = document.createElement('div');
+      mountPoint.style.display = 'contents';
+      viewer._container.appendChild(mountPoint);
+      createRoot(mountPoint).render(
+        <React.StrictMode>
+          <ViewerButtonsPortal viewer={viewer} position={{ right: '15px', top: '60px' }}>
             <ToggleHistoryViewButton
-              onToggleHistoryView={(value: boolean) => {
+              onToggleHistoryView={(value: boolean): void => {
                 if (value) {
-                  window.location.href =
-                    window.location.href.split('#')[0] +
-                    window.location.hash
-                      .split('?')[0]
-                      .replace(/^#\/process-instance/, '#/history/process-instance')
-                      .replace(/\/runtime/, '/');
+                  const hash = window.location.hash;
+                  const hashPart = hash !== '' ? hash.split('?')[0] : '';
+                  const basePath = window.location.href.split('#')[0] ?? '';
+                  const newHash =
+                    hashPart !== undefined && hashPart !== ''
+                      ? hashPart.replace(/^#\/process-instance/, '#/history/process-instance').replace(/\/runtime/, '/')
+                      : '';
+                  window.location.href = `${basePath}${newHash}`;
                 }
               }}
               initial={false}
             />
-          </React.StrictMode>
-        );
-      })();
+          </ViewerButtonsPortal>
+        </React.StrictMode>
+      );
     },
   },
   {
@@ -240,169 +240,53 @@ export default [
       label: '/history',
     },
 
-    render: (node: Element, { api }: RoutePluginParams) => {
-      const hash = window?.location?.hash ?? '';
-      const match = hash.match(/\/history\/process-instance\/([^\/]*)/);
-      const processInstanceId = match ? match[1].split('?')[0] : null;
-      const settings = loadSettings();
-      if (processInstanceId) {
-        (async () => {
-          const instance = await get(api, `/history/process-instance/${processInstanceId}`);
-          const [{ version }, definition, diagram, activities, variables, decisions] = await Promise.all([
-            get(api, `/version`),
-            get(api, `/process-definition/${instance.processDefinitionId}`),
-            get(api, `/process-definition/${instance.processDefinitionId}/xml`),
-            get(api, '/history/activity-instance', { processInstanceId }),
-            get(api, '/history/variable-instance', { processInstanceId }),
-            get(api, '/history/decision-instance', { processInstanceId }),
+    render: (node: Element, { api }: RoutePluginParams): void => {
+      const hash = window.location.hash;
+      const match = /\/history\/process-instance\/([^/]*)/.exec(hash);
+      const processInstanceId = match?.[1]?.split('?')[0] ?? null;
+      if (processInstanceId !== null) {
+        void (async () => {
+          const instance = await getHistoricProcessInstance(api, processInstanceId);
+          const [versionData, definition, diagram, activitiesData, variablesData, decisions] = await Promise.all([
+            getVersion(api),
+            getProcessDefinition(api, instance.processDefinitionId ?? ''),
+            getProcessDefinitionXml(api, instance.processDefinitionId ?? ''),
+            getActivities(api, processInstanceId),
+            getVariables(api, processInstanceId),
+            getDecisions(api, processInstanceId),
           ]);
-          const decisionByActivity: Map<string, any> = new Map(
-            decisions.map((decision: any) => [decision.activityInstanceId, decision.id])
-          );
-          const activityById: Map<string, any> = new Map(activities.map((activity: any) => [activity.id, activity]));
-          activities.sort((a: any, b: any) => {
-            a = a.endTime ? new Date(a.endTime) : new Date();
-            b = b.endTime ? new Date(b.endTime) : new Date();
-            if (a > b) {
-              return -1;
-            }
-            if (a < b) {
-              return 1;
-            }
-            return 0;
-          });
-          variables.sort((a: any, b: any) => {
-            a = a.name;
-            b = b.name;
-            if (a > b) {
-              return 1;
-            }
-            if (a < b) {
-              return -1;
-            }
-            return 0;
-          });
-          createRoot(node!).render(
+          const decisionByActivity = mapDecisionsByActivity(decisions);
+          const activityById = new Map(activitiesData.map(activity => [activity.id ?? '', activity]));
+          const activities = sortActivitiesByEndTime(activitiesData);
+          const variables = sortByName(variablesData);
+          // Build the process instance object for display components
+          const processInstance = {
+            id: instance.id ?? processInstanceId,
+            processDefinitionId: instance.processDefinitionId ?? '',
+            ...(instance.processDefinitionName !== null &&
+              instance.processDefinitionName !== undefined && {
+                processDefinitionName: instance.processDefinitionName,
+              }),
+            ...(instance.state !== null && instance.state !== undefined && { state: instance.state }),
+          };
+          createRoot(node).render(
             <React.StrictMode>
-              <Page version={version ? (version as string) : '7.15.0'} api={api}>
+              <Page version={versionData.version} api={api}>
                 <BreadcrumbsPanel
-                  processDefinitionId={instance.processDefinitionId}
-                  processDefinitionName={instance.processDefinitionName}
+                  processDefinitionId={instance.processDefinitionId ?? ''}
+                  processDefinitionName={instance.processDefinitionName ?? undefined}
                   processInstanceId={processInstanceId}
                 />
-                <Container>
-                  <Allotment
-                    vertical={true}
-                    onChange={(numbers: number[]) => {
-                      saveSettings({
-                        ...loadSettings(),
-                        topPaneSize: numbers?.[0] || null,
-                      });
-                    }}
-                  >
-                    <Allotment.Pane preferredSize={settings.topPaneSize || '66%'}>
-                      <Allotment
-                        vertical={false}
-                        onChange={(numbers: number[]) => {
-                          saveSettings({
-                            ...loadSettings(),
-                            leftPaneSize: numbers?.[0] || null,
-                          });
-                        }}
-                      >
-                        <Allotment.Pane preferredSize={settings.leftPaneSize || '33%'}>
-                          <div className="ctn-column">
-                            <dl className="process-information">
-                              <dt>
-                                <Clippy value={instance.id}>Instance ID:</Clippy>
-                              </dt>
-                              <dd>{instance.id}</dd>
-                              <dt>
-                                <Clippy value={instance.businessKey || 'null'}>Business Key:</Clippy>
-                              </dt>
-                              <dd>{instance.businessKey || <code>null</code>}</dd>
-                              <dt>
-                                <Clippy value={instance.processDefinitionVersion}>Definition Version:</Clippy>
-                              </dt>
-                              <dd>{instance.processDefinitionVersion}</dd>
-                              <dt>
-                                <Clippy value={instance.processdefinitionid}>Definition ID:</Clippy>
-                              </dt>
-                              <dd>
-                                <a href={`#/process-definition/${instance.processDefinitionId}/runtime`}>
-                                  {instance.processDefinitionId}
-                                </a>
-                              </dd>
-                              <dt>
-                                <Clippy value={instance.processDefinitionKey}>Definition Key:</Clippy>
-                              </dt>
-                              <dd>{instance.processDefinitionKey}</dd>
-                              <dt>
-                                <Clippy value={instance.processDefinitionName}>Definition Name:</Clippy>
-                              </dt>
-                              <dd>{instance.processDefinitionName}</dd>
-                              <dt>
-                                <Clippy value={instance.tenantId || <code>null</code>}>Tenant ID:</Clippy>
-                              </dt>
-                              <dd>{instance.tenantId || <code>null</code>}</dd>
-                              <dt>
-                                <Clippy value={definition.deploymentId}>Deployment ID:</Clippy>
-                              </dt>
-                              <dd>
-                                <a
-                                  href={`#/repository?deployment=${definition.deploymentId}&resourceName=${definition.resource}&deploymentsQuery=%5B%7B%22type%22%3A%22id%22%2C%22operator%22%3A%22eq%22%2C%22value%22%3A%22${definition.deploymentId}%22%7D%5D`}
-                                >
-                                  {definition.deploymentId}
-                                </a>
-                              </dd>
-                              <dt>
-                                <Clippy value={instance.superProcessInstanceId}>Super Process instance ID:</Clippy>
-                              </dt>
-                              <dd>
-                                {(instance.superProcessInstanceId && (
-                                  <a href={`#/history/process-instance/${instance.superProcessInstanceId}`}>
-                                    {instance.superProcessInstanceId}
-                                  </a>
-                                )) || <code>null</code>}
-                              </dd>
-                              <dt>
-                                <Clippy value={instance.state}>State:</Clippy>
-                              </dt>
-                              <dd>{instance.state}</dd>
-                            </dl>
-                          </div>
-                        </Allotment.Pane>
-                        <Allotment.Pane>
-                          <BPMN
-                            activities={activities}
-                            diagramXML={diagram.bpmn20Xml}
-                            className="ctn-content"
-                            style={{ width: '100%', height: '100%' }}
-                            showRuntimeToggle={instance.state === 'ACTIVE'}
-                          />
-                        </Allotment.Pane>
-                      </Allotment>
-                    </Allotment.Pane>
-                    <Allotment.Pane>
-                      <Tabs className="ctn-row ctn-content-bottom ctn-tabbed" selectedTabClassName="active">
-                        <TabList className="nav nav-tabs">
-                          <Tab>
-                            <a>Audit Log</a>
-                          </Tab>
-                          <Tab>
-                            <a>Variables</a>
-                          </Tab>
-                        </TabList>
-                        <TabPanel className="ctn-tabbed-content ctn-scroll">
-                          <AuditLogTable activities={activities} decisions={decisionByActivity} />
-                        </TabPanel>
-                        <TabPanel className="ctn-tabbed-content ctn-scroll">
-                          <VariablesTable instance={instance} activities={activityById} variables={variables} />
-                        </TabPanel>
-                      </Tabs>
-                    </Allotment.Pane>
-                  </Allotment>
-                </Container>
+                <HistoryViewLayout
+                  instance={processInstance}
+                  historicInstance={instance}
+                  definition={definition}
+                  diagramXML={diagram.bpmn20Xml}
+                  activities={activities}
+                  variables={variables}
+                  activityById={activityById}
+                  decisionByActivity={decisionByActivity}
+                />
               </Page>
             </React.StrictMode>
           );
