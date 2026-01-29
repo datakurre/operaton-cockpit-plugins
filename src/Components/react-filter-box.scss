@@ -53,10 +53,32 @@
 .react-filter-box.error.focus {
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
 }
+
+// CodeMirror hints dropdown - base styles from codemirror/addon/hint/show-hint.css
 .CodeMirror-hints {
+  position: absolute;
+  z-index: 10000 !important;
+  list-style: none;
+  margin: 0;
   padding: 5px;
   min-width: 100px;
-  z-index: 100 !important;
+  max-height: 20em;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: white;
+  border: 1px solid silver;
+  border-radius: 3px;
+  box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  font-size: 90%;
+}
+.CodeMirror-hint {
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 2px;
+  white-space: pre;
+  color: black;
+  cursor: pointer;
 }
 .CodeMirror-hints .CodeMirror-hint {
   padding: 5px 5px;

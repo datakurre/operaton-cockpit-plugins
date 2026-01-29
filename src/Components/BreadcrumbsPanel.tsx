@@ -2,7 +2,7 @@ import React from 'react';
 
 interface Props {
   processDefinitionId: string;
-  processDefinitionName: string;
+  processDefinitionName?: string | undefined;
   processInstanceId: string;
 }
 

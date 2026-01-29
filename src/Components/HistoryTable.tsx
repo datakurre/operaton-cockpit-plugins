@@ -1,117 +1,92 @@
-import moment from 'moment';
 import React from 'react';
-import { GoChevronDown, GoChevronUp } from 'react-icons/go';
-import { TiMinus } from 'react-icons/ti';
-import { useSortBy, useTable } from 'react-table';
+import { CellProps, Column } from 'react-table';
 
+import { HistoricProcessInstance } from '../types';
+import { formatDateTime } from '../utils/formatting';
 import { Clippy } from './Clippy';
+import SortableTable from './SortableTable';
 
-interface Props {
-  instances: any[];
+/**
+ * Row data structure for the history table.
+ * Derived from HistoricProcessInstance with formatted dates.
+ */
+interface InstanceRow {
+  /** Process instance state (ACTIVE, COMPLETED, etc.) */
+  state: string;
+  /** Process instance ID */
+  id: string;
+  /** Optional business key */
+  businessKey: string;
+  /** Start time as Date object for sorting */
+  startTime: Date;
+  /** End time as Date object or null if still running */
+  endTime: Date | null;
 }
 
+interface Props {
+  instances: HistoricProcessInstance[];
+}
+
+/**
+ * History table displaying historic process instances with state,
+ * timing information, and links to instance details.
+ */
 const HistoryTable: React.FC<Props> = ({ instances }) => {
-  const columns = React.useMemo(
+  const columns = React.useMemo<Column<InstanceRow>[]>(
     () => [
       {
         Header: 'State',
         accessor: 'state',
-        Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
+        Cell: ({ value }: CellProps<InstanceRow, string>) => <Clippy value={value}>{value}</Clippy>,
       },
       {
         Header: 'Instance ID',
-
-        Cell: ({ value }: any) => (
+        accessor: 'id',
+        Cell: ({ value }: CellProps<InstanceRow, string>) => (
           <Clippy value={value}>
             <a href={`#/history/process-instance/${value}`}>{value}</a>
           </Clippy>
         ),
-        accessor: 'id',
       },
       {
         Header: 'Start Time',
         accessor: 'startTime',
-        Cell: ({ value }: any) => (
-          <Clippy value={value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}>
-            {value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}
-          </Clippy>
-        ),
+        Cell: ({ value }: CellProps<InstanceRow, Date>) => {
+          const formatted = formatDateTime(value);
+          return <Clippy value={formatted}>{formatted}</Clippy>;
+        },
       },
       {
         Header: 'End Time',
         accessor: 'endTime',
-        Cell: ({ value }: any) => (
-          <Clippy value={value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}>
-            {value ? value.format('YYYY-MM-DDTHH:mm:ss') : value}
-          </Clippy>
-        ),
+        Cell: ({ value }: CellProps<InstanceRow, Date | null>) => {
+          const formatted = value ? formatDateTime(value) : '';
+          return <Clippy value={formatted}>{formatted}</Clippy>;
+        },
       },
       {
         Header: 'Business Key',
         accessor: 'businessKey',
-        Cell: ({ value }: any) => <Clippy value={value}>{value}</Clippy>,
+        Cell: ({ value }: CellProps<InstanceRow, string>) => <Clippy value={value}>{value}</Clippy>,
       },
     ],
     []
   );
-  const data = React.useMemo(
+  const data = React.useMemo<InstanceRow[]>(
     () =>
-      instances.map((instance: any) => {
+      instances.map((instance: HistoricProcessInstance): InstanceRow => {
         return {
-          state: instance.state,
-          id: instance.id,
-          businessKey: instance.businessKey,
-          startTime: moment(instance.startTime),
-          endTime: instance.endTime ? moment(instance.endTime) : '',
+          state: instance.state ?? '',
+          id: instance.id ?? '',
+          businessKey: instance.businessKey ?? '',
+          startTime: instance.startTime ? new Date(instance.startTime) : new Date(0),
+          endTime: instance.endTime ? new Date(instance.endTime) : null,
         };
       }),
     [instances]
   );
-  const tableInstance = useTable({ columns: columns as any, data }, useSortBy);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
-  return (
-    <table className="cam-table" {...getTableProps()}>
-      <thead>
-        {headerGroups.map(headerGroup => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              /* @ts-ignore */
-              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                {column.render('Header')}
-                <span style={{ position: 'absolute', fontSize: '125%' }}>
-                  {
-                    /* @ts-ignore */
-                    column.isSorted ? (
-                      /* @ts-ignore */
-                      column.isSortedDesc ? (
-                        <GoChevronDown style={{ color: '#155cb5' }} />
-                      ) : (
-                        <GoChevronUp style={{ color: '#155cb5' }} />
-                      )
-                    ) : (
-                      <TiMinus style={{ color: '#155cb5' }} />
-                    )
-                  }
-                </span>
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map(row => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map(cell => {
-                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>;
-              })}
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
+
+  return <SortableTable<InstanceRow> columns={columns} data={data} ariaLabel="Process instance history table" />;
 };
 
 export default HistoryTable;
