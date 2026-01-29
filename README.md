@@ -1,6 +1,9 @@
 Minimal "history plugins" for Operaton and Camunda 7 Cockpit
 ============================================================
 
+[![CI](https://github.com/datakurre/operaton-cockpit-plugins/actions/workflows/ci.yml/badge.svg)](https://github.com/datakurre/operaton-cockpit-plugins/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/datakurre/operaton-cockpit-plugins/branch/main/graph/badge.svg)](https://codecov.io/gh/datakurre/operaton-cockpit-plugins)
+
 Note: Due to Camunda 7 EOL in October 2025, these plugins have been tested to be compatible with [Operaton 1.0.0-beta-1 and 2](https://operaton.org) and the repository has been renamed.
 
 ![Minimal history plugin in action.](plugin.gif)
@@ -56,7 +59,9 @@ src/main/resources/
 │   │               └── cockpit
 │   │                   └── scripts
 │   │                       ├── config.js
+│   │                       ├── decisions-dashboard.js
 │   │                       ├── definition-historic-activities.js
+│   │                       ├── definition-tab-modify.js
 │   │                       ├── instance-historic-activities.js
 │   │                       ├── instance-route-history.js
 │   │                       ├── instance-tab-modify.js
@@ -72,6 +77,65 @@ For use with Camunda 7, use directory `./src/main/resources/META-INF/resources/w
 ### Other Distributions
 
 [Check the forum discussion on how to package plugins for various alternative Camunda distributions.](https://forum.camunda.org/t/minimal-cockpit-history-plugins-for-camunda-7-14-0/24651)
+
+
+Configuration
+-------------
+
+### Plugin Configuration (config.js)
+
+The `config.js` file controls which plugins are loaded. The default configuration includes:
+
+```javascript
+export default {
+  customScripts: [
+    'scripts/decisions-dashboard.js',
+    'scripts/definition-historic-activities.js',
+    'scripts/definition-tab-modify.js',
+    'scripts/instance-auto-refresh.js',
+    'scripts/instance-action-unlock.js',
+    'scripts/instance-historic-activities.js',
+    'scripts/instance-route-history.js',
+    'scripts/instance-tab-modify.js'
+  ],
+  bpmnJs: {
+    additionalModules: [
+      'scripts/robot-module.js'
+    ],
+  },
+  disableWelcomeMessage: true,
+  previewHtml: true
+};
+```
+
+### localStorage Settings
+
+User preferences are stored in `localStorage` under the key `minimal-history-plugin`. The following settings are persisted:
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `autoRefresh` | boolean | `false` | Auto-refresh process instance views |
+| `showHistoricBadges` | boolean | `false` | Show activity instance count badges on diagram |
+| `showSequenceFlow` | boolean | `false` | Highlight executed sequence flows on diagram |
+| `leftPaneSize` | number | `null` | Left pane width in history view (pixels) |
+| `topPaneSize` | number | `null` | Top pane height in history view (pixels) |
+| `maxResults` | number | `1000` | Maximum results for history API queries |
+
+### URL Query Parameters
+
+Settings can also be controlled via URL hash parameters. These override localStorage values:
+
+| Parameter | Description |
+|-----------|-------------|
+| `autoRefresh` | Enable auto-refresh when present |
+| `showHistoricBadges` | Show historic badges when present |
+| `showSequenceFlow` | Show sequence flow when present |
+| `maxResults=N` | Override max results (e.g., `maxResults=500`) |
+
+Example URL with parameters:
+```
+http://localhost:8080/camunda/app/cockpit/default/#/process-instance/123?autoRefresh&showSequenceFlow
+```
 
 
 Develop it
