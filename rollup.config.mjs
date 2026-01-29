@@ -6,14 +6,23 @@ import replace from "@rollup/plugin-replace";
 import resolve from "@rollup/plugin-node-resolve";
 import scss from 'rollup-plugin-scss';
 import typescript from "@rollup/plugin-typescript";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 const plugins = [
   replace({
     preventAssignment: true,
-    "process.env.NODE_ENV": process.env.NODE_ENV === "production" ? JSON.stringify("production") : null,
+    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
   }),
   alias({
-    entries: [{ find: "inherits", replacement: "inherits/inherits_browser" }],
+    entries: [
+      // Force all React imports to use the same instance (fixes hooks errors from nested react-filter-box)
+      { find: "react", replacement: path.resolve(__dirname, "node_modules/react") },
+      { find: "react-dom", replacement: path.resolve(__dirname, "node_modules/react-dom") },
+    ],
   }),
   resolve(),
   commonjs({
@@ -23,7 +32,8 @@ const plugins = [
   image(),
   json(),
   scss({
-    insert: true
+    insert: true,
+    silenceDeprecations: ['legacy-js-api'],
   }),
 ];
 
@@ -32,6 +42,7 @@ export default [
     input: "src/RobotModule/index.ts",
     output: {
       file: "robot-module.js",
+      sourcemap: isDevelopment,
     },
     plugins,
   },
@@ -43,6 +54,7 @@ export default [
     input: "src/instance-historic-activities.tsx",
     output: {
       file: "instance-historic-activities.js",
+      sourcemap: isDevelopment,
     },
     plugins,
   },
@@ -54,6 +66,7 @@ export default [
     input: "src/definition-historic-activities.tsx",
     output: {
       file: "definition-historic-activities.js",
+      sourcemap: isDevelopment,
     },
     plugins,
   },
@@ -65,6 +78,7 @@ export default [
     input: "src/instance-auto-refresh.tsx",
     output: {
       file: "instance-auto-refresh.js",
+      sourcemap: isDevelopment,
     },
     plugins,
   },
@@ -76,6 +90,7 @@ export default [
     input: "src/instance-route-history.tsx",
     output: {
       file: "instance-route-history.js",
+      sourcemap: isDevelopment,
     },
     plugins,
   },
@@ -87,6 +102,7 @@ export default [
     input: "src/tasklist-audit-log.tsx",
     output: {
       file: "tasklist-audit-log.js",
+      sourcemap: isDevelopment,
     },
     plugins,
   },
@@ -98,6 +114,103 @@ export default [
     input: "src/instance-tab-modify.tsx",
     output: {
       file: "instance-tab-modify.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/instance-action-unlock.tsx",
+    output: {
+      file: "instance-action-unlock.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/definition-tab-modify.tsx",
+    output: {
+      file: "definition-tab-modify.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/cockpit-custom-styles.tsx",
+    output: {
+      file: "cockpit-custom-styles.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/definition-favourites.tsx",
+    output: {
+      file: "definition-favourites.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/tasklist-nologin.tsx",
+    output: {
+      file: "tasklist-nologin.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/welcome-nologin.tsx",
+    output: {
+      file: "welcome-nologin.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/admin-nologin.tsx",
+    output: {
+      file: "admin-nologin.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/decisions-dashboard.tsx",
+    output: {
+      file: "decisions-dashboard.js",
+      sourcemap: isDevelopment,
     },
     plugins,
   },

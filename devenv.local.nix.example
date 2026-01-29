@@ -1,9 +1,14 @@
 {
-  package.podman.enable = true;
-  package.vscodium.enable = true;
-  package.vscodium.features = [
-    "unfree"
-    "vim"
-    "copilot"
-  ];
+  profiles.devcontainer.module = {
+    devcontainer.tweaks = [
+      "podman"
+      "vscode"
+      "gpg-agent"
+    ];
+    devcontainer.settings.customizations.vscode.extensions = [
+      "GitHub.copilot"
+      "GitHub.copilot-chat"
+      "vscodevim.vim"
+    ];
+  };
 }

@@ -3,10 +3,10 @@
     "devenv": {
       "locked": {
         "dir": "src/modules",
-        "lastModified": 1747185494,
+        "lastModified": 1769601151,
         "owner": "cachix",
         "repo": "devenv",
-        "rev": "b292bc94c2daccda165bc9f909bf6c8056e37a80",
+        "rev": "b2ef1164b4f330d6b11c6ad3da962452eab7b3bb",
         "type": "github"
       },
       "original": {
@@ -16,65 +16,63 @@
         "type": "github"
       }
     },
-    "devenv-module-podman": {
+    "devenv-module-devcontainer": {
       "flake": false,
       "locked": {
-        "lastModified": 1747245356,
+        "lastModified": 1769417663,
+        "owner": "datakurre",
+        "repo": "devenv-module-devcontainer",
+        "rev": "9eed4c8aa468116648146635dd33dedd3c2e2688",
+        "type": "github"
+      },
+      "original": {
+        "owner": "datakurre",
+        "repo": "devenv-module-devcontainer",
+        "type": "github"
+      }
+    },
+    "devenv-module-mvn2nix": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1768338450,
         "owner": "vasara-bpm",
-        "repo": "devenv-module-podman",
-        "rev": "48d086144002eba83432281ba82cea2311e140e9",
+        "repo": "devenv-module-mvn2nix",
+        "rev": "5c4e57a2b520955578f1f337b8475e3b0318fbfe",
         "type": "gitlab"
       },
       "original": {
         "owner": "vasara-bpm",
-        "repo": "devenv-module-podman",
+        "repo": "devenv-module-mvn2nix",
         "type": "gitlab"
       }
     },
-    "devenv-module-vscodium": {
+    "devenv-module-operaton": {
       "flake": false,
       "locked": {
-        "lastModified": 1750533406,
-        "owner": "datakurre",
-        "repo": "devenv-module-vscodium",
-        "rev": "67a3e94a57edb3ffdd64ac2285a301b63b8f2f40",
-        "type": "github"
+        "lastModified": 1769632385,
+        "owner": "vasara-bpm",
+        "repo": "devenv-module-operaton",
+        "rev": "62c03f63344e8cc65e022f292e0b3938d4aed544",
+        "type": "gitlab"
       },
       "original": {
-        "owner": "datakurre",
-        "repo": "devenv-module-vscodium",
-        "type": "github"
+        "owner": "vasara-bpm",
+        "repo": "devenv-module-operaton",
+        "type": "gitlab"
       }
     },
     "flake-compat": {
       "flake": false,
       "locked": {
-        "lastModified": 1747046372,
-        "owner": "edolstra",
+        "lastModified": 1767039857,
+        "owner": "NixOS",
         "repo": "flake-compat",
-        "rev": "9100a0f413b0c601e0533d1d94ffd501ce2e7885",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
         "type": "github"
       },
       "original": {
-        "owner": "edolstra",
+        "owner": "NixOS",
         "repo": "flake-compat",
-        "type": "github"
-      }
-    },
-    "flake-utils": {
-      "inputs": {
-        "systems": "systems"
-      },
-      "locked": {
-        "lastModified": 1731533236,
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
         "type": "github"
       }
     },
@@ -87,10 +85,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1746537231,
+        "lastModified": 1769069492,
         "owner": "cachix",
         "repo": "git-hooks.nix",
-        "rev": "fa466640195d38ec97cf0493d6d6882bc4d14969",
+        "rev": "a1ef738813b15cf8ec759bdff5761b027e3e1d23",
         "type": "github"
       },
       "original": {
@@ -107,10 +105,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1709087332,
+        "lastModified": 1762808025,
         "owner": "hercules-ci",
         "repo": "gitignore.nix",
-        "rev": "637db329424fd7e46cf4185293b9cc8c88c95394",
+        "rev": "cb5e3fdca1de58ccbc3ef53de65bd372b48f567c",
         "type": "github"
       },
       "original": {
@@ -119,50 +117,50 @@
         "type": "github"
       }
     },
-    "nix-vscode-extensions": {
+    "mvn2nix": {
       "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "utils": "utils"
       },
       "locked": {
-        "lastModified": 1747188026,
-        "owner": "nix-community",
-        "repo": "nix-vscode-extensions",
-        "rev": "083675f78e7de80e9fec1f621b8a508e58327131",
-        "type": "github"
+        "lastModified": 1733432698,
+        "owner": "vasara-bpm",
+        "repo": "mvn2nix",
+        "rev": "19b9ed3b403b1da02650587f6b1fc74381446b1e",
+        "type": "gitlab"
       },
       "original": {
-        "owner": "nix-community",
-        "repo": "nix-vscode-extensions",
-        "type": "github"
+        "owner": "vasara-bpm",
+        "repo": "mvn2nix",
+        "type": "gitlab"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1744868846,
+        "lastModified": 1769461804,
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "ebe4301cbd8f81c4f8d3244b3632338bbeb6d49c",
+        "rev": "bfc1b8a4574108ceef22f02bafcf6611380c100d",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
-        "rev": "ebe4301cbd8f81c4f8d3244b3632338bbeb6d49c",
         "type": "github"
       }
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1746957726,
+        "lastModified": 1769633450,
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "a39ed32a651fdee6842ec930761e31d1f242cb94",
+        "rev": "090fc84af7f1e469716d1bee96b6d2378714394d",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
-        "ref": "nixos-24.11",
+        "ref": "master",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -170,15 +168,15 @@
     "root": {
       "inputs": {
         "devenv": "devenv",
-        "devenv-module-podman": "devenv-module-podman",
-        "devenv-module-vscodium": "devenv-module-vscodium",
+        "devenv-module-devcontainer": "devenv-module-devcontainer",
+        "devenv-module-mvn2nix": "devenv-module-mvn2nix",
+        "devenv-module-operaton": "devenv-module-operaton",
         "git-hooks": "git-hooks",
-        "nix-vscode-extensions": "nix-vscode-extensions",
+        "mvn2nix": "mvn2nix",
         "nixpkgs": "nixpkgs_2",
         "pre-commit-hooks": [
           "git-hooks"
-        ],
-        "unstable": "unstable"
+        ]
       }
     },
     "systems": {
@@ -195,18 +193,20 @@
         "type": "github"
       }
     },
-    "unstable": {
+    "utils": {
+      "inputs": {
+        "systems": "systems"
+      },
       "locked": {
-        "lastModified": 1747244259,
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "6d0d3850ff291b04c1394cc388cd5740f843fabc",
+        "lastModified": 1731533236,
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
-        "ref": "master",
-        "repo": "nixpkgs",
+        "owner": "numtide",
+        "repo": "flake-utils",
         "type": "github"
       }
     }
