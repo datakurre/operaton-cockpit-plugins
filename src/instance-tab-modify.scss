@@ -1,0 +1,122 @@
+/**
+ * Styles for instance-tab-modify and definition-tab-modify plugins.
+ * Provides styling for the process modification form UI.
+ */
+
+.modify-form {
+  padding: 10px;
+
+  &__loading {
+    padding: 10px;
+  }
+
+  &__meta-text {
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  &__error {
+    padding: 10px;
+    color: red;
+  }
+
+  &__header {
+    margin-bottom: 15px;
+  }
+
+  &__description {
+    font-size: 0.95em;
+    color: #666;
+    margin-top: 5px;
+  }
+
+  &__section {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  &__field {
+    margin-bottom: 15px;
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    input[type='checkbox'] {
+      margin-right: 5px;
+    }
+  }
+
+  &__input,
+  &__textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 0.95em;
+
+    &:focus {
+      outline: none;
+      border-color: #4a90e2;
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    font-family: monospace;
+  }
+
+  &__hint {
+    font-size: 0.9em;
+    color: #888;
+    font-style: italic;
+    margin-top: 5px;
+  }
+
+  &__add-instruction {
+    margin-bottom: 15px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  &__dry-run-result {
+    margin-top: 15px;
+    padding: 15px;
+    background: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 4px;
+
+    h5 {
+      margin: 0 0 10px 0;
+      color: #0066cc;
+    }
+  }
+
+  &__instance-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+
+    li {
+      padding: 5px 10px;
+      margin: 2px 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+  }
+}
