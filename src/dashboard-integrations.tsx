@@ -328,8 +328,8 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
         return false;
       }
       // Use processDefinitionKey from external task, fallback to processDefKeys map
-      const defKey =
-        task.processDefinitionKey ?? (task.processDefinitionId ? processDefKeys.get(task.processDefinitionId) : null);
+      const defKey = task.processDefinitionKey ?? 
+                    (task.processDefinitionId ? processDefKeys.get(task.processDefinitionId) : null);
       return defKey ? favouriteKeys.has(defKey) : false;
     }
 
@@ -344,7 +344,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     if (favouritesOnly && !prevFavouritesOnlyRef.current && selectedTasks.size > 0) {
       // Reload favourites to get the latest list
       const currentFavouriteKeys = loadFavouriteKeys();
-
+      
       // Check selections against tasks using processDefinitionKey directly
       const validSelections = new Set<string>();
 
@@ -352,9 +352,8 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
         const task = tasks.find(t => t.id === taskId);
         if (task) {
           // Use processDefinitionKey from external task, fallback to processDefKeys map
-          const defKey =
-            task.processDefinitionKey ??
-            (task.processDefinitionId ? processDefKeys.get(task.processDefinitionId) : null);
+          const defKey = task.processDefinitionKey ?? 
+                        (task.processDefinitionId ? processDefKeys.get(task.processDefinitionId) : null);
           if (defKey && currentFavouriteKeys.has(defKey)) {
             validSelections.add(taskId);
           }
@@ -497,7 +496,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   // Error state overlay
   if (error) {
     return (
-      <DashboardSection title="External Tasks" hasData={false} emptyMessage="" useWrapper={false}>
+      <DashboardSection title="External Tasks" hasData={false} emptyMessage="">
         <ErrorMessage message={error} />
         <button className="btn btn-default" onClick={() => void fetchTasks()}>
           Retry
@@ -520,7 +519,6 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
       hasData={filteredTasks.length > 0}
       emptyMessage={emptyMessage}
       onRefresh={() => void fetchTasks()}
-      useWrapper={false}
       headerActions={
         <>
           {selectedTasks.size > 0 && (

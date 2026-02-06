@@ -244,7 +244,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      const advancedCheckbox = screen.getByRole('checkbox', { name: /advanced options/i });
+      const advancedCheckbox = screen.getByRole('checkbox', { name: /advanced correlation options/i });
       await user.click(advancedCheckbox);
 
       expect(screen.getByText('Correlation Keys')).toBeInTheDocument();
@@ -261,7 +261,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      const advancedCheckbox = screen.getByRole('checkbox', { name: /advanced options/i });
+      const advancedCheckbox = screen.getByRole('checkbox', { name: /advanced correlation options/i });
       await user.click(advancedCheckbox); // Show
       await user.click(advancedCheckbox); // Hide
 

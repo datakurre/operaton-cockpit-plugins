@@ -5,7 +5,7 @@
  */
 
 import { API } from '../types';
-import { get as apiGet, setFetchFunction, resetFetchFunction } from '../utils/api';
+import { get as apiGet, post as apiPost, setFetchFunction, resetFetchFunction } from '../utils/api';
 import type { FetchFunction } from '../utils/api';
 
 /**
@@ -82,13 +82,102 @@ export interface HistoricDecision {
 }
 
 /**
+ * Represents a historic process instance
+ */
+export interface HistoricProcessInstance {
+  id: string;
+  businessKey?: string;
+  processDefinitionId: string;
+  processDefinitionKey?: string;
+  processDefinitionName?: string;
+  processDefinitionVersion?: number;
+  rootProcessInstanceId?: string;
+  superProcessInstanceId?: string;
+  superCaseInstanceId?: string;
+  caseInstanceId?: string;
+  startTime: string;
+  endTime?: string;
+  durationInMillis?: number;
+  startUserId?: string;
+  startActivityId?: string;
+  deleteReason?: string;
+  state: 'ACTIVE' | 'SUSPENDED' | 'COMPLETED' | 'EXTERNALLY_TERMINATED' | 'INTERNALLY_TERMINATED';
+  tenantId?: string;
+  removalTime?: string;
+}
+
+/**
+ * Query parameters for historic process instance queries (used with POST endpoint).
+ * These are the parameters that can be passed directly to the API body.
+ */
+export interface HistoricProcessInstanceQueryParams {
+  processDefinitionId?: string;
+  processDefinitionKey?: string;
+  processInstanceBusinessKey?: string;
+  processInstanceBusinessKeyLike?: string;
+  startedAfter?: string;
+  finishedBefore?: string;
+  finished?: boolean;
+  unfinished?: boolean;
+  withIncidents?: boolean;
+  incidentType?: string;
+  incidentStatus?: string;
+  startedBy?: string;
+  tenantIdIn?: string[];
+  state?: string;
+  executedActivityIdIn?: string[];
+  activeActivityIdIn?: string[];
+  active?: boolean;
+  suspended?: boolean;
+  completed?: boolean;
+  externallyTerminated?: boolean;
+  internallyTerminated?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  variables?: { name: string; operator: string; value: string }[];
+  variableNamesIgnoreCase?: boolean;
+  variableValuesIgnoreCase?: boolean;
+}
+
+/**
+ * Pagination parameters for list queries
+ */
+export interface PaginationParams {
+  maxResults?: number;
+  firstResult?: number;
+}
+
+/**
+ * Result of a count query
+ */
+export interface CountResult {
+  count: number;
+}
+
+/**
  * History service interface for dependency injection
  */
 export interface IHistoryService {
   getActivities(instanceId: string, params?: Record<string, string>): Promise<HistoricActivity[]>;
+  getActivitiesByDefinition(
+    processDefinitionId: string,
+    params?: Record<string, string | boolean | null | undefined>
+  ): Promise<HistoricActivity[]>;
   getVariables(instanceId: string, params?: Record<string, string>): Promise<HistoricVariable[]>;
   getDecisions(instanceId: string, params?: Record<string, string>): Promise<HistoricDecision[]>;
   getActivityStatistics(processDefinitionId: string, params?: Record<string, string>): Promise<unknown[]>;
+  /**
+   * Query historic process instances using POST endpoint.
+   * Supports complex filters like variable values.
+   */
+  queryProcessInstances(
+    query: HistoricProcessInstanceQueryParams,
+    pagination?: PaginationParams
+  ): Promise<HistoricProcessInstance[]>;
+  /**
+   * Count historic process instances matching a query.
+   */
+  countProcessInstances(query: HistoricProcessInstanceQueryParams): Promise<number>;
 }
 
 /**
@@ -116,6 +205,28 @@ export class HistoryService implements IHistoryService {
       processInstanceId: instanceId,
       ...params,
     });
+    return Array.isArray(result) ? (result as HistoricActivity[]) : [];
+  }
+
+  /**
+   * Gets historic activity instances for a process definition.
+   * Used for statistics overlays on process definition diagrams.
+   * @param processDefinitionId - The process definition ID
+   * @param params - Optional query parameters (supports all FilterBox query params)
+   * @returns Promise resolving to array of historic activities
+   */
+  async getActivitiesByDefinition(
+    processDefinitionId: string,
+    params: Record<string, string | boolean | null | undefined> = {}
+  ): Promise<HistoricActivity[]> {
+    // Filter out null/undefined values and convert booleans to strings for API
+    const cleanedParams: Record<string, string> = { processDefinitionId };
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null) {
+        cleanedParams[key] = typeof value === 'boolean' ? String(value) : value;
+      }
+    }
+    const result: unknown = await apiGet(this.api, '/history/activity-instance', cleanedParams);
     return Array.isArray(result) ? (result as HistoricActivity[]) : [];
   }
 
@@ -156,6 +267,41 @@ export class HistoryService implements IHistoryService {
   async getActivityStatistics(processDefinitionId: string, params: Record<string, string> = {}): Promise<unknown[]> {
     const result: unknown = await apiGet(this.api, `/process-definition/${processDefinitionId}/statistics`, params);
     return Array.isArray(result) ? (result as unknown[]) : [];
+  }
+
+  /**
+   * Query historic process instances using POST endpoint.
+   * Supports complex filters like variable values.
+   * @param query - Query parameters for filtering
+   * @param pagination - Optional pagination parameters
+   * @returns Promise resolving to array of historic process instances
+   */
+  async queryProcessInstances(
+    query: HistoricProcessInstanceQueryParams,
+    pagination?: PaginationParams
+  ): Promise<HistoricProcessInstance[]> {
+    const queryParams: Record<string, string> = {};
+    if (pagination?.maxResults !== undefined) {
+      queryParams['maxResults'] = String(pagination.maxResults);
+    }
+    if (pagination?.firstResult !== undefined) {
+      queryParams['firstResult'] = String(pagination.firstResult);
+    }
+    const result: unknown = await apiPost(this.api, '/history/process-instance', queryParams, JSON.stringify(query));
+    return Array.isArray(result) ? (result as HistoricProcessInstance[]) : [];
+  }
+
+  /**
+   * Count historic process instances matching a query.
+   * @param query - Query parameters for filtering
+   * @returns Promise resolving to the count
+   */
+  async countProcessInstances(query: HistoricProcessInstanceQueryParams): Promise<number> {
+    const result: unknown = await apiPost(this.api, '/history/process-instance/count', {}, JSON.stringify(query));
+    if (result && typeof result === 'object' && 'count' in result) {
+      return (result as CountResult).count;
+    }
+    return 0;
   }
 }
 
