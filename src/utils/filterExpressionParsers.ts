@@ -310,12 +310,17 @@ const DATE_TIME_SUFFIX = 'T00:00:00.000+0000';
 
 /**
  * Parse a date value and format for API if valid.
- * @param value - Date string value
+ * @param value - Date string value (can be ISO string or date-only format)
  * @returns Formatted date string or undefined if invalid
  */
 function formatDateForApi(value: string): string | undefined {
   const date = new Date(value);
-  return !isNaN(date.getTime()) ? `${value}${DATE_TIME_SUFFIX}` : undefined;
+  if (isNaN(date.getTime())) {
+    return undefined;
+  }
+  // Extract just the date portion (YYYY-MM-DD) and append the time suffix
+  const dateOnly = date.toISOString().split('T')[0];
+  return `${dateOnly}${DATE_TIME_SUFFIX}`;
 }
 
 /** Activity instance date field mappings: [category, operator] -> query key */

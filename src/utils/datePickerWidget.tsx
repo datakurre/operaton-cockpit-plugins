@@ -29,10 +29,13 @@ const DatePickerWidgetComponent: React.FC<CustomWidgetProps> = ({ onConfirm, onC
   const initial = initialValue instanceof Date ? initialValue : initialValue ? new Date(String(initialValue)) : null;
   const [selectedDate, setSelectedDate] = useState<Date | null>(initial);
 
-  const handleConfirm = (): void => {
-    if (selectedDate) {
-      const display = formatDate(selectedDate);
-      onConfirm(selectedDate, display);
+  const handleDateChange = (date: Date | null): void => {
+    setSelectedDate(date);
+    // Immediately apply when a date is selected
+    // The onChange is only triggered when user clicks a date cell, not when navigating months
+    if (date) {
+      const display = formatDate(date);
+      onConfirm(date, display);
     }
   };
 
@@ -40,9 +43,7 @@ const DatePickerWidgetComponent: React.FC<CustomWidgetProps> = ({ onConfirm, onC
     <div className="date-picker-widget">
       <DatePicker
         selected={selectedDate}
-        onChange={(date: Date | null) => {
-          setSelectedDate(date);
-        }}
+        onChange={handleDateChange}
         inline
         todayButton="Today"
       />
@@ -54,9 +55,6 @@ const DatePickerWidgetComponent: React.FC<CustomWidgetProps> = ({ onConfirm, onC
       )}
 
       <div className="date-picker-widget__actions">
-        <button onClick={handleConfirm} disabled={!selectedDate} className="btn btn-primary btn-sm">
-          Apply
-        </button>
         <button onClick={onCancel} className="btn btn-default btn-sm">
           Cancel
         </button>

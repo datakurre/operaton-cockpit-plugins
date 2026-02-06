@@ -122,10 +122,10 @@ describe('filterSchema', () => {
 
   describe('createDateField', () => {
     it('should create a date field configuration', () => {
-      const field = createDateField('started', 'Started', [OPERATORS.after]);
+      const field = createDateField('started', 'Started After', [OPERATORS.after]);
 
       expect(field.key).toBe('started');
-      expect(field.label).toBe('Started');
+      expect(field.label).toBe('Started After');
       expect(field.type).toBe('date');
       expect(field.operators).toEqual([OPERATORS.after]);
       expect(field.allowMultiple).toBe(false);
@@ -380,7 +380,7 @@ describe('filterSchema', () => {
       const expressions: FilterExpression[] = [
         {
           condition: {
-            field: { key: 'started', label: 'Started', type: 'date' },
+            field: { key: 'started', label: 'Started After', type: 'date' },
             operator: { key: 'after', label: 'after', symbol: '≥' },
             value: { raw: '2024-01-01', display: '2024-01-01', serialized: '2024-01-01' },
           },
@@ -497,7 +497,7 @@ describe('filterSchema', () => {
       const expressions: FilterExpression[] = [
         {
           condition: {
-            field: { key: 'started', label: 'Started', type: 'date' },
+            field: { key: 'started', label: 'Started After', type: 'date' },
             operator: { key: 'after', label: 'after', symbol: '≥' },
             value: { raw: '2024-01-01', display: '2024-01-01', serialized: '2024-01-01' },
           },
@@ -505,7 +505,7 @@ describe('filterSchema', () => {
         },
         {
           condition: {
-            field: { key: 'finished', label: 'Finished', type: 'date' },
+            field: { key: 'finished', label: 'Finished Before', type: 'date' },
             operator: { key: 'before', label: 'before', symbol: '≤' },
             value: { raw: '2024-12-31', display: '2024-12-31', serialized: '2024-12-31' },
           },
@@ -553,7 +553,7 @@ describe('filterSchema', () => {
   describe('fromLegacyExpressions', () => {
     const testSchema: FilterSchema = {
       fields: [
-        { key: 'started', label: 'Started', type: 'date', operators: [OPERATORS.after, OPERATORS.before] },
+        { key: 'started', label: 'Started After', type: 'date', operators: [OPERATORS.after, OPERATORS.before] },
         { key: 'key', label: 'Process Key', type: 'string', operators: [OPERATORS.eq, OPERATORS.like] },
         { key: 'count', label: 'Count', type: 'number', operators: [OPERATORS.eq, OPERATORS.gt, OPERATORS.lt] },
       ],
@@ -572,7 +572,7 @@ describe('filterSchema', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0]?.condition.field.key).toBe('started');
-      expect(result[0]?.condition.field.label).toBe('Started');
+      expect(result[0]?.condition.field.label).toBe('Started After');
       expect(result[0]?.condition.operator.key).toBe('after');
       expect(result[0]?.condition.value.raw).toBe('2024-01-01');
       expect(result[0]?.condition.value.serialized).toBe('2024-01-01');
@@ -735,7 +735,7 @@ describe('filterSchema', () => {
       const original: FilterExpression[] = [
         {
           condition: {
-            field: { key: 'started', label: 'Started', type: 'date' },
+            field: { key: 'started', label: 'Started After', type: 'date' },
             operator: { key: 'after', label: 'after', symbol: '≥' },
             value: { raw: '2024-01-01', display: '2024-01-01', serialized: '2024-01-01' },
           },
