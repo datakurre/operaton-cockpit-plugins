@@ -1,0 +1,282 @@
+/**
+ * Styles for decisions-dashboard plugin.
+ * Provides styling for the DMN decision testing dashboard.
+ */
+
+.decisions-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+
+    h3 {
+      margin: 0;
+    }
+  }
+
+  &__selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    margin-bottom: 15px;
+
+    label {
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    select {
+      flex: 1;
+      max-width: 400px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 0.95em;
+
+      &:focus {
+        outline: none;
+        border-color: #4a90e2;
+      }
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex: 1;
+    gap: 15px;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &__left-panel {
+    width: 350px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+  }
+
+  &__right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  &__viewer-container {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+    overflow: hidden;
+    min-height: 300px;
+    position: relative;
+  }
+
+  &__loading,
+  &__error,
+  &__empty {
+    padding: 20px;
+    text-align: center;
+  }
+
+  &__error {
+    color: #cc0000;
+    background: #fff5f5;
+    border: 1px solid #ffcccc;
+    border-radius: 4px;
+    margin: 10px 0;
+  }
+}
+
+.dmn-inputs-form {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+
+  h4 {
+    margin: 0 0 15px 0;
+    font-size: 1em;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+  }
+
+  &__empty {
+    color: #888;
+    font-style: italic;
+    font-size: 0.9em;
+  }
+
+  &__field {
+    margin-bottom: 12px;
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 4px;
+      font-size: 0.9em;
+    }
+  }
+
+  &__type-hint {
+    font-size: 0.8em;
+    color: #888;
+    font-weight: normal;
+    margin-left: 5px;
+  }
+
+  &__input,
+  &__select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 0.9em;
+
+    &:focus {
+      outline: none;
+      border-color: #4a90e2;
+    }
+  }
+
+  &__checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    input[type='checkbox'] {
+      width: auto;
+    }
+
+    label {
+      margin: 0;
+      font-weight: normal;
+    }
+  }
+
+  &__actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+  }
+}
+
+.dmn-results {
+  background: #f0f8ff;
+  border: 1px solid #b3d4fc;
+  border-radius: 4px;
+  padding: 15px;
+
+  h4 {
+    margin: 0 0 10px 0;
+    font-size: 1em;
+    color: #0066cc;
+  }
+
+  &__empty {
+    color: #666;
+    font-style: italic;
+    font-size: 0.9em;
+  }
+
+  &__hit-count {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 10px;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+
+    th,
+    td {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background: #e6f2ff;
+      font-weight: 500;
+    }
+
+    td {
+      background: white;
+      font-family: monospace;
+    }
+  }
+
+  &--error {
+    background: #fff5f5;
+    border-color: #ffcccc;
+
+    h4 {
+      color: #cc0000;
+    }
+  }
+}
+
+/* DMN viewer custom styles for hit highlighting */
+.dmn-decision-table-container {
+  height: 100%;
+  width: 100%;
+
+  .tjs-container {
+    height: 100% !important;
+    min-height: 100% !important;
+  }
+
+  /* Highlight matched rules */
+  tr.dmn-rule-hit {
+    background-color: #d4edda !important;
+
+    td {
+      background-color: #d4edda !important;
+    }
+  }
+
+  tr.dmn-rule-hit-first {
+    background-color: #b8daff !important;
+
+    td {
+      background-color: #b8daff !important;
+    }
+  }
+}
+
+/* DRD viewer styles */
+.dmn-drd-container {
+  height: 100%;
+  width: 100%;
+
+  .djs-container {
+    height: 100% !important;
+  }
+}
+
+/* Override default dmn-js styles */
+.dmn-js-parent {
+  height: 100%;
+  width: 100%;
+
+  .dmn-decision-table-container,
+  .dmn-drd-container,
+  .dmn-literal-expression-container {
+    height: 100%;
+  }
+}

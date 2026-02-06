@@ -1,6 +1,6 @@
 /**
  * Custom Styles Plugin
- * 
+ *
  * This plugin applies custom stylesheets to the Cockpit UI without any
  * JavaScript functionality. Useful for branding, theming, or UI adjustments.
  */

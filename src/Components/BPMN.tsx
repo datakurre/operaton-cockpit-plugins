@@ -10,7 +10,7 @@ import RobotModule from '../RobotModule';
 import { Canvas } from '../services/ViewerService';
 import { HistoricActivityInstance } from '../types';
 import { clearSequenceFlow, renderSequenceFlow, renderActivities } from '../utils/bpmn';
-import { ZOOM_INCREMENT } from '../utils/constants';
+import { ZOOM_INCREMENT, ZOOM_RESET_DELAY_INITIAL_MS, ZOOM_RESET_DELAY_FINAL_MS } from '../utils/constants';
 import ResetZoomButton from './ResetZoomButton';
 import { ToggleHistoryViewButton } from './ToggleHistoryViewButton';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';
@@ -84,10 +84,18 @@ const BPMNViewer: React.FC<Props> = ({ activities, className, diagramXML, style,
         viewer.attachTo(ref.current);
 
         const canvas = viewer.get('canvas') as Canvas;
-        setTimeout(() => {
+        // Reset zoom multiple times to handle rendering timing issues:
+        // Once immediately, once after microtask, once with requestAnimationFrame,
+        // and twice more with delays to ensure proper fit after all rendering completes
+        const resetZoom = (): void => {
           canvas.zoom('fit-viewport', { x: 0, y: 0 });
           canvas.scroll({ dx: 0, dy: 0 });
-        });
+        };
+        resetZoom();
+        setTimeout(resetZoom, 0);
+        requestAnimationFrame(resetZoom);
+        setTimeout(resetZoom, ZOOM_RESET_DELAY_INITIAL_MS);
+        setTimeout(resetZoom, ZOOM_RESET_DELAY_FINAL_MS);
 
         renderActivities(viewer as unknown as BpmnViewerInstance, activities ?? []);
 

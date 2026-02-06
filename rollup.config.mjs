@@ -11,6 +11,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isDevelopment = process.env.NODE_ENV !== "production";
+const buildPlugin = process.env.BUILD_PLUGIN;
 
 const plugins = [
   replace({
@@ -37,7 +38,8 @@ const plugins = [
   }),
 ];
 
-export default [
+// All available plugin configurations
+const allConfigs = [
   {
     input: "src/RobotModule/index.ts",
     output: {
@@ -159,9 +161,21 @@ export default [
       if (warning.code === 'THIS_IS_UNDEFINED') { return; }
       superOnWarn(warning);
     },
-    input: "src/definition-favourites.tsx",
+    input: "src/dashboard-favourites.tsx",
     output: {
-      file: "definition-favourites.js",
+      file: "dashboard-favourites.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/dashboard-integrations.tsx",
+    output: {
+      file: "dashboard-integrations.js",
       sourcemap: isDevelopment,
     },
     plugins,
@@ -207,6 +221,30 @@ export default [
       if (warning.code === 'THIS_IS_UNDEFINED') { return; }
       superOnWarn(warning);
     },
+    input: "src/admin-route-authorization.tsx",
+    output: {
+      file: "admin-route-authorization.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/cockpit-nologin.tsx",
+    output: {
+      file: "cockpit-nologin.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
     input: "src/decisions-dashboard.tsx",
     output: {
       file: "decisions-dashboard.js",
@@ -215,3 +253,13 @@ export default [
     plugins,
   },
 ];
+
+// Filter configs based on BUILD_PLUGIN environment variable
+// Usage: BUILD_PLUGIN=instance-historic-activities npm run build
+// Supports partial matching: BUILD_PLUGIN=historic will build all historic-activities plugins
+export default buildPlugin
+  ? allConfigs.filter(config => {
+      const outputFile = config.output.file.replace('.js', '');
+      return outputFile.toLowerCase().includes(buildPlugin.toLowerCase());
+    })
+  : allConfigs;

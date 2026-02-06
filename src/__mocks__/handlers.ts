@@ -17,6 +17,15 @@ import {
 } from '../__fixtures__/api-responses';
 import { simpleBpmnXml } from '../__fixtures__/bpmn-xml';
 import { mockJsonVariable, mockIntegerVariable, mockStringVariable } from '../__fixtures__/variables';
+import {
+  createAuthorization,
+  mockAuthorization,
+  mockGroupAuthorization,
+  mockGlobalAuthorization,
+  mockRevokeAuthorization,
+  mockUsers,
+  mockGroups,
+} from '../__fixtures__/api-responses';
 
 /** Base API URL pattern for engine API. */
 const ENGINE_API = '*/api/engine/default';
@@ -196,5 +205,126 @@ export const handlers = [
   // GET /process-definition - List process definitions
   http.get(`${ENGINE_API}/process-definition`, () => {
     return HttpResponse.json([mockProcessDefinition]);
+  }),
+
+  // =========================================================================
+  // Authorization endpoints
+  // =========================================================================
+
+  // GET /authorization - List authorizations
+  http.get(`${ENGINE_API}/authorization`, ({ request }) => {
+    const url = new URL(request.url);
+    const resourceType = url.searchParams.get('resourceType');
+    const userIdIn = url.searchParams.get('userIdIn');
+    const groupIdIn = url.searchParams.get('groupIdIn');
+    const type = url.searchParams.get('type');
+
+    let authorizations = [mockAuthorization, mockGroupAuthorization, mockGlobalAuthorization, mockRevokeAuthorization];
+
+    // Filter by resource type
+    if (resourceType) {
+      const rt = parseInt(resourceType, 10);
+      authorizations = authorizations.filter(a => a.resourceType === rt);
+    }
+
+    // Filter by user ID
+    if (userIdIn) {
+      authorizations = authorizations.filter(a => a.userId === userIdIn);
+    }
+
+    // Filter by group ID
+    if (groupIdIn) {
+      authorizations = authorizations.filter(a => a.groupId === groupIdIn);
+    }
+
+    // Filter by type
+    if (type) {
+      const t = parseInt(type, 10);
+      authorizations = authorizations.filter(a => a.type === t);
+    }
+
+    return HttpResponse.json(authorizations);
+  }),
+
+  // GET /authorization/count - Count authorizations
+  http.get(`${ENGINE_API}/authorization/count`, ({ request }) => {
+    const url = new URL(request.url);
+    const resourceType = url.searchParams.get('resourceType');
+
+    let authorizations = [mockAuthorization, mockGroupAuthorization, mockGlobalAuthorization, mockRevokeAuthorization];
+
+    if (resourceType) {
+      const rt = parseInt(resourceType, 10);
+      authorizations = authorizations.filter(a => a.resourceType === rt);
+    }
+
+    return HttpResponse.json({ count: authorizations.length });
+  }),
+
+  // POST /authorization/create - Create authorization
+  http.post(`${ENGINE_API}/authorization/create`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+
+    // Return the created authorization with a generated ID
+    return HttpResponse.json(
+      createAuthorization({
+        id: `auth-new-${Date.now()}`,
+        type: body['type'] as number,
+        permissions: body['permissions'] as string[],
+        userId: body['userId'] as string | null,
+        groupId: body['groupId'] as string | null,
+        resourceType: body['resourceType'] as number,
+        resourceId: body['resourceId'] as string,
+      }),
+      { status: 200 }
+    );
+  }),
+
+  // PUT /authorization/:id - Update authorization
+  http.put(`${ENGINE_API}/authorization/:id`, () => {
+    return HttpResponse.text('', { status: 204 });
+  }),
+
+  // DELETE /authorization/:id - Delete authorization
+  http.delete(`${ENGINE_API}/authorization/:id`, ({ params }) => {
+    const { id } = params;
+
+    if (id === 'not-found') {
+      return HttpResponse.json({ message: 'Authorization not found' }, { status: 404 });
+    }
+
+    return HttpResponse.text('', { status: 204 });
+  }),
+
+  // =========================================================================
+  // User and Group endpoints for identity autocomplete
+  // =========================================================================
+
+  // GET /user - List users
+  http.get(`${ENGINE_API}/user`, ({ request }) => {
+    const url = new URL(request.url);
+    const idLike = url.searchParams.get('idLike');
+
+    if (idLike) {
+      const pattern = idLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockUsers.filter(u => u.id.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    return HttpResponse.json(mockUsers);
+  }),
+
+  // GET /group - List groups
+  http.get(`${ENGINE_API}/group`, ({ request }) => {
+    const url = new URL(request.url);
+    const idLike = url.searchParams.get('idLike');
+
+    if (idLike) {
+      const pattern = idLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockGroups.filter(g => g.id.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    return HttpResponse.json(mockGroups);
   }),
 ];

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function, max-statements, max-depth, @typescript-eslint/naming-convention -- Complex history view with filtering and pagination */
 import './Components/Button.scss';
 import './instance-route-history.scss';
 
@@ -16,7 +17,6 @@ import { ToggleHistoryViewButton } from './Components/ToggleHistoryViewButton';
 import { ViewerButtonsPortal } from './Components/ViewerButtonsPortal';
 import { DefinitionPluginParams, RoutePluginParams } from './types';
 import {
-  get,
   post,
   getHistoricProcessInstance,
   getVersion,
@@ -43,6 +43,15 @@ const InstanceQueryOptions = [
     columnField: 'key',
     type: 'string',
   },
+  {
+    columnField: 'variable',
+    columnText: 'variable (use name:value format)',
+    type: 'string',
+  },
+  {
+    columnField: 'version',
+    type: 'string',
+  },
 ];
 
 /** Interface for parsed filter tokens from filter expressions */
@@ -54,6 +63,12 @@ interface ParsedFilterTokens {
   variables?: { name: string; operator: string; value: string }[];
   variableNamesIgnoreCase?: boolean;
   variableValuesIgnoreCase?: boolean;
+  // Version filtering - when set, uses processDefinitionKey instead of processDefinitionId
+  useAllVersions?: boolean;
+  versionFilter?: {
+    operator: 'eq' | 'lt' | 'lte' | 'gt' | 'gte';
+    value: number;
+  };
 }
 
 /** Interface for BPMN viewer instance */
@@ -89,30 +104,75 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage] = useState(DEFAULT_PAGE_SIZE);
   const [firstResult, setFirstResult] = useState(0);
-  // FETCH
 
+  // Extract process definition key from the ID (format: key:version:deploymentId)
+  const processDefinitionKey = processDefinitionId.split(':')[0] ?? processDefinitionId;
+
+  // FETCH
   useEffect(() => {
     void (async () => {
-      const countResult = (await get(api, '/history/process-instance/count', { processDefinitionId })) as {
+      // Build query parameters, handling version filtering
+      const { useAllVersions, versionFilter, ...restQuery } = query;
+      const baseQuery: Record<string, unknown> = {
+        sortBy: 'endTime',
+        sortOrder: 'desc',
+        ...restQuery,
+      };
+
+      // If version filter is used, switch to processDefinitionKey
+      if (useAllVersions === true) {
+        baseQuery['processDefinitionKey'] = processDefinitionKey;
+      } else {
+        baseQuery['processDefinitionId'] = processDefinitionId;
+      }
+
+      const countResult = (await post(api, '/history/process-instance/count', {}, JSON.stringify(baseQuery))) as {
         count: number;
       };
       setInstancesCount(countResult.count);
 
-      setInstances(
-        (await post(
-          api,
-          '/history/process-instance',
-          { maxResults: String(perPage), firstResult: String(firstResult) },
-          JSON.stringify({
-            sortBy: 'endTime',
-            sortOrder: 'desc',
-            processDefinitionId,
-            ...query,
-          })
-        )) as Record<string, unknown>[]
-      );
+      // Fetch instances and optionally filter by version client-side
+      let fetchedInstances = (await post(
+        api,
+        '/history/process-instance',
+        { maxResults: String(perPage), firstResult: String(firstResult) },
+        JSON.stringify(baseQuery)
+      )) as Record<string, unknown>[];
+
+      // Apply version filter client-side if specified (API doesn't support version operators)
+      if (versionFilter) {
+        fetchedInstances = fetchedInstances.filter(instance => {
+          const defId = instance['processDefinitionId'] as string | undefined;
+          if (!defId) {
+            return false;
+          }
+          // Extract version from processDefinitionId (format: key:version:deploymentId)
+          const versionPart = defId.split(':')[1];
+          const instanceVersion = versionPart !== undefined ? parseInt(versionPart, 10) : NaN;
+          if (isNaN(instanceVersion)) {
+            return false;
+          }
+
+          switch (versionFilter.operator) {
+            case 'eq':
+              return instanceVersion === versionFilter.value;
+            case 'lt':
+              return instanceVersion < versionFilter.value;
+            case 'lte':
+              return instanceVersion <= versionFilter.value;
+            case 'gt':
+              return instanceVersion > versionFilter.value;
+            case 'gte':
+              return instanceVersion >= versionFilter.value;
+            default:
+              return true;
+          }
+        });
+      }
+
+      setInstances(fetchedInstances);
     })();
-  }, [api, processDefinitionId, perPage, query, firstResult]);
+  }, [api, processDefinitionId, processDefinitionKey, perPage, query, firstResult]);
 
   /* eslint-disable complexity */
   // Filter parsing requires handling multiple expression types with different operator mappings
@@ -121,7 +181,6 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
     const variables: { name: string; operator: string; value: string }[] = [];
     for (const { category, operator, value } of expressions) {
       const strValue = value ?? '';
-      const categoryStr = category ?? '';
       if (category === 'started' && operator === 'after' && !isNaN(new Date(strValue).getTime())) {
         parsedQuery.startedAfter = `${strValue}T00:00:00.000+0000`;
       } else if (category === 'finished' && operator === 'before' && !isNaN(new Date(strValue).getTime())) {
@@ -130,22 +189,47 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
         parsedQuery.processInstanceBusinessKey = strValue;
       } else if (category === 'key' && operator === 'like') {
         parsedQuery.processInstanceBusinessKeyLike = strValue;
-      } else if (operator === '==') {
-        variables.push({
-          name: categoryStr,
-          operator: 'eq',
-          value: strValue,
-        });
-      } else if (operator === 'like' || operator === 'ilike') {
-        variables.push({
-          name: categoryStr,
-          operator: 'like',
-          value: strValue,
-        });
-      }
-      if (operator === 'ilike') {
-        parsedQuery.variableNamesIgnoreCase = true;
-        parsedQuery.variableValuesIgnoreCase = true;
+      } else if (category === 'variable') {
+        // Parse variable filter in format "name:value"
+        const colonIndex = strValue.indexOf(':');
+        if (colonIndex > 0) {
+          const varName = strValue.substring(0, colonIndex);
+          const varValue = strValue.substring(colonIndex + 1);
+          const opType = operator === 'like' || operator === 'ilike' ? 'like' : 'eq';
+          variables.push({
+            name: varName,
+            operator: opType,
+            value: varValue,
+          });
+          if (operator === 'ilike') {
+            parsedQuery.variableNamesIgnoreCase = true;
+            parsedQuery.variableValuesIgnoreCase = true;
+          }
+        }
+      } else if (category === 'version') {
+        // Handle version filtering
+        if (operator === 'any') {
+          parsedQuery.useAllVersions = true;
+        } else {
+          const versionNum = parseInt(strValue, 10);
+          if (!isNaN(versionNum) && operator !== undefined) {
+            parsedQuery.useAllVersions = true;
+            const opMap: Record<string, 'eq' | 'lt' | 'lte' | 'gt' | 'gte'> = {
+              '==': 'eq',
+              '<': 'lt',
+              '<=': 'lte',
+              '>': 'gt',
+              '>=': 'gte',
+            };
+            const filterOp = opMap[operator];
+            if (filterOp) {
+              parsedQuery.versionFilter = {
+                operator: filterOp,
+                value: versionNum,
+              };
+            }
+          }
+        }
       }
     }
     if (variables.length > 0) {
