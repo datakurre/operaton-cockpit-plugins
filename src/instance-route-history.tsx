@@ -339,6 +339,11 @@ export default [
           const processInstance = {
             id: instance.id ?? processInstanceId,
             processDefinitionId: instance.processDefinitionId ?? '',
+            processDefinitionKey: instance.processDefinitionKey,
+            processDefinitionVersion: instance.processDefinitionVersion,
+            businessKey: instance.businessKey,
+            tenantId: instance.tenantId,
+            superProcessInstanceId: instance.superProcessInstanceId,
             ...(instance.processDefinitionName !== null &&
               instance.processDefinitionName !== undefined && {
                 processDefinitionName: instance.processDefinitionName,
