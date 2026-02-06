@@ -1,0 +1,62 @@
+/**
+ * Styles for instance-action-unlock plugin.
+ * Provides styling for the unlock external tasks dialog.
+ */
+
+.ctn-toolbar .btn-toolbar.unlock-dialog__trigger-btn {
+  margin: 5px 8px;
+}
+
+.unlock-dialog {
+  &__trigger-btn {
+    padding: 6px 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px 8px;
+  }
+
+  &__icon {
+    font-size: 1.33em;
+  }
+
+  &__modal-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+  }
+
+  &__close-btn {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    border: none;
+    background: transparent;
+    font-size: 1.5em;
+    cursor: pointer;
+  }
+
+  &__body {
+    flex: 1;
+    overflow: auto;
+  }
+
+  &__loading,
+  &__empty {
+    text-align: center;
+    padding: 2em;
+  }
+
+  &__empty {
+    color: #666;
+  }
+
+  &__footer {
+    padding: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5em;
+    border-top: 1px solid #ddd;
+  }
+}
