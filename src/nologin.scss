@@ -1,0 +1,13 @@
+/**
+ * No-Login Plugin Styles
+ * 
+ * This stylesheet hides the login form for environments where authentication
+ * is handled externally (e.g., via SSO, reverse proxy, or pre-authentication).
+ * 
+ * It targets the signin form used across Cockpit, Tasklist, Admin, and Welcome
+ * applications by hiding the form element with name="signinForm".
+ */
+
+form[name="signinForm"] {
+  display: none !important;
+}

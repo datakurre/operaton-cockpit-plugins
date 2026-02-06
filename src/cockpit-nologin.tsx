@@ -1,7 +1,7 @@
 /**
- * Admin no-login plugin
+ * Cockpit no-login plugin
  *
- * This plugin disables the login form for Admin by hiding it with CSS.
+ * This plugin disables the login form for Cockpit by hiding it with CSS.
  * It is intended for use in environments where authentication is handled
  * externally (e.g., via SSO, reverse proxy, or pre-authentication).
  */

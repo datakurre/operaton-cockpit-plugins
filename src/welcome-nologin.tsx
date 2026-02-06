@@ -1,16 +1,15 @@
 /**
  * Welcome no-login plugin
- * 
- * This plugin disables the login form for Welcome by rendering nothing.
+ *
+ * This plugin disables the login form for Welcome by hiding it with CSS.
  * It is intended for use in environments where authentication is handled
- * externally (e.g., via SSO, reverse proxy).
+ * externally (e.g., via SSO, reverse proxy, or pre-authentication).
  */
-export default [
-  {
-    id: 'welcomeNoLogin',
-    pluginPoint: 'welcome.login',
-    render: (): void => {
-      // Render nothing to disable login form
-    },
-  },
-];
+
+import './nologin.scss';
+
+/**
+ * No-login plugin that injects a stylesheet to hide the signin form.
+ * No render function needed - the SCSS import handles everything.
+ */
+export default [];
