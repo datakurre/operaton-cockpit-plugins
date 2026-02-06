@@ -61,31 +61,35 @@ describe('Clippy', () => {
     it('should not show copy button initially', () => {
       render(<Clippy value="test">Hover me</Clippy>);
 
-      // Initially copy button should not be visible
-      expect(screen.queryByTestId('copy-button')).not.toBeInTheDocument();
+      // Initially copy button should be hidden
+      const button = screen.getByLabelText('Copy to clipboard');
+      expect(button).toHaveStyle({ visibility: 'hidden' });
     });
 
     it('should show copy button on mouse over', () => {
       render(<Clippy value="test">Hover me</Clippy>);
 
       const container = screen.getByText('Hover me').closest('span');
+      const button = screen.getByLabelText('Copy to clipboard');
+      
       fireEvent.mouseOver(container!);
 
-      expect(screen.getByTestId('copy-button')).toBeInTheDocument();
+      expect(button).toHaveStyle({ visibility: 'visible' });
     });
 
     it('should hide copy button on mouse leave', () => {
       render(<Clippy value="test">Hover me</Clippy>);
 
       const container = screen.getByText('Hover me').closest('span');
+      const button = screen.getByLabelText('Copy to clipboard');
 
       // Mouse over
       fireEvent.mouseOver(container!);
-      expect(screen.getByTestId('copy-button')).toBeInTheDocument();
+      expect(button).toHaveStyle({ visibility: 'visible' });
 
       // Mouse leave
       fireEvent.mouseLeave(container!);
-      expect(screen.queryByTestId('copy-button')).not.toBeInTheDocument();
+      expect(button).toHaveStyle({ visibility: 'hidden' });
     });
   });
 

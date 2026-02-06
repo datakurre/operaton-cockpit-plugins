@@ -104,10 +104,12 @@ export const RESOURCE_TYPES: ResourceType[] = [
   { id: 2, name: 'Group' },
   { id: 3, name: 'Group Membership' },
   { id: 20, name: 'Historic Process Instance' },
-  { id: 19, name: 'Historic Task Instance' },
-  { id: 17, name: 'Operation Log' },
+  { id: 19, name: 'Historic Task' },
+  { id: 17, name: 'User Operation Log Category' },
   { id: 6, name: 'Process Definition' },
   { id: 8, name: 'Process Instance' },
+  { id: 15, name: 'Report' },
+  { id: 16, name: 'Dashboard' },
   { id: 21, name: 'System' },
   { id: 7, name: 'Task' },
   { id: 11, name: 'Tenant' },
@@ -195,7 +197,11 @@ export const PERMISSIONS_BY_RESOURCE: Record<number, string[]> = {
   ],
   // Decision Requirements Definition (14)
   14: ['ALL', 'READ'],
-  // Operation Log (17) - User Operation Log Category
+  // Report (15)
+  15: ['ALL', 'READ', 'UPDATE', 'CREATE', 'DELETE'],
+  // Dashboard (16)
+  16: ['ALL', 'READ', 'UPDATE', 'CREATE', 'DELETE'],
+  // User Operation Log Category (17)
   17: ['ALL', 'READ', 'DELETE', 'UPDATE'],
   // Historic Task (19)
   19: ['ALL', 'READ', 'READ_VARIABLE'],

@@ -140,13 +140,13 @@ describe('HistoryViewLayout', () => {
     it('should render audit log tab', () => {
       render(<HistoryViewLayout {...defaultProps} />);
 
-      expect(screen.getByRole('button', { name: /audit log/i })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /audit log/i })).toBeInTheDocument();
     });
 
     it('should render variables tab', () => {
       render(<HistoryViewLayout {...defaultProps} />);
 
-      expect(screen.getByRole('button', { name: /variables/i })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: /variables/i })).toBeInTheDocument();
     });
   });
 
@@ -162,7 +162,7 @@ describe('HistoryViewLayout', () => {
       render(<HistoryViewLayout {...defaultProps} />);
 
       // Variables tab needs to be selected first for content to render
-      const variablesTab = screen.getByRole('button', { name: /variables/i });
+      const variablesTab = screen.getByRole('tab', { name: /variables/i });
       fireEvent.click(variablesTab);
 
       expect(screen.getByTestId('variables-table')).toBeInTheDocument();
@@ -172,7 +172,7 @@ describe('HistoryViewLayout', () => {
     it('should allow switching between tabs', () => {
       render(<HistoryViewLayout {...defaultProps} />);
 
-      const variablesTab = screen.getByRole('button', { name: /variables/i });
+      const variablesTab = screen.getByRole('tab', { name: /variables/i });
       fireEvent.click(variablesTab);
 
       // Variables table should still be in DOM (react-tabs doesn't unmount)
@@ -221,7 +221,7 @@ describe('HistoryViewLayout', () => {
       render(<HistoryViewLayout {...defaultProps} variables={manyVariables} />);
 
       // Variables tab needs to be selected first for content to render
-      const variablesTab = screen.getByRole('button', { name: /variables/i });
+      const variablesTab = screen.getByRole('tab', { name: /variables/i });
       fireEvent.click(variablesTab);
 
       expect(screen.getByText(/Variables: 4 variables/)).toBeInTheDocument();

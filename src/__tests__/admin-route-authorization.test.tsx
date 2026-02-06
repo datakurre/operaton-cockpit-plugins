@@ -121,7 +121,7 @@ describe('Admin Route Authorization Plugin', () => {
         // Use a more specific query to avoid multiple matches
         const breadcrumbs = container.querySelector('.breadcrumbs-panel');
         expect(breadcrumbs).toBeInTheDocument();
-        expect(breadcrumbs?.textContent).toContain('Application Authorizations');
+        expect(breadcrumbs?.textContent).toContain('All Authorizations');
       });
 
       document.body.removeChild(container);
@@ -139,6 +139,23 @@ describe('AuthorizationsView Component', () => {
     const plugin = adminRouteAuthorization[0];
     plugin.render(container, { api: mockApi });
     return container;
+  }
+
+  /**
+   * Helper to select a specific resource type after rendering
+   */
+  async function selectResourceType(resourceTypeName: string) {
+    const user = userEvent.setup();
+    await waitFor(() => {
+      const links = screen.getAllByText(resourceTypeName);
+      expect(links.length).toBeGreaterThan(0);
+    });
+    const links = screen.getAllByText(resourceTypeName);
+    await user.click(links[0]!);
+    await waitFor(() => {
+      const link = links[0]!.closest('li');
+      expect(link).toHaveClass('active');
+    });
   }
 
   afterEach(() => {
@@ -166,11 +183,18 @@ describe('AuthorizationsView Component', () => {
     it('should highlight selected resource type', async () => {
       renderPlugin();
 
+      // Wait for the component to render by checking for any resource type
       await waitFor(() => {
-        // Application should be selected by default (first in list)
-        const appLink = screen.getByText('Application').closest('li');
-        expect(appLink).toHaveClass('active');
+        expect(screen.getByRole('table')).toBeInTheDocument();
       });
+
+      // "All Authorizations" should be selected by default (wrapped in <strong>)
+      // Use getAllByText since it appears in both sidebar and breadcrumbs
+      const allLinks = screen.getAllByText('All Authorizations');
+      const sidebarLink = allLinks.find(link => link.tagName === 'STRONG');
+      expect(sidebarLink).toBeDefined();
+      const listItem = sidebarLink!.closest('li');
+      expect(listItem).toHaveClass('active');
     });
 
     it('should change selected resource type on click', async () => {
@@ -178,13 +202,16 @@ describe('AuthorizationsView Component', () => {
       renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByText('Process Definition')).toBeInTheDocument();
+        const pdLinks = screen.getAllByText('Process Definition');
+        expect(pdLinks.length).toBeGreaterThan(0);
       });
 
-      await user.click(screen.getByText('Process Definition'));
+      // Click the first one (in the sidebar)
+      const pdLinks = screen.getAllByText('Process Definition');
+      await user.click(pdLinks[0]!);
 
       await waitFor(() => {
-        const pdLink = screen.getByText('Process Definition').closest('li');
+        const pdLink = pdLinks[0]!.closest('li');
         expect(pdLink).toHaveClass('active');
       });
     });
@@ -254,6 +281,9 @@ describe('AuthorizationsView Component', () => {
       const user = userEvent.setup();
       renderPlugin();
 
+      // Select Application to show create button
+      await selectResourceType('Application');
+
       await waitFor(() => {
         expect(screen.getByText('Create new authorization')).toBeInTheDocument();
       });
@@ -268,6 +298,9 @@ describe('AuthorizationsView Component', () => {
     it('should close modal on cancel', async () => {
       const user = userEvent.setup();
       renderPlugin();
+
+      // Select Application to show create button
+      await selectResourceType('Application');
 
       await waitFor(() => {
         expect(screen.getByText('Create new authorization')).toBeInTheDocument();
@@ -290,6 +323,9 @@ describe('AuthorizationsView Component', () => {
       const user = userEvent.setup();
       renderPlugin();
 
+      // Select Application to show create button
+      await selectResourceType('Application');
+
       await waitFor(() => {
         expect(screen.getByText('Create new authorization')).toBeInTheDocument();
       });
@@ -311,6 +347,9 @@ describe('AuthorizationsView Component', () => {
       const user = userEvent.setup();
       renderPlugin();
 
+      // Select Application to show create button
+      await selectResourceType('Application');
+
       await waitFor(() => {
         expect(screen.getByText('Create new authorization')).toBeInTheDocument();
       });
@@ -327,6 +366,9 @@ describe('AuthorizationsView Component', () => {
     it('should have identity type toggle', async () => {
       const user = userEvent.setup();
       renderPlugin();
+
+      // Select Application to show create button
+      await selectResourceType('Application');
 
       await waitFor(() => {
         expect(screen.getByText('Create new authorization')).toBeInTheDocument();
@@ -350,6 +392,9 @@ describe('AuthorizationsView Component', () => {
       const user = userEvent.setup();
       renderPlugin();
 
+      // Select Application to show create button
+      await selectResourceType('Application');
+
       await waitFor(() => {
         expect(screen.getByText('Create new authorization')).toBeInTheDocument();
       });
@@ -370,6 +415,9 @@ describe('AuthorizationsView Component', () => {
     it('should allow selecting multiple permissions', async () => {
       const user = userEvent.setup();
       renderPlugin();
+
+      // Select Application to show create button
+      await selectResourceType('Application');
 
       await waitFor(() => {
         expect(screen.getByText('Create new authorization')).toBeInTheDocument();
@@ -425,6 +473,9 @@ describe('AuthorizationsView Component', () => {
 
       renderPlugin();
 
+      // Select Application to show create button
+      await selectResourceType('Application');
+
       await waitFor(() => {
         expect(screen.getByText('Create new authorization')).toBeInTheDocument();
       });
@@ -453,6 +504,9 @@ describe('AuthorizationsView Component', () => {
       const user = userEvent.setup();
       renderPlugin();
 
+      // Select Application to show action buttons
+      await selectResourceType('Application');
+
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
       });
@@ -469,6 +523,9 @@ describe('AuthorizationsView Component', () => {
     it('should show Update button in edit mode', async () => {
       const user = userEvent.setup();
       renderPlugin();
+
+      // Select Application to show action buttons
+      await selectResourceType('Application');
 
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -488,6 +545,9 @@ describe('AuthorizationsView Component', () => {
       const user = userEvent.setup();
       renderPlugin();
 
+      // Select Application to show action buttons
+      await selectResourceType('Application');
+
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
       });
@@ -505,6 +565,9 @@ describe('AuthorizationsView Component', () => {
     it('should close delete modal on cancel', async () => {
       const user = userEvent.setup();
       renderPlugin();
+
+      // Select Application to show action buttons
+      await selectResourceType('Application');
 
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -537,6 +600,9 @@ describe('AuthorizationsView Component', () => {
       );
 
       renderPlugin();
+
+      // Select Application to show action buttons
+      await selectResourceType('Application');
 
       await waitFor(() => {
         expect(screen.getByRole('table')).toBeInTheDocument();
@@ -594,6 +660,7 @@ describe('AuthorizationsView Component', () => {
 describe('SortableAuthorizationsTable', () => {
   /**
    * Helper to render the plugin and wait for table
+   * Selects Application resource type so action buttons are visible
    */
   async function renderAndWaitForTable() {
     const container = document.createElement('div');
@@ -601,8 +668,21 @@ describe('SortableAuthorizationsTable', () => {
     const plugin = adminRouteAuthorization[0];
     plugin.render(container, { api: mockApi });
 
+    // Wait for the table to be rendered
     await waitFor(() => {
       expect(screen.getByRole('table')).toBeInTheDocument();
+    });
+
+    // Click on Application to switch from "All" view to specific resource type
+    // This makes action buttons visible
+    const appLinks = screen.getAllByText('Application');
+    const user = userEvent.setup();
+    await user.click(appLinks[0]!);
+
+    // Wait for the view to update
+    await waitFor(() => {
+      const appLink = appLinks[0]!.closest('li');
+      expect(appLink).toHaveClass('active');
     });
 
     return container;
@@ -621,7 +701,8 @@ describe('SortableAuthorizationsTable', () => {
     it('should have correct column headers', async () => {
       await renderAndWaitForTable();
 
-      expect(screen.getByRole('columnheader', { name: /Type/ })).toBeInTheDocument();
+      // After renderAndWaitForTable, we're in Application view
+      expect(screen.getByRole('columnheader', { name: /^Type$/ })).toBeInTheDocument();
       expect(screen.getByRole('columnheader', { name: /User \/ Group/ })).toBeInTheDocument();
       expect(screen.getByRole('columnheader', { name: /Permissions/ })).toBeInTheDocument();
       expect(screen.getByRole('columnheader', { name: /Resource ID/ })).toBeInTheDocument();
@@ -640,7 +721,7 @@ describe('SortableAuthorizationsTable', () => {
     it('should have sortable headers with aria-sort', async () => {
       await renderAndWaitForTable();
 
-      const typeHeader = screen.getByRole('columnheader', { name: /Type/ });
+      const typeHeader = screen.getByRole('columnheader', { name: /^Type$/ });
       expect(typeHeader).toHaveAttribute('aria-sort', 'none');
     });
 
@@ -648,7 +729,7 @@ describe('SortableAuthorizationsTable', () => {
       const user = userEvent.setup();
       await renderAndWaitForTable();
 
-      const typeHeader = screen.getByRole('columnheader', { name: /Type/ });
+      const typeHeader = screen.getByRole('columnheader', { name: /^Type$/ });
       await user.click(typeHeader);
 
       expect(typeHeader).toHaveAttribute('aria-sort', 'ascending');
@@ -658,7 +739,7 @@ describe('SortableAuthorizationsTable', () => {
       const user = userEvent.setup();
       await renderAndWaitForTable();
 
-      const typeHeader = screen.getByRole('columnheader', { name: /Type/ });
+      const typeHeader = screen.getByRole('columnheader', { name: /^Type$/ });
       await user.click(typeHeader);
       await user.click(typeHeader);
 

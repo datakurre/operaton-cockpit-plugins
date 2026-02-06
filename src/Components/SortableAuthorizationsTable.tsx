@@ -134,6 +134,8 @@ const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = 
       baseColumns.push({
         Header: 'Action',
         id: 'action',
+        // @ts-expect-error - disableSortBy exists in useSortBy plugin but not in base Column type
+        disableSortBy: true,
         Cell: ({ row }: CellProps<AuthorizationRow>) => (
           <>
             <a
