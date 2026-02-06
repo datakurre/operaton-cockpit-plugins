@@ -1,0 +1,213 @@
+/**
+ * FilterBox component styles
+ */
+
+.filter-box-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.filter-box-wrapper {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  position: relative; // Establish positioning context for dropdown
+
+  // Ensure the filter-box inside takes full width
+  .filter-box {
+    display: block;
+    width: 100%;
+  }
+
+  // Override dropdown positioning when usePortal=false
+  // The library uses absolute positioning relative to the closest positioned ancestor
+  .autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    z-index: 1000;
+  }
+}
+
+// Saved searches dropdown
+.filter-box-saved-searches {
+  position: relative;
+  display: inline-block;
+
+  &__toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: #555;
+
+    &:hover {
+      color: #333;
+    }
+
+    &:focus {
+      outline: 2px solid #66afe9;
+      outline-offset: 2px;
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  &__save-section {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+  }
+
+  &__save-row {
+    display: flex;
+    gap: 4px;
+  }
+
+  &__input {
+    flex: 1;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 12px;
+
+    &:focus {
+      outline: none;
+      border-color: #66afe9;
+      box-shadow: 0 0 4px rgba(102, 175, 233, 0.4);
+    }
+  }
+
+  &__save-button {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #f0f0f0;
+    cursor: pointer;
+    font-size: 12px;
+
+    &:hover:not(:disabled) {
+      background: #e0e0e0;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &__list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  &__item {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &:focus {
+      outline: none;
+      background: #e8f0fe;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__item-name {
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__delete-button {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-size: 14px;
+    line-height: 1;
+
+    &:hover {
+      color: #d9534f;
+    }
+  }
+
+  &__empty {
+    padding: 12px;
+    color: #999;
+    font-size: 12px;
+    text-align: center;
+  }
+}
+
+// Override react-select-filter-box styles to match existing UI
+:root {
+  // Token colors matching legacy react-filter-box
+  --rsfb-token-field-bg: #dbeafe;
+  --rsfb-token-field-color: #1e40af;
+  --rsfb-token-operator-bg: #f0f0f0;
+  --rsfb-token-operator-color: #9e9e9e;
+  --rsfb-token-value-bg: #fce7f3;
+  --rsfb-token-value-color: #e91e63;
+  --rsfb-token-connector-bg: #e5e7eb;
+  --rsfb-token-connector-color: #374151;
+
+  // Container styles
+  --rsfb-border-color: #ccc;
+  --rsfb-focus-border-color: #66afe9;
+  --rsfb-focus-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+  --rsfb-error-border-color: #a94442;
+}
+
+// Conflict warning styles
+.filter-box-conflicts {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  color: #856404;
+  font-size: 13px;
+  line-height: 1.4;
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &__message {
+    flex: 1;
+  }
+}

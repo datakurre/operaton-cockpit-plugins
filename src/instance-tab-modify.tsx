@@ -243,8 +243,6 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
         }}
         className="modify-form"
       >
-        <h4>Modification Instructions</h4>
-
         {fields.map((field, index) => (
           <InstructionCard
             key={field.id}

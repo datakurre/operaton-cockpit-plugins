@@ -304,10 +304,31 @@ export const handlers = [
   http.get(`${ENGINE_API}/user`, ({ request }) => {
     const url = new URL(request.url);
     const idLike = url.searchParams.get('idLike');
+    const firstNameLike = url.searchParams.get('firstNameLike');
+    const lastNameLike = url.searchParams.get('lastNameLike');
+    const emailLike = url.searchParams.get('emailLike');
 
     if (idLike) {
       const pattern = idLike.replace(/%/g, '').toLowerCase();
       const filtered = mockUsers.filter(u => u.id.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    if (firstNameLike) {
+      const pattern = firstNameLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockUsers.filter(u => u.firstName?.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    if (lastNameLike) {
+      const pattern = lastNameLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockUsers.filter(u => u.lastName?.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    if (emailLike) {
+      const pattern = emailLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockUsers.filter(u => u.email?.toLowerCase().includes(pattern));
       return HttpResponse.json(filtered);
     }
 
@@ -318,6 +339,7 @@ export const handlers = [
   http.get(`${ENGINE_API}/group`, ({ request }) => {
     const url = new URL(request.url);
     const idLike = url.searchParams.get('idLike');
+    const nameLike = url.searchParams.get('nameLike');
 
     if (idLike) {
       const pattern = idLike.replace(/%/g, '').toLowerCase();
@@ -325,6 +347,60 @@ export const handlers = [
       return HttpResponse.json(filtered);
     }
 
+    if (nameLike) {
+      const pattern = nameLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockGroups.filter(g => g.name?.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
     return HttpResponse.json(mockGroups);
+  }),
+
+  // =========================================================================
+  // External Task POST endpoints
+  // =========================================================================
+
+  // POST /external-task/:id/unlock - Unlock external task
+  http.post(`${ENGINE_API}/external-task/:id/unlock`, () => {
+    return HttpResponse.text('', { status: 204 });
+  }),
+
+  // POST /external-task/:id/failure - Report failure
+  http.post(`${ENGINE_API}/external-task/:id/failure`, () => {
+    return HttpResponse.text('', { status: 204 });
+  }),
+
+  // POST /external-task/:id/bpmnError - Report BPMN error
+  http.post(`${ENGINE_API}/external-task/:id/bpmnError`, () => {
+    return HttpResponse.text('', { status: 204 });
+  }),
+
+  // POST /external-task/fetchAndLock - Fetch and lock external tasks
+  http.post(`${ENGINE_API}/external-task/fetchAndLock`, () => {
+    return HttpResponse.json([mockExternalTask]);
+  }),
+
+  // =========================================================================
+  // History POST endpoints (for queries with bodies)
+  // =========================================================================
+
+  // POST /history/activity-instance - Query historical activities with body
+  http.post(`${ENGINE_API}/history/activity-instance`, () => {
+    return HttpResponse.json(mockActivitiesSimpleFlow);
+  }),
+
+  // POST /history/variable-instance - Query historical variables with body
+  http.post(`${ENGINE_API}/history/variable-instance`, () => {
+    return HttpResponse.json([mockStringVariable, mockJsonVariable, mockIntegerVariable]);
+  }),
+
+  // POST /history/process-instance - Query historical process instances with body
+  http.post(`${ENGINE_API}/history/process-instance`, () => {
+    return HttpResponse.json([mockProcessInstance]);
+  }),
+
+  // POST /history/process-instance/count - Count historical process instances
+  http.post(`${ENGINE_API}/history/process-instance/count`, () => {
+    return HttpResponse.json({ count: 1 });
   }),
 ];

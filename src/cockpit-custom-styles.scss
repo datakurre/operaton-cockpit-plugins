@@ -34,7 +34,7 @@
 
 .cam-table.process-definitions-list.search-results {
     th:first-child, td:first-child {
-        width: 40px;
+        width: 30px;
     }
     td:first-child {
         text-align: center;
@@ -49,4 +49,12 @@
     th:last-child, td:last-child {
         max-width: 3vw;
     }
+}
+
+.dashboard section.deprecate {
+    margin-top: 0;
+}
+
+.decisions-dashboard .dashboard-view + .dashboard-view {
+    margin-top: -15px;
 }

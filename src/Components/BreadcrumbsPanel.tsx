@@ -52,7 +52,10 @@ function convertLegacyProps(props: LegacyBreadcrumbsPanelProps): BreadcrumbItem[
     {
       label: props.processDefinitionName ?? props.processDefinitionId,
       href: `#/process-definition/${props.processDefinitionId}/runtime`,
-      suffix: `${props.processInstanceId} : History`,
+    },
+    {
+      label: props.processInstanceId,
+      suffix: 'History',
     },
   ];
 }
