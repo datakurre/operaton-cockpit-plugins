@@ -98,6 +98,22 @@ function toApiQuery(
   if (params.activeActivityIdIn) {
     result.activeActivityIdIn = params.activeActivityIdIn.split(',').map(a => a.trim());
   }
+  // State boolean fields
+  if (params.active !== undefined) {
+    result.active = params.active;
+  }
+  if (params.suspended !== undefined) {
+    result.suspended = params.suspended;
+  }
+  if (params.completed !== undefined) {
+    result.completed = params.completed;
+  }
+  if (params.externallyTerminated !== undefined) {
+    result.externallyTerminated = params.externallyTerminated;
+  }
+  if (params.internallyTerminated !== undefined) {
+    result.internallyTerminated = params.internallyTerminated;
+  }
 
   return result;
 }

@@ -12,11 +12,12 @@ import {
   type FilterSchema,
   type OperatorConfig,
   type AutocompleteItem,
-  createDateAutocompleter,
   createEnumAutocompleter,
   createAsyncAutocompleter,
 } from 'react-select-filter-box';
 import type { API } from '../types';
+import { datePickerWidget } from './datePickerWidget';
+import './datePickerWidget.scss';
 
 /**
  * Standard operators used across filter configurations
@@ -69,34 +70,25 @@ export interface FieldBuilderConfig {
 }
 
 /**
- * Create a date field configuration with date autocompleter.
+ * Create a date field configuration with custom date picker widget.
  * @param key - Field key
  * @param label - Display label
  * @param operators - Operators for this field
  * @returns Field configuration
  */
 export function createDateField(key: string, label: string, operators: OperatorConfig[]): FieldConfig {
+  // Add customInput to each operator to use the date picker widget
+  const operatorsWithWidget = operators.map(op => ({
+    ...op,
+    customInput: datePickerWidget,
+  }));
+
   return {
     key,
     label,
     type: 'date',
-    operators,
+    operators: operatorsWithWidget,
     allowMultiple: false,
-    valueAutocompleter: createDateAutocompleter({
-      format: 'yyyy-MM-dd',
-      presets: [
-        { label: 'Today', value: new Date() },
-        { label: 'Yesterday', value: new Date(Date.now() - 86400000) },
-        {
-          label: 'Last 7 days',
-          value: new Date(Date.now() - 7 * 86400000),
-        },
-        {
-          label: 'Last 30 days',
-          value: new Date(Date.now() - 30 * 86400000),
-        },
-      ],
-    }),
   };
 }
 
