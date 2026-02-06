@@ -34,7 +34,7 @@ interface SortableTableProps<T extends object> {
  * <SortableTable columns={columns} data={items} />
  * ```
  */
-export default function SortableTable<T extends object>({
+function SortableTable<T extends object>({
   columns,
   data,
   className = 'cam-table',
@@ -55,27 +55,17 @@ export default function SortableTable<T extends object>({
                   getSortByToggleProps: () => object;
                   isSorted: boolean;
                   isSortedDesc: boolean;
-                  disableSortBy?: boolean;
                 };
-
-                // Check if sorting is disabled for this column
-                const isSortingDisabled = sortableColumn.disableSortBy === true;
-
-                const { key: columnKey, ...columnProps } = column.getHeaderProps(
-                  isSortingDisabled ? {} : sortableColumn.getSortByToggleProps()
-                );
+                const { key: columnKey, ...columnProps } = column.getHeaderProps(sortableColumn.getSortByToggleProps());
 
                 // Determine ARIA sort attribute for accessibility
                 let ariaSort: AriaSortValue = 'none';
-                if (sortableColumn.isSorted && !isSortingDisabled) {
+                if (sortableColumn.isSorted) {
                   ariaSort = sortableColumn.isSortedDesc ? 'descending' : 'ascending';
                 }
 
                 // Render appropriate sort icon based on column state
-                const renderSortIcon = (): React.ReactElement | null => {
-                  if (isSortingDisabled) {
-                    return null;
-                  }
+                const renderSortIcon = (): React.ReactElement => {
                   if (!sortableColumn.isSorted) {
                     return <TiMinus style={{ color: SORT_INDICATOR_COLOR }} aria-hidden="true" />;
                   }
@@ -86,11 +76,9 @@ export default function SortableTable<T extends object>({
                 };
 
                 return (
-                  <th key={columnKey} {...columnProps} aria-sort={ariaSort} className={(column as any).headerClassName}>
-                    <span className={(column as any).headerClassName ? `${(column as any).headerClassName}-label` : ''}>
-                      {column.render('Header')}
-                    </span>
-                    {!isSortingDisabled && <a style={{ marginLeft: '5px' }}>{renderSortIcon()}</a>}
+                  <th key={columnKey} {...columnProps} aria-sort={ariaSort}>
+                    {column.render('Header')}
+                    <span style={{ position: 'absolute', fontSize: '125%' }}>{renderSortIcon()}</span>
                   </th>
                 );
               })}
@@ -106,9 +94,8 @@ export default function SortableTable<T extends object>({
             <tr key={rowKey} {...rowProps}>
               {row.cells.map(cell => {
                 const { key: cellKey, ...cellProps } = cell.getCellProps();
-                const cellClassName = (cell.column as any).className;
                 return (
-                  <td key={cellKey} {...cellProps} className={cellClassName}>
+                  <td key={cellKey} {...cellProps}>
                     {cell.render('Cell')}
                   </td>
                 );
@@ -120,3 +107,5 @@ export default function SortableTable<T extends object>({
     </table>
   );
 }
+
+export default SortableTable;

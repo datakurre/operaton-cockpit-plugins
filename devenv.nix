@@ -24,15 +24,22 @@ let
               @is_cockpit expression {http.regexp.config.1} == "cockpit"
               handle @is_cockpit {
                 rewrite * /config.js
-                file_server {
-                  root ${config.devenv.root}
-                }
               }
               @is_not_cockpit expression {http.regexp.config.1} != "cockpit"
               handle @is_not_cockpit {
                 rewrite * /{http.regexp.config.1}-config.js
-                file_server {
-                  root ${config.devenv.root}
+              }
+              root * ${config.devenv.root}
+              @file_exists file
+              handle @file_exists {
+                file_server
+              }
+              handle {
+                rewrite * /operaton/app/{http.regexp.config.1}/{http.regexp.config.2}scripts/config.js
+                reverse_proxy localhost:8080 {
+                  header_up X-Forwarded-Host {host}
+                  header_up X-Forwarded-Port {http.request.port}
+                  header_up X-Forwarded-Proto {scheme}
                 }
               }
             }
