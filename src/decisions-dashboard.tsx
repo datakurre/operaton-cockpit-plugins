@@ -22,8 +22,8 @@ import DecisionResults, { DecisionOutputField } from './Components/DecisionResul
 import DecisionSelector from './Components/DecisionSelector';
 import DmnViewer from './Components/DmnViewer';
 import ErrorMessage from './Components/ErrorMessage';
-import LoadingSpinner from './Components/LoadingSpinner';
 import SuccessMessage from './Components/SuccessMessage';
+import DashboardSection from './Components/DashboardSection';
 
 // Local utilities
 import {
@@ -337,28 +337,27 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
     setSuccessMessage(null);
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="decisions-dashboard">
-        <LoadingSpinner />
-        <p className="decisions-dashboard__loading">Loading decision definitions...</p>
-      </div>
-    );
-  }
+  const title = decisions.length > 0 
+    ? `DMN Decision Simulator (${decisions.length} definition${decisions.length !== 1 ? 's' : ''})`
+    : 'DMN Decision Simulator';
 
+  // Error state with no decisions
   if (error && decisions.length === 0) {
     return (
-      <div className="decisions-dashboard">
+      <DashboardSection title="DMN Decision Simulator" hasData={false} emptyMessage="">
         <ErrorMessage message={error} />
-      </div>
+      </DashboardSection>
     );
   }
 
   return (
-    <div className="decisions-dashboard">
-      <div className="decisions-dashboard__header">
-        <h3>DMN Decision Simulator</h3>
-      </div>
+    <DashboardSection
+      title={title}
+      isLoading={isLoading}
+      hasData={decisions.length > 0}
+      emptyMessage="No decision definitions found. Deploy a DMN diagram to get started."
+    >
+      <div className="decisions-dashboard">
 
       <DecisionSelector
         decisions={decisions}
@@ -404,13 +403,8 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
           <p>Select a decision definition to begin testing.</p>
         </div>
       )}
-
-      {decisions.length === 0 && !error && (
-        <div className="decisions-dashboard__empty">
-          <p>No decision definitions found. Deploy a DMN diagram to get started.</p>
-        </div>
-      )}
-    </div>
+      </div>
+    </DashboardSection>
   );
 };
 

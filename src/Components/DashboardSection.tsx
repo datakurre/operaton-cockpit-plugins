@@ -13,15 +13,11 @@ interface DashboardSectionProps {
   emptyMessage?: string;
   /** Whether the section has data (if false, shows empty state) */
   hasData?: boolean;
-  /** Optional refresh callback - displays a refresh icon button when provided */
-  onRefresh?: () => void;
-  /** Optional header actions to display before the refresh button */
-  headerActions?: React.ReactNode;
 }
 
 /**
- * Dashboard section wrapper component with simplified structure for cockpit.dashboard.
- * Provides consistent styling and states (loading, empty, loaded).
+ * Dashboard section wrapper component that matches AngularJS processes-dashboard structure.
+ * Provides collapsible section with consistent styling and states (loading, empty, loaded).
  *
  * @example
  * ```tsx
@@ -37,8 +33,6 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   isLoading = false,
   emptyMessage,
   hasData = true,
-  onRefresh,
-  headerActions,
 }) => {
   const [activeSection, setActiveSection] = useState<boolean>(!initialCollapsed);
 
@@ -47,60 +41,45 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   };
 
   return (
-    <>
-      <header>
-        <div
-          className="row"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 15px 0 15px' }}
-        >
-          <div style={{ margin: 0, flex: title ? 1 : 0, fontSize: '14px', fontWeight: 600 }}>{title}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: title ? 'initial' : 1 }}>
-            {headerActions}
-            {onRefresh && (
-              <button
-                className="btn btn-default btn-sm"
-                onClick={onRefresh}
-                title="Refresh"
-                disabled={isLoading}
-                style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <span className="glyphicon glyphicon-refresh" />
-                <span>Refresh</span>
-              </button>
-            )}
-            <button className="section-toggle btn btn-link btn-sm" onClick={toggleSection} title="Toggle this section">
-              <span className={`glyphicon ${activeSection ? 'glyphicon-menu-up' : 'glyphicon-menu-down'}`} />
-            </button>
+    <section className={`processes-dashboard ${!activeSection ? 'section-collapsed' : ''}`}>
+      <div className="inner">
+        <button className="section-toggle btn btn-link btn-sm" onClick={toggleSection} title="Toggle this section">
+          <span className={`glyphicon ${activeSection ? 'glyphicon-menu-up' : 'glyphicon-menu-down'}`} />
+        </button>
+
+        <header>
+          <div className="row">
+            <h1 className="col-xs-6 section-title">{title}</h1>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {activeSection && (
-        <div>
-          <div className="cam-widget-loader loader-wrapper">
-            {isLoading && (
-              <div className="loader-state loading">
-                <div>Loading...</div>
-              </div>
-            )}
-
-            {!isLoading && !hasData && emptyMessage && (
-              <div className="loader-state empty">
-                <p>{emptyMessage}</p>
-              </div>
-            )}
-
-            {!isLoading && hasData && (
-              <div className="loader-state loaded">
-                <div className="cam-widget-loader deployed-processes">
-                  <div className="loader-state loaded">{children}</div>
+        {activeSection && (
+          <div>
+            <div className="cam-widget-loader loader-wrapper">
+              {isLoading && (
+                <div className="loader-state loading">
+                  <div>Loading...</div>
                 </div>
-              </div>
-            )}
+              )}
+
+              {!isLoading && !hasData && emptyMessage && (
+                <div className="loader-state empty">
+                  <p>{emptyMessage}</p>
+                </div>
+              )}
+
+              {!isLoading && hasData && (
+                <div className="loader-state loaded">
+                  <div className="cam-widget-loader deployed-processes">
+                    <div className="loader-state loaded">{children}</div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </section>
   );
 };
 

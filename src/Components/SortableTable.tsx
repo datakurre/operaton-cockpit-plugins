@@ -34,7 +34,7 @@ interface SortableTableProps<T extends object> {
  * <SortableTable columns={columns} data={items} />
  * ```
  */
-function SortableTable<T extends object>({
+export default function SortableTable<T extends object>({
   columns,
   data,
   className = 'cam-table',
@@ -76,9 +76,11 @@ function SortableTable<T extends object>({
                 };
 
                 return (
-                  <th key={columnKey} {...columnProps} aria-sort={ariaSort}>
-                    {column.render('Header')}
-                    <span style={{ position: 'absolute', fontSize: '125%' }}>{renderSortIcon()}</span>
+                  <th key={columnKey} {...columnProps} aria-sort={ariaSort} className={(column as any).headerClassName}>
+                    <span className={(column as any).headerClassName ? `${(column as any).headerClassName}-label` : ''}>
+                      {column.render('Header')}
+                    </span>
+                    <a style={{ marginLeft: '5px' }}>{renderSortIcon()}</a>
                   </th>
                 );
               })}
@@ -94,8 +96,9 @@ function SortableTable<T extends object>({
             <tr key={rowKey} {...rowProps}>
               {row.cells.map(cell => {
                 const { key: cellKey, ...cellProps } = cell.getCellProps();
+                const cellClassName = (cell.column as any).className;
                 return (
-                  <td key={cellKey} {...cellProps}>
+                  <td key={cellKey} {...cellProps} className={cellClassName}>
                     {cell.render('Cell')}
                   </td>
                 );
@@ -107,5 +110,3 @@ function SortableTable<T extends object>({
     </table>
   );
 }
-
-export default SortableTable;

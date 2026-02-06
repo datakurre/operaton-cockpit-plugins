@@ -11,12 +11,7 @@ import { GoChevronDown, GoChevronUp } from 'react-icons/go';
 import { TiMinus } from 'react-icons/ti';
 import { Column, useSortBy, useTable, CellProps } from 'react-table';
 
-import {
-  Authorization,
-  AuthorizationRow,
-  getAuthTypeLabel,
-  renderIdentityDisplay,
-} from '../utils/authorization';
+import { Authorization, AuthorizationRow, getAuthTypeLabel, renderIdentityDisplay } from '../utils/authorization';
 
 /** ARIA sort direction value for accessible table headers */
 type AriaSortValue = 'ascending' | 'descending' | 'none';

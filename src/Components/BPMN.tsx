@@ -10,11 +10,7 @@ import RobotModule from '../RobotModule';
 import { Canvas } from '../services/ViewerService';
 import { HistoricActivityInstance } from '../types';
 import { clearSequenceFlow, renderSequenceFlow, renderActivities } from '../utils/bpmn';
-import {
-  ZOOM_INCREMENT,
-  ZOOM_RESET_DELAY_INITIAL_MS,
-  ZOOM_RESET_DELAY_FINAL_MS,
-} from '../utils/constants';
+import { ZOOM_INCREMENT, ZOOM_RESET_DELAY_INITIAL_MS, ZOOM_RESET_DELAY_FINAL_MS } from '../utils/constants';
 import ResetZoomButton from './ResetZoomButton';
 import { ToggleHistoryViewButton } from './ToggleHistoryViewButton';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';

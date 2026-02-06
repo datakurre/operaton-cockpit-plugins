@@ -44,6 +44,7 @@
     }
     th:nth-child(3), td:nth-child(3) {
         width: 80px;
+        max-width: 11vw;
     }
     th:last-child, td:last-child {
         max-width: 3vw;

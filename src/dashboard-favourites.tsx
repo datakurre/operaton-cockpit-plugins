@@ -9,10 +9,15 @@
  * as other plugins in this project.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Column, CellProps } from 'react-table';
 import type { DefinitionPluginParams, RoutePluginParams, ProcessDefinition } from './types';
+import type { components } from './operaton';
 import { getStorage } from './utils/storage';
+import { Clippy } from './Components/Clippy';
+import SortableTable from './Components/SortableTable';
+import DashboardSection from './Components/DashboardSection';
 
 // =============================================================================
 // Storage utilities
@@ -25,6 +30,20 @@ interface FavouriteDefinition {
   key: string;
   name: string | null;
   version: number;
+}
+
+type ProcessDefinitionStatistics = components['schemas']['ProcessDefinitionStatisticsResultDto'];
+
+interface ProcessDefinitionRow {
+  id: string;
+  key: string;
+  name: string | null;
+  version: number;
+  tenantId: string | null;
+  incidents: number;
+  instances: number;
+  suspended: boolean;
+  state: number; // 0 = healthy, 1 = suspended, 2 = incidents
 }
 
 /**
@@ -144,11 +163,17 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
       type="button"
       className="btn btn-default btn-sm"
       onClick={handleToggle}
+      aria-label={isFav ? 'Remove from favourites' : 'Add to favourites'}
       title={isFav ? 'Remove from favourites' : 'Add to favourites'}
-      style={{ marginLeft: '5px' }}
+      style={{ 
+        width: '40px', 
+        height: '34px', 
+        marginTop: '5px',
+        padding: '6px 8px',
+        minWidth: '40px'
+      }}
     >
-      <span className={isFav ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'} />
-      {isFav ? ' Unfavourite' : ' Favourite'}
+      <span className={isFav ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'} aria-hidden="true" />
     </button>
   );
 };
@@ -164,8 +189,9 @@ interface DashboardTableProps {
 /**
  * Dashboard table showing favourite process definitions
  */
-const DashboardTable: React.FC<DashboardTableProps> = ({ api: _api }) => {
+const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
   const [favourites, setFavourites] = useState<FavouriteDefinition[]>([]);
+  const [statistics, setStatistics] = useState<Map<string, ProcessDefinitionStatistics>>(new Map());
   // eslint-disable-next-line @typescript-eslint/naming-convention -- Common React state naming pattern
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -180,63 +206,149 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api: _api }) => {
     loadData();
   }, []);
 
-  const handleRemove = (processDefinitionId: string): void => {
-    removeFavourite(processDefinitionId);
-    loadData();
-  };
+  // Fetch statistics for all favourite definitions
+  useEffect(() => {
+    const fetchStatistics = async (): Promise<void> => {
+      if (favourites.length === 0) {
+        return;
+      }
 
-  if (loading) {
-    return <div>Loading favourites...</div>;
-  }
+      try {
+        // Build query string with all definition IDs
+        const ids = favourites.map(f => `processDefinitionIdIn=${encodeURIComponent(f.id)}`).join('&');
+        const response = await fetch(`${api.engineApi}/process-definition/statistics?${ids}&incidents=true`);
+        
+        if (response.ok) {
+          const data = (await response.json()) as ProcessDefinitionStatistics[];
+          const statsMap = new Map<string, ProcessDefinitionStatistics>();
+          for (const stat of data) {
+            if (stat.id) {
+              statsMap.set(stat.id, stat);
+            }
+          }
+          setStatistics(statsMap);
+        }
+      } catch {
+        // Silently fail - will show default values
+      }
+    };
 
-  if (favourites.length === 0) {
-    return (
-      <div style={{ padding: '20px' }}>
-        <h3>Favourite Process Definitions</h3>
-        <p>
-          No favourite process definitions yet. Use the star button on a process definition to add it to favourites.
-        </p>
-      </div>
-    );
-  }
+    void fetchStatistics();
+  }, [api.engineApi, favourites]);
+
+  // Transform favourites and statistics into table rows
+  const tableData = useMemo<ProcessDefinitionRow[]>(() => {
+    return favourites.map(fav => {
+      const stats = statistics.get(fav.id);
+      const definition = stats?.definition;
+      const totalIncidents = (stats?.incidents ?? []).reduce((sum, inc) => sum + (inc.incidentCount ?? 0), 0);
+      const suspended = definition?.suspended ?? false;
+
+      // Calculate state: 0 = healthy, 1 = suspended, 2 = incidents
+      let state = 0;
+      if (totalIncidents > 0) {
+        state = 2;
+      } else if (suspended) {
+        state = 1;
+      }
+
+      return {
+        id: fav.id,
+        key: fav.key,
+        name: fav.name,
+        version: fav.version,
+        tenantId: definition?.tenantId ?? null,
+        incidents: totalIncidents,
+        instances: stats?.instances ?? 0,
+        suspended,
+        state,
+      };
+    });
+  }, [favourites, statistics]);
+
+  // Define table columns with AngularJS-compatible class names
+  const columns = useMemo<Column<ProcessDefinitionRow>[]>(
+    () => [
+      {
+        Header: 'State',
+        accessor: 'state',
+        headerClassName: 'state',
+        className: 'state',
+        Cell: ({ row }: CellProps<ProcessDefinitionRow, number>) => {
+          const { incidents } = row.original;
+          if (incidents > 0) {
+            return (
+              <div className="circle circle-red">
+                {/* State circle for incidents */}
+              </div>
+            );
+          }
+          return (
+            <div className="circle circle-green">
+              {/* State circle for healthy */}
+            </div>
+          );
+        },
+      },
+      {
+        Header: 'Incidents',
+        accessor: 'incidents',
+        headerClassName: 'incidents',
+        className: 'incidents',
+        Cell: ({ value }: CellProps<ProcessDefinitionRow, number>) => <span>{value}</span>,
+      },
+      {
+        Header: 'Running Instances',
+        accessor: 'instances',
+        headerClassName: 'instances',
+        className: 'instances',
+        Cell: ({ value }: CellProps<ProcessDefinitionRow, number>) => <span>{value}</span>,
+      },
+      {
+        Header: 'Key',
+        accessor: 'key',
+        headerClassName: 'key',
+        className: 'key',
+        Cell: ({ value, row }: CellProps<ProcessDefinitionRow, string>) => (
+          <Clippy value={value}>
+            <a href={`#/process-definition/${row.original.id}/runtime`}>{value}</a>
+          </Clippy>
+        ),
+      },
+      {
+        Header: 'Name',
+        accessor: 'name',
+        headerClassName: 'name',
+        className: 'name',
+        Cell: ({ value }: CellProps<ProcessDefinitionRow, string | null>) => <span>{value ?? ''}</span>,
+      },
+      {
+        Header: 'Tenant ID',
+        accessor: 'tenantId',
+        headerClassName: 'tenantID',
+        className: 'tenant-id',
+        Cell: ({ value }: CellProps<ProcessDefinitionRow, string | null>) => <span>{value ?? ''}</span>,
+      },
+    ],
+    []
+  );
+
+  const title = `${favourites.length} favourite process definition${favourites.length !== 1 ? 's' : ''}`;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h3>Favourite Process Definitions</h3>
-      <table className="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Key</th>
-            <th>Version</th>
-            <th style={{ width: '80px' }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {favourites.map(fav => (
-            <tr key={fav.id}>
-              <td>
-                <a href={`#/process-definition/${fav.id}/runtime`}>{fav.name ?? fav.key}</a>
-              </td>
-              <td>{fav.key}</td>
-              <td>{fav.version}</td>
-              <td>
-                <button
-                  type="button"
-                  className="btn btn-default btn-xs"
-                  onClick={() => {
-                    handleRemove(fav.id);
-                  }}
-                  title="Remove from favourites"
-                >
-                  <span className="glyphicon glyphicon-star" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DashboardSection
+      title={title}
+      isLoading={loading}
+      hasData={favourites.length > 0}
+      emptyMessage="No favourite process definitions yet. Use the star button on a process definition to add it to favourites."
+    >
+      <SortableTable
+        columns={columns}
+        data={tableData}
+        className="process-definitions-list cam-table search-results"
+        ariaLabel="Favourite process definitions"
+      />
+    </DashboardSection>
   );
 };
 

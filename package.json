@@ -5,7 +5,7 @@
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
     "watch": "NODE_ENV=development rollup -w -c --sourcemap",
-    "postinstall": "tmpdir=$(mktemp -d) && cp -r node_modules/@waylay/react-filter-box/* \"$tmpdir/\" && cd \"$tmpdir\" && npx pegjs src/grammar.pegjs && yarn && cp -r * \"/workspaces/operaton-cockpit-plugins/node_modules/@waylay/react-filter-box/\" && rm -rf \"$tmpdir\"",
+    "postinstall": "rm -rf node_modules/react-select-filter-box && git clone --depth 1 https://github.com/jyukopla/react-select-filter-box.git node_modules/react-select-filter-box && cd node_modules/react-select-filter-box && rm -f .envrc && sed -i 's/return loadedAutocompleter.validate(value)/return loadedAutocompleter.validate(value, {} as AutocompleteContext)/' src/utils/codeSplitting.ts && sed -i 's/return autocompleter?.validate?.(value)/return autocompleter?.validate?.(value, context || {} as AutocompleteContext)/' src/utils/codeSplitting.ts && npm install && npm run build && npx tsc -p tsconfig.build.json --skipLibCheck && ln -sf react-select-filter-box.css dist/styles/style.css",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "lint:report": "eslint src/ --format json --output-file eslint-report.json",
@@ -27,7 +27,6 @@
     }
   },
   "dependencies": {
-    "@waylay/react-filter-box": "https://github.com/waylayio/react-filter-box/archive/f0e07e636240615a3c4bf9cf81609051dce932e9.tar.gz",
     "allotment": "^1.20.4",
     "bpmn-js": "^18.6.2",
     "camunda-bpmn-js-behaviors": "^1.10.0",
