@@ -9,7 +9,11 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 ### Configuration and deployment
 - [README.md](README.md): Usage and deployment instructions
 - [config.js](config.js): Cockpit plugin configuration (defines `customScripts` and `bpmnJs.additionalModules`)
+- [cockpit-nologin-config.js](cockpit-nologin-config.js): Cockpit no-login plugin configuration
 - [tasklist-config.js](tasklist-config.js): Tasklist plugin configuration
+- [tasklist-nologin-config.js](tasklist-nologin-config.js): Tasklist no-login plugin configuration
+- [admin-config.js](admin-config.js): Admin no-login plugin configuration
+- [welcome-config.js](welcome-config.js): Welcome no-login plugin configuration
 
 ### Build pipeline
 - [rollup.config.mjs](rollup.config.mjs): Compiles each plugin entrypoint in `src/` to a top-level `*.js` bundle
@@ -19,6 +23,8 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 
 ### Built outputs (committed for convenience)
 - `cockpit-custom-styles.js` – Custom stylesheet plugin for UI customization
+- `cockpit-nologin.js` – Cockpit no-login plugin (hides signin form via CSS)
+- `dashboard-favourites.js` – Process definition favorites star button and dashboard table
 - `decisions-dashboard.js` – DMN decision table testing dashboard
 - `definition-historic-activities.js` – Process definition statistics overlay
 - `definition-tab-modify.js` – Process definition modification template builder
@@ -28,11 +34,16 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - `instance-tab-modify.js` – Process modification and message correlation
 - `instance-action-unlock.js` – External task unlock action
 - `tasklist-audit-log.js` – Tasklist audit log tab
+- `tasklist-nologin.js` – Tasklist no-login plugin (hides signin form via CSS)
+- `admin-nologin.js` – Admin no-login plugin (hides signin form via CSS)
+- `welcome-nologin.js` – Welcome no-login plugin (hides signin form via CSS)
 - `robot-module.js` – BPMN module utilities for diagram rendering
 - `*.js.map` – Source maps (development builds only)
 
 ### Plugin entrypoints (`src/`)
 - [src/cockpit-custom-styles.tsx](src/cockpit-custom-styles.tsx): Minimal plugin that only applies custom stylesheets (SCSS) for UI customization without any JavaScript functionality.
+- [src/cockpit-nologin.tsx](src/cockpit-nologin.tsx): Cockpit no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
+- [src/dashboard-favourites.tsx](src/dashboard-favourites.tsx): Process definition favorites plugin. Adds a star button on process definition runtime views to favorite/unfavorite definitions, and provides a dashboard table showing favorited process definitions with version info and direct links.
 - [src/decisions-dashboard.tsx](src/decisions-dashboard.tsx): DMN decision table testing dashboard. Provides a UI for selecting deployed decision definitions, parsing DMN inputs, evaluating decisions via the API, displaying results, and highlighting matched rules on the rendered decision table.
 - [src/definition-historic-activities.tsx](src/definition-historic-activities.tsx): Adds a runtime tab and diagram overlay for historic activity statistics with a filter UI and badge overlays.
 - [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition modification template builder tab for designing modification instructions that can be applied to specific process instances.
@@ -42,6 +53,10 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [src/instance-tab-modify.tsx](src/instance-tab-modify.tsx): Process instance modification tab with sub-tabs for modifying process flow (start/cancel activities) and correlating messages. Includes a visual form builder for variables with type-specific inputs and comprehensive validation.
 - [src/instance-action-unlock.tsx](src/instance-action-unlock.tsx): Process instance action button that provides a dialog for unlocking external tasks that are locked by workers, with batch selection and individual retry capabilities.
 - [src/tasklist-audit-log.tsx](src/tasklist-audit-log.tsx): Tasklist detail tab that loads the instance audit log.
+- [src/tasklist-nologin.tsx](src/tasklist-nologin.tsx): Tasklist no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
+- [src/admin-nologin.tsx](src/admin-nologin.tsx): Admin no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
+- [src/welcome-nologin.tsx](src/welcome-nologin.tsx): Welcome no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
+- [src/nologin.scss](src/nologin.scss): Shared stylesheet for all no-login plugins. Hides `form[name="signinForm"]` across all Operaton/Camunda webapps.
 - [src/RobotModule/index.ts](src/RobotModule/index.ts): Additional BPMN module utilities for diagram rendering.
 
 ### Services (`src/services/`)

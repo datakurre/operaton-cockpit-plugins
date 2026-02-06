@@ -161,9 +161,9 @@ const allConfigs = [
       if (warning.code === 'THIS_IS_UNDEFINED') { return; }
       superOnWarn(warning);
     },
-    input: "src/definition-favourites.tsx",
+    input: "src/dashboard-favourites.tsx",
     output: {
-      file: "definition-favourites.js",
+      file: "dashboard-favourites.js",
       sourcemap: isDevelopment,
     },
     plugins,
@@ -200,6 +200,18 @@ const allConfigs = [
     input: "src/admin-nologin.tsx",
     output: {
       file: "admin-nologin.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/cockpit-nologin.tsx",
+    output: {
+      file: "cockpit-nologin.js",
       sourcemap: isDevelopment,
     },
     plugins,

@@ -43,6 +43,10 @@ const InstanceQueryOptions = [
     columnField: 'key',
     type: 'string',
   },
+  {
+    columnField: 'variable',
+    type: 'string',
+  },
 ];
 
 /** Interface for parsed filter tokens from filter expressions */
