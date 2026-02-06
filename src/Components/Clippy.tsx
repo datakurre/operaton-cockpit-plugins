@@ -32,38 +32,35 @@ export const Clippy: React.FC<React.PropsWithChildren<Props>> = ({ value, childr
       tabIndex={0}
     >
       {children}
-      {isMouseOver ? (
-        <CopyToClipboard
-          text={value}
-          onCopy={() => {
-            setHasCopied(true);
+      <CopyToClipboard
+        text={value}
+        onCopy={() => {
+          setHasCopied(true);
+        }}
+      >
+        <button
+          type="button"
+          onClick={e => {
+            e.preventDefault();
           }}
+          style={{
+            fontSize: '120%',
+            paddingLeft: '0.2em',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            visibility: isMouseOver ? 'visible' : 'hidden',
+          }}
+          aria-label="Copy to clipboard"
         >
-          <button
-            type="button"
-            onClick={e => {
-              e.preventDefault();
-            }}
-            style={{
-              fontSize: '120%',
-              paddingLeft: '0.2em',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 0,
-            }}
-            aria-label="Copy to clipboard"
-          >
-            {hasCopied ? (
-              <HiCheck style={{ color: 'green', display: 'flex' }} />
-            ) : (
-              <HiClipboardCopy style={{ display: 'flex' }} />
-            )}
-          </button>
-        </CopyToClipboard>
-      ) : (
-        <span style={{ fontSize: '120%', width: '1.2em' }} />
-      )}
+          {hasCopied ? (
+            <HiCheck style={{ color: 'green', display: 'flex' }} />
+          ) : (
+            <HiClipboardCopy style={{ display: 'flex' }} />
+          )}
+        </button>
+      </CopyToClipboard>
     </span>
   );
 };

@@ -169,7 +169,17 @@ const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = 
     }
 
     return baseColumns;
-  }, [onEdit, onClone, onDelete, validationState, resolvedIds, cockpitBaseUrl, tasklistBaseUrl, showActions, showResourceType]);
+  }, [
+    onEdit,
+    onClone,
+    onDelete,
+    validationState,
+    resolvedIds,
+    cockpitBaseUrl,
+    tasklistBaseUrl,
+    showActions,
+    showResourceType,
+  ]);
 
   // Use react-table with sorting
   const tableInstance = useTable({ columns: columns as Column<object>[], data: data as object[] }, useSortBy);

@@ -713,7 +713,7 @@ exports[`Snapshot Tests Navigation Components Tabs renders correctly 1`] = `
       class="tab-content"
     >
       <div
-        class="tab-pane active"
+        class="tab-pane active ctn-tabbed-content ctn-scroll"
         role="tabpanel"
       >
         Modify content
@@ -738,9 +738,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Instance ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -753,9 +774,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Business Key:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -768,9 +810,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Definition Version:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -783,9 +846,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Definition ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -802,9 +886,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Definition Key:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -817,9 +922,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Definition Name:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -832,9 +958,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Tenant ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -849,9 +996,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Deployment ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -868,9 +1036,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           Super Process instance ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -885,9 +1074,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
           tabindex="0"
         >
           State:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -913,9 +1123,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Instance ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -928,9 +1159,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Business Key:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -945,9 +1197,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Definition Version:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -960,9 +1233,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Definition ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -979,9 +1273,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Definition Key:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -994,9 +1309,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Definition Name:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -1009,9 +1345,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Tenant ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -1024,9 +1381,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Deployment ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -1041,9 +1419,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           Super Process instance ID:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -1060,9 +1459,30 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
           tabindex="0"
         >
           State:
-          <span
-            style="font-size: 120%; width: 1.2em;"
-          />
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
         </span>
       </dt>
       <dd>
@@ -1597,9 +2017,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             Start
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1611,9 +2052,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             2024-01-15T10:00:00
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1625,9 +2087,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             2024-01-15T10:00:01
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1648,9 +2131,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             startEvent
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1661,9 +2165,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             style="display: flex; align-items: center;"
             tabindex="0"
           >
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1675,9 +2200,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             false
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
       </tr>
@@ -1693,9 +2239,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             Review Document
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1707,9 +2274,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             2024-01-15T10:00:01
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1721,9 +2309,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             2024-01-15T11:30:00
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1744,9 +2353,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             userTask
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1758,9 +2388,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             admin
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
         <td
@@ -1772,9 +2423,30 @@ exports[`Snapshot Tests Table Components AuditLogTable with activities renders c
             tabindex="0"
           >
             false
-            <span
-              style="font-size: 120%; width: 1.2em;"
-            />
+            <button
+              aria-label="Copy to clipboard"
+              style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="1em"
+                stroke="currentColor"
+                stroke-width="0"
+                style="display: flex;"
+                viewBox="0 0 20 20"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+                />
+                <path
+                  d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+                />
+              </svg>
+            </button>
           </span>
         </td>
       </tr>
@@ -1925,9 +2597,30 @@ exports[`Snapshot Tests Utility Components Clippy renders correctly 1`] = `
     tabindex="0"
   >
     Click to copy
-    <span
-      style="font-size: 120%; width: 1.2em;"
-    />
+    <button
+      aria-label="Copy to clipboard"
+      style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="currentColor"
+        height="1em"
+        stroke="currentColor"
+        stroke-width="0"
+        style="display: flex;"
+        viewBox="0 0 20 20"
+        width="1em"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+        />
+        <path
+          d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+        />
+      </svg>
+    </button>
   </span>
 </div>
 `;
