@@ -92,9 +92,13 @@ export const IdentityAutocomplete: React.FC<IdentityAutocompleteProps> = ({
         };
 
         if (identityType === 'user') {
-          params['idLike'] = `%${query}%`;
+          // For users, search by first name, last name, or email
+          params['firstNameLike'] = `%${query}%`;
+          params['lastNameLike'] = `%${query}%`;
+          params['emailLike'] = `%${query}%`;
         } else {
-          params['idLike'] = `%${query}%`;
+          // For groups, search by name
+          params['nameLike'] = `%${query}%`;
         }
 
         const result = (await get(api, endpoint, params)) as UserDto[] | GroupDto[] | null;

@@ -326,14 +326,20 @@ const FilterBox: React.FC<FilterBoxProps> = ({
     (serialized: SerializedExpression[]): void => {
       try {
         const loadedExpressions = deserialize(serialized, schema);
+        // Update expressions first, then force re-render on next tick
         setExpressions(loadedExpressions);
-        setKey(prev => prev + 1);
+        // Use setTimeout to ensure state update completes before forcing re-render
+        setTimeout(() => {
+          setKey(prev => prev + 1);
+        }, 0);
         onFilterChange(loadedExpressions);
 
         if (onLegacyFilterChange) {
           onLegacyFilterChange(toLegacyExpressions(loadedExpressions));
         }
-      } catch {
+      } catch (error) {
+        console.error('Failed to deserialize saved expressions:', error);
+        console.error('Serialized expressions:', serialized);
         console.warn('Failed to deserialize saved expressions');
       }
     },

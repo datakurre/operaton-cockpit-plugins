@@ -127,6 +127,11 @@ export interface HistoricProcessInstanceQueryParams {
   state?: string;
   executedActivityIdIn?: string[];
   activeActivityIdIn?: string[];
+  active?: boolean;
+  suspended?: boolean;
+  completed?: boolean;
+  externallyTerminated?: boolean;
+  internallyTerminated?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   variables?: Array<{ name: string; operator: string; value: string }>;

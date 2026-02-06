@@ -26,33 +26,26 @@ function formatDate(date: Date): string {
  * Date picker widget component that properly manages hooks
  */
 const DatePickerWidgetComponent: React.FC<CustomWidgetProps> = ({ onConfirm, onCancel, initialValue }) => {
-  let initial: Date | null = null;
-  if (initialValue instanceof Date) {
-    initial = initialValue;
-  } else if (initialValue !== null && initialValue !== undefined && initialValue !== '') {
-    // Only convert primitives (string/number) to avoid stringifying objects
-    const valueType = typeof initialValue;
-    if (valueType === 'string') {
-      initial = new Date(initialValue as string);
-    } else if (valueType === 'number') {
-      initial = new Date(initialValue as number);
-    }
-  }
+  const initial = initialValue instanceof Date ? initialValue : initialValue ? new Date(String(initialValue)) : null;
   const [selectedDate, setSelectedDate] = useState<Date | null>(initial);
 
-  const handleDateChange = (date: Date | null): void => {
-    setSelectedDate(date);
-    // Immediately apply when a date is selected
-    // The onChange is only triggered when user clicks a date cell, not when navigating months
-    if (date) {
-      const display = formatDate(date);
-      onConfirm(date, display);
+  const handleConfirm = (): void => {
+    if (selectedDate) {
+      const display = formatDate(selectedDate);
+      onConfirm(selectedDate, display);
     }
   };
 
   return (
     <div className="date-picker-widget">
-      <DatePicker selected={selectedDate} onChange={handleDateChange} inline todayButton="Today" />
+      <DatePicker
+        selected={selectedDate}
+        onChange={(date: Date | null) => {
+          setSelectedDate(date);
+        }}
+        inline
+        todayButton="Today"
+      />
 
       {selectedDate && (
         <div className="date-picker-widget__summary">
@@ -61,6 +54,9 @@ const DatePickerWidgetComponent: React.FC<CustomWidgetProps> = ({ onConfirm, onC
       )}
 
       <div className="date-picker-widget__actions">
+        <button onClick={handleConfirm} disabled={!selectedDate} className="btn btn-primary btn-sm">
+          Apply
+        </button>
         <button onClick={onCancel} className="btn btn-default btn-sm">
           Cancel
         </button>
