@@ -190,6 +190,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
         className="modify-form"
       >
         <div className="modify-form__header">
+          <h4>Batch Message Correlation</h4>
           <p className="modify-form__description">
             Correlate a message asynchronously to all active instances of this process definition. The message will be
             delivered as a batch operation.

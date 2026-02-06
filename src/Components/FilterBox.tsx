@@ -33,10 +33,11 @@ const ReactSelectFilterBox = ReactSelectFilterBoxRaw as unknown as React.FC<{
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  usePortal?: boolean;
 }>;
 
-/** Storage key for saved searches */
-const SAVED_SEARCHES_KEY = 'minimal-history-plugin-saved-searches';
+/** Default storage key prefix for saved searches */
+const SAVED_SEARCHES_KEY_PREFIX = 'minimal-history-plugin-saved-searches';
 
 /** Interface for a saved search */
 interface SavedSearch {
@@ -47,11 +48,12 @@ interface SavedSearch {
 
 /**
  * Load saved searches from localStorage.
+ * @param storageKey - Storage key for this specific filter context
  * @returns Array of saved searches
  */
-function loadSavedSearches(): SavedSearch[] {
+function loadSavedSearches(storageKey: string): SavedSearch[] {
   try {
-    const stored = localStorage.getItem(SAVED_SEARCHES_KEY);
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
       return JSON.parse(stored) as SavedSearch[];
     }
@@ -63,11 +65,12 @@ function loadSavedSearches(): SavedSearch[] {
 
 /**
  * Save searches to localStorage.
+ * @param storageKey - Storage key for this specific filter context
  * @param searches - Array of saved searches to persist
  */
-function saveSavedSearches(searches: SavedSearch[]): void {
+function saveSavedSearches(storageKey: string, searches: SavedSearch[]): void {
   try {
-    localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(searches));
+    localStorage.setItem(storageKey, JSON.stringify(searches));
   } catch {
     console.warn('Failed to save searches to localStorage');
   }
@@ -81,16 +84,15 @@ interface SavedSearchesDropdownProps {
   currentExpressions: SerializedExpression[];
   /** Callback when loading a saved search */
   onLoadExpressions: (expressions: SerializedExpression[]) => void;
+  /** Storage key for this specific filter context */
+  storageKey: string;
 }
 
 /**
  * SavedSearchesDropdown component.
  * Provides a dropdown UI for saving and loading filter queries.
  */
-const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({
-  currentExpressions,
-  onLoadExpressions,
-}) => {
+const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentExpressions, onLoadExpressions, storageKey }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [newSearchName, setNewSearchName] = useState('');
@@ -98,8 +100,8 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({
 
   // Load saved searches on mount
   useEffect(() => {
-    setSavedSearches(loadSavedSearches());
-  }, []);
+    setSavedSearches(loadSavedSearches(storageKey));
+  }, [storageKey]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -127,10 +129,10 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({
       { name: newSearchName.trim(), expressions: currentExpressions },
     ];
     setSavedSearches(newSearches);
-    saveSavedSearches(newSearches);
+    saveSavedSearches(storageKey, newSearches);
     setNewSearchName('');
     setIsOpen(false);
-  }, [currentExpressions, newSearchName, savedSearches]);
+  }, [currentExpressions, newSearchName, savedSearches, storageKey]);
 
   const handleLoad = useCallback(
     (search: SavedSearch): void => {
@@ -145,9 +147,9 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({
       e.stopPropagation();
       const newSearches = savedSearches.filter(s => s.name !== name);
       setSavedSearches(newSearches);
-      saveSavedSearches(newSearches);
+      saveSavedSearches(storageKey, newSearches);
     },
-    [savedSearches]
+    [savedSearches, storageKey]
   );
 
   const canSave = newSearchName.trim() && currentExpressions.length > 0;
@@ -259,6 +261,8 @@ export interface FilterBoxProps {
   placeholder?: string;
   /** Whether the filter box is disabled */
   disabled?: boolean;
+  /** Storage key for saved searches - allows separate saved searches per context */
+  storageKey?: string;
 }
 
 /**
@@ -272,12 +276,36 @@ const FilterBox: React.FC<FilterBoxProps> = ({
   onLegacyFilterChange,
   placeholder = 'Add a filter...',
   disabled = false,
+  storageKey = SAVED_SEARCHES_KEY_PREFIX,
 }) => {
   const [expressions, setExpressions] = useState<FilterExpression[]>(initialExpressions);
   const [key, setKey] = useState(0);
+  const previousInitialExpressionsRef = useRef<string>(JSON.stringify(initialExpressions));
 
   // Serialize expressions for saved searches
   const serializedExpressions = serialize(expressions);
+
+  // Update expressions when initialExpressions prop changes
+  useEffect(() => {
+    const currentSerialized = JSON.stringify(initialExpressions);
+    if (currentSerialized !== previousInitialExpressionsRef.current) {
+      previousInitialExpressionsRef.current = currentSerialized;
+      setExpressions(initialExpressions);
+      // Force re-render of ReactSelectFilterBox to show new expressions
+      setKey(prev => prev + 1);
+      // Trigger callbacks with new expressions
+      if (initialExpressions.length > 0) {
+        onFilterChange(initialExpressions);
+        if (onLegacyFilterChange) {
+          try {
+            onLegacyFilterChange(toLegacyExpressions(initialExpressions));
+          } catch {
+            // Skip legacy callback if conversion fails
+          }
+        }
+      }
+    }
+  }, [initialExpressions, onFilterChange, onLegacyFilterChange]);
 
   // Handle expression changes
   const handleChange = useCallback(
@@ -312,18 +340,6 @@ const FilterBox: React.FC<FilterBoxProps> = ({
     [schema, onFilterChange, onLegacyFilterChange]
   );
 
-  // Trigger initial filter on mount
-  useEffect(() => {
-    if (initialExpressions.length > 0) {
-      onFilterChange(initialExpressions);
-      if (onLegacyFilterChange) {
-        onLegacyFilterChange(toLegacyExpressions(initialExpressions));
-      }
-    }
-    // Only run on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <div className="filter-box-container">
       <div className="filter-box-wrapper">
@@ -334,11 +350,13 @@ const FilterBox: React.FC<FilterBoxProps> = ({
           onChange={handleChange}
           placeholder={placeholder}
           disabled={disabled}
+          usePortal={false}
         />
       </div>
       <SavedSearchesDropdown
         currentExpressions={serializedExpressions}
         onLoadExpressions={handleLoadExpressions}
+        storageKey={storageKey}
       />
     </div>
   );

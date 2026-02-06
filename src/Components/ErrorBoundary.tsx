@@ -41,9 +41,6 @@ interface ErrorBoundaryState {
  * ```
  */
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  /**
-   *
-   */
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
@@ -83,9 +80,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     this.setState({ hasError: false, error: null, errorInfo: null });
   };
 
-  /**
-   *
-   */
   render(): ReactNode {
     const { hasError, error } = this.state;
     const { children, fallback, componentName } = this.props;
@@ -104,7 +98,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         <div className="error-boundary">
           <ErrorMessage message={errorMessage} />
-          <button type="button" onClick={this.handleReset} className="btn btn-secondary" style={{ marginTop: '10px' }}>
+          <button
+            type="button"
+            onClick={this.handleReset}
+            className="btn btn-secondary"
+            style={{ marginTop: '10px' }}
+          >
             Try Again
           </button>
         </div>

@@ -30,9 +30,7 @@ describe('FilterBox', () => {
     });
 
     it('should render with placeholder', () => {
-      render(
-        <FilterBox schema={mockSchema} onFilterChange={jest.fn()} placeholder="Search..." />
-      );
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} placeholder="Search..." />);
 
       expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
     });
@@ -93,13 +91,7 @@ describe('FilterBox', () => {
     it('should accept onLegacyFilterChange prop without errors', () => {
       const onLegacyFilterChange = jest.fn();
 
-      render(
-        <FilterBox
-          schema={mockSchema}
-          onFilterChange={jest.fn()}
-          onLegacyFilterChange={onLegacyFilterChange}
-        />
-      );
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} onLegacyFilterChange={onLegacyFilterChange} />);
 
       // Just verify it renders without errors when callback is provided
       expect(screen.getByTestId('filter-box')).toBeInTheDocument();
@@ -110,13 +102,7 @@ describe('FilterBox', () => {
     it('should render with initial expressions', () => {
       const initialExpressions = [{ field: 'activityId', operator: '=', value: 'Task_1' }];
 
-      render(
-        <FilterBox
-          schema={mockSchema}
-          onFilterChange={jest.fn()}
-          initialExpressions={initialExpressions}
-        />
-      );
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} initialExpressions={initialExpressions} />);
 
       expect(screen.getByTestId('filter-input')).toHaveValue('activityId = Task_1');
     });
@@ -127,17 +113,32 @@ describe('FilterBox', () => {
         { field: 'processInstanceId', operator: '=', value: '123' },
       ];
 
-      render(
-        <FilterBox
-          schema={mockSchema}
-          onFilterChange={jest.fn()}
-          initialExpressions={initialExpressions}
-        />
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} initialExpressions={initialExpressions} />);
+
+      expect(screen.getByTestId('filter-input')).toHaveValue('activityId = Task_1 AND processInstanceId = 123');
+    });
+
+    it('should update when initialExpressions prop changes', async () => {
+      const onFilterChange = jest.fn();
+
+      const { rerender } = render(
+        <FilterBox schema={mockSchema} onFilterChange={onFilterChange} initialExpressions={[]} />
       );
 
-      expect(screen.getByTestId('filter-input')).toHaveValue(
-        'activityId = Task_1 AND processInstanceId = 123'
-      );
+      // Initially empty
+      expect(screen.getByTestId('filter-input')).toHaveValue('');
+
+      // Update with new expressions
+      const newExpressions = [{ field: 'activityId', operator: '=', value: 'Task_1' }];
+      rerender(<FilterBox schema={mockSchema} onFilterChange={onFilterChange} initialExpressions={newExpressions} />);
+
+      // Should update the input
+      await waitFor(() => {
+        expect(screen.getByTestId('filter-input')).toHaveValue('activityId = Task_1');
+      });
+
+      // Should trigger onFilterChange callback
+      expect(onFilterChange).toHaveBeenCalledWith(newExpressions);
     });
   });
 
@@ -232,17 +233,13 @@ describe('FilterBox', () => {
 
   describe('wrapper styling', () => {
     it('should have filter-box-wrapper class', () => {
-      const { container } = render(
-        <FilterBox schema={mockSchema} onFilterChange={jest.fn()} />
-      );
+      const { container } = render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
 
       expect(container.querySelector('.filter-box-wrapper')).toBeInTheDocument();
     });
 
     it('should have filter-box-container class', () => {
-      const { container } = render(
-        <FilterBox schema={mockSchema} onFilterChange={jest.fn()} />
-      );
+      const { container } = render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
 
       expect(container.querySelector('.filter-box-container')).toBeInTheDocument();
     });

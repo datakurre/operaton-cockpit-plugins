@@ -184,7 +184,19 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   const handleRetry = async (taskId: string): Promise<void> => {
     setActionLoading(prev => new Set(prev).add(taskId));
     try {
-      await post(api, `/external-task/${taskId}/retries`, {}, JSON.stringify({ retries: 1 }));
+      // Use PUT endpoint as per API documentation
+      const response = await fetch(`${api.engineApi}/external-task/${taskId}/retries`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': api.CSRFToken ?? '',
+        },
+        body: JSON.stringify({ retries: 1 }),
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to retry task: ${response.statusText}`);
+      }
       await fetchTasks();
     } catch (_err) {
       console.error('Error retrying task:', _err);
@@ -245,10 +257,21 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
       setSelectedTasks(new Set());
       await fetchTasks();
     } catch {
-      // Fallback to individual retries
+      // Fallback to individual retries using PUT
       for (const taskId of taskIds) {
         try {
-          await post(api, `/external-task/${taskId}/retries`, {}, JSON.stringify({ retries: 1 }));
+          const response = await fetch(`${api.engineApi}/external-task/${taskId}/retries`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': api.CSRFToken ?? '',
+            },
+            body: JSON.stringify({ retries: 1 }),
+            credentials: 'include',
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to retry task ${taskId}: ${response.statusText}`);
+          }
         } catch (_err) {
           console.error('Error retrying task:', taskId, _err);
         }
@@ -272,6 +295,27 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
    */
   const isLocked = (task: ExternalTask): boolean => {
     return task.lockExpirationTime !== null && new Date(task.lockExpirationTime) > new Date();
+  };
+
+  /**
+   * Check if a task has been locked for more than 5 minutes.
+   * We check if the task is currently locked (has a future lock expiration time).
+   * Since we don't have the exact lock start time from the API, we consider any
+   * currently locked task as potentially locked for more than 5 minutes.
+   */
+  const isLockedLongEnough = (task: ExternalTask): boolean => {
+    if (!task.lockExpirationTime || !task.workerId) {
+      return false;
+    }
+    const lockExpirationDate = new Date(task.lockExpirationTime);
+    const now = new Date();
+    
+    // Task is locked if expiration time is in the future
+    const currentlyLocked = lockExpirationDate > now;
+    
+    // If the task is currently locked, we consider it locked long enough
+    // (since we can't determine the exact lock start time from the API)
+    return currentlyLocked;
   };
 
   /**
@@ -299,7 +343,19 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     return `${formatDateTime(lockTime)} (${mins}m ${secs}s remaining)`;
   };
 
-  const title = `${tasks.length} external task${tasks.length !== 1 ? 's' : ''}`;
+  // Filter tasks: only show those with incidents OR locked for more than 5 minutes
+  const filteredTasks = tasks.filter(task => {
+    const hasIncident = task.processInstanceId && incidents.has(task.processInstanceId);
+    const lockedLongEnough = isLockedLongEnough(task);
+    return hasIncident || lockedLongEnough;
+  });
+
+  // If no qualifying tasks, render nothing
+  if (!isLoading && filteredTasks.length === 0 && !error) {
+    return null;
+  }
+
+  const title = `${filteredTasks.length} external task${filteredTasks.length !== 1 ? 's' : ''}`;
 
   // Error state overlay
   if (error) {
@@ -317,26 +373,24 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     <DashboardSection
       title={title}
       isLoading={isLoading}
-      hasData={tasks.length > 0}
-      emptyMessage="No external tasks found."
+      hasData={filteredTasks.length > 0}
+      emptyMessage="No external tasks with incidents or locked for more than 5 minutes."
+      onRefresh={() => void fetchTasks()}
     >
-      <div style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <button className="btn btn-default" onClick={() => void fetchTasks()} disabled={isLoading}>
-          Refresh
-        </button>
-        {selectedTasks.size > 0 && (
+      {selectedTasks.size > 0 && (
+        <div style={{ marginBottom: '10px' }}>
           <button className="btn btn-primary" onClick={() => void handleBatchRetry()} disabled={actionLoading.size > 0}>
             Retry Selected ({selectedTasks.size})
           </button>
-        )}
-      </div>
+        </div>
+      )}
       <table className="cam-table">
         <thead>
           <tr>
             <th style={{ width: '30px' }}>
               <input
                 type="checkbox"
-                checked={selectedTasks.size === tasks.length && tasks.length > 0}
+                checked={selectedTasks.size === filteredTasks.length && filteredTasks.length > 0}
                 onChange={handleToggleAll}
                 title="Select all"
               />
@@ -352,7 +406,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
           </tr>
         </thead>
         <tbody>
-          {tasks.map(task => {
+          {filteredTasks.map(task => {
             const taskId = task.id ?? '';
             const processName = task.processDefinitionId
               ? (processNames.get(task.processDefinitionId) ?? task.processDefinitionKey)
@@ -401,15 +455,16 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '5px' }}>
-                    <button
-                      className="btn btn-xs btn-default"
-                      onClick={() => void handleRetry(taskId)}
-                      disabled={loading}
-                      title="Set retries to 1"
-                    >
-                      {loading ? '...' : 'Retry'}
-                    </button>
-                    {locked && (
+                    {hasIncident ? (
+                      <button
+                        className="btn btn-xs btn-default"
+                        onClick={() => void handleRetry(taskId)}
+                        disabled={loading}
+                        title="Set retries to 1"
+                      >
+                        {loading ? '...' : 'Retry'}
+                      </button>
+                    ) : locked ? (
                       <button
                         className="btn btn-xs btn-default"
                         onClick={() => void handleUnlock(taskId)}
@@ -418,7 +473,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                       >
                         {loading ? '...' : 'Unlock'}
                       </button>
-                    )}
+                    ) : null}
                   </div>
                 </td>
               </tr>

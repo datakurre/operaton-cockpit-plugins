@@ -40,6 +40,7 @@ import type { API } from './types';
 import { get, ApiError } from './utils/api';
 import { Authorization, RESOURCE_TYPES, getResourceTypeName } from './utils/authorization';
 import { ADMIN_PANEL_WIDTH_PX, DEFAULT_PAGE_SIZE } from './utils/constants';
+import { parseAuthorizationExpressions } from './utils/filterExpressionParsers';
 import { createAuthorizationFilterSchema, type LegacyExpression } from './utils/filterSchema';
 import { loadSettings, saveSettings } from './utils/misc';
 
@@ -55,9 +56,6 @@ const PAGE_SIZE_200 = 200;
 
 /** Page size options */
 const PAGE_SIZE_OPTIONS = [PAGE_SIZE_25, PAGE_SIZE_50, PAGE_SIZE_100, PAGE_SIZE_200];
-
-/** Filter schema for authorization queries */
-const authorizationFilterSchema = createAuthorizationFilterSchema();
 
 // =============================================================================
 // Main Component
@@ -84,6 +82,13 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   const [error, setError] = useState<string | null>(null);
   const [filterParams, setFilterParams] = useState<Record<string, string>>({});
   const [filterKey, setFilterKey] = useState(0);
+
+  // Create filter schema with API for autocomplete (memoized to avoid recreation)
+  // Exclude ID and Resource Type fields as they're implicit in this context
+  const authorizationFilterSchema = useMemo(
+    () => createAuthorizationFilterSchema(api, { includeId: false, includeResourceType: false }),
+    [api]
+  );
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -162,43 +167,15 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   };
 
   /**
-   * Parse filter expressions to API query parameters.
-   * Filter categories now map directly to Operaton REST API parameter names.
-   * @param expressions - Array of filter expressions from FilterBox
-   * @returns Record of API query parameters
+   * Handle filter query submission.
+   * Note: Schema restricts connectors to AND only, matching authorization API behavior.
    */
-  const parseFilterExpressions = useCallback((expressions: LegacyExpression[]): Record<string, string> => {
-    const params: Record<string, string> = {};
-    // Valid API parameters for authorization endpoint
-    const validParams = ['id', 'userIdIn', 'groupIdIn', 'resourceId', 'type'];
-
-    for (const expr of expressions) {
-      const category = expr.category;
-      const value = expr.value;
-
-      if (!value || !category || !validParams.includes(category)) {
-        continue;
-      }
-
-      // Category names now match API params directly
-      params[category] = value;
-    }
-
-    return params;
+  const handleFilterSubmit = useCallback((expressions: LegacyExpression[]): void => {
+    const params = parseAuthorizationExpressions(expressions);
+    setFilterParams(params);
+    setCurrentPage(1);
+    setFirstResult(0);
   }, []);
-
-  /**
-   * Handle filter query submission
-   */
-  const handleFilterSubmit = useCallback(
-    (expressions: LegacyExpression[]): void => {
-      const params = parseFilterExpressions(expressions);
-      setFilterParams(params);
-      setCurrentPage(1);
-      setFirstResult(0);
-    },
-    [parseFilterExpressions]
-  );
 
   /**
    * Handle delete authorization
@@ -318,6 +295,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
                       }}
                       onLegacyFilterChange={handleFilterSubmit}
                       placeholder="Add filter..."
+                      storageKey="minimal-history-plugin-saved-searches-authorizations"
                     />
                   </div>
                   <div className="col-sm-3 text-right">

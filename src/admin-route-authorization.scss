@@ -197,6 +197,9 @@ $sort-indicator-color: #155cb5;
 .authorization-content .cam-table {
   .action-link {
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 
     &.action-edit {
       margin-right: 10px;

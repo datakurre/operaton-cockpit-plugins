@@ -51,8 +51,16 @@ function getResourceEndpoint(resourceType: number): {
   idField: string;
   nameField?: string;
   searchParam: string;
+  enumValues?: string[];
 } | null {
   switch (resourceType) {
+    case 0: // Application
+      return { 
+        endpoint: '', 
+        idField: '', 
+        searchParam: '', 
+        enumValues: ['cockpit', 'tasklist', 'admin', '*'] 
+      };
     case 1: // User
       return { endpoint: '/user', idField: 'id', nameField: 'firstName', searchParam: 'idLike' };
     case 2: // Group
@@ -113,16 +121,30 @@ export const ResourceAutocomplete: React.FC<ResourceAutocompleteProps> = ({
   const hasAutocomplete = endpointConfig !== null;
 
   /**
-   * Fetch suggestions from API
+   * Fetch suggestions from API or enum values
    */
   const fetchSuggestions = useCallback(
     async (query: string) => {
-      if (!hasAutocomplete || !query || query === '*') {
+      if (!hasAutocomplete || !query) {
         setSuggestions([]);
         return;
       }
 
       // Type guard: hasAutocomplete ensures endpointConfig is non-null
+
+      // Handle enum values (e.g., Application resource type)
+      if (endpointConfig.enumValues) {
+        const filtered = endpointConfig.enumValues
+          .filter(val => val.toLowerCase().includes(query.toLowerCase()))
+          .map(val => ({ id: val, label: val }));
+        setSuggestions(filtered);
+        return;
+      }
+
+      if (query === '*') {
+        setSuggestions([]);
+        return;
+      }
 
       setIsLoading(true);
       try {

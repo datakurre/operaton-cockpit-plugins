@@ -1815,20 +1815,6 @@ exports[`Snapshot Tests Utility Components BreadcrumbsPanel legacy props renders
           Processes
         </a>
       </li>
-      <li>
-        <span
-          class="divider"
-        >
-          »
-        </span>
-         
-        <a
-          class="text"
-          href="#/process-definition/process:1:abc/runtime"
-        >
-          Order Process
-        </a>
-      </li>
       <li
         class="active"
       >
@@ -1841,7 +1827,7 @@ exports[`Snapshot Tests Utility Components BreadcrumbsPanel legacy props renders
         <span
           class="text"
         >
-          instance-123
+          Order Process
         </span>
          
         <span
@@ -1850,7 +1836,7 @@ exports[`Snapshot Tests Utility Components BreadcrumbsPanel legacy props renders
           :
         </span>
          
-        History
+        instance-123 : History
       </li>
     </ul>
   </div>

@@ -1,21 +1,23 @@
 import './Components/Button.scss';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import FilterBox from './Components/FilterBox';
 import Portal from './Components/Portal';
 import StatisticsTable from './Components/StatisticsTable';
 import { ToggleHistoryStatisticsButton } from './Components/ToggleHistoryStatisticsButton';
+import { createHistoryService } from './services/HistoryService';
 import type { BpmnViewerInstance, OverlayManager } from './services/ViewerService';
 import { DefinitionPluginParams, HistoricActivityInstance } from './types';
-import { get } from './utils/api';
-import { MS_PER_SECOND, SECONDS_PER_HOUR, HOURS_PER_DAY, DAYS_PER_WEEK, DEFAULT_MAX_RESULTS } from './utils/constants';
-import { createDefinitionFilterSchema, type LegacyExpression } from './utils/filterSchema';
+import { DEFAULT_MAX_RESULTS } from './utils/constants';
+import {
+  parseActivityInstanceExpressions,
+  activityInstanceQueryToRecord,
+  getDefaultActivityInstanceQuery,
+} from './utils/filterExpressionParsers';
+import { createDefinitionFilterSchema, type LegacyExpression, fromLegacyExpressions } from './utils/filterSchema';
 import { filter } from './utils/misc';
-
-/** Filter schema for definition statistics */
-const definitionFilterSchema = createDefinitionFilterSchema();
 
 interface PluginState {
   viewer: BpmnViewerInstance | null;
@@ -51,6 +53,8 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
   const [query, setQuery] = useState<Record<string, string | null>>({});
   const [viewer, setViewer] = useState<BpmnViewerInstance | null>(initialState.viewer);
   const [statistics, setStatistics] = useState<Element | null>(initialState.statistics);
+  const [processVersion, setProcessVersion] = useState<number | null>(null);
+  const [initialFilterSet, setInitialFilterSet] = useState(false);
 
   hooks.setViewer = setViewer;
   hooks.setStatistics = setStatistics;
@@ -59,49 +63,71 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
   const [tokens, setTokens] = useState<Element[]>([]);
   const [showTokens, setShowTokens] = useState(false);
 
+  // Create history service instance (memoized to avoid recreation on each render)
+  const historyService = useMemo(() => createHistoryService(api), [api]);
+
+  // Create filter schema with API for autocomplete (memoized to avoid recreation)
+  const definitionFilterSchema = useMemo(() => createDefinitionFilterSchema(api), [api]);
+
+  // Fetch process definition version
+  useEffect(() => {
+    void (async () => {
+      try {
+        const response = await fetch(`${api.engineApi}/process-definition/${processDefinitionId}`);
+        if (response.ok) {
+          const data = (await response.json()) as { version?: number };
+          if (data.version !== undefined) {
+            setProcessVersion(data.version);
+          }
+        }
+      } catch {
+        // Silently fail - continue without version filter
+      }
+    })();
+  }, [api.engineApi, processDefinitionId]);
+
+  // Set initial predefined filter once version is loaded
+  useEffect(() => {
+    if (!initialFilterSet && processVersion !== null) {
+      const MS_PER_SECOND = 1000;
+      const SECONDS_PER_HOUR = 3600;
+      const HOURS_PER_DAY = 24;
+      const DAYS_PER_WEEK = 7;
+
+      const weekAgoMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_PER_WEEK;
+      const oneDayMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY;
+      const weekAgo = new Date(Date.now() - weekAgoMs).toISOString().split('T')[0] ?? '';
+      const tomorrow = new Date(Date.now() + oneDayMs).toISOString().split('T')[0] ?? '';
+
+      const defaultExpressions: LegacyExpression[] = [
+        { category: 'started', operator: 'after', value: weekAgo },
+        { category: 'finished', operator: 'before', value: tomorrow },
+        { category: 'version', operator: '==', value: String(processVersion) },
+        { category: 'maxResults', operator: 'is', value: String(DEFAULT_MAX_RESULTS) },
+      ];
+
+      setExpressions(defaultExpressions);
+      setInitialFilterSet(true);
+    }
+  }, [processVersion, initialFilterSet]);
+
   // FETCH
 
   useEffect(() => {
     if (Object.keys(query).length > 0) {
       void (async () => {
-        const result = await get(api, '/history/activity-instance', {
-          ...query,
-          processDefinitionId,
-        });
+        const result = await historyService.getActivitiesByDefinition(processDefinitionId, query);
         setActivities(result as HistoricActivityInstance[]);
       })();
     }
-  }, [api, processDefinitionId, query]);
+  }, [historyService, processDefinitionId, query]);
 
   useEffect(() => {
     if (expressions.length > 0) {
-      const filterQuery: Record<string, string | null> = {
-        sortBy: 'endTime',
-        sortOrder: 'desc',
-        maxResults: String(DEFAULT_MAX_RESULTS),
-      };
-      for (const { category, operator, value } of expressions) {
-        if (category === 'started' && operator === 'after' && !isNaN(new Date(value).getTime())) {
-          filterQuery['startedAfter'] = `${value}T00:00:00.000+0000`;
-        } else if (category === 'finished' && operator === 'before' && !isNaN(new Date(value).getTime())) {
-          filterQuery['finishedBefore'] = `${value}T00:00:00.000+0000`;
-        } else if (category === 'maxResults' && operator === 'is' && !isNaN(parseInt(value, 10))) {
-          filterQuery['maxResults'] = value;
-        }
-      }
-      setQuery(filterQuery);
+      const parsed = parseActivityInstanceExpressions(expressions, DEFAULT_MAX_RESULTS);
+      setQuery(activityInstanceQueryToRecord(parsed));
     } else {
-      const weekAgoMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_PER_WEEK;
-      const oneDayMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY;
-      const weekAgo = new Date(new Date().getTime() - weekAgoMs).toISOString().split('T')[0] ?? '';
-      const tomorrow = new Date(new Date().getTime() + oneDayMs).toISOString().split('T')[0] ?? '';
-      setQuery({
-        sortBy: 'endTime',
-        sortOrder: 'desc',
-        startedAfter: `${weekAgo}T00:00:00.000+0000`,
-        finishedBefore: `${tomorrow}T00:00:00.000+0000`,
-        maxResults: String(DEFAULT_MAX_RESULTS),
-      });
+      setQuery(getDefaultActivityInstanceQuery(DEFAULT_MAX_RESULTS));
     }
   }, [expressions]);
 
@@ -192,6 +218,8 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
         }}
         onLegacyFilterChange={setExpressions}
         placeholder="Add filter..."
+        initialExpressions={fromLegacyExpressions(expressions, definitionFilterSchema)}
+        storageKey="minimal-history-plugin-saved-searches-definition-activities"
       />
       {activities.length > 0 ? (
         <StatisticsTable

@@ -43,16 +43,14 @@ describe('definition-tab-modify integration', () => {
   /**
    * Helper to set up mock fetch responses
    */
-  function setupMockFetch(
-    options: {
-      bpmnXml?: string;
-      instanceCount?: number;
-    } = {}
-  ): void {
+  function setupMockFetch(options: {
+    bpmnXml?: string;
+    instanceCount?: number;
+  } = {}): void {
     const { bpmnXml = simpleBpmnXml, instanceCount = 5 } = options;
 
     mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
-      const urlStr = url;
+      const urlStr = String(url);
 
       if (urlStr.includes('/process-definition/') && urlStr.includes('/xml')) {
         return {
@@ -168,7 +166,7 @@ describe('definition-tab-modify integration', () => {
       await renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
+        expect(screen.getByText('Instance Selection')).toBeInTheDocument();
       });
     });
   });
@@ -180,7 +178,7 @@ describe('definition-tab-modify integration', () => {
       const container = await renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
+        expect(screen.getByText('Instance Selection')).toBeInTheDocument();
       });
 
       // Should have instruction type selector
@@ -197,7 +195,7 @@ describe('definition-tab-modify integration', () => {
       const container = await renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
+        expect(screen.getByText('Instance Selection')).toBeInTheDocument();
       });
 
       // Should have selection mode dropdown
@@ -350,7 +348,7 @@ describe('definition-tab-modify integration', () => {
       });
 
       // Initially on Batch Modify
-      expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
+      expect(screen.getByText('Instance Selection')).toBeInTheDocument();
 
       // Switch to Message
       await act(async () => {
@@ -376,7 +374,7 @@ describe('definition-tab-modify integration', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
+        expect(screen.getByText('Instance Selection')).toBeInTheDocument();
       });
     });
   });
@@ -384,7 +382,7 @@ describe('definition-tab-modify integration', () => {
   describe('Error handling', () => {
     it('should display error when loading activities fails', async () => {
       mockFetch.mockImplementation(async (url: string) => {
-        const urlStr = url;
+        const urlStr = String(url);
 
         if (urlStr.includes('/process-definition/') && urlStr.includes('/xml')) {
           return {

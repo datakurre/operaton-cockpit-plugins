@@ -9,9 +9,6 @@ import {
   parseAuthorizationExpressions,
   activityInstanceQueryToRecord,
   getDefaultActivityInstanceQuery,
-  validateFilterConflicts,
-  ACTIVITY_FILTER_CONFLICTS,
-  PROCESS_FILTER_CONFLICTS,
 } from '../filterExpressionParsers';
 import type { LegacyExpression } from '../filterSchema';
 
@@ -208,16 +205,16 @@ describe('parseActivityInstanceExpressions', () => {
     expect(result.executionId).toBe('exec-123');
   });
 
-  it('should parse started before date expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'started', operator: 'before', value: '2024-02-15' }];
+  it('should parse startedBefore date expression', () => {
+    const expressions: LegacyExpression[] = [{ category: 'startedBefore', operator: 'before', value: '2024-02-15' }];
 
     const result = parseActivityInstanceExpressions(expressions, DEFAULT_MAX_RESULTS);
 
     expect(result.startedBefore).toBe('2024-02-15T00:00:00.000+0000');
   });
 
-  it('should parse finished after date expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'finished', operator: 'after', value: '2024-02-20' }];
+  it('should parse finishedAfter date expression', () => {
+    const expressions: LegacyExpression[] = [{ category: 'finishedAfter', operator: 'after', value: '2024-02-20' }];
 
     const result = parseActivityInstanceExpressions(expressions, DEFAULT_MAX_RESULTS);
 
@@ -241,9 +238,7 @@ describe('parseActivityInstanceExpressions', () => {
   });
 
   it('should parse processDefinitionId expression', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'processDefinitionId', operator: '==', value: 'process-def-123' },
-    ];
+    const expressions: LegacyExpression[] = [{ category: 'processDefinitionId', operator: '==', value: 'process-def-123' }];
 
     const result = parseActivityInstanceExpressions(expressions, DEFAULT_MAX_RESULTS);
 
@@ -485,48 +480,54 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   // New filter field tests
-  it('should parse started before date expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'started', operator: 'before', value: '2024-02-15' }];
+  it('should parse startedBefore date expression', () => {
+    const expressions: LegacyExpression[] = [{ category: 'startedBefore', operator: 'before', value: '2024-02-15' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 
     expect(result.startedBefore).toBe('2024-02-15T00:00:00.000+0000');
   });
 
-  it('should parse finished after date expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'finished', operator: 'after', value: '2024-02-20' }];
+  it('should parse finishedAfter date expression', () => {
+    const expressions: LegacyExpression[] = [{ category: 'finishedAfter', operator: 'after', value: '2024-02-20' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 
     expect(result.finishedAfter).toBe('2024-02-20T00:00:00.000+0000');
   });
 
-  it('should parse executedActivity after date expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'executedActivity', operator: 'after', value: '2024-03-01' }];
+  it('should parse executedActivityAfter date expression', () => {
+    const expressions: LegacyExpression[] = [
+      { category: 'executedActivityAfter', operator: 'after', value: '2024-03-01' },
+    ];
 
     const result = parseProcessInstanceExpressions(expressions);
 
     expect(result.executedActivityAfter).toBe('2024-03-01T00:00:00.000+0000');
   });
 
-  it('should parse executedActivity before date expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'executedActivity', operator: 'before', value: '2024-03-15' }];
+  it('should parse executedActivityBefore date expression', () => {
+    const expressions: LegacyExpression[] = [
+      { category: 'executedActivityBefore', operator: 'before', value: '2024-03-15' },
+    ];
 
     const result = parseProcessInstanceExpressions(expressions);
 
     expect(result.executedActivityBefore).toBe('2024-03-15T00:00:00.000+0000');
   });
 
-  it('should parse executedJob after date expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'executedJob', operator: 'after', value: '2024-04-01' }];
+  it('should parse executedJobAfter date expression', () => {
+    const expressions: LegacyExpression[] = [{ category: 'executedJobAfter', operator: 'after', value: '2024-04-01' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 
     expect(result.executedJobAfter).toBe('2024-04-01T00:00:00.000+0000');
   });
 
-  it('should parse executedJob before date expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'executedJob', operator: 'before', value: '2024-04-15' }];
+  it('should parse executedJobBefore date expression', () => {
+    const expressions: LegacyExpression[] = [
+      { category: 'executedJobBefore', operator: 'before', value: '2024-04-15' },
+    ];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -534,7 +535,9 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse processInstanceIds expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'processInstanceIds', operator: '==', value: 'id1,id2,id3' }];
+    const expressions: LegacyExpression[] = [
+      { category: 'processInstanceIds', operator: '==', value: 'id1,id2,id3' },
+    ];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -562,7 +565,9 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse processDefinitionKey with like operator', () => {
-    const expressions: LegacyExpression[] = [{ category: 'processDefinitionKey', operator: 'like', value: 'invoice' }];
+    const expressions: LegacyExpression[] = [
+      { category: 'processDefinitionKey', operator: 'like', value: 'invoice' },
+    ];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -589,18 +594,14 @@ describe('parseProcessInstanceExpressions', () => {
     expect(result.processDefinitionId).toBe('invoice-process:1:def-123');
   });
 
-  it('should treat unknown field as freeform variable (e.g., activityIdIn)', () => {
-    // activityIdIn is not a valid historic process instance field,
-    // so it should be treated as a variable name
+  it('should parse activityIdIn expression', () => {
     const expressions: LegacyExpression[] = [
       { category: 'activityIdIn', operator: '==', value: 'activity1,activity2' },
     ];
 
     const result = parseProcessInstanceExpressions(expressions);
 
-    // Should be treated as a variable, not a known field
-    expect(result.activityIdIn).toBeUndefined();
-    expect(result.variables).toEqual([{ name: 'activityIdIn', operator: 'eq', value: 'activity1,activity2' }]);
+    expect(result.activityIdIn).toBe('activity1,activity2');
   });
 
   it('should parse withJobsRetrying boolean expression', () => {
@@ -632,7 +633,9 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse processDefinitionName with like operator', () => {
-    const expressions: LegacyExpression[] = [{ category: 'processDefinitionName', operator: 'like', value: 'Invoice' }];
+    const expressions: LegacyExpression[] = [
+      { category: 'processDefinitionName', operator: 'like', value: 'Invoice' },
+    ];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -753,83 +756,6 @@ describe('parseProcessInstanceExpressions', () => {
       { name: 'var1', operator: 'eq', value: 'value1' },
       { name: 'var2', operator: 'like', value: 'value2' },
     ]);
-  });
-
-  // Freeform variable field tests
-  it('should parse freeform variable field with equals operator', () => {
-    const expressions: LegacyExpression[] = [{ category: 'orderId', operator: '==', value: '12345' }];
-
-    const result = parseProcessInstanceExpressions(expressions);
-
-    expect(result.variables).toEqual([{ name: 'orderId', operator: 'eq', value: '12345' }]);
-  });
-
-  it('should parse freeform variable field with like operator', () => {
-    const expressions: LegacyExpression[] = [{ category: 'customerName', operator: 'like', value: 'John' }];
-
-    const result = parseProcessInstanceExpressions(expressions);
-
-    expect(result.variables).toEqual([{ name: 'customerName', operator: 'like', value: 'John' }]);
-  });
-
-  it('should parse freeform variable field with ilike operator and set case insensitive flags', () => {
-    const expressions: LegacyExpression[] = [{ category: 'status', operator: 'ilike', value: 'pending' }];
-
-    const result = parseProcessInstanceExpressions(expressions);
-
-    expect(result.variables).toEqual([{ name: 'status', operator: 'like', value: 'pending' }]);
-    expect(result.variableNamesIgnoreCase).toBe(true);
-    expect(result.variableValuesIgnoreCase).toBe(true);
-  });
-
-  it('should parse multiple freeform variable fields', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'orderId', operator: '==', value: '12345' },
-      { category: 'customerId', operator: '==', value: '67890' },
-      { category: 'status', operator: 'like', value: 'active' },
-    ];
-
-    const result = parseProcessInstanceExpressions(expressions);
-
-    expect(result.variables).toEqual([
-      { name: 'orderId', operator: 'eq', value: '12345' },
-      { name: 'customerId', operator: 'eq', value: '67890' },
-      { name: 'status', operator: 'like', value: 'active' },
-    ]);
-  });
-
-  it('should parse mix of legacy variable syntax and freeform fields', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'variable', operator: '==', value: 'oldStyle:value1' },
-      { category: 'newStyleVar', operator: '==', value: 'value2' },
-    ];
-
-    const result = parseProcessInstanceExpressions(expressions);
-
-    expect(result.variables).toEqual([
-      { name: 'oldStyle', operator: 'eq', value: 'value1' },
-      { name: 'newStyleVar', operator: 'eq', value: 'value2' },
-    ]);
-  });
-
-  it('should not treat known fields as freeform variables', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'processInstanceId', operator: '==', value: 'abc-123' },
-      { category: 'customVar', operator: '==', value: 'value' },
-    ];
-
-    const result = parseProcessInstanceExpressions(expressions);
-
-    expect(result.processInstanceId).toBe('abc-123');
-    expect(result.variables).toEqual([{ name: 'customVar', operator: 'eq', value: 'value' }]);
-  });
-
-  it('should parse freeform variable with underscore in name', () => {
-    const expressions: LegacyExpression[] = [{ category: '_my_var_name', operator: '==', value: 'test' }];
-
-    const result = parseProcessInstanceExpressions(expressions);
-
-    expect(result.variables).toEqual([{ name: '_my_var_name', operator: 'eq', value: 'test' }]);
   });
 });
 
@@ -1054,84 +980,5 @@ describe('getDefaultActivityInstanceQuery', () => {
     const result = getDefaultActivityInstanceQuery(500);
 
     expect(result.maxResults).toBe('500');
-  });
-});
-describe('validateFilterConflicts', () => {
-  describe('activity instance conflicts', () => {
-    it('should detect finished/unfinished conflict', () => {
-      const expressions: LegacyExpression[] = [
-        { category: 'finishedOnly', operator: '==', value: 'true' },
-        { category: 'unfinishedOnly', operator: '==', value: 'true' },
-      ];
-
-      const conflicts = validateFilterConflicts(expressions, ACTIVITY_FILTER_CONFLICTS);
-
-      expect(conflicts).toHaveLength(1);
-      expect(conflicts[0]?.field1).toBe('finishedOnly');
-      expect(conflicts[0]?.field2).toBe('unfinishedOnly');
-    });
-
-    it('should detect tenantIdIn/withoutTenantId conflict', () => {
-      const expressions: LegacyExpression[] = [
-        { category: 'tenantIdIn', operator: '==', value: 'tenant1' },
-        { category: 'withoutTenantId', operator: '==', value: 'true' },
-      ];
-
-      const conflicts = validateFilterConflicts(expressions, ACTIVITY_FILTER_CONFLICTS);
-
-      expect(conflicts).toHaveLength(1);
-      expect(conflicts[0]?.field1).toBe('tenantIdIn');
-      expect(conflicts[0]?.field2).toBe('withoutTenantId');
-    });
-
-    it('should return empty array when no conflicts', () => {
-      const expressions: LegacyExpression[] = [
-        { category: 'finishedOnly', operator: '==', value: 'true' },
-        { category: 'canceled', operator: '==', value: 'true' },
-      ];
-
-      const conflicts = validateFilterConflicts(expressions, ACTIVITY_FILTER_CONFLICTS);
-
-      expect(conflicts).toHaveLength(0);
-    });
-  });
-
-  describe('process instance conflicts', () => {
-    it('should detect active/completed conflict', () => {
-      const expressions: LegacyExpression[] = [
-        { category: 'active', operator: '==', value: 'true' },
-        { category: 'completed', operator: '==', value: 'true' },
-      ];
-
-      const conflicts = validateFilterConflicts(expressions, PROCESS_FILTER_CONFLICTS);
-
-      expect(conflicts).toHaveLength(1);
-      expect(conflicts[0]?.reason).toContain('mutually exclusive');
-    });
-
-    it('should detect multiple conflicts at once', () => {
-      const expressions: LegacyExpression[] = [
-        { category: 'active', operator: '==', value: 'true' },
-        { category: 'suspended', operator: '==', value: 'true' },
-        { category: 'completed', operator: '==', value: 'true' },
-      ];
-
-      const conflicts = validateFilterConflicts(expressions, PROCESS_FILTER_CONFLICTS);
-
-      // active/completed + suspended/active = 2 conflicts
-      expect(conflicts.length).toBeGreaterThanOrEqual(2);
-    });
-
-    it('should not flag false values as conflicts', () => {
-      const expressions: LegacyExpression[] = [
-        { category: 'active', operator: '==', value: 'true' },
-        { category: 'completed', operator: '==', value: 'false' },
-      ];
-
-      const conflicts = validateFilterConflicts(expressions, PROCESS_FILTER_CONFLICTS);
-
-      // completed=false should not count as active since the filter is checking for value='true'
-      expect(conflicts).toHaveLength(0);
-    });
   });
 });

@@ -147,6 +147,7 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
         className="modify-form"
       >
         <div className="modify-form__header">
+          <h4>Broadcast Signal</h4>
           <p className="modify-form__description">
             Broadcast a signal event. The signal will be delivered to all matching signal catch events across all
             process instances.
