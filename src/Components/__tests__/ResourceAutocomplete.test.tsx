@@ -98,7 +98,8 @@ describe('ResourceAutocomplete', () => {
         />
       );
 
-      expect(screen.getByRole('textbox')).toHaveAttribute('aria-autocomplete', 'none');
+      // Application resource type now has enum autocomplete
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-autocomplete', 'list');
     });
 
     it('should have aria-expanded for supported resource types', () => {
@@ -107,10 +108,11 @@ describe('ResourceAutocomplete', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('aria-expanded', 'false');
     });
 
-    it('should not have aria-expanded for unsupported resource types', () => {
+    it('should have aria-expanded for resource types with enum values', () => {
       render(<ResourceAutocomplete api={mockApi} resourceType={0} value="" onChange={jest.fn()} />);
 
-      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-expanded');
+      // Application resource type has enum values so it has aria-expanded
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-expanded', 'false');
     });
   });
 
@@ -153,8 +155,10 @@ describe('ResourceAutocomplete', () => {
         await new Promise(resolve => setTimeout(resolve, 400));
       });
 
-      // No API call should be made for unsupported resource types
-      expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+      // Application resource type shows enum suggestions
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+      });
     });
 
     it('should not fetch suggestions for wildcard (*)', async () => {

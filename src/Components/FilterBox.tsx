@@ -93,7 +93,11 @@ interface SavedSearchesDropdownProps {
  * SavedSearchesDropdown component.
  * Provides a dropdown UI for saving and loading filter queries.
  */
-const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentExpressions, onLoadExpressions, storageKey }) => {
+const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({
+  currentExpressions,
+  onLoadExpressions,
+  storageKey,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [newSearchName, setNewSearchName] = useState('');
@@ -382,10 +386,12 @@ const FilterBox: React.FC<FilterBoxProps> = ({
       />
       {conflicts.length > 0 ? (
         <div className="filter-box-conflicts" role="alert">
-          <span className="filter-box-conflicts__icon" aria-hidden="true">⚠️</span>
+          <span className="filter-box-conflicts__icon" aria-hidden="true">
+            ⚠️
+          </span>
           <span className="filter-box-conflicts__message">
-            {conflicts.length === 1 
-              ? conflicts[0]?.reason 
+            {conflicts.length === 1
+              ? conflicts[0]?.reason
               : `${conflicts.length} filter conflicts: ${conflicts.map(c => c.reason).join('; ')}`}
           </span>
         </div>

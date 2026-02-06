@@ -352,7 +352,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
       </Container>
 
       {/* Create/Edit Modal */}
-      {(showCreateModal || editingAuth || cloningAuth) && (
+      {(showCreateModal || Boolean(editingAuth) || Boolean(cloningAuth)) && (
         <AuthorizationFormModal
           api={api}
           resourceType={selectedResourceType}

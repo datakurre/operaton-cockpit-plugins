@@ -1,4 +1,4 @@
-/* eslint-disable max-statements, complexity, @typescript-eslint/naming-convention -- Complex dashboard with external task management */
+/* eslint-disable max-statements, @typescript-eslint/naming-convention -- Complex dashboard with external task management */
 /**
  * Dashboard Integrations Plugin
  *
@@ -15,11 +15,58 @@ import './Components/Button.scss';
 import React, { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { API } from './types';
-import { get, post } from './utils/api';
+import { get, post, put } from './utils/api';
 import { MINUTES_PER_HOUR } from './utils/constants';
-import { formatDateTime, buildCockpitUrl } from './utils/formatting';
+import { formatDateTime } from './utils/formatting';
+import { getStorage } from './utils/storage';
 import ErrorMessage from './Components/ErrorMessage';
 import DashboardSection from './Components/DashboardSection';
+
+// =============================================================================
+// Storage utilities
+// =============================================================================
+
+const FAVOURITES_KEY = 'minimal-history-plugin-favourites';
+const FAVOURITES_ONLY_KEY = 'minimal-history-plugin-integrations-favourites-only';
+
+interface FavouriteDefinition {
+  key: string;
+  name: string | null;
+}
+
+/**
+ * Load favourite process definition keys from localStorage
+ */
+function loadFavouriteKeys(): Set<string> {
+  const storage = getStorage();
+  const raw = storage.get(FAVOURITES_KEY);
+  if (!raw) {
+    return new Set();
+  }
+  try {
+    const favourites = JSON.parse(raw) as FavouriteDefinition[];
+    return new Set(favourites.map(f => f.key));
+  } catch {
+    return new Set();
+  }
+}
+
+/**
+ * Load favourites-only filter setting (default: false)
+ */
+function loadFavouritesOnlySetting(): boolean {
+  const storage = getStorage();
+  const value = storage.get(FAVOURITES_ONLY_KEY);
+  return value === 'true';
+}
+
+/**
+ * Save favourites-only filter setting
+ */
+function saveFavouritesOnlySetting(enabled: boolean): void {
+  const storage = getStorage();
+  storage.set(FAVOURITES_ONLY_KEY, enabled ? 'true' : 'false');
+}
 
 // =============================================================================
 // Types
@@ -80,10 +127,20 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   const [tasks, setTasks] = useState<ExternalTask[]>([]);
   const [incidents, setIncidents] = useState<Map<string, Incident[]>>(new Map());
   const [processNames, setProcessNames] = useState<Map<string, string>>(new Map());
+  const [processDefKeys, setProcessDefKeys] = useState<Map<string, string>>(new Map());
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<Set<string>>(new Set());
+  const [favouriteKeys, setFavouriteKeys] = useState<Set<string>>(new Set());
+  const [favouritesOnly, setFavouritesOnly] = useState<boolean>(false);
+
+  // Load favourites and filter setting on mount
+  useEffect(() => {
+    const favKeys = loadFavouriteKeys();
+    setFavouriteKeys(favKeys);
+    setFavouritesOnly(loadFavouritesOnlySetting());
+  }, []);
 
   /**
    * Fetch external tasks from the API
@@ -105,19 +162,22 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
         }
       }
 
-      // Fetch process definition names
+      // Fetch process definition names and keys
       const namesMap = new Map<string, string>();
+      const keysMap = new Map<string, string>();
       for (const defId of Array.from(processDefIds)) {
         try {
           const def = (await get(api, `/process-definition/${defId}`, {})) as ProcessDefinition | null;
           if (def) {
             namesMap.set(defId, def.name ?? def.key);
+            keysMap.set(defId, def.key);
           }
         } catch {
           // Ignore errors for individual definitions
         }
       }
       setProcessNames(namesMap);
+      setProcessDefKeys(keysMap);
 
       // Collect unique process instance IDs for incident lookup
       const processInstanceIds = new Set<string>();
@@ -184,19 +244,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   const handleRetry = async (taskId: string): Promise<void> => {
     setActionLoading(prev => new Set(prev).add(taskId));
     try {
-      // Use PUT endpoint as per API documentation
-      const response = await fetch(`${api.engineApi}/external-task/${taskId}/retries`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': api.CSRFToken ?? '',
-        },
-        body: JSON.stringify({ retries: 1 }),
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to retry task: ${response.statusText}`);
-      }
+      await put(api, `/external-task/${taskId}/retries`, JSON.stringify({ retries: 1 }));
       await fetchTasks();
     } catch (_err) {
       console.error('Error retrying task:', _err);
@@ -257,21 +305,10 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
       setSelectedTasks(new Set());
       await fetchTasks();
     } catch {
-      // Fallback to individual retries using PUT
+      // Fallback to individual retries using PUT helper
       for (const taskId of taskIds) {
         try {
-          const response = await fetch(`${api.engineApi}/external-task/${taskId}/retries`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-Token': api.CSRFToken ?? '',
-            },
-            body: JSON.stringify({ retries: 1 }),
-            credentials: 'include',
-          });
-          if (!response.ok) {
-            throw new Error(`Failed to retry task ${taskId}: ${response.statusText}`);
-          }
+          await put(api, `/external-task/${taskId}/retries`, JSON.stringify({ retries: 1 }));
         } catch (_err) {
           console.error('Error retrying task:', taskId, _err);
         }
@@ -287,7 +324,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
    * Build cockpit URL for a process instance
    */
   const getInstanceUrl = (processInstanceId: string): string => {
-    return buildCockpitUrl(api.engine, `/process-instance/${processInstanceId}/runtime`);
+    return `#/process-instance/${processInstanceId}/runtime`;
   };
 
   /**
@@ -309,10 +346,10 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     }
     const lockExpirationDate = new Date(task.lockExpirationTime);
     const now = new Date();
-    
+
     // Task is locked if expiration time is in the future
     const currentlyLocked = lockExpirationDate > now;
-    
+
     // If the task is currently locked, we consider it locked long enough
     // (since we can't determine the exact lock start time from the API)
     return currentlyLocked;
@@ -343,15 +380,39 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     return `${formatDateTime(lockTime)} (${mins}m ${secs}s remaining)`;
   };
 
-  // Filter tasks: only show those with incidents OR locked for more than 5 minutes
-  const filteredTasks = tasks.filter(task => {
+  // Pre-filter tasks for incident or lock check (before favourites filtering)
+  const tasksWithIssues = tasks.filter(task => {
     const hasIncident = task.processInstanceId && incidents.has(task.processInstanceId);
     const lockedLongEnough = isLockedLongEnough(task);
-    return hasIncident || lockedLongEnough;
+    return Boolean(hasIncident) || lockedLongEnough;
   });
 
-  // If no qualifying tasks, render nothing
-  if (!isLoading && filteredTasks.length === 0 && !error) {
+  // Apply favourites filter on top
+  const filteredTasks = tasksWithIssues.filter(task => {
+    // If favourites filter is enabled, check if task belongs to a favourited definition
+    if (favouritesOnly) {
+      // If no favourites configured, filter out everything
+      if (favouriteKeys.size === 0) {
+        return false;
+      }
+      const defKey = task.processDefinitionId ? processDefKeys.get(task.processDefinitionId) : null;
+      return defKey ? favouriteKeys.has(defKey) : false;
+    }
+
+    return true;
+  });
+
+  /**
+   * Toggle favourites-only filter
+   */
+  const handleToggleFavouritesOnly = (): void => {
+    const newValue = !favouritesOnly;
+    setFavouritesOnly(newValue);
+    saveFavouritesOnlySetting(newValue);
+  };
+
+  // If no tasks with issues at all (before favourites filtering), render nothing
+  if (!isLoading && tasksWithIssues.length === 0 && !error) {
     return null;
   }
 
@@ -369,13 +430,40 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     );
   }
 
+  let emptyMessage = 'No external tasks with incidents or locked for more than 5 minutes.';
+  if (favouritesOnly && favouriteKeys.size === 0) {
+    emptyMessage = 'No favourites configured. Star a process definition to add it to favourites.';
+  } else if (favouritesOnly) {
+    emptyMessage = 'No external tasks from favourited process definitions.';
+  }
+
   return (
     <DashboardSection
       title={title}
       isLoading={isLoading}
       hasData={filteredTasks.length > 0}
-      emptyMessage="No external tasks with incidents or locked for more than 5 minutes."
+      emptyMessage={emptyMessage}
       onRefresh={() => void fetchTasks()}
+      headerActions={
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            margin: 0,
+            fontWeight: 'normal',
+            cursor: 'pointer',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={favouritesOnly}
+            onChange={handleToggleFavouritesOnly}
+            style={{ cursor: 'pointer' }}
+          />
+          Favourites only
+        </label>
+      }
     >
       {selectedTasks.size > 0 && (
         <div style={{ marginBottom: '10px' }}>
@@ -429,7 +517,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                 </td>
                 <td>
                   {task.processInstanceId ? (
-                    <a href={`#${getInstanceUrl(task.processInstanceId)}`}>{processName}</a>
+                    <a href={getInstanceUrl(task.processInstanceId)}>{processName}</a>
                   ) : (
                     processName
                   )}
@@ -455,25 +543,37 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '5px' }}>
-                    {hasIncident ? (
-                      <button
-                        className="btn btn-xs btn-default"
-                        onClick={() => void handleRetry(taskId)}
-                        disabled={loading}
-                        title="Set retries to 1"
-                      >
-                        {loading ? '...' : 'Retry'}
-                      </button>
-                    ) : locked ? (
-                      <button
-                        className="btn btn-xs btn-default"
-                        onClick={() => void handleUnlock(taskId)}
-                        disabled={loading}
-                        title="Unlock task"
-                      >
-                        {loading ? '...' : 'Unlock'}
-                      </button>
-                    ) : null}
+                    {(() => {
+                      if (hasIncident) {
+                        return (
+                          <button
+                            className="btn btn-xs btn-default"
+                            onClick={() => {
+                              void handleRetry(taskId);
+                            }}
+                            disabled={loading}
+                            title="Set retries to 1"
+                          >
+                            {loading ? '...' : 'Retry'}
+                          </button>
+                        );
+                      }
+                      if (locked) {
+                        return (
+                          <button
+                            className="btn btn-xs btn-default"
+                            onClick={() => {
+                              void handleUnlock(taskId);
+                            }}
+                            disabled={loading}
+                            title="Unlock task"
+                          >
+                            {loading ? '...' : 'Unlock'}
+                          </button>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </td>
               </tr>
@@ -497,6 +597,7 @@ export default [
   {
     id: 'dashboardIntegrationsDashboard',
     pluginPoint: 'cockpit.processes.dashboard',
+    priority: 10,
     render: (node: Element, { api }: DashboardParams): void => {
       createRoot(node).render(
         <React.StrictMode>

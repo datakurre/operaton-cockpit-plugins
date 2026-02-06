@@ -43,14 +43,16 @@ describe('definition-tab-modify integration', () => {
   /**
    * Helper to set up mock fetch responses
    */
-  function setupMockFetch(options: {
-    bpmnXml?: string;
-    instanceCount?: number;
-  } = {}): void {
+  function setupMockFetch(
+    options: {
+      bpmnXml?: string;
+      instanceCount?: number;
+    } = {}
+  ): void {
     const { bpmnXml = simpleBpmnXml, instanceCount = 5 } = options;
 
     mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
-      const urlStr = String(url);
+      const urlStr = url;
 
       if (urlStr.includes('/process-definition/') && urlStr.includes('/xml')) {
         return {
@@ -382,7 +384,7 @@ describe('definition-tab-modify integration', () => {
   describe('Error handling', () => {
     it('should display error when loading activities fails', async () => {
       mockFetch.mockImplementation(async (url: string) => {
-        const urlStr = String(url);
+        const urlStr = url;
 
         if (urlStr.includes('/process-definition/') && urlStr.includes('/xml')) {
           return {

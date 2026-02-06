@@ -6,6 +6,11 @@
 import React, { useMemo, useState } from 'react';
 import type { DecisionDefinition } from '../types';
 
+/** Delay in milliseconds before hiding the dropdown after blur */
+const DROPDOWN_BLUR_DELAY_MS = 200;
+/** Maximum number of items to show in dropdown */
+const MAX_DROPDOWN_SIZE = 10;
+
 export interface DecisionSelectorProps {
   decisions: DecisionDefinition[];
   selectedId: string;
@@ -58,10 +63,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
 
   const groupedDecisions = useMemo(() => groupDecisionsByKey(decisions), [decisions]);
 
-  const selectedDecision = useMemo(
-    () => decisions.find(d => d.id === selectedId),
-    [decisions, selectedId]
-  );
+  const selectedDecision = useMemo(() => decisions.find(d => d.id === selectedId), [decisions, selectedId]);
 
   const currentVersions = useMemo(() => {
     if (!selectedDecision) {
@@ -76,9 +78,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
       return groupedDecisions;
     }
     const term = searchTerm.toLowerCase();
-    return groupedDecisions.filter(
-      g => g.name.toLowerCase().includes(term) || g.key.toLowerCase().includes(term)
-    );
+    return groupedDecisions.filter(g => g.name.toLowerCase().includes(term) || g.key.toLowerCase().includes(term));
   }, [groupedDecisions, searchTerm]);
 
   const showDropdown = isFocused && !selectedDecision && filteredGroups.length > 0;
@@ -102,7 +102,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
             // Delay to allow click on dropdown
             setTimeout(() => {
               setIsFocused(false);
-            }, 200);
+            }, DROPDOWN_BLUR_DELAY_MS);
           }}
           disabled={disabled}
           aria-label="Select decision definition"
@@ -110,7 +110,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
         {showDropdown && (
           <select
             className="decision-selector__dropdown"
-            size={Math.min(10, filteredGroups.length)}
+            size={Math.min(MAX_DROPDOWN_SIZE, filteredGroups.length)}
             onChange={e => {
               const value = e.target.value;
               if (value) {
@@ -141,7 +141,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
             onClick={() => {
               setShowVersions(!showVersions);
             }}
-            disabled={disabled || currentVersions.length <= 1}
+            disabled={disabled ?? currentVersions.length <= 1}
             title="Switch version"
           >
             v{selectedDecision.version}

@@ -357,8 +357,12 @@ describe('AuthorizationsView Component', () => {
       await user.click(screen.getByText('Create new authorization'));
 
       await waitFor(() => {
-        // Application resource type should have ALL and ACCESS permissions
-        expect(screen.getByLabelText('ALL')).toBeInTheDocument();
+        // Wait for modal to render
+        expect(screen.getByText('Create New Authorization')).toBeInTheDocument();
+      });
+
+      // Application resource type should have ACCESS permission checkbox
+      await waitFor(() => {
         expect(screen.getByLabelText('ACCESS')).toBeInTheDocument();
       });
     });
@@ -374,14 +378,33 @@ describe('AuthorizationsView Component', () => {
       await user.click(screen.getByText('Create new authorization'));
 
       await waitFor(() => {
-        expect(screen.getByLabelText('ALL')).toBeInTheDocument();
+        expect(screen.getByLabelText('ACCESS')).toBeInTheDocument();
       });
 
-      // Click ACCESS to add it (should remove ALL and add ACCESS)
-      await user.click(screen.getByLabelText('ACCESS'));
-
+      // Check initial state - ALL is selected by default which means ACCESS is also checked
       const accessCheckbox = screen.getByLabelText('ACCESS') as HTMLInputElement;
       expect(accessCheckbox.checked).toBe(true);
+
+      // Click ACCESS to uncheck it
+      await user.click(accessCheckbox);
+
+      // Wait for it to be unchecked
+      await waitFor(() => {
+        const updatedCheckbox = screen.getByLabelText('ACCESS') as HTMLInputElement;
+        expect(updatedCheckbox.checked).toBe(false);
+      });
+
+      // Click again to check it
+      await user.click(screen.getByLabelText('ACCESS'));
+
+      // Wait for the checkbox to be checked again
+      await waitFor(
+        () => {
+          const updatedCheckbox = screen.getByLabelText('ACCESS') as HTMLInputElement;
+          expect(updatedCheckbox.checked).toBe(true);
+        },
+        { timeout: 3000 }
+      );
     });
 
     it('should submit form and create authorization', async () => {

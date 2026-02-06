@@ -19,6 +19,11 @@ import type { API } from '../types';
 import { datePickerWidget } from './datePickerWidget';
 import './datePickerWidget.scss';
 
+/** HTTP status code for Forbidden */
+const HTTP_FORBIDDEN = 403;
+/** Default debounce delay in milliseconds for autocomplete searches */
+const DEFAULT_DEBOUNCE_MS = 300;
+
 /**
  * Standard operators used across filter configurations
  */
@@ -195,14 +200,14 @@ export interface ApiAutocompleterOptions {
 
 /**
  * Create an async autocompleter that fetches suggestions from an API endpoint.
- * 
+ *
  * This utility wraps react-select-filter-box's createAsyncAutocompleter with
  * built-in debouncing, caching, and error handling optimized for Operaton REST API.
- * 
+ *
  * @param fetchFn - Async function that fetches autocomplete items from API
  * @param options - Configuration options
  * @returns Autocompleter instance
- * 
+ *
  * @example
  * ```typescript
  * const userAutocompleter = createApiAutocompleter(
@@ -222,13 +227,7 @@ export function createApiAutocompleter(
   fetchFn: (query: string, api: API, signal?: AbortSignal) => Promise<AutocompleteItem[]>,
   options: ApiAutocompleterOptions
 ): ReturnType<typeof createAsyncAutocompleter> {
-  const {
-    api,
-    minChars = 1,
-    debounceMs = 300,
-    shouldCacheResults = true,
-    loadingMessage = 'Searching...',
-  } = options;
+  const { api, minChars = 1, debounceMs = 300, shouldCacheResults = true, loadingMessage = 'Searching...' } = options;
 
   return createAsyncAutocompleter(
     async (query: string, _context: unknown, signal?: AbortSignal) => {
@@ -241,7 +240,7 @@ export function createApiAutocompleter(
         if (error.name === 'AbortError') {
           return [];
         }
-        
+
         // Handle API errors
         console.error('Autocomplete fetch error:', error);
         return [];
@@ -305,16 +304,16 @@ interface GroupDto {
 
 /**
  * Create an autocompleter for user search via /user API endpoint.
- * 
+ *
  * Searches users by first name, last name, and email with substring matching.
  * Performs three separate API calls and combines results, removing duplicates.
  * This is necessary because the REST API uses AND logic for multiple parameters.
  * Returns user IDs as suggestions. Handles permission errors gracefully.
- * 
+ *
  * @param api - API configuration
  * @param options - Optional autocompleter configuration
  * @returns Autocompleter instance for user search
- * 
+ *
  * @example
  * ```typescript
  * const userAutocompleter = createUserAutocompleter(api, { minChars: 2 });
@@ -349,7 +348,7 @@ export function createUserAutocompleter(
             });
 
             // Handle permission denied gracefully
-            if (response.status === 403) {
+            if (response.status === HTTP_FORBIDDEN) {
               console.warn('User search permission denied');
               return [];
             }
@@ -388,14 +387,14 @@ export function createUserAutocompleter(
         return {
           type: 'value' as const,
           key: u.id ?? '',
-          label: parts.length > 0 ? `${u.id} (${parts.join(' ')})` : (u.id ?? ''),
+          label: parts.length > 0 ? `${u.id ?? ''} (${parts.join(' ')})` : (u.id ?? ''),
         };
       });
     },
     {
       api,
       minChars: options?.minChars ?? 2,
-      debounceMs: options?.debounceMs ?? 300,
+      debounceMs: options?.debounceMs ?? DEFAULT_DEBOUNCE_MS,
       shouldCacheResults: options?.shouldCacheResults ?? true,
       ...(options?.maxResults !== undefined && { maxResults: options.maxResults }),
       loadingMessage: options?.loadingMessage ?? 'Searching users...',
@@ -405,14 +404,14 @@ export function createUserAutocompleter(
 
 /**
  * Create an autocompleter for group search via /group API endpoint.
- * 
+ *
  * Searches groups by name with substring matching. Returns group IDs with names as suggestions.
  * Handles permission errors gracefully.
- * 
+ *
  * @param api - API configuration
  * @param options - Optional autocompleter configuration
  * @returns Autocompleter instance for group search
- * 
+ *
  * @example
  * ```typescript
  * const groupAutocompleter = createGroupAutocompleter(api, { minChars: 2 });
@@ -435,7 +434,7 @@ export function createGroupAutocompleter(
       });
 
       // Handle permission denied gracefully
-      if (response.status === 403) {
+      if (response.status === HTTP_FORBIDDEN) {
         console.warn('Group search permission denied');
         return [];
       }
@@ -450,13 +449,13 @@ export function createGroupAutocompleter(
         .map(g => ({
           type: 'value' as const,
           key: g.id ?? '',
-          label: g.name ? `${g.id} (${g.name})` : (g.id ?? ''),
+          label: g.name ? `${g.id ?? ''} (${g.name})` : (g.id ?? ''),
         }));
     },
     {
       api,
       minChars: options?.minChars ?? 2,
-      debounceMs: options?.debounceMs ?? 300,
+      debounceMs: options?.debounceMs ?? DEFAULT_DEBOUNCE_MS,
       shouldCacheResults: options?.shouldCacheResults ?? true,
       ...(options?.maxResults !== undefined && { maxResults: options.maxResults }),
       loadingMessage: options?.loadingMessage ?? 'Searching groups...',
@@ -474,14 +473,14 @@ interface TenantDto {
 
 /**
  * Create an autocompleter for tenant search via /tenant API endpoint.
- * 
+ *
  * Fetches all tenants and caches the result since tenant lists rarely change.
  * Returns tenant IDs with names as suggestions.
- * 
+ *
  * @param api - API configuration
  * @param options - Optional autocompleter configuration
  * @returns Autocompleter instance for tenant search
- * 
+ *
  * @example
  * ```typescript
  * const tenantAutocompleter = createTenantAutocompleter(api);
@@ -504,7 +503,7 @@ export function createTenantAutocompleter(
       });
 
       // Handle permission denied gracefully
-      if (response.status === 403) {
+      if (response.status === HTTP_FORBIDDEN) {
         console.warn('Tenant search permission denied');
         return [];
       }
@@ -515,13 +514,13 @@ export function createTenantAutocompleter(
 
       const tenants = (await response.json()) as TenantDto[];
       const lowerQuery = query.toLowerCase();
-      
+
       return tenants
-        .filter(t => t.id && t.id.toLowerCase().includes(lowerQuery))
+        .filter(t => t.id?.toLowerCase().includes(lowerQuery))
         .map(t => ({
           type: 'value' as const,
           key: t.id ?? '',
-          label: t.name ? `${t.id} (${t.name})` : (t.id ?? ''),
+          label: t.name ? `${t.id ?? ''} (${t.name})` : (t.id ?? ''),
         }));
     },
     {
@@ -548,14 +547,14 @@ interface ProcessDefinitionDto {
 
 /**
  * Create an autocompleter for process definition search via /process-definition API endpoint.
- * 
+ *
  * Searches process definitions by name with wildcard matching.
  * Groups results by latest version to avoid clutter.
- * 
+ *
  * @param api - API configuration
  * @param options - Optional autocompleter configuration
  * @returns Autocompleter instance for process definition search
- * 
+ *
  * @example
  * ```typescript
  * const processDefAutocompleter = createProcessDefinitionAutocompleter(api);
@@ -587,15 +586,15 @@ export function createProcessDefinitionAutocompleter(
         .map(d => ({
           type: 'value' as const,
           key: d.name ?? '',
-          label: d.versionTag 
-            ? `${d.name} (v${d.version} - ${d.versionTag})`
-            : `${d.name} (v${d.version})`,
+          label: d.versionTag
+            ? `${d.name ?? ''} (v${d.version ?? ''} - ${d.versionTag ?? ''})`
+            : `${d.name ?? ''} (v${d.version ?? ''})`,
         }));
     },
     {
       api,
       minChars: options?.minChars ?? 2,
-      debounceMs: options?.debounceMs ?? 300,
+      debounceMs: options?.debounceMs ?? DEFAULT_DEBOUNCE_MS,
       shouldCacheResults: options?.shouldCacheResults ?? true,
       ...(options?.maxResults !== undefined && { maxResults: options.maxResults }),
       loadingMessage: options?.loadingMessage ?? 'Searching process definitions...',
@@ -605,14 +604,14 @@ export function createProcessDefinitionAutocompleter(
 
 /**
  * Create an autocompleter for activity IDs/names from BPMN XML context.
- * 
+ *
  * Provides context-aware suggestions by parsing activity IDs and names from
  * the current process definition's BPMN XML.
- * 
+ *
  * @param activities - Array of BPMN activities from getBpmnElements
  * @param showNames - Whether to show activity names (default: false, show IDs)
  * @returns Autocompleter instance for activity search
- * 
+ *
  * @example
  * ```typescript
  * const { activities } = await getBpmnElements(processDefinitionId, api);
@@ -625,29 +624,32 @@ export function createActivityAutocompleter(
   showNames = false
 ): ReturnType<typeof createAsyncAutocompleter> {
   // Convert activities to autocomplete items
-  const items: AutocompleteItem[] = activities.map(activity => ({
-    type: 'value' as const,
-    key: showNames ? (activity.name ?? activity.id) : activity.id,
-    label: showNames
-      ? activity.name
-        ? `${activity.name} (${activity.id})`
-        : activity.id
-      : activity.id,
-  }));
+  const items: AutocompleteItem[] = activities.map(activity => {
+    const key = showNames ? (activity.name ?? activity.id) : activity.id;
+    let label = activity.id;
+    if (showNames && activity.name) {
+      label = `${activity.name} (${activity.id})`;
+    } else if (showNames) {
+      label = activity.id;
+    }
+    return {
+      type: 'value' as const,
+      key,
+      label,
+    };
+  });
 
   // Return a synchronous autocompleter with instant results
   return createAsyncAutocompleter(
     async (query: string) => {
       const lowerQuery = query.toLowerCase();
       return items.filter(
-        item =>
-          item.key.toLowerCase().includes(lowerQuery) ||
-          item.label.toLowerCase().includes(lowerQuery)
+        item => item.key.toLowerCase().includes(lowerQuery) || item.label.toLowerCase().includes(lowerQuery)
       );
     },
     {
       debounceMs: 0, // No debounce for local data
-      minChars: 0,   // Show all on focus
+      minChars: 0, // Show all on focus
       cacheResults: true,
       loadingMessage: 'Filtering activities...',
     }
@@ -690,12 +692,14 @@ export interface ActivityAutocompleterContext {
  * @param activityContext - Optional BPMN activities for context-aware autocomplete
  * @returns Filter schema for definition filters
  */
-export function createDefinitionFilterSchema(
-  api?: API,
-  activityContext?: ActivityAutocompleterContext
-): FilterSchema {
+export function createDefinitionFilterSchema(api?: API, activityContext?: ActivityAutocompleterContext): FilterSchema {
   const taskAssigneeField = api
-    ? createAsyncStringField('taskAssignee', 'Task Assignee', [OPERATORS.eq, OPERATORS.like], createUserAutocompleter(api))
+    ? createAsyncStringField(
+        'taskAssignee',
+        'Task Assignee',
+        [OPERATORS.eq, OPERATORS.like],
+        createUserAutocompleter(api)
+      )
     : createStringField('taskAssignee', 'Task Assignee', [OPERATORS.eq, OPERATORS.like]);
 
   const tenantIdInField = api
@@ -703,11 +707,21 @@ export function createDefinitionFilterSchema(
     : createStringField('tenantIdIn', 'Tenant ID', [OPERATORS.eq]);
 
   const activityIdField = activityContext
-    ? createAsyncStringField('activityId', 'Activity ID', [OPERATORS.eq], createActivityAutocompleter(activityContext.activities, false))
+    ? createAsyncStringField(
+        'activityId',
+        'Activity ID',
+        [OPERATORS.eq],
+        createActivityAutocompleter(activityContext.activities, false)
+      )
     : createStringField('activityId', 'Activity ID', [OPERATORS.eq]);
 
   const activityNameField = activityContext
-    ? createAsyncStringField('activityName', 'Activity Name', [OPERATORS.eq, OPERATORS.like], createActivityAutocompleter(activityContext.activities, true))
+    ? createAsyncStringField(
+        'activityName',
+        'Activity Name',
+        [OPERATORS.eq, OPERATORS.like],
+        createActivityAutocompleter(activityContext.activities, true)
+      )
     : createStringField('activityName', 'Activity Name', [OPERATORS.eq, OPERATORS.like]);
 
   return {
@@ -763,16 +777,18 @@ const INCIDENT_STATUSES = [
  * @param activityContext - Optional BPMN activities for context-aware autocomplete
  * @returns Filter schema for instance filters
  */
-export function createInstanceQuerySchema(
-  api?: API,
-  activityContext?: ActivityAutocompleterContext
-): FilterSchema {
+export function createInstanceQuerySchema(api?: API, activityContext?: ActivityAutocompleterContext): FilterSchema {
   const startedByField = api
     ? createAsyncStringField('startedBy', 'Started By', [OPERATORS.eq], createUserAutocompleter(api))
     : createStringField('startedBy', 'Started By', [OPERATORS.eq]);
 
   const processDefinitionNameField = api
-    ? createAsyncStringField('processDefinitionName', 'Process Name', [OPERATORS.eq, OPERATORS.like], createProcessDefinitionAutocompleter(api))
+    ? createAsyncStringField(
+        'processDefinitionName',
+        'Process Name',
+        [OPERATORS.eq, OPERATORS.like],
+        createProcessDefinitionAutocompleter(api)
+      )
     : createStringField('processDefinitionName', 'Process Name', [OPERATORS.eq, OPERATORS.like]);
 
   const tenantIdInField = api
@@ -780,11 +796,21 @@ export function createInstanceQuerySchema(
     : createStringField('tenantIdIn', 'Tenant ID', [OPERATORS.eq]);
 
   const executedActivityIdInField = activityContext
-    ? createAsyncStringField('executedActivityIdIn', 'Executed Activity ID', [OPERATORS.eq], createActivityAutocompleter(activityContext.activities, false))
+    ? createAsyncStringField(
+        'executedActivityIdIn',
+        'Executed Activity ID',
+        [OPERATORS.eq],
+        createActivityAutocompleter(activityContext.activities, false)
+      )
     : createStringField('executedActivityIdIn', 'Executed Activity ID', [OPERATORS.eq]);
 
   const activeActivityIdInField = activityContext
-    ? createAsyncStringField('activeActivityIdIn', 'Active Activity ID', [OPERATORS.eq], createActivityAutocompleter(activityContext.activities, false))
+    ? createAsyncStringField(
+        'activeActivityIdIn',
+        'Active Activity ID',
+        [OPERATORS.eq],
+        createActivityAutocompleter(activityContext.activities, false)
+      )
     : createStringField('activeActivityIdIn', 'Active Activity ID', [OPERATORS.eq]);
 
   return {
@@ -862,7 +888,9 @@ export function createInstanceQuerySchema(
       createLabel: 'Variable: ',
       group: 'Process Variables',
       operators: [OPERATORS.eq, OPERATORS.like, OPERATORS.ilike],
-      validateFieldName: (name: string) => /^[a-zA-Z_]\w*$/.test(name) || 'Variable name must start with a letter or underscore and contain only alphanumeric characters and underscores',
+      validateFieldName: (name: string) =>
+        /^[a-zA-Z_]\w*$/.test(name) ||
+        'Variable name must start with a letter or underscore and contain only alphanumeric characters and underscores',
     },
   };
 }
@@ -895,6 +923,8 @@ const RESOURCE_TYPE_VALUES = [
  * Field names match Operaton REST API query parameters directly.
  * @param api - Optional API configuration for enabling autocomplete on user/group fields
  * @param options - Optional configuration for field inclusion
+ * @param options.includeId - Whether to include the authorization ID field
+ * @param options.includeResourceType - Whether to include the resource type field
  * @returns Filter schema for authorization filters
  */
 export function createAuthorizationFilterSchema(

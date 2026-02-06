@@ -139,9 +139,7 @@ const AuthorizationFormModal: React.FC<AuthorizationFormModalProps> = ({
   const togglePermission = (perm: string): void => {
     setForm(prev => {
       const specific = getSpecificPermissions();
-      const currentlySelected = prev.permissions.includes('ALL') 
-        ? specific 
-        : prev.permissions.filter(p => p !== 'ALL');
+      const currentlySelected = prev.permissions.includes('ALL') ? specific : prev.permissions.filter(p => p !== 'ALL');
 
       const newPerms = currentlySelected.includes(perm)
         ? currentlySelected.filter(p => p !== perm)
@@ -162,7 +160,7 @@ const AuthorizationFormModal: React.FC<AuthorizationFormModalProps> = ({
    */
   const toggleAllPermissions = (): void => {
     const allSelected = areAllPermissionsSelected();
-    
+
     if (allSelected) {
       // Deselect all
       setForm(prev => ({ ...prev, permissions: [] }));

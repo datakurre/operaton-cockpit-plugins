@@ -396,7 +396,9 @@ export interface MockFetchResponseOptions<T = unknown> {
  * @param options - Response options
  * @returns Mock Response-like object
  */
-export function createMockFetchResponse<T = unknown>(options: MockFetchResponseOptions<T> = {}): {
+export function createMockFetchResponse<T = unknown>(
+  options: MockFetchResponseOptions<T> = {}
+): {
   status: number;
   ok: boolean;
   headers: Headers;
@@ -446,4 +448,3 @@ export function createMockFetchWithHandlers(handlers: Record<string, unknown>): 
     return createMockFetchResponse({ status: 404, isOk: false, data: { error: 'Not found' } });
   });
 }
-

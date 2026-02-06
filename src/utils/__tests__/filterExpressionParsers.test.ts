@@ -241,7 +241,9 @@ describe('parseActivityInstanceExpressions', () => {
   });
 
   it('should parse processDefinitionId expression', () => {
-    const expressions: LegacyExpression[] = [{ category: 'processDefinitionId', operator: '==', value: 'process-def-123' }];
+    const expressions: LegacyExpression[] = [
+      { category: 'processDefinitionId', operator: '==', value: 'process-def-123' },
+    ];
 
     const result = parseActivityInstanceExpressions(expressions, DEFAULT_MAX_RESULTS);
 
@@ -500,9 +502,7 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse executedActivity after date expression', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'executedActivity', operator: 'after', value: '2024-03-01' },
-    ];
+    const expressions: LegacyExpression[] = [{ category: 'executedActivity', operator: 'after', value: '2024-03-01' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -510,9 +510,7 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse executedActivity before date expression', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'executedActivity', operator: 'before', value: '2024-03-15' },
-    ];
+    const expressions: LegacyExpression[] = [{ category: 'executedActivity', operator: 'before', value: '2024-03-15' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -528,9 +526,7 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse executedJob before date expression', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'executedJob', operator: 'before', value: '2024-04-15' },
-    ];
+    const expressions: LegacyExpression[] = [{ category: 'executedJob', operator: 'before', value: '2024-04-15' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -538,9 +534,7 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse processInstanceIds expression', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'processInstanceIds', operator: '==', value: 'id1,id2,id3' },
-    ];
+    const expressions: LegacyExpression[] = [{ category: 'processInstanceIds', operator: '==', value: 'id1,id2,id3' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -568,9 +562,7 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse processDefinitionKey with like operator', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'processDefinitionKey', operator: 'like', value: 'invoice' },
-    ];
+    const expressions: LegacyExpression[] = [{ category: 'processDefinitionKey', operator: 'like', value: 'invoice' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 
@@ -608,9 +600,7 @@ describe('parseProcessInstanceExpressions', () => {
 
     // Should be treated as a variable, not a known field
     expect(result.activityIdIn).toBeUndefined();
-    expect(result.variables).toEqual([
-      { name: 'activityIdIn', operator: 'eq', value: 'activity1,activity2' },
-    ]);
+    expect(result.variables).toEqual([{ name: 'activityIdIn', operator: 'eq', value: 'activity1,activity2' }]);
   });
 
   it('should parse withJobsRetrying boolean expression', () => {
@@ -642,9 +632,7 @@ describe('parseProcessInstanceExpressions', () => {
   });
 
   it('should parse processDefinitionName with like operator', () => {
-    const expressions: LegacyExpression[] = [
-      { category: 'processDefinitionName', operator: 'like', value: 'Invoice' },
-    ];
+    const expressions: LegacyExpression[] = [{ category: 'processDefinitionName', operator: 'like', value: 'Invoice' }];
 
     const result = parseProcessInstanceExpressions(expressions);
 

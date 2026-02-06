@@ -55,11 +55,11 @@ function getResourceEndpoint(resourceType: number): {
 } | null {
   switch (resourceType) {
     case 0: // Application
-      return { 
-        endpoint: '', 
-        idField: '', 
-        searchParam: '', 
-        enumValues: ['cockpit', 'tasklist', 'admin', '*'] 
+      return {
+        endpoint: '',
+        idField: '',
+        searchParam: '',
+        enumValues: ['cockpit', 'tasklist', 'admin', '*'],
       };
     case 1: // User
       return { endpoint: '/user', idField: 'id', nameField: 'firstName', searchParam: 'idLike' };

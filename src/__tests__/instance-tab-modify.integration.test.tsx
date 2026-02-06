@@ -45,12 +45,14 @@ describe('instance-tab-modify integration', () => {
   /**
    * Helper to set up mock fetch responses
    */
-  function setupMockFetch(options: {
-    bpmnXml?: string;
-    activeInstances?: Array<{ id: string; activityId: string; activityName?: string }>;
-    modificationResponse?: { ok: boolean; status: number; error?: string };
-    correlationResponse?: { ok: boolean; status: number; error?: string };
-  } = {}): void {
+  function setupMockFetch(
+    options: {
+      bpmnXml?: string;
+      activeInstances?: { id: string; activityId: string; activityName?: string }[];
+      modificationResponse?: { ok: boolean; status: number; error?: string };
+      correlationResponse?: { ok: boolean; status: number; error?: string };
+    } = {}
+  ): void {
     const {
       bpmnXml = simpleBpmnXml,
       activeInstances = [],
@@ -59,7 +61,7 @@ describe('instance-tab-modify integration', () => {
     } = options;
 
     mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
-      const urlStr = String(url);
+      const urlStr = url;
 
       if (urlStr.includes('/process-definition/') && urlStr.includes('/xml')) {
         return {
@@ -161,16 +163,14 @@ describe('instance-tab-modify integration', () => {
   describe('Modification flow', () => {
     it('should load activities and render modification form', async () => {
       setupMockFetch({
-        activeInstances: [
-          { id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' },
-        ],
+        activeInstances: [{ id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' }],
       });
 
       const container = await renderPlugin();
 
       // Wait for loading to complete and form to render
       await waitFor(() => {
-        expect(screen.getByText('Modification Instructions')).toBeInTheDocument();
+        expect(screen.getByText('Instruction Type:')).toBeInTheDocument();
       });
 
       // Verify the form elements are present
@@ -184,7 +184,7 @@ describe('instance-tab-modify integration', () => {
 
       // Override the modification mock to track if it was called
       mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
-        const urlStr = String(url);
+        const urlStr = url;
 
         if (urlStr.includes('/process-definition/') && urlStr.includes('/xml')) {
           return {
@@ -200,9 +200,7 @@ describe('instance-tab-modify integration', () => {
             ok: true,
             status: 200,
             headers: new Headers({ 'Content-Type': 'application/json' }),
-            json: async () => [
-              { id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' },
-            ],
+            json: async () => [{ id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' }],
           };
         }
 
@@ -227,7 +225,7 @@ describe('instance-tab-modify integration', () => {
       const container = await renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByText('Modification Instructions')).toBeInTheDocument();
+        expect(screen.getByText('Instruction Type:')).toBeInTheDocument();
       });
 
       // The form should have instruction type selector
@@ -249,7 +247,7 @@ describe('instance-tab-modify integration', () => {
     it('should display error when loading activities fails', async () => {
       // Mock API to return error on activity instance fetch
       mockFetch.mockImplementation(async (url: string) => {
-        const urlStr = String(url);
+        const urlStr = url;
 
         if (urlStr.includes('/process-definition/') && urlStr.includes('/xml')) {
           return {
@@ -351,7 +349,8 @@ describe('instance-tab-modify integration', () => {
       });
 
       // Initially, "Modify Instance" tab should be active
-      expect(screen.getByText('Modification Instructions')).toBeInTheDocument();
+      expect(screen.getByText('Modify Instance')).toBeInTheDocument();
+      expect(screen.getByText('Modify Instance').closest('li')).toHaveClass('active');
 
       // Click on "Correlate Message" tab
       const messageTab = screen.getByText('Correlate Message');
@@ -370,9 +369,9 @@ describe('instance-tab-modify integration', () => {
         fireEvent.click(modifyTab);
       });
 
-      // "Modification Instructions" should be visible again
+      // Modification form should be visible again
       await waitFor(() => {
-        expect(screen.getByText('Modification Instructions')).toBeInTheDocument();
+        expect(screen.getByText('Instruction Type:')).toBeInTheDocument();
       });
     });
   });
@@ -380,15 +379,13 @@ describe('instance-tab-modify integration', () => {
   describe('Instruction management', () => {
     it('should allow adding instructions', async () => {
       setupMockFetch({
-        activeInstances: [
-          { id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' },
-        ],
+        activeInstances: [{ id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' }],
       });
 
       const container = await renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByText('Modification Instructions')).toBeInTheDocument();
+        expect(screen.getByText('Instruction Type:')).toBeInTheDocument();
       });
 
       // Count instruction type selects (one per instruction card)

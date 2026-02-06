@@ -134,7 +134,7 @@ export interface HistoricProcessInstanceQueryParams {
   internallyTerminated?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-  variables?: Array<{ name: string; operator: string; value: string }>;
+  variables?: { name: string; operator: string; value: string }[];
   variableNamesIgnoreCase?: boolean;
   variableValuesIgnoreCase?: boolean;
 }
@@ -287,12 +287,7 @@ export class HistoryService implements IHistoryService {
     if (pagination?.firstResult !== undefined) {
       queryParams['firstResult'] = String(pagination.firstResult);
     }
-    const result: unknown = await apiPost(
-      this.api,
-      '/history/process-instance',
-      queryParams,
-      JSON.stringify(query)
-    );
+    const result: unknown = await apiPost(this.api, '/history/process-instance', queryParams, JSON.stringify(query));
     return Array.isArray(result) ? (result as HistoricProcessInstance[]) : [];
   }
 
