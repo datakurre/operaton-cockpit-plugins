@@ -319,7 +319,7 @@ function formatDateForApi(value: string): string | undefined {
     return undefined;
   }
   // Extract just the date portion (YYYY-MM-DD) and append the time suffix
-  const dateOnly = date.toISOString().split('T')[0];
+  const dateOnly = date.toISOString().split('T')[0] ?? '';
   return `${dateOnly}${DATE_TIME_SUFFIX}`;
 }
 
@@ -558,11 +558,7 @@ function parseVersionFilter(query: ProcessInstanceQueryParams, operator: string,
 }
 
 /** Fields that need % wrapping for like operator */
-const FIELDS_NEEDING_LIKE_WRAP = new Set<string>([
-  'processDefinitionName',
-  'processDefinitionKey',
-  'incidentMessage',
-]);
+const FIELDS_NEEDING_LIKE_WRAP = new Set<string>(['processDefinitionName', 'processDefinitionKey', 'incidentMessage']);
 
 /**
  * Known process instance filter field names.
@@ -748,8 +744,16 @@ export interface FilterConflict {
  * These field pairs should not be combined.
  */
 export const ACTIVITY_FILTER_CONFLICTS: FilterConflict[] = [
-  { field1: 'finishedOnly', field2: 'unfinishedOnly', reason: 'Cannot filter for both finished and unfinished activities' },
-  { field1: 'tenantIdIn', field2: 'withoutTenantId', reason: 'Cannot filter for specific tenants and no tenant at the same time' },
+  {
+    field1: 'finishedOnly',
+    field2: 'unfinishedOnly',
+    reason: 'Cannot filter for both finished and unfinished activities',
+  },
+  {
+    field1: 'tenantIdIn',
+    field2: 'withoutTenantId',
+    reason: 'Cannot filter for specific tenants and no tenant at the same time',
+  },
 ];
 
 /**
@@ -757,12 +761,28 @@ export const ACTIVITY_FILTER_CONFLICTS: FilterConflict[] = [
  * These field pairs should not be combined.
  */
 export const PROCESS_FILTER_CONFLICTS: FilterConflict[] = [
-  { field1: 'finishedOnly', field2: 'unfinishedOnly', reason: 'Cannot filter for both finished and unfinished instances' },
+  {
+    field1: 'finishedOnly',
+    field2: 'unfinishedOnly',
+    reason: 'Cannot filter for both finished and unfinished instances',
+  },
   { field1: 'active', field2: 'completed', reason: 'Active and completed are mutually exclusive states' },
-  { field1: 'active', field2: 'externallyTerminated', reason: 'Active and externally terminated are mutually exclusive states' },
-  { field1: 'active', field2: 'internallyTerminated', reason: 'Active and internally terminated are mutually exclusive states' },
+  {
+    field1: 'active',
+    field2: 'externallyTerminated',
+    reason: 'Active and externally terminated are mutually exclusive states',
+  },
+  {
+    field1: 'active',
+    field2: 'internallyTerminated',
+    reason: 'Active and internally terminated are mutually exclusive states',
+  },
   { field1: 'suspended', field2: 'active', reason: 'Suspended and active are mutually exclusive states' },
-  { field1: 'tenantIdIn', field2: 'withoutTenantId', reason: 'Cannot filter for specific tenants and no tenant at the same time' },
+  {
+    field1: 'tenantIdIn',
+    field2: 'withoutTenantId',
+    reason: 'Cannot filter for specific tenants and no tenant at the same time',
+  },
 ];
 
 /**

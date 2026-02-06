@@ -113,17 +113,13 @@ describe('Accessibility Tests', () => {
     });
 
     it('Pagination should have no accessibility violations', async () => {
-      const { container } = render(
-        <Pagination currentPage={1} total={50} perPage={10} onPage={() => {}} />
-      );
+      const { container } = render(<Pagination currentPage={1} total={50} perPage={10} onPage={() => {}} />);
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
     it('Pagination with many pages should have no accessibility violations', async () => {
-      const { container } = render(
-        <Pagination currentPage={5} total={100} perPage={10} onPage={() => {}} />
-      );
+      const { container } = render(<Pagination currentPage={5} total={100} perPage={10} onPage={() => {}} />);
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -168,9 +164,7 @@ describe('Accessibility Tests', () => {
 
   describe('Table Components', () => {
     it('AuditLogTable with empty data should have no accessibility violations', async () => {
-      const { container } = render(
-        <AuditLogTable activities={[]} decisions={new Map()} />
-      );
+      const { container } = render(<AuditLogTable activities={[]} decisions={new Map()} />);
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -211,9 +205,7 @@ describe('Accessibility Tests', () => {
         },
       ];
 
-      const { container } = render(
-        <AuditLogTable activities={activities} decisions={new Map()} />
-      );
+      const { container } = render(<AuditLogTable activities={activities} decisions={new Map()} />);
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -278,7 +270,7 @@ describe('Accessibility Tests', () => {
       render(<Pagination currentPage={2} total={50} perPage={10} onPage={() => {}} />);
 
       const buttons = screen.getAllByRole('button');
-      buttons.forEach((button) => {
+      buttons.forEach(button => {
         expect(button.tagName).toBe('BUTTON');
       });
     });

@@ -26,22 +26,20 @@ import DashboardSection from './Components/DashboardSection';
 const FAVOURITES_KEY = 'minimal-history-plugin-favourites';
 
 interface FavouriteDefinition {
-  id: string;
   key: string;
   name: string | null;
-  version: number;
 }
 
 type ProcessDefinitionStatistics = components['schemas']['ProcessDefinitionStatisticsResultDto'];
 
 interface ProcessDefinitionRow {
-  id: string;
+  latestVersionId: string; // ID of the latest version for linking
   key: string;
   name: string | null;
-  version: number;
+  latestVersion: number; // Latest version number
   tenantId: string | null;
-  incidents: number;
-  instances: number;
+  incidents: number; // Total across all versions
+  instances: number; // Total across all versions
   suspended: boolean;
   state: number; // 0 = healthy, 1 = suspended, 2 = incidents
 }
@@ -71,30 +69,30 @@ function saveFavourites(favourites: FavouriteDefinition[]): void {
 }
 
 /**
- * Check if a process definition is favourited
+ * Check if a process definition is favourited (by key)
  */
-function isFavourite(processDefinitionId: string): boolean {
+function isFavourite(processDefinitionKey: string): boolean {
   const favourites = loadFavourites();
-  return favourites.some(f => f.id === processDefinitionId);
+  return favourites.some(f => f.key === processDefinitionKey);
 }
 
 /**
- * Add a process definition to favourites
+ * Add a process definition to favourites (by key)
  */
 function addFavourite(definition: FavouriteDefinition): void {
   const favourites = loadFavourites();
-  if (!favourites.some(f => f.id === definition.id)) {
+  if (!favourites.some(f => f.key === definition.key)) {
     favourites.push(definition);
     saveFavourites(favourites);
   }
 }
 
 /**
- * Remove a process definition from favourites
+ * Remove a process definition from favourites (by key)
  */
-function removeFavourite(processDefinitionId: string): void {
+function removeFavourite(processDefinitionKey: string): void {
   const favourites = loadFavourites();
-  const filtered = favourites.filter(f => f.id !== processDefinitionId);
+  const filtered = favourites.filter(f => f.key !== processDefinitionKey);
   saveFavourites(filtered);
 }
 
@@ -123,6 +121,7 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
         if (response.ok) {
           const data = (await response.json()) as ProcessDefinition;
           setDefinition(data);
+          setIsFav(isFavourite(data.key ?? ''));
         }
       } catch {
         // Silently fail
@@ -131,7 +130,6 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
       }
     };
 
-    setIsFav(isFavourite(processDefinitionId));
     void fetchDefinition();
   }, [api.engineApi, processDefinitionId]);
 
@@ -141,14 +139,12 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
     }
 
     if (isFav) {
-      removeFavourite(processDefinitionId);
+      removeFavourite(definition.key ?? '');
       setIsFav(false);
     } else {
       addFavourite({
-        id: definition.id ?? processDefinitionId,
         key: definition.key ?? '',
         name: definition.name ?? null,
-        version: definition.version ?? 0,
       });
       setIsFav(true);
     }
@@ -169,11 +165,15 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
         width: '40px',
         height: '34px',
         marginTop: '5px',
-        padding: '6px 8px',
+        padding: '4px 6px',
         minWidth: '40px',
       }}
     >
-      <span className={isFav ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'} aria-hidden="true" />
+      <span
+        className={isFav ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'}
+        aria-hidden="true"
+        style={{ fontSize: '16px' }}
+      />
     </button>
   );
 };
@@ -191,7 +191,7 @@ interface DashboardTableProps {
  */
 const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
   const [favourites, setFavourites] = useState<FavouriteDefinition[]>([]);
-  const [statistics, setStatistics] = useState<Map<string, ProcessDefinitionStatistics>>(new Map());
+  const [statistics, setStatistics] = useState<Map<string, ProcessDefinitionStatistics[]>>(new Map());
   // eslint-disable-next-line @typescript-eslint/naming-convention -- Common React state naming pattern
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -206,7 +206,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
     loadData();
   }, []);
 
-  // Fetch statistics for all favourite definitions
+  // Fetch statistics for all favourite definitions (aggregated by key)
   useEffect(() => {
     const fetchStatistics = async (): Promise<void> => {
       if (favourites.length === 0) {
@@ -214,19 +214,27 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
       }
 
       try {
-        // Build query string with all definition IDs
-        const ids = favourites.map(f => `processDefinitionIdIn=${encodeURIComponent(f.id)}`).join('&');
-        const response = await fetch(`${api.engineApi}/process-definition/statistics?${ids}&incidents=true`);
+        // Build query string with all definition keys
+        const keys = favourites.map(f => `processDefinitionKeyIn=${encodeURIComponent(f.key)}`).join('&');
+        const response = await fetch(`${api.engineApi}/process-definition/statistics?${keys}&incidents=true`);
 
         if (response.ok) {
           const data = (await response.json()) as ProcessDefinitionStatistics[];
-          const statsMap = new Map<string, ProcessDefinitionStatistics>();
+          // Group statistics by key (aggregate across all versions)
+          const statsMap = new Map<string, ProcessDefinitionStatistics[]>();
           for (const stat of data) {
-            if (stat.id) {
-              statsMap.set(stat.id, stat);
+            const key = stat.definition?.key;
+            if (key) {
+              if (!statsMap.has(key)) {
+                statsMap.set(key, []);
+              }
+              const statsArray = statsMap.get(key);
+              if (statsArray) {
+                statsArray.push(stat);
+              }
             }
           }
-          setStatistics(statsMap);
+          setStatistics(statsMap as any);
         }
       } catch {
         // Silently fail - will show default values
@@ -236,39 +244,63 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
     void fetchStatistics();
   }, [api.engineApi, favourites]);
 
-  // Transform favourites and statistics into table rows
+  // Transform favourites and statistics into table rows (aggregated across all versions)
   const tableData = useMemo<ProcessDefinitionRow[]>(() => {
     return favourites.map(fav => {
-      const stats = statistics.get(fav.id);
-      const definition = stats?.definition;
-      const totalIncidents = (stats?.incidents ?? []).reduce((sum, inc) => sum + (inc.incidentCount ?? 0), 0);
-      const suspended = definition?.suspended ?? false;
+      const versionStats = statistics.get(fav.key) ?? [];
+
+      // Find latest version
+      let latestVersion = 0;
+      let latestVersionId = '';
+      let tenantId: string | null = null;
+      let anySuspended = false;
+
+      for (const stat of versionStats) {
+        const version = stat.definition?.version ?? 0;
+        if (version > latestVersion) {
+          latestVersion = version;
+          latestVersionId = stat.id ?? '';
+          tenantId = stat.definition?.tenantId ?? null;
+        }
+        if (stat.definition?.suspended) {
+          anySuspended = true;
+        }
+      }
+
+      // Aggregate incidents and instances across all versions
+      let totalIncidents = 0;
+      let totalInstances = 0;
+
+      for (const stat of versionStats) {
+        totalIncidents += (stat.incidents ?? []).reduce((sum, inc) => sum + (inc.incidentCount ?? 0), 0);
+        totalInstances += stat.instances ?? 0;
+      }
 
       // Calculate state: 0 = healthy, 1 = suspended, 2 = incidents
       let state = 0;
       if (totalIncidents > 0) {
         state = 2;
-      } else if (suspended) {
+      } else if (anySuspended) {
         state = 1;
       }
 
       return {
-        id: fav.id,
+        latestVersionId,
         key: fav.key,
         name: fav.name,
-        version: fav.version,
-        tenantId: definition?.tenantId ?? null,
+        latestVersion,
+        tenantId,
         incidents: totalIncidents,
-        instances: stats?.instances ?? 0,
-        suspended,
+        instances: totalInstances,
+        suspended: anySuspended,
         state,
       };
     });
   }, [favourites, statistics]);
 
   // Handler for removing favourites
-  const handleRemoveFavourite = (definitionId: string): void => {
-    removeFavourite(definitionId);
+  const handleRemoveFavourite = (definitionKey: string): void => {
+    removeFavourite(definitionKey);
     loadData();
   };
 
@@ -282,12 +314,26 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
           accessor: 'state',
           headerClassName: 'state',
           className: 'state',
+          disableSortBy: true,
           Cell: ({ row }: CellProps<ProcessDefinitionRow, number>) => {
             const { incidents } = row.original;
             if (incidents > 0) {
-              return <div className="circle circle-red">{/* State circle for incidents */}</div>;
+              return (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <span
+                    className="glyphicon glyphicon-remove-circle"
+                    style={{ color: '#d9534f', fontSize: '20px' }}
+                    aria-label="Has incidents"
+                    title={`${incidents} incident${incidents !== 1 ? 's' : ''}`}
+                  />
+                </div>
+              );
             }
-            return <div className="circle circle-green">{/* State circle for healthy */}</div>;
+            return (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div className="circle circle-green">{/* State circle for healthy */}</div>
+              </div>
+            );
           },
         },
         {
@@ -311,7 +357,9 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
           className: 'key',
           Cell: ({ value, row }: CellProps<ProcessDefinitionRow, string>) => (
             <Clippy value={value}>
-              <a href={`#/process-definition/${row.original.id}/runtime`}>{value}</a>
+              <a href={`#/process-definition/${row.original.latestVersionId}/runtime`}>
+                {value} <span style={{ color: '#999', fontSize: '0.9em' }}>(v{row.original.latestVersion})</span>
+              </a>
             </Clippy>
           ),
         },
@@ -330,7 +378,9 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
             <button
               type="button"
               className="btn btn-default btn-sm"
-              onClick={() => handleRemoveFavourite(row.original.id)}
+              onClick={() => {
+                handleRemoveFavourite(row.original.key);
+              }}
               aria-label="Remove from favourites"
               title="Remove from favourites"
               style={{
@@ -348,6 +398,11 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
   );
 
   const title = `${favourites.length} favourite process definition${favourites.length !== 1 ? 's' : ''}`;
+
+  // Hide panel completely when no favourites
+  if (!loading && favourites.length === 0) {
+    return null;
+  }
 
   return (
     <DashboardSection

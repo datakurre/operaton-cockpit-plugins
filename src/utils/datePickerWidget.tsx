@@ -26,7 +26,18 @@ function formatDate(date: Date): string {
  * Date picker widget component that properly manages hooks
  */
 const DatePickerWidgetComponent: React.FC<CustomWidgetProps> = ({ onConfirm, onCancel, initialValue }) => {
-  const initial = initialValue instanceof Date ? initialValue : initialValue ? new Date(String(initialValue)) : null;
+  let initial: Date | null = null;
+  if (initialValue instanceof Date) {
+    initial = initialValue;
+  } else if (initialValue !== null && initialValue !== undefined && initialValue !== '') {
+    // Only convert primitives (string/number) to avoid stringifying objects
+    const valueType = typeof initialValue;
+    if (valueType === 'string') {
+      initial = new Date(initialValue as string);
+    } else if (valueType === 'number') {
+      initial = new Date(initialValue as number);
+    }
+  }
   const [selectedDate, setSelectedDate] = useState<Date | null>(initial);
 
   const handleDateChange = (date: Date | null): void => {
@@ -41,12 +52,7 @@ const DatePickerWidgetComponent: React.FC<CustomWidgetProps> = ({ onConfirm, onC
 
   return (
     <div className="date-picker-widget">
-      <DatePicker
-        selected={selectedDate}
-        onChange={handleDateChange}
-        inline
-        todayButton="Today"
-      />
+      <DatePicker selected={selectedDate} onChange={handleDateChange} inline todayButton="Today" />
 
       {selectedDate && (
         <div className="date-picker-widget__summary">

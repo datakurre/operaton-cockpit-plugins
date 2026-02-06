@@ -41,16 +41,12 @@ describe('Snapshot Tests', () => {
     });
 
     it('WarningBox renders correctly', () => {
-      const { container } = render(
-        <WarningBox>This is a warning about process modification</WarningBox>
-      );
+      const { container } = render(<WarningBox>This is a warning about process modification</WarningBox>);
       expect(container).toMatchSnapshot();
     });
 
     it('WarningBox with custom title renders correctly', () => {
-      const { container } = render(
-        <WarningBox title="Caution">Be careful with this operation</WarningBox>
-      );
+      const { container } = render(<WarningBox title="Caution">Be careful with this operation</WarningBox>);
       expect(container).toMatchSnapshot();
     });
   });
@@ -68,10 +64,18 @@ describe('Snapshot Tests', () => {
     it('FormButton all variants render correctly', () => {
       const { container } = render(
         <div>
-          <FormButton variant="primary" onClick={() => {}}>Primary</FormButton>
-          <FormButton variant="secondary" onClick={() => {}}>Secondary</FormButton>
-          <FormButton variant="danger" onClick={() => {}}>Danger</FormButton>
-          <FormButton variant="success" onClick={() => {}}>Success</FormButton>
+          <FormButton variant="primary" onClick={() => {}}>
+            Primary
+          </FormButton>
+          <FormButton variant="secondary" onClick={() => {}}>
+            Secondary
+          </FormButton>
+          <FormButton variant="danger" onClick={() => {}}>
+            Danger
+          </FormButton>
+          <FormButton variant="success" onClick={() => {}}>
+            Success
+          </FormButton>
         </div>
       );
       expect(container).toMatchSnapshot();
@@ -131,23 +135,17 @@ describe('Snapshot Tests', () => {
     });
 
     it('Pagination renders correctly', () => {
-      const { container } = render(
-        <Pagination currentPage={1} total={100} perPage={10} onPage={() => {}} />
-      );
+      const { container } = render(<Pagination currentPage={1} total={100} perPage={10} onPage={() => {}} />);
       expect(container).toMatchSnapshot();
     });
 
     it('Pagination middle page renders correctly', () => {
-      const { container } = render(
-        <Pagination currentPage={5} total={100} perPage={10} onPage={() => {}} />
-      );
+      const { container } = render(<Pagination currentPage={5} total={100} perPage={10} onPage={() => {}} />);
       expect(container).toMatchSnapshot();
     });
 
     it('Pagination last page renders correctly', () => {
-      const { container } = render(
-        <Pagination currentPage={10} total={100} perPage={10} onPage={() => {}} />
-      );
+      const { container } = render(<Pagination currentPage={10} total={100} perPage={10} onPage={() => {}} />);
       expect(container).toMatchSnapshot();
     });
   });
@@ -182,9 +180,7 @@ describe('Snapshot Tests', () => {
 
   describe('Table Components', () => {
     it('AuditLogTable empty state renders correctly', () => {
-      const { container } = render(
-        <AuditLogTable activities={[]} decisions={new Map()} />
-      );
+      const { container } = render(<AuditLogTable activities={[]} decisions={new Map()} />);
       expect(container).toMatchSnapshot();
     });
 
@@ -224,9 +220,7 @@ describe('Snapshot Tests', () => {
         },
       ];
 
-      const { container } = render(
-        <AuditLogTable activities={activities} decisions={new Map()} />
-      );
+      const { container } = render(<AuditLogTable activities={activities} decisions={new Map()} />);
       expect(container).toMatchSnapshot();
     });
   });
@@ -250,9 +244,7 @@ describe('Snapshot Tests', () => {
         resource: 'order-process.bpmn',
       };
 
-      const { container } = render(
-        <ProcessInfoPanel instance={instance} definition={definition} />
-      );
+      const { container } = render(<ProcessInfoPanel instance={instance} definition={definition} />);
       expect(container).toMatchSnapshot();
     });
 
@@ -274,11 +266,8 @@ describe('Snapshot Tests', () => {
         resource: null,
       };
 
-      const { container } = render(
-        <ProcessInfoPanel instance={instance} definition={definition} />
-      );
+      const { container } = render(<ProcessInfoPanel instance={instance} definition={definition} />);
       expect(container).toMatchSnapshot();
     });
   });
-
 });

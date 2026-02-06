@@ -15,6 +15,8 @@ interface DashboardSectionProps {
   hasData?: boolean;
   /** Optional refresh callback - displays a refresh icon button when provided */
   onRefresh?: () => void;
+  /** Optional header actions to display before the refresh button */
+  headerActions?: React.ReactNode;
 }
 
 /**
@@ -36,6 +38,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   emptyMessage,
   hasData = true,
   onRefresh,
+  headerActions,
 }) => {
   const [activeSection, setActiveSection] = useState<boolean>(!initialCollapsed);
 
@@ -47,11 +50,15 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
     <section className={`processes-dashboard ${!activeSection ? 'section-collapsed' : ''}`}>
       <div className="inner">
         <header>
-          <div className="row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px 0 15px' }}>
+          <div
+            className="row"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px 0 15px' }}
+          >
             <h1 className="section-title" style={{ margin: 0, flex: 1 }}>
               {title}
             </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {headerActions}
               {onRefresh && (
                 <button
                   className="btn btn-default btn-sm"

@@ -16,9 +16,7 @@ jest.mock('dmn-js', () => {
   return jest.fn().mockImplementation(() => ({
     attachTo: jest.fn(),
     importXML: jest.fn().mockResolvedValue({ warnings: [] }),
-    getViews: jest.fn().mockReturnValue([
-      { type: 'decisionTable', id: 'decision-1' },
-    ]),
+    getViews: jest.fn().mockReturnValue([{ type: 'decisionTable', id: 'decision-1' }]),
     getActiveView: jest.fn().mockReturnValue({ type: 'decisionTable', id: 'decision-1' }),
     getActiveViewer: jest.fn().mockReturnValue({
       get: jest.fn().mockReturnValue(null),
@@ -105,12 +103,14 @@ describe('decisions-dashboard integration', () => {
   /**
    * Helper to set up mock fetch responses
    */
-  function setupMockFetch(options: {
-    decisions?: typeof mockDecisions;
-    dmnXml?: string;
-    evaluationResult?: Array<Record<string, { value: unknown; type: string }>>;
-    evaluationError?: { ok: boolean; status: number; message: string };
-  } = {}): void {
+  function setupMockFetch(
+    options: {
+      decisions?: typeof mockDecisions;
+      dmnXml?: string;
+      evaluationResult?: Record<string, { value: unknown; type: string }>[];
+      evaluationError?: { ok: boolean; status: number; message: string };
+    } = {}
+  ): void {
     const {
       decisions = mockDecisions,
       dmnXml = sampleDmnXml,
@@ -119,7 +119,7 @@ describe('decisions-dashboard integration', () => {
     } = options;
 
     mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
-      const urlStr = String(url);
+      const urlStr = url;
 
       if (urlStr.includes('/decision-definition') && urlStr.includes('/xml')) {
         return {
@@ -209,16 +209,13 @@ describe('decisions-dashboard integration', () => {
         expect(screen.getByText(/DMN Decision Simulator/i)).toBeInTheDocument();
       });
 
-      // Should have a decision selector
-      const selectElement = container.querySelector('select');
-      expect(selectElement).not.toBeNull();
+      // Should have a decision selector input (autocomplete)
+      const inputElement = container.querySelector('input[type="text"]');
+      expect(inputElement).not.toBeNull();
 
-      if (selectElement) {
-        const options = Array.from(selectElement.querySelectorAll('option'));
-        const optionTexts = options.map(opt => opt.textContent);
-        expect(optionTexts).toContain('Test Decision (v1)');
-        expect(optionTexts).toContain('Credit Check (v1)');
-      }
+      // DecisionSelector uses an autocomplete input, not a select dropdown
+      // Check that it's present and ready for interaction
+      expect(inputElement).toHaveAttribute('placeholder');
     });
 
     it('should show empty state when no decision is selected', async () => {
@@ -242,12 +239,23 @@ describe('decisions-dashboard integration', () => {
         expect(screen.getByText(/DMN Decision Simulator/i)).toBeInTheDocument();
       });
 
-      // Select a decision
-      const selectElement = container.querySelector('select');
-      if (selectElement) {
+      // Select a decision - first focus the input to show dropdown
+      const inputElement = container.querySelector('input[type="text"]');
+      if (inputElement) {
         await act(async () => {
-          fireEvent.change(selectElement, { target: { value: 'decision-1:1:123' } });
+          fireEvent.focus(inputElement);
         });
+
+        await waitFor(() => {
+          expect(container.querySelector('select')).not.toBeNull();
+        });
+
+        const selectElement = container.querySelector('select');
+        if (selectElement) {
+          await act(async () => {
+            fireEvent.change(selectElement, { target: { value: 'decision-1:1:123' } });
+          });
+        }
       }
 
       // Should show loading or DMN content
@@ -262,9 +270,7 @@ describe('decisions-dashboard integration', () => {
   describe('Decision evaluation flow', () => {
     it('should have form structure for decision evaluation', async () => {
       setupMockFetch({
-        evaluationResult: [
-          { result: { value: 'approved', type: 'String' } },
-        ],
+        evaluationResult: [{ result: { value: 'approved', type: 'String' } }],
       });
 
       const container = await renderPlugin();
@@ -273,12 +279,23 @@ describe('decisions-dashboard integration', () => {
         expect(screen.getByText(/DMN Decision Simulator/i)).toBeInTheDocument();
       });
 
-      // Select a decision
-      const selectElement = container.querySelector('select');
-      if (selectElement) {
+      // Select a decision - first focus the input to show dropdown
+      const inputElement = container.querySelector('input[type="text"]');
+      if (inputElement) {
         await act(async () => {
-          fireEvent.change(selectElement, { target: { value: 'decision-1:1:123' } });
+          fireEvent.focus(inputElement);
         });
+
+        await waitFor(() => {
+          expect(container.querySelector('select')).not.toBeNull();
+        });
+
+        const selectElement = container.querySelector('select');
+        if (selectElement) {
+          await act(async () => {
+            fireEvent.change(selectElement, { target: { value: 'decision-1:1:123' } });
+          });
+        }
       }
 
       // Wait for the decision to be loaded
@@ -289,9 +306,7 @@ describe('decisions-dashboard integration', () => {
 
       // The DMN should be loaded - verify the XML fetch was called
       await waitFor(() => {
-        const xmlCalls = mockFetch.mock.calls.filter((call: unknown[]) => 
-          String(call[0]).includes('/xml')
-        );
+        const xmlCalls = mockFetch.mock.calls.filter((call: unknown[]) => String(call[0]).includes('/xml'));
         expect(xmlCalls.length).toBeGreaterThan(0);
       });
     });
@@ -343,12 +358,23 @@ describe('decisions-dashboard integration', () => {
         expect(screen.getByText(/DMN Decision Simulator/i)).toBeInTheDocument();
       });
 
-      // Select a decision
-      const selectElement = container.querySelector('select');
-      if (selectElement) {
+      // Select a decision - first focus the input to show dropdown
+      const inputElement = container.querySelector('input[type="text"]');
+      if (inputElement) {
         await act(async () => {
-          fireEvent.change(selectElement, { target: { value: 'decision-1:1:123' } });
+          fireEvent.focus(inputElement);
         });
+
+        await waitFor(() => {
+          expect(container.querySelector('select')).not.toBeNull();
+        });
+
+        const selectElement = container.querySelector('select');
+        if (selectElement) {
+          await act(async () => {
+            fireEvent.change(selectElement, { target: { value: 'decision-1:1:123' } });
+          });
+        }
       }
 
       // Wait for the decision form to load
@@ -357,9 +383,9 @@ describe('decisions-dashboard integration', () => {
         expect(viewerContainer).not.toBeNull();
       });
 
-      // Look for clear button
-      const clearButton = screen.queryByRole('button', { name: /clear/i });
-      expect(clearButton !== null || true).toBe(true); // Clear button may or may not be present based on state
+      // Look for clear button in the decision selector
+      const clearButton = container.querySelector('.decision-selector__clear');
+      expect(clearButton).not.toBeNull();
     });
   });
 });

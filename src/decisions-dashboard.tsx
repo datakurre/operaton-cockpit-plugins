@@ -126,7 +126,7 @@ function highlightMatchedRules(viewerRef: React.RefObject<DmnJsViewer | null>, r
       const firstRuleId = ruleIds[0];
       const otherRuleIds = ruleIds.slice(1);
 
-      const firstRowSelector = `[data-row-id="${firstRuleId}"]`;
+      const firstRowSelector = firstRuleId ? `[data-row-id="${firstRuleId}"]` : '';
       const otherRowSelectors = otherRuleIds.map(id => `[data-row-id="${id}"]`).join(',');
 
       const cssRules = `
@@ -344,7 +344,7 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
       if (historyInstance?.outputs && historyInstance.outputs.length > 0) {
         // Extract unique rule IDs from outputs (handle COLLECT policies with multiple outputs per rule)
         const ruleIds = Array.from(
-          new Set(historyInstance.outputs.map(output => output.ruleId).filter((id): id is string => id != null))
+          new Set(historyInstance.outputs.map(output => output.ruleId).filter((id): id is string => id !== null))
         );
         console.log('Matched rule IDs from history:', ruleIds);
 

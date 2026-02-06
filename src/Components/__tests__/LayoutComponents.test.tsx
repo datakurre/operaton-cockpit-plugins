@@ -38,10 +38,10 @@ describe('BreadcrumbsPanel', () => {
     it('should render process definition label correctly', () => {
       render(<BreadcrumbsPanel {...defaultProps} />);
 
-      // The process definition is the last item, so it's rendered as a span, not a link
+      // The process definition is rendered as a link to the process definition
       const processText = screen.getByText('My Process');
       expect(processText).toBeInTheDocument();
-      expect(processText.tagName).toBe('SPAN');
+      expect(processText.tagName).toBe('A');
     });
 
     it('should display process instance ID', () => {
@@ -66,10 +66,10 @@ describe('BreadcrumbsPanel', () => {
         />
       );
 
-      // The process definition is the last item, so it's rendered as a span, not a link
+      // The process definition is now rendered as a link
       const processText = screen.getByText('fallback-def-id');
       expect(processText).toBeInTheDocument();
-      expect(processText.tagName).toBe('SPAN');
+      expect(processText.tagName).toBe('A');
     });
   });
 
