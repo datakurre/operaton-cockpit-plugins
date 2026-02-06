@@ -304,10 +304,31 @@ export const handlers = [
   http.get(`${ENGINE_API}/user`, ({ request }) => {
     const url = new URL(request.url);
     const idLike = url.searchParams.get('idLike');
+    const firstNameLike = url.searchParams.get('firstNameLike');
+    const lastNameLike = url.searchParams.get('lastNameLike');
+    const emailLike = url.searchParams.get('emailLike');
 
     if (idLike) {
       const pattern = idLike.replace(/%/g, '').toLowerCase();
       const filtered = mockUsers.filter(u => u.id.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    if (firstNameLike) {
+      const pattern = firstNameLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockUsers.filter(u => u.firstName?.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    if (lastNameLike) {
+      const pattern = lastNameLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockUsers.filter(u => u.lastName?.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    if (emailLike) {
+      const pattern = emailLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockUsers.filter(u => u.email?.toLowerCase().includes(pattern));
       return HttpResponse.json(filtered);
     }
 
@@ -318,10 +339,17 @@ export const handlers = [
   http.get(`${ENGINE_API}/group`, ({ request }) => {
     const url = new URL(request.url);
     const idLike = url.searchParams.get('idLike');
+    const nameLike = url.searchParams.get('nameLike');
 
     if (idLike) {
       const pattern = idLike.replace(/%/g, '').toLowerCase();
       const filtered = mockGroups.filter(g => g.id.toLowerCase().includes(pattern));
+      return HttpResponse.json(filtered);
+    }
+
+    if (nameLike) {
+      const pattern = nameLike.replace(/%/g, '').toLowerCase();
+      const filtered = mockGroups.filter(g => g.name?.toLowerCase().includes(pattern));
       return HttpResponse.json(filtered);
     }
 

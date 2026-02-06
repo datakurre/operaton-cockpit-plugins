@@ -594,14 +594,20 @@ describe('parseProcessInstanceExpressions', () => {
     expect(result.processDefinitionId).toBe('invoice-process:1:def-123');
   });
 
-  it('should parse activityIdIn expression', () => {
+  it('should treat unknown field as freeform variable (e.g., activityIdIn)', () => {
+    // activityIdIn is not a valid historic process instance field,
+    // so it should be treated as a variable name
     const expressions: LegacyExpression[] = [
       { category: 'activityIdIn', operator: '==', value: 'activity1,activity2' },
     ];
 
     const result = parseProcessInstanceExpressions(expressions);
 
-    expect(result.activityIdIn).toBe('activity1,activity2');
+    // Should be treated as a variable, not a known field
+    expect(result.activityIdIn).toBeUndefined();
+    expect(result.variables).toEqual([
+      { name: 'activityIdIn', operator: 'eq', value: 'activity1,activity2' },
+    ]);
   });
 
   it('should parse withJobsRetrying boolean expression', () => {
@@ -756,6 +762,83 @@ describe('parseProcessInstanceExpressions', () => {
       { name: 'var1', operator: 'eq', value: 'value1' },
       { name: 'var2', operator: 'like', value: 'value2' },
     ]);
+  });
+
+  // Freeform variable field tests
+  it('should parse freeform variable field with equals operator', () => {
+    const expressions: LegacyExpression[] = [{ category: 'orderId', operator: '==', value: '12345' }];
+
+    const result = parseProcessInstanceExpressions(expressions);
+
+    expect(result.variables).toEqual([{ name: 'orderId', operator: 'eq', value: '12345' }]);
+  });
+
+  it('should parse freeform variable field with like operator', () => {
+    const expressions: LegacyExpression[] = [{ category: 'customerName', operator: 'like', value: 'John' }];
+
+    const result = parseProcessInstanceExpressions(expressions);
+
+    expect(result.variables).toEqual([{ name: 'customerName', operator: 'like', value: 'John' }]);
+  });
+
+  it('should parse freeform variable field with ilike operator and set case insensitive flags', () => {
+    const expressions: LegacyExpression[] = [{ category: 'status', operator: 'ilike', value: 'pending' }];
+
+    const result = parseProcessInstanceExpressions(expressions);
+
+    expect(result.variables).toEqual([{ name: 'status', operator: 'like', value: 'pending' }]);
+    expect(result.variableNamesIgnoreCase).toBe(true);
+    expect(result.variableValuesIgnoreCase).toBe(true);
+  });
+
+  it('should parse multiple freeform variable fields', () => {
+    const expressions: LegacyExpression[] = [
+      { category: 'orderId', operator: '==', value: '12345' },
+      { category: 'customerId', operator: '==', value: '67890' },
+      { category: 'status', operator: 'like', value: 'active' },
+    ];
+
+    const result = parseProcessInstanceExpressions(expressions);
+
+    expect(result.variables).toEqual([
+      { name: 'orderId', operator: 'eq', value: '12345' },
+      { name: 'customerId', operator: 'eq', value: '67890' },
+      { name: 'status', operator: 'like', value: 'active' },
+    ]);
+  });
+
+  it('should parse mix of legacy variable syntax and freeform fields', () => {
+    const expressions: LegacyExpression[] = [
+      { category: 'variable', operator: '==', value: 'oldStyle:value1' },
+      { category: 'newStyleVar', operator: '==', value: 'value2' },
+    ];
+
+    const result = parseProcessInstanceExpressions(expressions);
+
+    expect(result.variables).toEqual([
+      { name: 'oldStyle', operator: 'eq', value: 'value1' },
+      { name: 'newStyleVar', operator: 'eq', value: 'value2' },
+    ]);
+  });
+
+  it('should not treat known fields as freeform variables', () => {
+    const expressions: LegacyExpression[] = [
+      { category: 'processInstanceId', operator: '==', value: 'abc-123' },
+      { category: 'customVar', operator: '==', value: 'value' },
+    ];
+
+    const result = parseProcessInstanceExpressions(expressions);
+
+    expect(result.processInstanceId).toBe('abc-123');
+    expect(result.variables).toEqual([{ name: 'customVar', operator: 'eq', value: 'value' }]);
+  });
+
+  it('should parse freeform variable with underscore in name', () => {
+    const expressions: LegacyExpression[] = [{ category: '_my_var_name', operator: '==', value: 'test' }];
+
+    const result = parseProcessInstanceExpressions(expressions);
+
+    expect(result.variables).toEqual([{ name: '_my_var_name', operator: 'eq', value: 'test' }]);
   });
 });
 

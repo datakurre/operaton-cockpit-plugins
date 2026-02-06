@@ -461,7 +461,6 @@ const PROCESS_STRING_FIELDS: Record<string, keyof ProcessInstanceQueryParams> = 
   'state:==': 'state',
   'executedActivityIdIn:==': 'executedActivityIdIn',
   'activeActivityIdIn:==': 'activeActivityIdIn',
-  'activityIdIn:==': 'activityIdIn',
 };
 
 /** Process instance boolean fields */
@@ -561,6 +560,57 @@ const FIELDS_NEEDING_LIKE_WRAP = new Set<string>([
 ]);
 
 /**
+ * Known process instance filter field names.
+ * Used to detect freeform (variable) fields vs predefined fields.
+ */
+const KNOWN_PROCESS_FIELDS = new Set<string>([
+  'started',
+  'startedBefore',
+  'finished',
+  'finishedAfter',
+  'executedActivityAfter',
+  'executedActivityBefore',
+  'executedJobAfter',
+  'executedJobBefore',
+  'processInstanceId',
+  'processInstanceIds',
+  'processInstanceIdNotIn',
+  'key',
+  'processInstanceBusinessKeyIn',
+  'processDefinitionName',
+  'processDefinitionKey',
+  'processDefinitionKeyIn',
+  'processDefinitionKeyNotIn',
+  'processDefinitionId',
+  'rootProcessInstances',
+  'rootProcessInstanceId',
+  'superProcessInstanceId',
+  'subProcessInstanceId',
+  'variable',
+  'version',
+  'finishedOnly',
+  'unfinishedOnly',
+  'active',
+  'suspended',
+  'completed',
+  'externallyTerminated',
+  'internallyTerminated',
+  'withIncidents',
+  'withRootIncidents',
+  'withJobsRetrying',
+  'incidentType',
+  'incidentStatus',
+  'incidentMessage',
+  'incidentIdIn',
+  'executedActivityIdIn',
+  'activeActivityIdIn',
+  'startedBy',
+  'tenantIdIn',
+  'withoutTenantId',
+  'state',
+]);
+
+/**
  * Parse filter expressions for process instance queries.
  * Converts FilterBox expressions to API query parameters for `/history/process-instance`.
  *
@@ -604,6 +654,22 @@ export function parseProcessInstanceExpressions(expressions: LegacyExpression[])
     if (PROCESS_BOOLEAN_FIELDS.has(category) && operator === '==' && value === 'true') {
       const apiFieldName = PROCESS_BOOLEAN_FIELD_MAP[category] ?? category;
       (query as Record<string, boolean>)[apiFieldName] = true;
+      continue;
+    }
+
+    // Freeform fields (variables) - any field not in the known set
+    if (!KNOWN_PROCESS_FIELDS.has(category)) {
+      const opType = operator === 'like' || operator === 'ilike' ? 'like' : 'eq';
+      variables.push({
+        name: category,
+        operator: opType,
+        value,
+      });
+
+      if (operator === 'ilike') {
+        query.variableNamesIgnoreCase = true;
+        query.variableValuesIgnoreCase = true;
+      }
     }
   }
 
