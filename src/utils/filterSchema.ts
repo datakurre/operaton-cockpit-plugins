@@ -712,7 +712,7 @@ export function createDefinitionFilterSchema(
 
   return {
     fields: [
-      createDateField('started', 'Started', [OPERATORS.after]),
+      createDateField('started', 'Started After', [OPERATORS.after]),
       createDateField('startedBefore', 'Started Before', [OPERATORS.before]),
       createDateField('finished', 'Finished', [OPERATORS.before]),
       createDateField('finishedAfter', 'Finished After', [OPERATORS.after]),
@@ -790,9 +790,9 @@ export function createInstanceQuerySchema(
   return {
     fields: [
       // Date filters
-      createDateField('started', 'Started', [OPERATORS.after]),
+      createDateField('started', 'Started After', [OPERATORS.after]),
       createDateField('startedBefore', 'Started Before', [OPERATORS.before]),
-      createDateField('finished', 'Finished', [OPERATORS.before]),
+      createDateField('finished', 'Finished Before', [OPERATORS.before]),
       createDateField('finishedAfter', 'Finished After', [OPERATORS.after]),
       createDateField('executedActivityAfter', 'Executed Activity After', [OPERATORS.after]),
       createDateField('executedActivityBefore', 'Executed Activity Before', [OPERATORS.before]),

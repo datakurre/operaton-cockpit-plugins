@@ -93,6 +93,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingAuth, setEditingAuth] = useState<Authorization | null>(null);
+  const [cloningAuth, setCloningAuth] = useState<Authorization | null>(null);
   const [deletingAuth, setDeletingAuth] = useState<Authorization | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -208,6 +209,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   const handleSaveAuthorization = (): void => {
     setShowCreateModal(false);
     setEditingAuth(null);
+    setCloningAuth(null);
     void fetchAuthorizations();
   };
 
@@ -329,6 +331,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
                   <SortableAuthorizationsTable
                     authorizations={authorizations}
                     onEdit={setEditingAuth}
+                    onClone={setCloningAuth}
                     onDelete={setDeletingAuth}
                   />
 
@@ -349,15 +352,16 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
       </Container>
 
       {/* Create/Edit Modal */}
-      {(showCreateModal || editingAuth) && (
+      {(showCreateModal || editingAuth || cloningAuth) && (
         <AuthorizationFormModal
           api={api}
           resourceType={selectedResourceType}
-          authorization={editingAuth}
+          authorization={editingAuth ?? (cloningAuth ? { ...cloningAuth, id: null } : null)}
           onSave={handleSaveAuthorization}
           onCancel={() => {
             setShowCreateModal(false);
             setEditingAuth(null);
+            setCloningAuth(null);
           }}
         />
       )}

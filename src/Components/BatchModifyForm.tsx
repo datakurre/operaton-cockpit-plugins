@@ -305,14 +305,12 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
         className="modify-form"
       >
         <div className="modify-form__header">
-          <h4>Batch Process Modification</h4>
           <p className="modify-form__description">
             Apply modification instructions to multiple process instances. Use dry-run mode to preview affected
             instances before executing.
           </p>
         </div>
 
-        <h4>Instance Selection</h4>
         <div className="modify-form__section">
           <div className="modify-form__field">
             <label htmlFor="instanceSelectionMode">Select Instances By</label>
@@ -398,8 +396,6 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
             </div>
           )}
         </div>
-
-        <h4>Modification Instructions</h4>
 
         {fields.map((field, index) => (
           <InstructionCard

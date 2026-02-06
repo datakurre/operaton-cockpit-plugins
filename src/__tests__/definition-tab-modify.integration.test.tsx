@@ -166,7 +166,7 @@ describe('definition-tab-modify integration', () => {
       await renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByText('Instance Selection')).toBeInTheDocument();
+        expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
       });
     });
   });
@@ -178,7 +178,7 @@ describe('definition-tab-modify integration', () => {
       const container = await renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByText('Instance Selection')).toBeInTheDocument();
+        expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
       });
 
       // Should have instruction type selector
@@ -195,7 +195,7 @@ describe('definition-tab-modify integration', () => {
       const container = await renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByText('Instance Selection')).toBeInTheDocument();
+        expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
       });
 
       // Should have selection mode dropdown
@@ -348,7 +348,7 @@ describe('definition-tab-modify integration', () => {
       });
 
       // Initially on Batch Modify
-      expect(screen.getByText('Instance Selection')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
 
       // Switch to Message
       await act(async () => {
@@ -374,7 +374,7 @@ describe('definition-tab-modify integration', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Instance Selection')).toBeInTheDocument();
+        expect(screen.getByLabelText(/Select Instances By/i)).toBeInTheDocument();
       });
     });
   });
