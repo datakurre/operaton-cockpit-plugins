@@ -38,7 +38,18 @@ import Pagination from './Components/Pagination';
 import SortableAuthorizationsTable from './Components/SortableAuthorizationsTable';
 import type { API } from './types';
 import { get, ApiError } from './utils/api';
-import { Authorization, RESOURCE_TYPES, getResourceTypeName } from './utils/authorization';
+import {
+  Authorization,
+  RESOURCE_TYPES,
+  getResourceTypeName,
+  getResourceValidationEndpoint,
+  ResourceValidationMap,
+  ResolvedIdMap,
+  deriveCockpitAppUrl,
+  deriveTasklistAppUrl,
+  isProcessDefinitionKey,
+  clearProcessDefinitionKeyCache,
+} from './utils/authorization';
 import { ADMIN_PANEL_WIDTH_PX, DEFAULT_PAGE_SIZE } from './utils/constants';
 import { parseAuthorizationExpressions } from './utils/filterExpressionParsers';
 import { createAuthorizationFilterSchema, type LegacyExpression } from './utils/filterSchema';
@@ -53,9 +64,14 @@ const PAGE_SIZE_25 = 25;
 const PAGE_SIZE_50 = 50;
 const PAGE_SIZE_100 = 100;
 const PAGE_SIZE_200 = 200;
+const PAGE_SIZE_500 = 500;
+const PAGE_SIZE_1000 = 1000;
 
 /** Page size options */
-const PAGE_SIZE_OPTIONS = [PAGE_SIZE_25, PAGE_SIZE_50, PAGE_SIZE_100, PAGE_SIZE_200];
+const PAGE_SIZE_OPTIONS = [PAGE_SIZE_25, PAGE_SIZE_50, PAGE_SIZE_100, PAGE_SIZE_200, PAGE_SIZE_500, PAGE_SIZE_1000];
+
+/** Special value for "All authorizations" view (shows all resource types) */
+const ALL_RESOURCE_TYPES = -1;
 
 // =============================================================================
 // Main Component
@@ -71,8 +87,8 @@ interface AuthorizationsViewProps {
  */
 
 const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
-  // Default to Application (0) as in Angular app
-  const [selectedResourceType, setSelectedResourceType] = useState<number>(0);
+  // Default to "All" view to show all authorizations
+  const [selectedResourceType, setSelectedResourceType] = useState<number>(ALL_RESOURCE_TYPES);
   const [authorizations, setAuthorizations] = useState<Authorization[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -84,10 +100,14 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   const [filterKey, setFilterKey] = useState(0);
 
   // Create filter schema with API for autocomplete (memoized to avoid recreation)
-  // Exclude ID and Resource Type fields as they're implicit in this context
+  // For "All" view, include ID and Resource Type fields; otherwise exclude them
   const authorizationFilterSchema = useMemo(
-    () => createAuthorizationFilterSchema(api, { includeId: false, includeResourceType: false }),
-    [api]
+    () =>
+      createAuthorizationFilterSchema(api, {
+        includeId: selectedResourceType === ALL_RESOURCE_TYPES,
+        includeResourceType: selectedResourceType === ALL_RESOURCE_TYPES,
+      }),
+    [api, selectedResourceType]
   );
 
   // Modal states
@@ -96,6 +116,22 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   const [cloningAuth, setCloningAuth] = useState<Authorization | null>(null);
   const [deletingAuth, setDeletingAuth] = useState<Authorization | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Resource validation states
+  const [validationState, setValidationState] = useState<ResourceValidationMap>({});
+  const [resolvedIds, setResolvedIds] = useState<ResolvedIdMap>({});
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationProgress, setValidationProgress] = useState<{ current: number; total: number } | null>(null);
+
+  // Calculate app base URLs for cross-app navigation
+  const cockpitBaseUrl = useMemo(
+    () => deriveCockpitAppUrl(api.adminApi, api.engine) ?? undefined,
+    [api.adminApi, api.engine]
+  );
+  const tasklistBaseUrl = useMemo(
+    () => deriveTasklistAppUrl(api.adminApi, api.engine) ?? undefined,
+    [api.adminApi, api.engine]
+  );
 
   /**
    * Fetch authorizations from the API
@@ -107,15 +143,19 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
       const params: Record<string, string> = {
         maxResults: String(perPage),
         firstResult: String(firstResult),
-        resourceType: String(selectedResourceType),
         ...filterParams,
       };
 
+      // Only add resourceType filter if not viewing all
+      if (selectedResourceType !== ALL_RESOURCE_TYPES) {
+        params['resourceType'] = String(selectedResourceType);
+      }
+
       // Get count
-      const countParams: Record<string, string> = {
-        resourceType: String(selectedResourceType),
-        ...filterParams,
-      };
+      const countParams: Record<string, string> = { ...filterParams };
+      if (selectedResourceType !== ALL_RESOURCE_TYPES) {
+        countParams['resourceType'] = String(selectedResourceType);
+      }
       const countResult = (await get(api, '/authorization/count', countParams)) as { count: number } | null;
       setTotalCount(countResult?.count ?? 0);
 
@@ -146,6 +186,10 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
     setCurrentPage(1);
     setFirstResult(0);
     setFilterParams({});
+    // Clear validation and resolved IDs state when changing resource type
+    setValidationState({});
+    setResolvedIds({});
+    clearProcessDefinitionKeyCache();
     // Increment filterKey to force FilterBox remount with new options
     setFilterKey(prev => prev + 1);
   };
@@ -156,6 +200,9 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   const handlePageChange = (newFirstResult: number, page: number): void => {
     setCurrentPage(page);
     setFirstResult(newFirstResult);
+    // Clear validation and resolved IDs state when changing page
+    setValidationState({});
+    setResolvedIds({});
   };
 
   /**
@@ -165,6 +212,9 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
     setPerPage(newSize);
     setCurrentPage(1);
     setFirstResult(0);
+    // Clear validation and resolved IDs state when changing page size
+    setValidationState({});
+    setResolvedIds({});
   };
 
   /**
@@ -176,7 +226,80 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
     setFilterParams(params);
     setCurrentPage(1);
     setFirstResult(0);
+    // Clear validation and resolved IDs state when changing filter
+    setValidationState({});
+    setResolvedIds({});
   }, []);
+
+  /** Process definition response from API */
+  interface ProcessDefinitionResponse {
+    id?: string;
+  }
+
+  /**
+   * Check if resources referenced by authorizations exist in the system.
+   * Validates only the resources currently visible in the table.
+   * Also resolves process definition keys to their latest version IDs.
+   */
+  const handleCheckResources = useCallback(async (): Promise<void> => {
+    if (authorizations.length === 0) {
+      return;
+    }
+
+    setIsValidating(true);
+    setValidationState({});
+    setResolvedIds({});
+
+    // Get unique resource IDs that can be validated (not wildcards)
+    const resourcesToCheck = authorizations
+      .filter(auth => auth.resourceId && auth.resourceId !== '*')
+      .map(auth => ({
+        resourceId: auth.resourceId as string,
+        resourceType: auth.resourceType,
+        endpoint: getResourceValidationEndpoint(auth.resourceType, auth.resourceId),
+      }))
+      .filter(item => item.endpoint !== null);
+
+    // Deduplicate by resource ID
+    const uniqueResources = Array.from(new Map(resourcesToCheck.map(item => [item.resourceId, item])).values());
+
+    const total = uniqueResources.length;
+    setValidationProgress({ current: 0, total });
+
+    const newValidationState: ResourceValidationMap = {};
+    const newResolvedIds: ResolvedIdMap = {};
+    let current = 0;
+
+    // Check each resource
+    for (const resource of uniqueResources) {
+      try {
+        const result = await get(api, resource.endpoint as string);
+        newValidationState[resource.resourceId] = 'valid';
+
+        // For process definitions with keys, extract the resolved ID
+        if (resource.resourceType === 6 && isProcessDefinitionKey(resource.resourceId)) {
+          const pdResult = result as ProcessDefinitionResponse;
+          if (pdResult.id) {
+            newResolvedIds[resource.resourceId] = pdResult.id;
+          }
+        }
+      } catch (err) {
+        // 404 means resource doesn't exist, other errors are unknown
+        if (err instanceof ApiError && err.status === 404) {
+          newValidationState[resource.resourceId] = 'invalid';
+        } else {
+          newValidationState[resource.resourceId] = 'unknown';
+        }
+      }
+      current++;
+      setValidationProgress({ current, total });
+    }
+
+    setValidationState(newValidationState);
+    setResolvedIds(newResolvedIds);
+    setIsValidating(false);
+    setValidationProgress(null);
+  }, [api, authorizations]);
 
   /**
    * Handle delete authorization
@@ -213,7 +336,8 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
     void fetchAuthorizations();
   };
 
-  const currentResourceName = getResourceTypeName(selectedResourceType);
+  const currentResourceName =
+    selectedResourceType === ALL_RESOURCE_TYPES ? 'All' : getResourceTypeName(selectedResourceType);
   const settings = loadSettings();
 
   // Build breadcrumb items for admin authorizations view
@@ -239,6 +363,18 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
           <Allotment.Pane preferredSize={settings.leftPaneSize ?? ADMIN_PANEL_WIDTH_PX} minSize={150} maxSize={350}>
             <div className="resource-type-list">
               <ul>
+                {/* "All Authorizations" view at the top */}
+                <li className={selectedResourceType === ALL_RESOURCE_TYPES ? 'active' : ''}>
+                  <a
+                    href="#/authorization/?resource=all"
+                    onClick={e => {
+                      e.preventDefault();
+                      handleSelectResourceType(ALL_RESOURCE_TYPES);
+                    }}
+                  >
+                    <strong>All Authorizations</strong>
+                  </a>
+                </li>
                 {RESOURCE_TYPES.map(rt => (
                   <li key={rt.id} className={selectedResourceType === rt.id ? 'active' : ''}>
                     <a
@@ -268,20 +404,35 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
 
               {/* Header with title and create button */}
               <header className="row">
-                <div className="col-sm-8">
+                <div className="col-sm-6">
                   <h3>{currentResourceName} Authorizations</h3>
                 </div>
-                <div className="col-sm-4 text-right">
+                <div className="col-sm-6 text-right">
                   <button
                     className="btn btn-default"
-                    onClick={() => {
-                      setShowCreateModal(true);
-                    }}
-                    disabled={isLoading}
+                    onClick={() => void handleCheckResources()}
+                    disabled={isLoading || isValidating || authorizations.length === 0}
+                    title="Check if referenced resources exist in the system"
+                    style={{ marginRight: '8px' }}
                   >
-                    Create new authorization
-                    <span className="glyphicon glyphicon-plus-sign create-btn-icon" />
+                    {isValidating && validationProgress
+                      ? `Checking ${validationProgress.current}/${validationProgress.total}...`
+                      : 'Check resources'}
+                    <span className="glyphicon glyphicon-ok-circle create-btn-icon" />
                   </button>
+                  {/* Hide create button in "All" view since it's read-only */}
+                  {selectedResourceType !== ALL_RESOURCE_TYPES && (
+                    <button
+                      className="btn btn-default"
+                      onClick={() => {
+                        setShowCreateModal(true);
+                      }}
+                      disabled={isLoading}
+                    >
+                      Create new authorization
+                      <span className="glyphicon glyphicon-plus-sign create-btn-icon" />
+                    </button>
+                  )}
                 </div>
               </header>
 
@@ -333,6 +484,12 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
                     onEdit={setEditingAuth}
                     onClone={setCloningAuth}
                     onDelete={setDeletingAuth}
+                    validationState={validationState}
+                    resolvedIds={resolvedIds}
+                    cockpitBaseUrl={cockpitBaseUrl}
+                    tasklistBaseUrl={tasklistBaseUrl}
+                    showActions={selectedResourceType !== ALL_RESOURCE_TYPES}
+                    showResourceType={selectedResourceType === ALL_RESOURCE_TYPES}
                   />
 
                   {/* Pagination */}

@@ -81,7 +81,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
     return groupedDecisions.filter(g => g.name.toLowerCase().includes(term) || g.key.toLowerCase().includes(term));
   }, [groupedDecisions, searchTerm]);
 
-  const showDropdown = isFocused && !selectedDecision && filteredGroups.length > 0;
+  const showDropdown = isFocused && filteredGroups.length > 0;
 
   return (
     <div className="decision-selector">
@@ -90,7 +90,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
           id="decision-search"
           type="text"
           className="decision-selector__search"
-          placeholder="Select decision..."
+          placeholder={selectedDecision ? 'Search to change decision...' : 'Select decision...'}
           value={searchTerm}
           onChange={e => {
             setSearchTerm(e.target.value);
@@ -110,7 +110,8 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
         {showDropdown && (
           <select
             className="decision-selector__dropdown"
-            size={Math.min(MAX_DROPDOWN_SIZE, filteredGroups.length)}
+            size={Math.min(MAX_DROPDOWN_SIZE, filteredGroups.length + 1)}
+            value=""
             onChange={e => {
               const value = e.target.value;
               if (value) {
@@ -121,6 +122,9 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
             }}
             disabled={disabled}
           >
+            <option value="" disabled>
+              -- Click to select --
+            </option>
             {filteredGroups.map(group => (
               <option key={group.versions[0]?.id ?? group.key} value={group.versions[0]?.id ?? ''}>
                 {group.name} (v{group.versions[0]?.version})

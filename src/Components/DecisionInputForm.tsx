@@ -12,6 +12,7 @@ export interface DecisionInputField {
   name: string;
   label: string;
   typeRef: string;
+  allowedValues?: string[];
 }
 
 export interface DecisionInputFormProps {
@@ -49,13 +50,12 @@ const DecisionInputForm: React.FC<DecisionInputFormProps> = ({
       {inputs.length === 0 ? (
         <p className="dmn-inputs-form__empty">No inputs defined for this decision.</p>
       ) : (
-        inputs.map(input => (
-          <div key={input.id} className="dmn-inputs-form__field">
-            <label htmlFor={`input-${input.id}`}>
-              {input.label || input.name}
-              <span className="dmn-inputs-form__type-hint">({input.typeRef || 'string'})</span>
-            </label>
-            {input.typeRef.toLowerCase() === 'boolean' ? (
+        inputs.map(input => {
+          // Determine which input type to render
+          let inputElement;
+
+          if (input.typeRef.toLowerCase() === 'boolean') {
+            inputElement = (
               <div className="dmn-inputs-form__checkbox-wrapper">
                 <input
                   type="checkbox"
@@ -68,13 +68,33 @@ const DecisionInputForm: React.FC<DecisionInputFormProps> = ({
                 />
                 <label htmlFor={`input-${input.id}`}>{values[input.name] === 'true' ? 'true' : 'false'}</label>
               </div>
-            ) : (
+            );
+          } else if (input.allowedValues && input.allowedValues.length > 0) {
+            inputElement = (
+              <select
+                id={`input-${input.id}`}
+                className="dmn-inputs-form__input"
+                value={values[input.name] ?? ''}
+                onChange={e => {
+                  onChange(input.name, e.target.value);
+                }}
+                disabled={isLoading}
+              >
+                <option value="">-- Select value --</option>
+                {input.allowedValues.map(val => (
+                  <option key={val} value={val}>
+                    {val}
+                  </option>
+                ))}
+              </select>
+            );
+          } else {
+            const typeRefLower = input.typeRef.toLowerCase();
+            const inputType = typeRefLower === 'integer' || typeRefLower === 'double' ? 'number' : 'text';
+
+            inputElement = (
               <input
-                type={
-                  input.typeRef.toLowerCase() === 'integer' || input.typeRef.toLowerCase() === 'double'
-                    ? 'number'
-                    : 'text'
-                }
+                type={inputType}
                 id={`input-${input.id}`}
                 className="dmn-inputs-form__input"
                 value={values[input.name] ?? ''}
@@ -85,9 +105,19 @@ const DecisionInputForm: React.FC<DecisionInputFormProps> = ({
                 disabled={isLoading}
                 step={input.typeRef.toLowerCase() === 'double' ? 'any' : undefined}
               />
-            )}
-          </div>
-        ))
+            );
+          }
+
+          return (
+            <div key={input.id} className="dmn-inputs-form__field">
+              <label htmlFor={`input-${input.id}`}>
+                {input.label || input.name}
+                <span className="dmn-inputs-form__type-hint">({input.typeRef || 'string'})</span>
+              </label>
+              {inputElement}
+            </div>
+          );
+        })
       )}
       <div className="dmn-inputs-form__actions">
         <FormButton type="submit" variant="primary" disabled={isLoading || inputs.length === 0} minWidth={100}>

@@ -3,7 +3,8 @@ let
   shell =
     { config, ... }:
     {
-      package.operaton.port = 8080;
+      services.operaton.port = 8080;
+      services.operaton.postgresql.enable = true;
 
       services.caddy = {
         enable = true;
