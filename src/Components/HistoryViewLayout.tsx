@@ -137,7 +137,7 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
   const toggleAllPanels = (): void => {
     const containerHeight = getContainerHeight();
     const bothCollapsed = infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD;
-    
+
     if (bothCollapsed) {
       // Expand both: info panel to 320px, tabs to 50vh
       const expandedTabsHeight = containerHeight * 0.5;
@@ -173,141 +173,141 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
             });
           }}
         >
-        <Allotment.Pane preferredSize={settings.leftPaneSize ?? '33%'} minSize={MIN_PANE_SIZE}>
-          <div style={{ height: '100%', position: 'relative' }}>
-            <ProcessInfoPanel instance={instance} definition={definition} />
-            {/* Chevron to collapse/expand info panel */}
-            <button
-              type="button"
-              onClick={toggleInfoPanel}
-              style={{
-                position: 'absolute',
-                right: 0,
-                top: '10px',
-                background: 'white',
-                border: '1px solid #ccc',
-                borderRight: 'none',
-                borderRadius: '3px 0 0 3px',
-                color: '#333',
-                cursor: 'pointer',
-                padding: '4px 3px',
-                lineHeight: '1',
-                zIndex: 10,
-                boxShadow: '-2px 2px 4px rgba(0,0,0,0.1)',
+          <Allotment.Pane preferredSize={settings.leftPaneSize ?? '33%'} minSize={MIN_PANE_SIZE}>
+            <div style={{ height: '100%', position: 'relative' }}>
+              <ProcessInfoPanel instance={instance} definition={definition} />
+              {/* Chevron to collapse/expand info panel */}
+              <button
+                type="button"
+                onClick={toggleInfoPanel}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: '10px',
+                  background: 'white',
+                  border: '1px solid #ccc',
+                  borderRight: 'none',
+                  borderRadius: '3px 0 0 3px',
+                  color: '#333',
+                  cursor: 'pointer',
+                  padding: '4px 3px',
+                  lineHeight: '1',
+                  zIndex: 10,
+                  boxShadow: '-2px 2px 4px rgba(0,0,0,0.1)',
+                }}
+                title={infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel'}
+                aria-label={infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel'}
+              >
+                {infoPaneSize < INFO_WIDTH_THRESHOLD ? <GoChevronRight /> : <GoChevronLeft />}
+              </button>
+            </div>
+          </Allotment.Pane>
+          <Allotment.Pane>
+            <Allotment
+              ref={verticalRef}
+              vertical
+              onChange={(numbers: number[]) => {
+                const newTopSize = numbers[0] ?? 0;
+                const containerHeight = getContainerHeight();
+                const newTabsSize = containerHeight - newTopSize;
+                setTabsPaneSize(newTabsSize);
+                saveSettings({
+                  ...loadSettings(),
+                  topPaneSize: newTopSize,
+                });
               }}
-              title={infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel'}
-              aria-label={infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel'}
             >
-              {infoPaneSize < INFO_WIDTH_THRESHOLD ? <GoChevronRight /> : <GoChevronLeft />}
-            </button>
-          </div>
-        </Allotment.Pane>
-        <Allotment.Pane>
-          <Allotment
-            ref={verticalRef}
-            vertical
-            onChange={(numbers: number[]) => {
-              const newTopSize = numbers[0] ?? 0;
-              const containerHeight = getContainerHeight();
-              const newTabsSize = containerHeight - newTopSize;
-              setTabsPaneSize(newTabsSize);
-              saveSettings({
-                ...loadSettings(),
-                topPaneSize: newTopSize,
-              });
-            }}
-          >
-            <Allotment.Pane preferredSize={settings.topPaneSize ?? '66%'}>
-              <div style={{ height: '100%', position: 'relative' }}>
-                <BPMNViewer
-                  activities={activities}
-                  diagramXML={diagramXML}
-                  className="ctn-content"
-                  style={{ width: '100%', height: '100%' }}
-                  showRuntimeToggle={instance.state === 'ACTIVE'}
-                />
-                {/* Chevron to collapse/expand tabs panel */}
-                <button
-                  type="button"
-                  onClick={toggleTabsPanel}
-                  style={{
-                    position: 'absolute',
-                    left: '10px',
-                    bottom: 0,
-                    background: 'white',
-                    border: '1px solid #ccc',
-                    borderBottom: 'none',
-                    borderRadius: '3px 3px 0 0',
-                    color: '#333',
-                    cursor: 'pointer',
-                    padding: '3px 4px',
-                    lineHeight: '1',
-                    zIndex: 10,
-                    boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
-                  }}
-                  title={tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel'}
-                  aria-label={tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel'}
-                >
-                  {tabsPaneSize < TABS_HEIGHT_THRESHOLD ? <GoChevronUp /> : <GoChevronDown />}
-                </button>
-                {/* Maximize/minimize BPMN panel button (by toggling side panels) */}
-                <button
-                  type="button"
-                  onClick={toggleAllPanels}
-                  style={{
-                    position: 'absolute',
-                    left: '50px',
-                    bottom: 0,
-                    background: 'white',
-                    border: '1px solid #ccc',
-                    borderBottom: 'none',
-                    borderRadius: '3px 3px 0 0',
-                    color: '#333',
-                    cursor: 'pointer',
-                    padding: '3px 4px',
-                    lineHeight: '1',
-                    zIndex: 10,
-                    boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
-                  }}
-                  title={
-                    infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
-                      ? 'Restore side panels'
-                      : 'Maximize diagram'
-                  }
-                  aria-label={
-                    infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
-                      ? 'Restore side panels'
-                      : 'Maximize diagram'
-                  }
-                >
-                  {infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD ? (
-                    <VscCollapseAll />
-                  ) : (
-                    <VscExpandAll />
-                  )}
-                </button>
-              </div>
-            </Allotment.Pane>
-            <Allotment.Pane minSize={MIN_PANE_SIZE}>
-              <div className="ctn-row ctn-content-bottom ctn-tabbed" style={{ height: '100%', position: 'relative' }}>
-                <Tabs>
-                  <Tab label="Audit Log">
-                    <AuditLogTable activities={activities} decisions={decisionByActivity} />
-                  </Tab>
-                  <Tab label="Variables">
-                    <VariablesTable instance={historicInstance} activities={activityById} variables={variables} />
-                  </Tab>
-                  {instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (
-                    <Tab label="Terminated">
-                      <RestartProcessForm api={api} processDefinitionId={instance.processDefinitionId} />
+              <Allotment.Pane preferredSize={settings.topPaneSize ?? '66%'}>
+                <div style={{ height: '100%', position: 'relative' }}>
+                  <BPMNViewer
+                    activities={activities}
+                    diagramXML={diagramXML}
+                    className="ctn-content"
+                    style={{ width: '100%', height: '100%' }}
+                    showRuntimeToggle={instance.state === 'ACTIVE'}
+                  />
+                  {/* Chevron to collapse/expand tabs panel */}
+                  <button
+                    type="button"
+                    onClick={toggleTabsPanel}
+                    style={{
+                      position: 'absolute',
+                      left: '10px',
+                      bottom: 0,
+                      background: 'white',
+                      border: '1px solid #ccc',
+                      borderBottom: 'none',
+                      borderRadius: '3px 3px 0 0',
+                      color: '#333',
+                      cursor: 'pointer',
+                      padding: '3px 4px',
+                      lineHeight: '1',
+                      zIndex: 10,
+                      boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
+                    }}
+                    title={tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel'}
+                    aria-label={tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel'}
+                  >
+                    {tabsPaneSize < TABS_HEIGHT_THRESHOLD ? <GoChevronUp /> : <GoChevronDown />}
+                  </button>
+                  {/* Maximize/minimize BPMN panel button (by toggling side panels) */}
+                  <button
+                    type="button"
+                    onClick={toggleAllPanels}
+                    style={{
+                      position: 'absolute',
+                      left: '50px',
+                      bottom: 0,
+                      background: 'white',
+                      border: '1px solid #ccc',
+                      borderBottom: 'none',
+                      borderRadius: '3px 3px 0 0',
+                      color: '#333',
+                      cursor: 'pointer',
+                      padding: '3px 4px',
+                      lineHeight: '1',
+                      zIndex: 10,
+                      boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
+                    }}
+                    title={
+                      infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
+                        ? 'Restore side panels'
+                        : 'Maximize diagram'
+                    }
+                    aria-label={
+                      infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
+                        ? 'Restore side panels'
+                        : 'Maximize diagram'
+                    }
+                  >
+                    {infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD ? (
+                      <VscCollapseAll />
+                    ) : (
+                      <VscExpandAll />
+                    )}
+                  </button>
+                </div>
+              </Allotment.Pane>
+              <Allotment.Pane minSize={MIN_PANE_SIZE}>
+                <div className="ctn-row ctn-content-bottom ctn-tabbed" style={{ height: '100%', position: 'relative' }}>
+                  <Tabs>
+                    <Tab label="Audit Log">
+                      <AuditLogTable activities={activities} decisions={decisionByActivity} />
                     </Tab>
-                  )}
-                </Tabs>
-              </div>
-            </Allotment.Pane>
-          </Allotment>
-        </Allotment.Pane>
-      </Allotment>
+                    <Tab label="Variables">
+                      <VariablesTable instance={historicInstance} activities={activityById} variables={variables} />
+                    </Tab>
+                    {instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (
+                      <Tab label="Terminated">
+                        <RestartProcessForm api={api} processDefinitionId={instance.processDefinitionId} />
+                      </Tab>
+                    )}
+                  </Tabs>
+                </div>
+              </Allotment.Pane>
+            </Allotment>
+          </Allotment.Pane>
+        </Allotment>
       </div>
     </Container>
   );
