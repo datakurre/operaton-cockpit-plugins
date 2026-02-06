@@ -8,9 +8,224 @@
 import './react-filter-box.scss';
 import './react-datepicker.scss';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import ReactFilterBox, { Expression } from '@waylay/react-filter-box';
+
+/** Storage key for saved searches */
+const SAVED_SEARCHES_KEY = 'minimal-history-plugin-saved-searches';
+
+/** Interface for a saved search */
+interface SavedSearch {
+  name: string;
+  query: string;
+}
+
+/**
+ * Load saved searches from localStorage
+ */
+function loadSavedSearches(): SavedSearch[] {
+  try {
+    const stored = localStorage.getItem(SAVED_SEARCHES_KEY);
+    if (stored) {
+      return JSON.parse(stored) as SavedSearch[];
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return [];
+}
+
+/**
+ * Save searches to localStorage
+ */
+function saveSavedSearches(searches: SavedSearch[]): void {
+  try {
+    localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(searches));
+  } catch {
+    console.warn('Failed to save searches to localStorage');
+  }
+}
+
+/**
+ * SavedSearchesDropdown component
+ * Provides a dropdown UI for saving and loading filter queries
+ */
+interface SavedSearchesDropdownProps {
+  currentQuery: string;
+  onLoadQuery: (query: string) => void;
+}
+
+const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQuery, onLoadQuery }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
+  const [newSearchName, setNewSearchName] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Load saved searches on mount
+  useEffect(() => {
+    setSavedSearches(loadSavedSearches());
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  const handleSave = () => {
+    if (!newSearchName.trim() || !currentQuery.trim()) return;
+    const newSearches = [...savedSearches.filter(s => s.name !== newSearchName.trim()), { name: newSearchName.trim(), query: currentQuery }];
+    setSavedSearches(newSearches);
+    saveSavedSearches(newSearches);
+    setNewSearchName('');
+    setIsOpen(false);
+  };
+
+  const handleLoad = (search: SavedSearch) => {
+    onLoadQuery(search.query);
+    setIsOpen(false);
+  };
+
+  const handleDelete = (name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSearches = savedSearches.filter(s => s.name !== name);
+    setSavedSearches(newSearches);
+    saveSavedSearches(newSearches);
+  };
+
+  return (
+    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '4px 8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '2px',
+          color: '#555',
+        }}
+        title="Saved searches"
+        aria-label="Saved searches"
+        aria-expanded={isOpen}
+      >
+        {/* Disk icon */}
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M2 2h10l2 2v10H2V2zm1 1v10h10V4.414L11.586 3H3zm1 5h8v5H4V8zm1 1v3h6V9H5z"/>
+        </svg>
+        {/* Chevron down */}
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+          <path d="M2 3l3 4 3-4H2z"/>
+        </svg>
+      </button>
+      {isOpen && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: '100%',
+            zIndex: 1000,
+            background: 'white',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            minWidth: '200px',
+            maxHeight: '300px',
+            overflowY: 'auto',
+          }}
+        >
+          {/* Save section */}
+          <div style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <input
+                type="text"
+                placeholder="Save search as..."
+                value={newSearchName}
+                onChange={(e) => setNewSearchName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                style={{
+                  flex: 1,
+                  padding: '4px 8px',
+                  border: '1px solid #ccc',
+                  borderRadius: '3px',
+                  fontSize: '12px',
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={!newSearchName.trim() || !currentQuery.trim()}
+                style={{
+                  padding: '4px 8px',
+                  border: '1px solid #ccc',
+                  borderRadius: '3px',
+                  background: '#f0f0f0',
+                  cursor: newSearchName.trim() && currentQuery.trim() ? 'pointer' : 'not-allowed',
+                  fontSize: '12px',
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+          {/* Saved searches list */}
+          {savedSearches.length > 0 ? (
+            <div>
+              {savedSearches.map((search) => (
+                <div
+                  key={search.name}
+                  onClick={() => handleLoad(search)}
+                  style={{
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom: '1px solid #f0f0f0',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = '#f5f5f5')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
+                >
+                  <span style={{ fontSize: '13px' }}>{search.name}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDelete(search.name, e)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#999',
+                      cursor: 'pointer',
+                      padding: '2px 4px',
+                      fontSize: '14px',
+                    }}
+                    title="Delete search"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '12px', color: '#999', fontSize: '12px', textAlign: 'center' }}>
+              No saved searches
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 class SimpleReactFilterBox extends ReactFilterBox {
   componentDidMount() {
@@ -100,7 +315,20 @@ const FilterBox = (props: any) => {
   // Compute initial query once and cache it
   const [initialQuery] = useState(() => props.defaultQuery());
   const [query, setQuery] = useState(initialQuery);
+  // Key to force remount when loading a saved query
+  const [filterBoxKey, setFilterBoxKey] = useState(0);
+  const [loadedQuery, setLoadedQuery] = useState<string | null>(null);
   const queryRef = useRef(query);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const filterBoxRef = useRef<any>(null);
+
+  // Handler to load a saved query
+  const handleLoadQuery = useCallback((savedQuery: string) => {
+    setLoadedQuery(savedQuery);
+    setQuery(savedQuery);
+    setFilterBoxKey(prev => prev + 1);
+    props.autoCompleteHandler.setQuery(savedQuery);
+  }, [props.autoCompleteHandler]);
 
   // Initialize autoCompleteHandler with the initial query synchronously.
   // This must happen before the first render to ensure the handler is ready
@@ -119,31 +347,70 @@ const FilterBox = (props: any) => {
     props.autoCompleteHandler.setQuery(query);
   }, [query]);
 
+  // Set up focus listener to show autocomplete immediately
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleFocusIn = (e: FocusEvent) => {
+      // Check if focus is on the CodeMirror input
+      const target = e.target as HTMLElement;
+      if (target.closest('.CodeMirror')) {
+        // Delay to ensure CodeMirror is ready
+        setTimeout(() => {
+          const codeMirror = container.querySelector('.CodeMirror') as any;
+          if (codeMirror?.CodeMirror) {
+            const cm = codeMirror.CodeMirror;
+            // Trigger autocomplete if input is empty or has minimal content
+            if (cm.getValue().trim().length === 0 && cm.showHint) {
+              cm.showHint({ completeSingle: false });
+            }
+          }
+        }, 50);
+      }
+    };
+
+    container.addEventListener('focusin', handleFocusIn);
+    return () => container.removeEventListener('focusin', handleFocusIn);
+  }, []);
+
   // Cast to any to avoid React type conflicts between @waylay/react-filter-box and project React types
   const FilterBoxComponent = SimpleReactFilterBox as any;
 
+  // Determine which query to use for the filter box
+  const effectiveQuery = loadedQuery !== null ? loadedQuery : initialQuery;
+
   return (
-    <div className="form-control">
-      <FilterBoxComponent
-        options={props.options}
-        strictMode
-        query={initialQuery}
-        autoCompleteHandler={props.autoCompleteHandler}
-        customRenderCompletionItem={(
-          self: any,
-          data: any,
-          registerAndGetPickFunc: () => (value: string) => void,
-          cursor: any,
-          parsedQuery: any
-        ) => customRenderCompletionItem(self, data, registerAndGetPickFunc, cursor, parsedQuery, queryRef.current)}
-        onChange={(newQuery: string) => {
-          setQuery(newQuery);
-        }}
-        onParseOk={(expressions: Expression[]) => {
-          props.onParseOk(expressions);
-          (document.activeElement as HTMLElement | null)?.blur();
-        }}
-      />
+    <div className="form-control" ref={containerRef} style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ flex: 1 }}>
+        <FilterBoxComponent
+          key={filterBoxKey}
+          ref={filterBoxRef}
+          options={props.options}
+          strictMode
+          query={effectiveQuery}
+          autoCompleteHandler={props.autoCompleteHandler}
+          customRenderCompletionItem={(
+            self: any,
+            data: any,
+            registerAndGetPickFunc: () => (value: string) => void,
+            cursor: any,
+            parsedQuery: any
+          ) => customRenderCompletionItem(self, data, registerAndGetPickFunc, cursor, parsedQuery, queryRef.current)}
+          onChange={(newQuery: string) => {
+            setQuery(newQuery);
+            // Clear loaded query after user modifies
+            if (loadedQuery !== null) {
+              setLoadedQuery(null);
+            }
+          }}
+          onParseOk={(expressions: Expression[]) => {
+            props.onParseOk(expressions);
+            (document.activeElement as HTMLElement | null)?.blur();
+          }}
+        />
+      </div>
+      <SavedSearchesDropdown currentQuery={query} onLoadQuery={handleLoadQuery} />
     </div>
   );
 };
