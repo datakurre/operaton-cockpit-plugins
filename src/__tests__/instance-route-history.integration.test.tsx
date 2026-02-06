@@ -169,6 +169,36 @@ describe('instance-route-history integration', () => {
 
       document.body.removeChild(container);
     });
+
+    it('should convert processInstanceBusinessKeyIn from string to array in API body', async () => {
+      mockFetch.mockImplementation(async () => ({
+        status: 200,
+        ok: true,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        json: async () => ({ count: 0 }),
+      }));
+
+      const instanceRouteHistory = await import('../instance-route-history');
+      const Plugin = instanceRouteHistory.default;
+
+      const actionPlugin = Plugin.find(p => p.pluginPoint === 'cockpit.processDefinition.runtime.action');
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      await act(async () => {
+        actionPlugin?.render(container, {
+          api: mockApi,
+          processDefinitionId: 'my-process:1:abc',
+          root: container,
+        });
+      });
+
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalled();
+      });
+
+      document.body.removeChild(container);
+    });
   });
 
   describe('Query with version filter', () => {

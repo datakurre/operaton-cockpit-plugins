@@ -551,6 +551,17 @@ describe('parseProcessInstanceExpressions', () => {
     expect(result.processInstanceBusinessKeyIn).toBe('KEY1,KEY2');
   });
 
+  it('should parse processInstanceBusinessKeyIn with like operator to processInstanceBusinessKeyLike', () => {
+    const expressions: LegacyExpression[] = [
+      { category: 'processInstanceBusinessKeyIn', operator: 'like', value: 'ORDER' },
+    ];
+
+    const result = parseProcessInstanceExpressions(expressions);
+
+    expect(result.processInstanceBusinessKeyLike).toBe('%ORDER%');
+    expect(result.processInstanceBusinessKeyIn).toBeUndefined();
+  });
+
   it('should parse processDefinitionKey with equals operator', () => {
     const expressions: LegacyExpression[] = [
       { category: 'processDefinitionKey', operator: '==', value: 'invoice-process' },

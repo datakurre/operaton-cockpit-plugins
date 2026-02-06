@@ -443,6 +443,7 @@ const PROCESS_STRING_FIELDS: Record<string, keyof ProcessInstanceQueryParams> = 
   'key:==': 'processInstanceBusinessKey',
   'key:like': 'processInstanceBusinessKeyLike',
   'processInstanceBusinessKeyIn:==': 'processInstanceBusinessKeyIn',
+  'processInstanceBusinessKeyIn:like': 'processInstanceBusinessKeyLike',
   'processDefinitionName:==': 'processDefinitionName',
   'processDefinitionName:like': 'processDefinitionNameLike',
   'processDefinitionKey:==': 'processDefinitionKey',
@@ -558,7 +559,12 @@ function parseVersionFilter(query: ProcessInstanceQueryParams, operator: string,
 }
 
 /** Fields that need % wrapping for like operator */
-const FIELDS_NEEDING_LIKE_WRAP = new Set<string>(['processDefinitionName', 'processDefinitionKey', 'incidentMessage']);
+const FIELDS_NEEDING_LIKE_WRAP = new Set<string>([
+  'processDefinitionName',
+  'processDefinitionKey',
+  'incidentMessage',
+  'processInstanceBusinessKeyIn',
+]);
 
 /**
  * Known process instance filter field names.
