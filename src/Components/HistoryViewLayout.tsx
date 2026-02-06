@@ -12,10 +12,12 @@ import AuditLogTable from './AuditLogTable';
 import BPMNViewer from './BPMN';
 import Container from './Container';
 import ProcessInfoPanel, { type ProcessInstance } from './ProcessInfoPanel';
+import RestartProcessForm from './RestartProcessForm';
 import { Tab, Tabs } from './Tabs';
 import VariablesTable from './VariablesTable';
 import { loadSettings, saveSettings } from '../utils/misc';
 import type { components } from '../operaton';
+import type { API } from '../types';
 
 type HistoricProcessInstance = components['schemas']['HistoricProcessInstanceDto'];
 type ProcessDefinitionDto = components['schemas']['ProcessDefinitionDto'];
@@ -51,6 +53,8 @@ interface HistoryViewLayoutProps {
   activityById: Map<string, ActivityData>;
   /** Map of activity instance ID to decision ID. */
   decisionByActivity: Map<string, string>;
+  /** API configuration. */
+  api: API;
 }
 
 /** Minimum pane size when collapsed (in pixels) */
@@ -72,6 +76,7 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
   variables,
   activityById,
   decisionByActivity,
+  api,
 }) => {
   const settings = loadSettings();
   const horizontalRef = useRef<AllotmentHandle>(null);
@@ -198,6 +203,11 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                   <Tab label="Variables">
                     <VariablesTable instance={historicInstance} activities={activityById} variables={variables} />
                   </Tab>
+                  {instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (
+                    <Tab label="Terminated">
+                      <RestartProcessForm api={api} processDefinitionId={instance.processDefinitionId} />
+                    </Tab>
+                  )}
                 </Tabs>
               </div>
             </Allotment.Pane>

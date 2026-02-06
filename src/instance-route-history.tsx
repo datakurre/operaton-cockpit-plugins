@@ -367,6 +367,7 @@ export default [
                   variables={variables}
                   activityById={activityById}
                   decisionByActivity={decisionByActivity}
+                  api={api}
                 />
               </Page>
             </React.StrictMode>

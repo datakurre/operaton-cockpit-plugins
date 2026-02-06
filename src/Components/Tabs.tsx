@@ -14,7 +14,7 @@ export const Tab: React.FC<TabProps> = ({ children }) => {
 };
 
 interface TabsProps {
-  children: React.ReactElement<TabProps>[] | React.ReactElement<TabProps>;
+  children: React.ReactElement<TabProps>[] | React.ReactElement<TabProps> | (React.ReactElement<TabProps> | false)[];
 }
 
 /**
@@ -24,8 +24,8 @@ interface TabsProps {
 export const Tabs: React.FC<TabsProps> = ({ children }) => {
   const [activeTab, setActiveTab] = useState(0);
 
-  // Normalize children to always be an array
-  const tabChildren = React.Children.toArray(children) as React.ReactElement<TabProps>[];
+  // Normalize children to always be an array, filtering out false values
+  const tabChildren = React.Children.toArray(children).filter(Boolean) as React.ReactElement<TabProps>[];
 
   const handleTabClick = (index: number): void => {
     setActiveTab(index);
@@ -58,7 +58,7 @@ export const Tabs: React.FC<TabsProps> = ({ children }) => {
           </li>
         ))}
       </ul>
-      <div className="tab-content">
+      <div className="tabs-content-wrapper">
         {tabChildren.map((child, index) =>
           index === activeTab ? (
             <div key={child.props.label} className="tab-pane active ctn-tabbed-content ctn-scroll" role="tabpanel">
