@@ -188,3 +188,26 @@
   --rsfb-focus-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
   --rsfb-error-border-color: #a94442;
 }
+
+// Conflict warning styles
+.filter-box-conflicts {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  color: #856404;
+  font-size: 13px;
+  line-height: 1.4;
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &__message {
+    flex: 1;
+  }
+}

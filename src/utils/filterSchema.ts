@@ -712,10 +712,8 @@ export function createDefinitionFilterSchema(
 
   return {
     fields: [
-      createDateField('started', 'Started After', [OPERATORS.after]),
-      createDateField('startedBefore', 'Started Before', [OPERATORS.before]),
-      createDateField('finished', 'Finished', [OPERATORS.before]),
-      createDateField('finishedAfter', 'Finished After', [OPERATORS.after]),
+      createDateField('started', 'Started', [OPERATORS.after, OPERATORS.before]),
+      createDateField('finished', 'Finished', [OPERATORS.after, OPERATORS.before]),
       createNumberField('maxResults', 'Max Results', [OPERATORS.is]),
       createNumberField('version', 'Version', [OPERATORS.eq]),
       createStringField('processDefinitionId', 'Process Definition ID', [OPERATORS.eq]),
@@ -733,6 +731,8 @@ export function createDefinitionFilterSchema(
       tenantIdInField,
       createBooleanField('withoutTenantId', 'Without Tenant ID'),
     ],
+    // API uses AND-only logic, OR queries are not supported
+    connectors: [{ key: 'AND', label: 'AND' }],
   };
 }
 
@@ -790,14 +790,10 @@ export function createInstanceQuerySchema(
   return {
     fields: [
       // Date filters
-      createDateField('started', 'Started After', [OPERATORS.after]),
-      createDateField('startedBefore', 'Started Before', [OPERATORS.before]),
-      createDateField('finished', 'Finished Before', [OPERATORS.before]),
-      createDateField('finishedAfter', 'Finished After', [OPERATORS.after]),
-      createDateField('executedActivityAfter', 'Executed Activity After', [OPERATORS.after]),
-      createDateField('executedActivityBefore', 'Executed Activity Before', [OPERATORS.before]),
-      createDateField('executedJobAfter', 'Executed Job After', [OPERATORS.after]),
-      createDateField('executedJobBefore', 'Executed Job Before', [OPERATORS.before]),
+      createDateField('started', 'Started', [OPERATORS.after, OPERATORS.before]),
+      createDateField('finished', 'Finished', [OPERATORS.after, OPERATORS.before]),
+      createDateField('executedActivity', 'Executed Activity', [OPERATORS.after, OPERATORS.before]),
+      createDateField('executedJob', 'Executed Job', [OPERATORS.after, OPERATORS.before]),
 
       // Instance identifiers
       createStringField('processInstanceId', 'Instance ID', [OPERATORS.eq]),
@@ -857,6 +853,8 @@ export function createInstanceQuerySchema(
       tenantIdInField,
       createBooleanField('withoutTenantId', 'Without Tenant ID'),
     ],
+    // API uses AND-only logic for GET; POST supports orQueries but is not implemented
+    connectors: [{ key: 'AND', label: 'AND' }],
     allowFreeformFields: true,
     freeformFieldConfig: {
       type: 'string',

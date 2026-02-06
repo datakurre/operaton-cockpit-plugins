@@ -244,4 +244,22 @@ describe('FilterBox', () => {
       expect(container.querySelector('.filter-box-container')).toBeInTheDocument();
     });
   });
+
+  describe('conflict detection', () => {
+    it('should not show conflict warning when no conflictRules provided', () => {
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('should not show conflict warning when no conflicts detected', () => {
+      const conflictRules = [
+        { field1: 'active', field2: 'completed', reason: 'Active and completed are mutually exclusive' },
+      ];
+
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} conflictRules={conflictRules} />);
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+  });
 });

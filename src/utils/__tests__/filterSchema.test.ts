@@ -127,17 +127,18 @@ describe('filterSchema', () => {
       expect(field.key).toBe('started');
       expect(field.label).toBe('Started After');
       expect(field.type).toBe('date');
-      expect(field.operators).toEqual([OPERATORS.after]);
+      expect(field.operators).toHaveLength(1);
+      expect(field.operators?.[0]?.key).toBe(OPERATORS.after.key);
+      expect(field.operators?.[0]?.customInput).toBeDefined();
       expect(field.allowMultiple).toBe(false);
-      expect(field.valueAutocompleter).toBeDefined();
     });
 
     it('should support multiple operators', () => {
       const field = createDateField('date', 'Date', [OPERATORS.after, OPERATORS.before]);
 
       expect(field.operators).toHaveLength(2);
-      expect(field.operators).toContainEqual(OPERATORS.after);
-      expect(field.operators).toContainEqual(OPERATORS.before);
+      expect(field.operators?.map(o => o.key)).toContain(OPERATORS.after.key);
+      expect(field.operators?.map(o => o.key)).toContain(OPERATORS.before.key);
     });
   });
 
@@ -205,8 +206,8 @@ describe('filterSchema', () => {
     it('should create schema with all required fields', () => {
       const schema = createDefinitionFilterSchema();
 
-      // Should have all the definition filter fields
-      expect(schema.fields).toHaveLength(20);
+      // Should have all the definition filter fields (18 after merging started/startedBefore and finished/finishedAfter)
+      expect(schema.fields).toHaveLength(18);
       const keys = schema.fields.map(f => f.key);
       expect(keys).toContain('started');
       expect(keys).toContain('finished');
@@ -226,14 +227,18 @@ describe('filterSchema', () => {
       const schema = createDefinitionFilterSchema();
       const startedField = schema.fields.find(f => f.key === 'started');
 
-      expect(startedField?.operators).toEqual([OPERATORS.after]);
+      expect(startedField?.operators).toHaveLength(2);
+      expect(startedField?.operators?.[0]?.key).toBe(OPERATORS.after.key);
+      expect(startedField?.operators?.[1]?.key).toBe(OPERATORS.before.key);
     });
 
     it('should have correct operators for finished field', () => {
       const schema = createDefinitionFilterSchema();
       const finishedField = schema.fields.find(f => f.key === 'finished');
 
-      expect(finishedField?.operators).toEqual([OPERATORS.before]);
+      expect(finishedField?.operators).toHaveLength(2);
+      expect(finishedField?.operators?.[0]?.key).toBe(OPERATORS.after.key);
+      expect(finishedField?.operators?.[1]?.key).toBe(OPERATORS.before.key);
     });
 
     it('should have correct operators for maxResults field', () => {
@@ -248,11 +253,13 @@ describe('filterSchema', () => {
     it('should create schema with all required fields', () => {
       const schema = createInstanceQuerySchema();
 
-      // Should have all the instance query fields (44 after removing invalid activityIdIn)
-      expect(schema.fields).toHaveLength(44);
+      // Should have all the instance query fields (40 after merging date field pairs)
+      expect(schema.fields).toHaveLength(40);
       const keys = schema.fields.map(f => f.key);
       expect(keys).toContain('started');
       expect(keys).toContain('finished');
+      expect(keys).toContain('executedActivity');
+      expect(keys).toContain('executedJob');
       expect(keys).toContain('key');
       expect(keys).toContain('variable');
       expect(keys).toContain('version');
@@ -269,6 +276,13 @@ describe('filterSchema', () => {
       expect(keys).toContain('activeActivityIdIn');
       // Verify activityIdIn is NOT present (invalid field)
       expect(keys).not.toContain('activityIdIn');
+      // Verify old separate date fields are NOT present
+      expect(keys).not.toContain('startedBefore');
+      expect(keys).not.toContain('finishedAfter');
+      expect(keys).not.toContain('executedActivityAfter');
+      expect(keys).not.toContain('executedActivityBefore');
+      expect(keys).not.toContain('executedJobAfter');
+      expect(keys).not.toContain('executedJobBefore');
     });
 
     it('should have correct operators for key field', () => {
@@ -345,7 +359,7 @@ describe('filterSchema', () => {
 
   describe('createAuthorizationFilterSchema', () => {
     it('should create schema with all required fields', () => {
-      const schema = createAuthorizationFilterSchema();
+      const schema = createAuthorizationFilterSchema(undefined, { includeId: true, includeResourceType: true });
 
       expect(schema.fields).toHaveLength(6);
       expect(schema.fields.map(f => f.key)).toEqual([
@@ -367,7 +381,7 @@ describe('filterSchema', () => {
     });
 
     it('should have resourceType field with correct enum values', () => {
-      const schema = createAuthorizationFilterSchema();
+      const schema = createAuthorizationFilterSchema(undefined, { includeResourceType: true });
       const resourceTypeField = schema.fields.find(f => f.key === 'resourceType');
 
       expect(resourceTypeField?.type).toBe('enum');
@@ -380,7 +394,7 @@ describe('filterSchema', () => {
       const expressions: FilterExpression[] = [
         {
           condition: {
-            field: { key: 'started', label: 'Started After', type: 'date' },
+            field: { key: 'started', label: 'Started', type: 'date' },
             operator: { key: 'after', label: 'after', symbol: '≥' },
             value: { raw: '2024-01-01', display: '2024-01-01', serialized: '2024-01-01' },
           },
@@ -497,7 +511,7 @@ describe('filterSchema', () => {
       const expressions: FilterExpression[] = [
         {
           condition: {
-            field: { key: 'started', label: 'Started After', type: 'date' },
+            field: { key: 'started', label: 'Started', type: 'date' },
             operator: { key: 'after', label: 'after', symbol: '≥' },
             value: { raw: '2024-01-01', display: '2024-01-01', serialized: '2024-01-01' },
           },
@@ -505,7 +519,7 @@ describe('filterSchema', () => {
         },
         {
           condition: {
-            field: { key: 'finished', label: 'Finished Before', type: 'date' },
+            field: { key: 'finished', label: 'Finished', type: 'date' },
             operator: { key: 'before', label: 'before', symbol: '≤' },
             value: { raw: '2024-12-31', display: '2024-12-31', serialized: '2024-12-31' },
           },
@@ -553,7 +567,7 @@ describe('filterSchema', () => {
   describe('fromLegacyExpressions', () => {
     const testSchema: FilterSchema = {
       fields: [
-        { key: 'started', label: 'Started After', type: 'date', operators: [OPERATORS.after, OPERATORS.before] },
+        { key: 'started', label: 'Started', type: 'date', operators: [OPERATORS.after, OPERATORS.before] },
         { key: 'key', label: 'Process Key', type: 'string', operators: [OPERATORS.eq, OPERATORS.like] },
         { key: 'count', label: 'Count', type: 'number', operators: [OPERATORS.eq, OPERATORS.gt, OPERATORS.lt] },
       ],
@@ -572,7 +586,7 @@ describe('filterSchema', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0]?.condition.field.key).toBe('started');
-      expect(result[0]?.condition.field.label).toBe('Started After');
+      expect(result[0]?.condition.field.label).toBe('Started');
       expect(result[0]?.condition.operator.key).toBe('after');
       expect(result[0]?.condition.value.raw).toBe('2024-01-01');
       expect(result[0]?.condition.value.serialized).toBe('2024-01-01');
@@ -735,7 +749,7 @@ describe('filterSchema', () => {
       const original: FilterExpression[] = [
         {
           condition: {
-            field: { key: 'started', label: 'Started After', type: 'date' },
+            field: { key: 'started', label: 'Started', type: 'date' },
             operator: { key: 'after', label: 'after', symbol: '≥' },
             value: { raw: '2024-01-01', display: '2024-01-01', serialized: '2024-01-01' },
           },

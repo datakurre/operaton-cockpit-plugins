@@ -15,9 +15,9 @@
  * | Schema Field       | Operator | API Parameter              | Notes                              |
  * |--------------------|----------|----------------------------|------------------------------------|
  * | started            | after    | startedAfter               | Date with T00:00:00.000+0000 suffix|
- * | startedBefore      | before   | startedBefore              | Date with T00:00:00.000+0000 suffix|
+ * | started            | before   | startedBefore              | Date with T00:00:00.000+0000 suffix|
+ * | finished           | after    | finishedAfter              | Date with T00:00:00.000+0000 suffix|
  * | finished           | before   | finishedBefore             | Date with T00:00:00.000+0000 suffix|
- * | finishedAfter      | after    | finishedAfter              | Date with T00:00:00.000+0000 suffix|
  * | maxResults         | is/==    | maxResults                 | Integer                            |
  * | version            | ==       | processDefinitionVersion   | Process definition version number  |
  * | activityInstanceId | ==       | activityInstanceId         | Activity instance ID               |
@@ -41,13 +41,13 @@
  * | Schema Field                  | Operator | API Parameter                  | Notes                    |
  * |-------------------------------|----------|--------------------------------|--------------------------|
  * | started                       | after    | startedAfter                   | Date with timezone       |
- * | startedBefore                 | before   | startedBefore                  | Date with timezone       |
+ * | started                       | before   | startedBefore                  | Date with timezone       |
+ * | finished                      | after    | finishedAfter                  | Date with timezone       |
  * | finished                      | before   | finishedBefore                 | Date with timezone       |
- * | finishedAfter                 | after    | finishedAfter                  | Date with timezone       |
- * | executedActivityAfter         | after    | executedActivityAfter          | Date with timezone       |
- * | executedActivityBefore        | before   | executedActivityBefore         | Date with timezone       |
- * | executedJobAfter              | after    | executedJobAfter               | Date with timezone       |
- * | executedJobBefore             | before   | executedJobBefore              | Date with timezone       |
+ * | executedActivity              | after    | executedActivityAfter          | Date with timezone       |
+ * | executedActivity              | before   | executedActivityBefore         | Date with timezone       |
+ * | executedJob                   | after    | executedJobAfter               | Date with timezone       |
+ * | executedJob                   | before   | executedJobBefore              | Date with timezone       |
  * | key                           | ==       | processInstanceBusinessKey     | Exact match              |
  * | key                           | like     | processInstanceBusinessKeyLike | Pattern                  |
  * | processInstanceBusinessKeyIn  | ==       | processInstanceBusinessKeyIn   | Comma-separated keys     |
@@ -326,9 +326,9 @@ function formatDateForApi(value: string): string | undefined {
 /** Activity instance date field mappings: [category, operator] -> query key */
 const ACTIVITY_DATE_FIELDS: Record<string, keyof ActivityInstanceQueryParams> = {
   'started:after': 'startedAfter',
-  'startedBefore:before': 'startedBefore',
+  'started:before': 'startedBefore',
   'finished:before': 'finishedBefore',
-  'finishedAfter:after': 'finishedAfter',
+  'finished:after': 'finishedAfter',
 };
 
 /** Activity instance string field mappings: [category, operator] -> query key */
@@ -429,13 +429,13 @@ export function parseActivityInstanceExpressions(
 /** Process instance date field mappings: [category, operator] -> query key */
 const PROCESS_DATE_FIELDS: Record<string, keyof ProcessInstanceQueryParams> = {
   'started:after': 'startedAfter',
-  'startedBefore:before': 'startedBefore',
+  'started:before': 'startedBefore',
   'finished:before': 'finishedBefore',
-  'finishedAfter:after': 'finishedAfter',
-  'executedActivityAfter:after': 'executedActivityAfter',
-  'executedActivityBefore:before': 'executedActivityBefore',
-  'executedJobAfter:after': 'executedJobAfter',
-  'executedJobBefore:before': 'executedJobBefore',
+  'finished:after': 'finishedAfter',
+  'executedActivity:after': 'executedActivityAfter',
+  'executedActivity:before': 'executedActivityBefore',
+  'executedJob:after': 'executedJobAfter',
+  'executedJob:before': 'executedJobBefore',
 };
 
 /** Process instance string field mappings: [category, operator] -> query key */
@@ -570,13 +570,9 @@ const FIELDS_NEEDING_LIKE_WRAP = new Set<string>([
  */
 const KNOWN_PROCESS_FIELDS = new Set<string>([
   'started',
-  'startedBefore',
   'finished',
-  'finishedAfter',
-  'executedActivityAfter',
-  'executedActivityBefore',
-  'executedJobAfter',
-  'executedJobBefore',
+  'executedActivity',
+  'executedJob',
   'processInstanceId',
   'processInstanceIds',
   'processInstanceIdNotIn',
@@ -732,6 +728,78 @@ export function activityInstanceQueryToRecord(params: ActivityInstanceQueryParam
   }
 
   return result;
+}
+
+/**
+ * Filter conflict definition.
+ * Describes a pair of mutually exclusive filter fields.
+ */
+export interface FilterConflict {
+  /** First field in the conflict pair */
+  field1: string;
+  /** Second field in the conflict pair */
+  field2: string;
+  /** Human-readable reason for the conflict */
+  reason: string;
+}
+
+/**
+ * Conflicts for activity instance query filters.
+ * These field pairs should not be combined.
+ */
+export const ACTIVITY_FILTER_CONFLICTS: FilterConflict[] = [
+  { field1: 'finishedOnly', field2: 'unfinishedOnly', reason: 'Cannot filter for both finished and unfinished activities' },
+  { field1: 'tenantIdIn', field2: 'withoutTenantId', reason: 'Cannot filter for specific tenants and no tenant at the same time' },
+];
+
+/**
+ * Conflicts for process instance query filters.
+ * These field pairs should not be combined.
+ */
+export const PROCESS_FILTER_CONFLICTS: FilterConflict[] = [
+  { field1: 'finishedOnly', field2: 'unfinishedOnly', reason: 'Cannot filter for both finished and unfinished instances' },
+  { field1: 'active', field2: 'completed', reason: 'Active and completed are mutually exclusive states' },
+  { field1: 'active', field2: 'externallyTerminated', reason: 'Active and externally terminated are mutually exclusive states' },
+  { field1: 'active', field2: 'internallyTerminated', reason: 'Active and internally terminated are mutually exclusive states' },
+  { field1: 'suspended', field2: 'active', reason: 'Suspended and active are mutually exclusive states' },
+  { field1: 'tenantIdIn', field2: 'withoutTenantId', reason: 'Cannot filter for specific tenants and no tenant at the same time' },
+];
+
+/**
+ * Validate filter expressions for conflicts.
+ * Returns an array of conflicts found in the given expressions.
+ *
+ * @param expressions - Array of legacy filter expressions to validate
+ * @param conflicts - Array of conflict definitions to check against
+ * @returns Array of detected conflicts (empty if no conflicts)
+ */
+export function validateFilterConflicts(
+  expressions: LegacyExpression[],
+  conflicts: FilterConflict[]
+): FilterConflict[] {
+  // Only count filters that are actively enabled (value='true' for booleans or any value for other fields)
+  const activeFields = new Set(
+    expressions
+      .filter(e => {
+        // Boolean fields are only active when value is 'true'
+        if (e.value === 'false') {
+          return false;
+        }
+        // Other fields are active when they have any filter applied
+        return e.operator === '==' || e.operator === 'is' || e.operator === 'eq';
+      })
+      .map(e => e.category)
+  );
+
+  const detected: FilterConflict[] = [];
+
+  for (const conflict of conflicts) {
+    if (activeFields.has(conflict.field1) && activeFields.has(conflict.field2)) {
+      detected.push(conflict);
+    }
+  }
+
+  return detected;
 }
 
 /**
