@@ -29,12 +29,7 @@ const plugins = [
   commonjs({
     include: "node_modules/**",
   }),
-  typescript({
-    noEmitOnError: !isDevelopment,
-    compilerOptions: {
-      outDir: ".",
-    },
-  }),
+  typescript(),
   image(),
   json(),
   scss({
@@ -217,18 +212,6 @@ const allConfigs = [
     input: "src/admin-nologin.tsx",
     output: {
       file: "admin-nologin.js",
-      sourcemap: isDevelopment,
-    },
-    plugins,
-  },
-  {
-    onwarn: function(warning, superOnWarn) {
-      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
-      superOnWarn(warning);
-    },
-    input: "src/admin-route-authorization.tsx",
-    output: {
-      file: "admin-route-authorization.js",
       sourcemap: isDevelopment,
     },
     plugins,

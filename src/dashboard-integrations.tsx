@@ -1,4 +1,3 @@
-/* eslint-disable max-statements, @typescript-eslint/naming-convention -- Complex dashboard with external task management */
 /**
  * Dashboard Integrations Plugin
  *
@@ -12,65 +11,13 @@
 
 import './Components/Button.scss';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { API } from './types';
-import { get, post, put } from './utils/api';
-import { MINUTES_PER_HOUR } from './utils/constants';
-import { formatDateTime } from './utils/formatting';
-import { getStorage } from './utils/storage';
+import { get, post } from './utils/api';
+import { formatDateTime, buildCockpitUrl } from './utils/formatting';
+import LoadingSpinner from './Components/LoadingSpinner';
 import ErrorMessage from './Components/ErrorMessage';
-import DashboardSection from './Components/DashboardSection';
-
-// =============================================================================
-// Storage utilities
-// =============================================================================
-
-const FAVOURITES_KEY = 'minimal-history-plugin-favourites';
-const FAVOURITES_ONLY_KEY = 'minimal-history-plugin-integrations-favourites-only';
-
-interface FavouriteDefinition {
-  key: string;
-  name: string | null;
-}
-
-/**
- * Load favourite process definition keys from localStorage
- */
-function loadFavouriteKeys(): Set<string> {
-  const storage = getStorage();
-  const raw = storage.get(FAVOURITES_KEY);
-  if (!raw) {
-    return new Set();
-  }
-  try {
-    const favourites = JSON.parse(raw) as FavouriteDefinition[];
-    return new Set(favourites.map(f => f.key));
-  } catch {
-    return new Set();
-  }
-}
-
-/**
- * Load favourites-only filter setting (default: true)
- */
-function loadFavouritesOnlySetting(): boolean {
-  const storage = getStorage();
-  const value = storage.get(FAVOURITES_ONLY_KEY);
-  // Default to true if no setting exists
-  if (value === null) {
-    return true;
-  }
-  return value === 'true';
-}
-
-/**
- * Save favourites-only filter setting
- */
-function saveFavouritesOnlySetting(enabled: boolean): void {
-  const storage = getStorage();
-  storage.set(FAVOURITES_ONLY_KEY, enabled ? 'true' : 'false');
-}
 
 // =============================================================================
 // Types
@@ -131,23 +78,10 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   const [tasks, setTasks] = useState<ExternalTask[]>([]);
   const [incidents, setIncidents] = useState<Map<string, Incident[]>>(new Map());
   const [processNames, setProcessNames] = useState<Map<string, string>>(new Map());
-  const [processDefKeys, setProcessDefKeys] = useState<Map<string, string>>(new Map());
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<Set<string>>(new Set());
-  const [favouriteKeys] = useState<Set<string>>(() => loadFavouriteKeys());
-  const [favouritesOnly, setFavouritesOnly] = useState<boolean>(() => loadFavouritesOnlySetting());
-
-  // Replace "Custom Plugins" section title with "Incidents and locked tasks"
-  useEffect(() => {
-    const titleElement = document.querySelector('h1.section-title.col-xs-4.ng-binding');
-    if (titleElement?.textContent === 'Custom Plugins') {
-      titleElement.textContent = 'Incidents and retry locks';
-      titleElement.classList.remove('col-xs-4');
-      titleElement.classList.add('col-xs-8');
-    }
-  }, []);
 
   /**
    * Fetch external tasks from the API
@@ -156,66 +90,42 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     setIsLoading(true);
     setError(null);
     try {
-      // Check favorites configuration early
-      const favKeys = loadFavouriteKeys();
-      const favouritesOnlyEnabled = loadFavouritesOnlySetting();
-
-      // If favorites filter is enabled but no favorites configured, skip all API calls
-      if (favouritesOnlyEnabled && favKeys.size === 0) {
-        setTasks([]);
-        setProcessNames(new Map());
-        setProcessDefKeys(new Map());
-        setIncidents(new Map());
-        setIsLoading(false);
-        return;
-      }
-
       // Fetch all external tasks
       const externalTasks = (await get(api, '/external-task', {})) as ExternalTask[] | null;
       const taskList = externalTasks ?? [];
       setTasks(taskList);
 
-      // Filter tasks to favourites if enabled (using processDefinitionKey from external task)
-      const tasksToFetch = favouritesOnlyEnabled
-        ? taskList.filter(task => {
-            return task.processDefinitionKey ? favKeys.has(task.processDefinitionKey) : false;
-          })
-        : taskList;
-
-      // Collect unique process definition IDs from filtered tasks only
+      // Collect unique process definition IDs
       const processDefIds = new Set<string>();
-      for (const task of tasksToFetch) {
+      for (const task of taskList) {
         if (task.processDefinitionId) {
           processDefIds.add(task.processDefinitionId);
         }
       }
 
-      // Fetch process definition names and keys (only for filtered tasks)
+      // Fetch process definition names
       const namesMap = new Map<string, string>();
-      const keysMap = new Map<string, string>();
       for (const defId of Array.from(processDefIds)) {
         try {
           const def = (await get(api, `/process-definition/${defId}`, {})) as ProcessDefinition | null;
           if (def) {
             namesMap.set(defId, def.name ?? def.key);
-            keysMap.set(defId, def.key);
           }
         } catch {
           // Ignore errors for individual definitions
         }
       }
       setProcessNames(namesMap);
-      setProcessDefKeys(keysMap);
 
-      // Collect unique process instance IDs for incident lookup (only from filtered tasks)
+      // Collect unique process instance IDs for incident lookup
       const processInstanceIds = new Set<string>();
-      for (const task of tasksToFetch) {
+      for (const task of taskList) {
         if (task.processInstanceId) {
           processInstanceIds.add(task.processInstanceId);
         }
       }
 
-      // Fetch incidents for each process instance (only for filtered tasks)
+      // Fetch incidents for each process instance
       const incidentsMap = new Map<string, Incident[]>();
       for (const instanceId of Array.from(processInstanceIds)) {
         try {
@@ -238,137 +148,9 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     }
   }, [api]);
 
-  // Debounced fetch with 300ms delay
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const debouncedFetchTasks = useCallback(() => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-    debounceTimerRef.current = setTimeout(() => {
-      void fetchTasks();
-    }, 300);
+  useEffect(() => {
+    void fetchTasks();
   }, [fetchTasks]);
-
-  useEffect(() => {
-    debouncedFetchTasks();
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, [debouncedFetchTasks]);
-
-  /**
-   * Check if a task is locked (has lock expiration time)
-   */
-  const isLocked = (task: ExternalTask): boolean => {
-    return task.lockExpirationTime !== null && new Date(task.lockExpirationTime) > new Date();
-  };
-
-  /**
-   * Check if a task has been locked for more than 5 minutes.
-   * We check if the task is currently locked (has a future lock expiration time).
-   * Since we don't have the exact lock start time from the API, we consider any
-   * currently locked task as potentially locked for more than 5 minutes.
-   */
-  const isLockedLongEnough = (task: ExternalTask): boolean => {
-    if (!task.lockExpirationTime || !task.workerId) {
-      return false;
-    }
-    const lockExpirationDate = new Date(task.lockExpirationTime);
-    const now = new Date();
-
-    // Task is locked if expiration time is in the future
-    const currentlyLocked = lockExpirationDate > now;
-
-    // If the task is currently locked, we consider it locked long enough
-    // (since we can't determine the exact lock start time from the API)
-    return currentlyLocked;
-  };
-
-  /**
-   * Format lock expiration time with remaining time
-   */
-  const formatLockTime = (lockTime: string | null): string => {
-    if (!lockTime) {
-      return '-';
-    }
-    const lockDate = new Date(lockTime);
-    if (isNaN(lockDate.getTime())) {
-      return '-';
-    }
-
-    const now = new Date();
-    if (lockDate <= now) {
-      return `Expired at ${formatDateTime(lockTime)}`;
-    }
-
-    const remainingMs = lockDate.getTime() - now.getTime();
-    const remainingSecs = Math.floor(remainingMs / 1000);
-    const mins = Math.floor(remainingSecs / MINUTES_PER_HOUR);
-    const secs = remainingSecs % MINUTES_PER_HOUR;
-
-    return `${formatDateTime(lockTime)} (${mins}m ${secs}s remaining)`;
-  };
-
-  // Pre-filter tasks for incident or lock check (before favourites filtering)
-  const tasksWithIssues = tasks.filter(task => {
-    const hasIncident = task.processInstanceId && incidents.has(task.processInstanceId);
-    const lockedLongEnough = isLockedLongEnough(task);
-    return Boolean(hasIncident) || lockedLongEnough;
-  });
-
-  // Apply favourites filter on top
-  const filteredTasks = tasksWithIssues.filter(task => {
-    // If favourites filter is enabled, check if task belongs to a favourited definition
-    if (favouritesOnly) {
-      // If no favourites configured, filter out everything
-      if (favouriteKeys.size === 0) {
-        return false;
-      }
-      // Use processDefinitionKey from external task, fallback to processDefKeys map
-      const defKey = task.processDefinitionKey ?? 
-                    (task.processDefinitionId ? processDefKeys.get(task.processDefinitionId) : null);
-      return defKey ? favouriteKeys.has(defKey) : false;
-    }
-
-    return true;
-  });
-
-  // Automatically clear selections that are not visible when favourites filter is enabled
-  const prevFavouritesOnlyRef = useRef<boolean>(favouritesOnly);
-
-  useEffect(() => {
-    // Only clear invalid selections when switching TO favourites-only mode
-    if (favouritesOnly && !prevFavouritesOnlyRef.current && selectedTasks.size > 0) {
-      // Reload favourites to get the latest list
-      const currentFavouriteKeys = loadFavouriteKeys();
-      
-      // Check selections against tasks using processDefinitionKey directly
-      const validSelections = new Set<string>();
-
-      for (const taskId of Array.from(selectedTasks)) {
-        const task = tasks.find(t => t.id === taskId);
-        if (task) {
-          // Use processDefinitionKey from external task, fallback to processDefKeys map
-          const defKey = task.processDefinitionKey ?? 
-                        (task.processDefinitionId ? processDefKeys.get(task.processDefinitionId) : null);
-          if (defKey && currentFavouriteKeys.has(defKey)) {
-            validSelections.add(taskId);
-          }
-        }
-      }
-
-      // Only update if selections actually changed
-      if (validSelections.size !== selectedTasks.size) {
-        setSelectedTasks(validSelections);
-      }
-    }
-
-    prevFavouritesOnlyRef.current = favouritesOnly;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [favouritesOnly]);
 
   /**
    * Toggle selection of a single task
@@ -387,10 +169,10 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
    * Toggle selection of all tasks
    */
   const handleToggleAll = (): void => {
-    if (selectedTasks.size === filteredTasks.length && filteredTasks.length > 0) {
+    if (selectedTasks.size === tasks.length) {
       setSelectedTasks(new Set());
     } else {
-      setSelectedTasks(new Set(filteredTasks.map(t => t.id).filter((id): id is string => id !== null)));
+      setSelectedTasks(new Set(tasks.map(t => t.id).filter((id): id is string => id !== null)));
     }
   };
 
@@ -400,7 +182,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   const handleRetry = async (taskId: string): Promise<void> => {
     setActionLoading(prev => new Set(prev).add(taskId));
     try {
-      await put(api, `/external-task/${taskId}/retries`, JSON.stringify({ retries: 1 }));
+      await post(api, `/external-task/${taskId}/retries`, {}, JSON.stringify({ retries: 1 }));
       await fetchTasks();
     } catch (_err) {
       console.error('Error retrying task:', _err);
@@ -438,33 +220,26 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
    * Batch retry selected tasks
    */
   const handleBatchRetry = async (): Promise<void> => {
-    if (selectedTasks.size === 0) {
-      return;
-    }
-
+    if (selectedTasks.size === 0) return;
+    
     const taskIds = Array.from(selectedTasks);
     for (const taskId of taskIds) {
       setActionLoading(prev => new Set(prev).add(taskId));
     }
-
+    
     try {
       // Use batch endpoint if available, otherwise retry individually
-      await post(
-        api,
-        '/external-task/retries',
-        {},
-        JSON.stringify({
-          externalTaskIds: taskIds,
-          retries: 1,
-        })
-      );
+      await post(api, '/external-task/retries', {}, JSON.stringify({
+        externalTaskIds: taskIds,
+        retries: 1,
+      }));
       setSelectedTasks(new Set());
       await fetchTasks();
     } catch {
-      // Fallback to individual retries using PUT helper
+      // Fallback to individual retries
       for (const taskId of taskIds) {
         try {
-          await put(api, `/external-task/${taskId}/retries`, JSON.stringify({ retries: 1 }));
+          await post(api, `/external-task/${taskId}/retries`, {}, JSON.stringify({ retries: 1 }));
         } catch (_err) {
           console.error('Error retrying task:', taskId, _err);
         }
@@ -480,85 +255,90 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
    * Build cockpit URL for a process instance
    */
   const getInstanceUrl = (processInstanceId: string): string => {
-    return `#/process-instance/${processInstanceId}/runtime`;
+    return buildCockpitUrl(api.engine, `/process-instance/${processInstanceId}/runtime`);
   };
 
   /**
-   * Toggle favourites-only filter
+   * Check if a task is locked (has lock expiration time)
    */
-  const handleToggleFavouritesOnly = (): void => {
-    const newValue = !favouritesOnly;
-    setFavouritesOnly(newValue);
-    saveFavouritesOnlySetting(newValue);
-    debouncedFetchTasks();
+  const isLocked = (task: ExternalTask): boolean => {
+    return task.lockExpirationTime !== null && new Date(task.lockExpirationTime) > new Date();
   };
 
-  // Error state overlay
+  /**
+   * Format lock expiration time with remaining time
+   */
+  const formatLockTime = (lockTime: string | null): string => {
+    if (!lockTime) return '-';
+    const lockDate = new Date(lockTime);
+    if (isNaN(lockDate.getTime())) return '-';
+    
+    const now = new Date();
+    if (lockDate <= now) {
+      return `Expired at ${formatDateTime(lockTime)}`;
+    }
+    
+    const remainingMs = lockDate.getTime() - now.getTime();
+    const remainingSecs = Math.floor(remainingMs / 1000);
+    const mins = Math.floor(remainingSecs / 60);
+    const secs = remainingSecs % 60;
+    
+    return `${formatDateTime(lockTime)} (${mins}m ${secs}s remaining)`;
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   if (error) {
     return (
-      <DashboardSection title="External Tasks" hasData={false} emptyMessage="">
+      <div>
         <ErrorMessage message={error} />
         <button className="btn btn-default" onClick={() => void fetchTasks()}>
           Retry
         </button>
-      </DashboardSection>
+      </div>
     );
   }
 
-  let emptyMessage = 'No external tasks with incidents or locked for more than 5 minutes.';
-  if (favouritesOnly && favouriteKeys.size === 0) {
-    emptyMessage = 'No favourites configured. Star a process definition to add it to favourites.';
-  } else if (favouritesOnly) {
-    emptyMessage = 'No external tasks from favourited process definitions.';
+  if (tasks.length === 0) {
+    return (
+      <div className="no-data">
+        <p>No external tasks found.</p>
+        <button className="btn btn-default" onClick={() => void fetchTasks()}>
+          Refresh
+        </button>
+      </div>
+    );
   }
 
   return (
-    <DashboardSection
-      title=""
-      isLoading={isLoading}
-      hasData={filteredTasks.length > 0}
-      emptyMessage={emptyMessage}
-      onRefresh={() => void fetchTasks()}
-      headerActions={
-        <>
-          {selectedTasks.size > 0 && (
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => void handleBatchRetry()}
-              disabled={actionLoading.size > 0}
-            >
-              Retry Selected ({selectedTasks.size})
-            </button>
-          )}
-          <div style={{ flex: 1 }} />
-          <label
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              margin: 0,
-              fontWeight: 'normal',
-              cursor: 'pointer',
-            }}
+    <div>
+      <div style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <button 
+          className="btn btn-default" 
+          onClick={() => void fetchTasks()}
+          disabled={isLoading}
+        >
+          Refresh
+        </button>
+        {selectedTasks.size > 0 && (
+          <button 
+            className="btn btn-primary" 
+            onClick={() => void handleBatchRetry()}
+            disabled={actionLoading.size > 0}
           >
-            <input
-              type="checkbox"
-              checked={favouritesOnly}
-              onChange={handleToggleFavouritesOnly}
-              style={{ cursor: 'pointer', margin: 0, verticalAlign: 'middle' }}
-            />
-            <span style={{ lineHeight: '1' }}>Favourites only</span>
-          </label>
-        </>
-      }
-    >
+            Retry Selected ({selectedTasks.size})
+          </button>
+        )}
+      </div>
       <table className="cam-table">
         <thead>
           <tr>
             <th style={{ width: '30px' }}>
               <input
                 type="checkbox"
-                checked={selectedTasks.size === filteredTasks.length && filteredTasks.length > 0}
+                checked={selectedTasks.size === tasks.length && tasks.length > 0}
                 onChange={handleToggleAll}
                 title="Select all"
               />
@@ -574,12 +354,14 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
           </tr>
         </thead>
         <tbody>
-          {filteredTasks.map(task => {
+          {tasks.map((task) => {
             const taskId = task.id ?? '';
-            const processName = task.processDefinitionId
-              ? (processNames.get(task.processDefinitionId) ?? task.processDefinitionKey)
+            const processName = task.processDefinitionId 
+              ? processNames.get(task.processDefinitionId) ?? task.processDefinitionKey 
               : '-';
-            const taskIncidents = task.processInstanceId ? (incidents.get(task.processInstanceId) ?? []) : [];
+            const taskIncidents = task.processInstanceId 
+              ? incidents.get(task.processInstanceId) ?? []
+              : [];
             const hasIncident = taskIncidents.length > 0;
             const locked = isLocked(task);
             const loading = actionLoading.has(taskId);
@@ -590,14 +372,14 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                   <input
                     type="checkbox"
                     checked={selectedTasks.has(taskId)}
-                    onChange={() => {
-                      handleToggleTask(taskId);
-                    }}
+                    onChange={() => handleToggleTask(taskId)}
                   />
                 </td>
                 <td>
                   {task.processInstanceId ? (
-                    <a href={getInstanceUrl(task.processInstanceId)}>{processName}</a>
+                    <a href={`#${getInstanceUrl(task.processInstanceId)}`}>
+                      {processName}
+                    </a>
                   ) : (
                     processName
                   )}
@@ -611,8 +393,8 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                 <td>{task.retries ?? 0}</td>
                 <td>
                   {hasIncident ? (
-                    <span
-                      style={{ color: 'red', cursor: 'pointer' }}
+                    <span 
+                      style={{ color: 'red', cursor: 'pointer' }} 
                       title={taskIncidents[0]?.incidentMessage ?? 'Incident'}
                     >
                       ⚠️ Yes
@@ -623,37 +405,24 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '5px' }}>
-                    {(() => {
-                      if (hasIncident) {
-                        return (
-                          <button
-                            className="btn btn-xs btn-default"
-                            onClick={() => {
-                              void handleRetry(taskId);
-                            }}
-                            disabled={loading}
-                            title="Set retries to 1"
-                          >
-                            {loading ? '...' : 'Retry'}
-                          </button>
-                        );
-                      }
-                      if (locked) {
-                        return (
-                          <button
-                            className="btn btn-xs btn-default"
-                            onClick={() => {
-                              void handleUnlock(taskId);
-                            }}
-                            disabled={loading}
-                            title="Unlock task"
-                          >
-                            {loading ? '...' : 'Unlock'}
-                          </button>
-                        );
-                      }
-                      return null;
-                    })()}
+                    <button
+                      className="btn btn-xs btn-default"
+                      onClick={() => void handleRetry(taskId)}
+                      disabled={loading}
+                      title="Set retries to 1"
+                    >
+                      {loading ? '...' : 'Retry'}
+                    </button>
+                    {locked && (
+                      <button
+                        className="btn btn-xs btn-default"
+                        onClick={() => void handleUnlock(taskId)}
+                        disabled={loading}
+                        title="Unlock task"
+                      >
+                        {loading ? '...' : 'Unlock'}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -661,7 +430,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
           })}
         </tbody>
       </table>
-    </DashboardSection>
+    </div>
   );
 };
 
@@ -675,15 +444,15 @@ interface DashboardParams {
 
 export default [
   {
-    id: 'dashboardIntegrationsDashboard',
-    pluginPoint: 'cockpit.dashboard',
-    priority: 10,
+    id: 'dashboardIntegrations',
+    pluginPoint: 'cockpit.dashboard.section',
+    properties: {
+      label: 'Integrations',
+      // Place after other dashboard sections
+      priority: 50,
+    },
     render: (node: Element, { api }: DashboardParams): void => {
-      createRoot(node).render(
-        <React.StrictMode>
-          <IntegrationsTable api={api} />
-        </React.StrictMode>
-      );
+      createRoot(node).render(<IntegrationsTable api={api} />);
     },
   },
 ];

@@ -12,13 +12,13 @@ import PageLink from '../PageLink';
 import { Tabs, Tab } from '../Tabs';
 
 describe('BreadcrumbsPanel', () => {
-  describe('legacy props (backwards compatibility)', () => {
-    const defaultProps = {
-      processDefinitionId: 'process-def-123',
-      processDefinitionName: 'My Process',
-      processInstanceId: 'instance-456',
-    };
+  const defaultProps = {
+    processDefinitionId: 'process-def-123',
+    processDefinitionName: 'My Process',
+    processInstanceId: 'instance-456',
+  };
 
+  describe('rendering', () => {
     it('should render Dashboard link', () => {
       render(<BreadcrumbsPanel {...defaultProps} />);
 
@@ -35,13 +35,12 @@ describe('BreadcrumbsPanel', () => {
       expect(processesLink).toHaveAttribute('href', '#/processes/');
     });
 
-    it('should render process definition label correctly', () => {
+    it('should render process definition link with correct href', () => {
       render(<BreadcrumbsPanel {...defaultProps} />);
 
-      // The process definition is rendered as a link to the process definition
-      const processText = screen.getByText('My Process');
-      expect(processText).toBeInTheDocument();
-      expect(processText.tagName).toBe('A');
+      const processLink = screen.getByRole('link', { name: 'My Process' });
+      expect(processLink).toBeInTheDocument();
+      expect(processLink).toHaveAttribute('href', '#/process-definition/process-def-123/runtime');
     });
 
     it('should display process instance ID', () => {
@@ -55,95 +54,6 @@ describe('BreadcrumbsPanel', () => {
 
       const dividers = screen.getAllByText('»');
       expect(dividers.length).toBeGreaterThanOrEqual(2);
-    });
-
-    it('should fall back to processDefinitionId when name is undefined', () => {
-      render(
-        <BreadcrumbsPanel
-          processDefinitionId="fallback-def-id"
-          processDefinitionName={undefined}
-          processInstanceId="instance-789"
-        />
-      );
-
-      // The process definition is now rendered as a link
-      const processText = screen.getByText('fallback-def-id');
-      expect(processText).toBeInTheDocument();
-      expect(processText.tagName).toBe('A');
-    });
-  });
-
-  describe('items array format', () => {
-    it('should render simple breadcrumb items', () => {
-      render(<BreadcrumbsPanel items={[{ label: 'Dashboard', href: '#/' }, { label: 'Authorizations' }]} />);
-
-      const dashboardLink = screen.getByRole('link', { name: 'Dashboard' });
-      expect(dashboardLink).toBeInTheDocument();
-      expect(dashboardLink).toHaveAttribute('href', '#/');
-
-      expect(screen.getByText('Authorizations')).toBeInTheDocument();
-    });
-
-    it('should render text-only items without href', () => {
-      render(
-        <BreadcrumbsPanel items={[{ label: 'Dashboard', href: '#/' }, { label: 'Application Authorizations' }]} />
-      );
-
-      // The second item should be text, not a link
-      const authText = screen.getByText('Application Authorizations');
-      expect(authText).toBeInTheDocument();
-      expect(authText.tagName).toBe('SPAN');
-    });
-
-    it('should render items with suffix', () => {
-      render(
-        <BreadcrumbsPanel
-          items={[
-            { label: 'Dashboard', href: '#/' },
-            { label: 'My Process', href: '#/process', suffix: ' : instance-123 : History' },
-          ]}
-        />
-      );
-
-      expect(screen.getByText(/instance-123/)).toBeInTheDocument();
-      expect(screen.getByText(/History/)).toBeInTheDocument();
-    });
-
-    it('should render dividers between all items', () => {
-      render(
-        <BreadcrumbsPanel
-          items={[{ label: 'Dashboard', href: '#/' }, { label: 'Middle', href: '#/middle' }, { label: 'End' }]}
-        />
-      );
-
-      const dividers = screen.getAllByText('»');
-      expect(dividers).toHaveLength(2);
-    });
-
-    it('should not render divider before first item', () => {
-      render(<BreadcrumbsPanel items={[{ label: 'Dashboard', href: '#/' }, { label: 'Page' }]} />);
-
-      // The first li should not contain a divider
-      const listItems = screen.getAllByRole('listitem');
-      expect(listItems[0]?.querySelector('.divider')).toBeNull();
-    });
-
-    it('should render multiple link items correctly', () => {
-      render(
-        <BreadcrumbsPanel
-          items={[
-            { label: 'Home', href: '#/' },
-            { label: 'Category', href: '#/category' },
-            { label: 'Subcategory', href: '#/subcategory' },
-            { label: 'Item' },
-          ]}
-        />
-      );
-
-      expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '#/');
-      expect(screen.getByRole('link', { name: 'Category' })).toHaveAttribute('href', '#/category');
-      expect(screen.getByRole('link', { name: 'Subcategory' })).toHaveAttribute('href', '#/subcategory');
-      expect(screen.getByText('Item').tagName).toBe('SPAN');
     });
   });
 });

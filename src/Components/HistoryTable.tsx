@@ -31,19 +31,13 @@ interface InstanceRow {
 const dateSortFn: SortByFn<InstanceRow> = (rowA, rowB, columnId) => {
   const a = rowA.values[columnId] as Date | null;
   const b = rowB.values[columnId] as Date | null;
-
+  
   // Handle null values - null is treated as "far future" for endTime
   // This keeps running processes (no end time) at one end of the sort
-  if (a === null && b === null) {
-    return 0;
-  }
-  if (a === null) {
-    return 1;
-  } // null goes to end
-  if (b === null) {
-    return -1;
-  } // null goes to end
-
+  if (a === null && b === null) return 0;
+  if (a === null) return 1; // null goes to end
+  if (b === null) return -1; // null goes to end
+  
   // Compare Date objects using timestamps
   return a.getTime() - b.getTime();
 };

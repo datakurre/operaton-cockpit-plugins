@@ -39,9 +39,6 @@ const SECONDS_PER_MINUTE = 60;
 /** Default cache TTL in milliseconds (5 minutes) */
 const CACHE_TTL_MS = CACHE_TTL_MINUTES * SECONDS_PER_MINUTE * 1000;
 
-/** HTTP status code for No Content response */
-const HTTP_STATUS_NO_CONTENT = 204;
-
 /** In-memory cache for process definition XML */
 const processDefinitionXmlCache = new Map<string, CacheEntry<{ id: string; bpmn20Xml: string }>>();
 
@@ -239,68 +236,6 @@ export const post = async (
         : `API error: ${res.status}`;
     throw new ApiError(message, res.status, responseBody, path);
   }
-};
-
-/**
- * Makes a PUT request to the engine API.
- * @param api - The API configuration object
- * @param path - The API endpoint path
- * @param payload - Optional request body
- * @returns Promise resolving to the response data (or null for 204)
- * @throws {ApiError} When the response status is not 2xx
- */
-export const put = async (api: API, path: string, payload?: string): Promise<unknown> => {
-  const body: BodyInit | null = payload ?? null;
-  const url = `${api.engineApi}${path}`;
-  const res = await fetchFn(url, {
-    method: 'PUT',
-    headers: headers(api),
-    body,
-  });
-
-  // 204 No Content is a valid success response for PUT
-  if (res.status === HTTP_STATUS_NO_CONTENT) {
-    return null;
-  }
-
-  const responseBody = await parseResponseBody(res);
-
-  if (res.ok) {
-    return responseBody;
-  } else {
-    const message =
-      typeof responseBody === 'object' && responseBody !== null && 'message' in responseBody
-        ? String(responseBody.message)
-        : `API error: ${res.status}`;
-    throw new ApiError(message, res.status, responseBody, path);
-  }
-};
-
-/**
- * Makes a DELETE request to the engine API.
- * @param api - The API configuration object
- * @param path - The API endpoint path
- * @returns Promise resolving to null on success
- * @throws {ApiError} When the response status is not 2xx
- */
-export const del = async (api: API, path: string): Promise<null> => {
-  const url = `${api.engineApi}${path}`;
-  const res = await fetchFn(url, {
-    method: 'DELETE',
-    headers: headers(api),
-  });
-
-  // 204 No Content is a valid success response for DELETE
-  if (res.status === HTTP_STATUS_NO_CONTENT || res.ok) {
-    return null;
-  }
-
-  const responseBody = await parseResponseBody(res);
-  const message =
-    typeof responseBody === 'object' && responseBody !== null && 'message' in responseBody
-      ? String(responseBody.message)
-      : `API error: ${res.status}`;
-  throw new ApiError(message, res.status, responseBody, path);
 };
 
 // =============================================================================
@@ -554,33 +489,6 @@ export async function getDecisionDefinitionXml(
 
 /** Decision evaluation result type */
 export type DecisionEvaluationResult = Record<string, VariableValueDto>[];
-
-/**
- * Gets the most recent historic decision instance for a decision definition.
- * Includes outputs with ruleId information for highlighting matched rules.
- * @param api - The API configuration object
- * @param decisionDefinitionId - The decision definition ID
- * @returns Promise resolving to the historic decision instance with outputs, or null if not found
- */
-export async function getLatestDecisionInstance(
-  api: API,
-  decisionDefinitionId: string
-): Promise<HistoricDecisionInstance | null> {
-  try {
-    const result = (await get(api, '/history/decision-instance', {
-      decisionDefinitionId,
-      includeOutputs: 'true',
-      sortBy: 'evaluationTime',
-      sortOrder: 'desc',
-      maxResults: '1',
-    })) as HistoricDecisionInstance[];
-
-    return result.length > 0 ? (result[0] ?? null) : null;
-  } catch (error) {
-    console.error('Failed to get latest decision instance:', error);
-    return null;
-  }
-}
 
 /**
  * Evaluates a decision definition with the given variables.
