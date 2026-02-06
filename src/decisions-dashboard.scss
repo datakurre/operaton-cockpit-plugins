@@ -99,6 +99,128 @@
   }
 }
 
+/* Decision selector with autocomplete and version switching */
+.decision-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+
+  &__controls {
+    position: relative;
+  }
+
+  &__search {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 0.95em;
+
+    &:focus {
+      outline: none;
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+
+    option {
+      padding: 8px 12px;
+      cursor: pointer;
+
+      &:hover {
+        background: #f0f0f0;
+      }
+    }
+  }
+
+  &__selected {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #e8f4f8;
+    border: 1px solid #b3d9e8;
+    border-radius: 3px;
+  }
+
+  &__name {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+  }
+
+  &__version-toggle,
+  &__clear {
+    padding: 2px 6px;
+    font-size: 0.85em;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__versions {
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+  }
+
+  &__versions-title {
+    font-size: 0.85em;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 8px;
+  }
+
+  &__version-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9em;
+
+    &:hover:not(:disabled) {
+      background: #f0f0f0;
+      border-color: #4a90e2;
+    }
+
+    &.active {
+      background: #e8f4f8;
+      border-color: #4a90e2;
+      font-weight: 500;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
 .dmn-inputs-form {
   background: #f9f9f9;
   border: 1px solid #ddd;
@@ -241,21 +363,65 @@
     min-height: 100% !important;
   }
 
-  /* Highlight matched rules */
+  /* Highlight matched rules - green for subsequent matches */
   tr.dmn-rule-hit {
     background-color: #d4edda !important;
 
-    td {
+    td,
+    th {
+      background-color: #d4edda !important;
+    }
+  }
+
+  /* First matched rule - blue for emphasis */
+  tr.dmn-rule-hit-first {
+    background-color: #cce5ff !important;
+
+    td,
+    th {
+      background-color: #cce5ff !important;
+      font-weight: 500 !important;
+    }
+  }
+}
+
+/* Ensure styles work for decision table within dmn-js */
+.tjs-table {
+  tr.dmn-rule-hit {
+    background-color: #d4edda !important;
+
+    td,
+    th {
       background-color: #d4edda !important;
     }
   }
 
   tr.dmn-rule-hit-first {
-    background-color: #b8daff !important;
+    background-color: #cce5ff !important;
 
-    td {
-      background-color: #b8daff !important;
+    td,
+    th {
+      background-color: #cce5ff !important;
+      font-weight: 500 !important;
     }
+  }
+}
+
+/* Global fallback for any table row with these classes */
+tr.dmn-rule-hit {
+  background-color: #d4edda !important;
+
+  > * {
+    background-color: #d4edda !important;
+  }
+}
+
+tr.dmn-rule-hit-first {
+  background-color: #cce5ff !important;
+
+  > * {
+    background-color: #cce5ff !important;
+    font-weight: 500 !important;
   }
 }
 

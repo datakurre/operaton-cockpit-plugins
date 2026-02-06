@@ -1,398 +1,265 @@
 /**
  * Tests for FilterBox component.
  *
+ * The FilterBox component wraps react-select-filter-box with additional
+ * features like saved searches and legacy expression conversion.
+ *
  * @module
  */
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+// react-select-filter-box is mocked via moduleNameMapper in jest.config.js
+
 import FilterBox from '../FilterBox';
-
-// Mock react-filter-box and date picker since they have complex dependencies
-jest.mock('@waylay/react-filter-box', () => {
-  const React = require('react');
-  return {
-    __esModule: true,
-    default: class MockReactFilterBox extends React.Component<any> {
-      parser = {
-        getSuggestions: () => [],
-      };
-
-      componentDidMount() {
-        if (this.props.query) {
-          this.onSubmit(this.props.query);
-        }
-      }
-
-      onSubmit(query: string) {
-        if (this.props.onParseOk) {
-          this.props.onParseOk([{ category: 'test', operator: '=', value: query }]);
-        }
-      }
-
-      render() {
-        return (
-          <div data-testid="filter-box">
-            <input
-              data-testid="filter-input"
-              defaultValue={this.props.query}
-              onChange={e => {
-                if (this.props.onChange) {
-                  this.props.onChange(e.target.value);
-                }
-              }}
-              onBlur={() => {
-                this.onSubmit((this as any).props.query);
-              }}
-            />
-          </div>
-        );
-      }
-    },
-    Expression: {},
-  };
-});
-
-jest.mock('react-datepicker', () => {
-  const React = require('react');
-  return {
-    __esModule: true,
-    default: ({ selected, onChange, inline }: any) => (
-      <div data-testid="date-picker" data-selected={selected?.toISOString()} data-inline={inline}>
-        <button onClick={() => onChange(new Date('2024-06-15'))}>Pick Date</button>
-      </div>
-    ),
-  };
-});
-
-/**
- * Mock autocomplete handler that simulates FilterBox behavior.
- */
-function createMockAutoCompleteHandler() {
-  let currentQuery = '';
-  return {
-    needCategories: jest.fn(() => ['started', 'finished', 'activityId']),
-    needOperators: jest.fn(() => ['=', '>', '<', '>=', '<=']),
-    needValues: jest.fn(() => []),
-    setQuery: jest.fn((query: string) => {
-      currentQuery = query;
-    }),
-    getQuery: () => currentQuery,
-  };
-}
+import {
+  createDefinitionFilterSchema,
+  createInstanceQuerySchema,
+  createAuthorizationFilterSchema,
+} from '../../utils/filterSchema';
 
 describe('FilterBox', () => {
-  const defaultOptions = [
-    { columnField: 'started', type: 'date' },
-    { columnField: 'finished', type: 'date' },
-    { columnField: 'activityId', type: 'string' },
-  ];
+  const mockSchema = createInstanceQuerySchema();
 
   describe('rendering', () => {
-    it('should render with default query', () => {
-      const handler = createMockAutoCompleteHandler();
-      const onParseOk = jest.fn();
-      const defaultQuery = jest.fn(() => 'started > 2024-01-01');
-
-      render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={onParseOk}
-          defaultQuery={defaultQuery}
-        />
-      );
+    it('should render with schema', () => {
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
 
       expect(screen.getByTestId('filter-box')).toBeInTheDocument();
-      expect(defaultQuery).toHaveBeenCalled();
     });
 
-    it('should render filter input element', () => {
-      const handler = createMockAutoCompleteHandler();
+    it('should render with placeholder', () => {
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} placeholder="Search..." />);
 
-      render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={() => ''}
-        />
-      );
-
-      expect(screen.getByTestId('filter-input')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
     });
 
-    it('should have form-control class wrapper', () => {
-      const handler = createMockAutoCompleteHandler();
+    it('should render disabled state', () => {
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} disabled />);
 
-      const { container } = render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={() => ''}
-        />
-      );
+      expect(screen.getByTestId('filter-input')).toBeDisabled();
+    });
 
-      expect(container.querySelector('.form-control')).toBeInTheDocument();
+    it('should render with saved searches dropdown toggle', () => {
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
+
+      expect(screen.getByTitle('Saved searches')).toBeInTheDocument();
     });
   });
 
-  describe('onParseOk callback', () => {
-    it('should call onParseOk with parsed expressions on submit', async () => {
-      const handler = createMockAutoCompleteHandler();
-      const onParseOk = jest.fn();
-
-      render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={onParseOk}
-          defaultQuery={() => 'started > 2024-01-01'}
-        />
-      );
-
-      // Wait for componentDidMount to trigger onSubmit
-      await waitFor(() => {
-        expect(onParseOk).toHaveBeenCalled();
-      });
-
-      expect(onParseOk).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({
-            category: expect.any(String),
-          }),
-        ])
-      );
-    });
-
-    it('should call onParseOk when query changes', async () => {
+  describe('onFilterChange callback', () => {
+    it('should call onFilterChange when expressions change', async () => {
       const user = userEvent.setup();
-      const handler = createMockAutoCompleteHandler();
-      const onParseOk = jest.fn();
+      const onFilterChange = jest.fn();
 
-      render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={onParseOk}
-          defaultQuery={() => ''}
-        />
-      );
+      render(<FilterBox schema={mockSchema} onFilterChange={onFilterChange} />);
 
       const input = screen.getByTestId('filter-input');
-      await user.clear(input);
       await user.type(input, 'activityId = Task_1');
 
-      // Trigger blur to simulate form submission
-      await user.tab();
-
       await waitFor(() => {
-        expect(onParseOk).toHaveBeenCalled();
+        expect(onFilterChange).toHaveBeenCalled();
       });
     });
-  });
 
-  describe('autocomplete handler integration', () => {
-    it('should call setQuery on autoCompleteHandler during initialization', () => {
-      const handler = createMockAutoCompleteHandler();
-      const initialQuery = 'finished < 2024-12-31';
-
-      render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={() => initialQuery}
-        />
-      );
-
-      expect(handler.setQuery).toHaveBeenCalledWith(initialQuery);
-    });
-
-    it('should update autoCompleteHandler query when input changes', async () => {
+    it('should provide expressions in the expected format', async () => {
       const user = userEvent.setup();
-      const handler = createMockAutoCompleteHandler();
+      const onFilterChange = jest.fn();
 
-      render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={() => ''}
-        />
-      );
+      render(<FilterBox schema={mockSchema} onFilterChange={onFilterChange} />);
 
       const input = screen.getByTestId('filter-input');
-      await user.type(input, 'new query');
+      await user.type(input, 'activityId = Task_1');
 
       await waitFor(() => {
-        expect(handler.setQuery).toHaveBeenCalled();
+        const lastCall = onFilterChange.mock.calls[onFilterChange.mock.calls.length - 1];
+        expect(lastCall[0]).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              field: expect.any(String),
+              operator: expect.any(String),
+              value: expect.anything(),
+            }),
+          ])
+        );
       });
-    });
-
-    it('should provide categories via needCategories', () => {
-      const handler = createMockAutoCompleteHandler();
-
-      render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={() => ''}
-        />
-      );
-
-      const categories = handler.needCategories();
-      expect(categories).toContain('started');
-      expect(categories).toContain('finished');
-      expect(categories).toContain('activityId');
     });
   });
 
-  describe('options handling', () => {
-    it('should accept column field options', () => {
-      const handler = createMockAutoCompleteHandler();
-      const customOptions = [
-        { columnField: 'processInstanceId', type: 'string' },
-        { columnField: 'businessKey', type: 'string' },
+  describe('onLegacyFilterChange callback', () => {
+    it('should accept onLegacyFilterChange prop without errors', () => {
+      const onLegacyFilterChange = jest.fn();
+
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} onLegacyFilterChange={onLegacyFilterChange} />);
+
+      // Just verify it renders without errors when callback is provided
+      expect(screen.getByTestId('filter-box')).toBeInTheDocument();
+    });
+  });
+
+  describe('initial expressions', () => {
+    it('should render with initial expressions', () => {
+      const initialExpressions = [{ field: 'activityId', operator: '=', value: 'Task_1' }];
+
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} initialExpressions={initialExpressions} />);
+
+      expect(screen.getByTestId('filter-input')).toHaveValue('activityId = Task_1');
+    });
+
+    it('should render multiple initial expressions joined with AND', () => {
+      const initialExpressions = [
+        { field: 'activityId', operator: '=', value: 'Task_1' },
+        { field: 'processInstanceId', operator: '=', value: '123' },
       ];
 
-      render(
-        <FilterBox
-          options={customOptions}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={() => ''}
-        />
-      );
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} initialExpressions={initialExpressions} />);
 
-      expect(screen.getByTestId('filter-box')).toBeInTheDocument();
+      expect(screen.getByTestId('filter-input')).toHaveValue('activityId = Task_1 AND processInstanceId = 123');
     });
 
-    it('should handle empty options array', () => {
-      const handler = createMockAutoCompleteHandler();
-
-      render(<FilterBox options={[]} autoCompleteHandler={handler} onParseOk={jest.fn()} defaultQuery={() => ''} />);
-
-      expect(screen.getByTestId('filter-box')).toBeInTheDocument();
-    });
-  });
-
-  describe('query state management', () => {
-    it('should maintain query state across changes', async () => {
-      const user = userEvent.setup();
-      const handler = createMockAutoCompleteHandler();
-      const onParseOk = jest.fn();
-
-      render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={onParseOk}
-          defaultQuery={() => 'initial query'}
-        />
-      );
-
-      const input = screen.getByTestId('filter-input');
-      expect(input).toHaveValue('initial query');
-
-      await user.clear(input);
-      await user.type(input, 'updated query');
-
-      expect(input).toHaveValue('updated query');
-    });
-
-    it('should compute initial query only once', () => {
-      const handler = createMockAutoCompleteHandler();
-      const defaultQuery = jest.fn(() => 'computed query');
+    it('should update when initialExpressions prop changes', async () => {
+      const onFilterChange = jest.fn();
 
       const { rerender } = render(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={defaultQuery}
-        />
+        <FilterBox schema={mockSchema} onFilterChange={onFilterChange} initialExpressions={[]} />
       );
 
-      const initialCallCount = defaultQuery.mock.calls.length;
+      // Initially empty
+      expect(screen.getByTestId('filter-input')).toHaveValue('');
 
-      // Re-render should not call defaultQuery again
-      rerender(
-        <FilterBox
-          options={defaultOptions}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={defaultQuery}
-        />
-      );
+      // Update with new expressions
+      const newExpressions = [{ field: 'activityId', operator: '=', value: 'Task_1' }];
+      rerender(<FilterBox schema={mockSchema} onFilterChange={onFilterChange} initialExpressions={newExpressions} />);
 
-      expect(defaultQuery).toHaveBeenCalledTimes(initialCallCount);
+      // Should update the input
+      await waitFor(() => {
+        expect(screen.getByTestId('filter-input')).toHaveValue('activityId = Task_1');
+      });
+
+      // Should trigger onFilterChange callback
+      expect(onFilterChange).toHaveBeenCalledWith(newExpressions);
     });
   });
 
-  describe('date picker integration', () => {
-    it('should render date picker for date fields when provided as autocomplete value', () => {
-      const handler = createMockAutoCompleteHandler();
-      const options = [
-        { columnField: 'started', type: 'date' },
-        { columnField: 'finished', type: 'date' },
-      ];
+  describe('saved searches dropdown', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('should toggle dropdown when button is clicked', async () => {
+      const user = userEvent.setup();
+
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
+
+      const toggleButton = screen.getByTitle('Saved searches');
+      await user.click(toggleButton);
+
+      // Dropdown should be visible with save section
+      expect(screen.getByPlaceholderText('Save search as...')).toBeInTheDocument();
+    });
+
+    it('should show empty state when no saved searches', async () => {
+      const user = userEvent.setup();
+
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
+
+      const toggleButton = screen.getByTitle('Saved searches');
+      await user.click(toggleButton);
+
+      expect(screen.getByText('No saved searches')).toBeInTheDocument();
+    });
+
+    it('should have save button', async () => {
+      const user = userEvent.setup();
+
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
+
+      const toggleButton = screen.getByTitle('Saved searches');
+      await user.click(toggleButton);
+
+      expect(screen.getByText('Save')).toBeInTheDocument();
+    });
+
+    it('should close dropdown when clicking outside', async () => {
+      const user = userEvent.setup();
 
       render(
-        <FilterBox
-          options={options}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={() => 'started > 2024-01-01'}
-        />
+        <div>
+          <FilterBox schema={mockSchema} onFilterChange={jest.fn()} />
+          <button data-testid="outside">Outside</button>
+        </div>
       );
 
-      // The date picker is rendered via customRenderCompletionItem when
-      // autocomplete suggestions include a date type. Since our mock
-      // ReactDatePicker renders a testid, verify it exists when date fields are configured.
+      const toggleButton = screen.getByTitle('Saved searches');
+      await user.click(toggleButton);
+
+      expect(screen.getByPlaceholderText('Save search as...')).toBeInTheDocument();
+
+      const outsideButton = screen.getByTestId('outside');
+      await user.click(outsideButton);
+
+      await waitFor(() => {
+        expect(screen.queryByPlaceholderText('Save search as...')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('schema variants', () => {
+    it('should work with definition filter schema', () => {
+      const schema = createDefinitionFilterSchema();
+
+      render(<FilterBox schema={schema} onFilterChange={jest.fn()} />);
+
       expect(screen.getByTestId('filter-box')).toBeInTheDocument();
     });
 
-    it('should include date type in options configuration', () => {
-      const handler = createMockAutoCompleteHandler();
-      const dateOptions = [
-        { columnField: 'started', type: 'date' },
-        { columnField: 'finished', type: 'date' },
-      ];
+    it('should work with instance query schema', () => {
+      const schema = createInstanceQuerySchema();
 
-      const { container } = render(
-        <FilterBox options={dateOptions} autoCompleteHandler={handler} onParseOk={jest.fn()} defaultQuery={() => ''} />
-      );
+      render(<FilterBox schema={schema} onFilterChange={jest.fn()} />);
 
-      // Date options are passed to the FilterBox and will trigger date picker
-      // rendering when the autocomplete popup shows a date-type suggestion
-      expect(container.querySelector('.form-control')).toBeInTheDocument();
+      expect(screen.getByTestId('filter-box')).toBeInTheDocument();
     });
 
-    it('should handle date picker mock rendering with custom date selection', async () => {
-      const user = userEvent.setup();
-      const handler = createMockAutoCompleteHandler();
+    it('should work with authorization filter schema', () => {
+      const schema = createAuthorizationFilterSchema();
 
-      // Configure the mock to provide date type values for 'started' field
-      handler.needValues = jest.fn(() => [{ value: { customType: 'date' }, type: 'date' }]);
+      render(<FilterBox schema={schema} onFilterChange={jest.fn()} />);
 
-      render(
-        <FilterBox
-          options={[{ columnField: 'started', type: 'date' }]}
-          autoCompleteHandler={handler}
-          onParseOk={jest.fn()}
-          defaultQuery={() => ''}
-        />
-      );
+      expect(screen.getByTestId('filter-box')).toBeInTheDocument();
+    });
+  });
 
-      const input = screen.getByTestId('filter-input');
-      await user.type(input, 'started > ');
+  describe('wrapper styling', () => {
+    it('should have filter-box-wrapper class', () => {
+      const { container } = render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
 
-      // The mocked date picker provides a Pick Date button for testing
-      // In a real scenario, the date picker would be shown in the autocomplete popup
-      expect(screen.getByTestId('filter-input')).toBeInTheDocument();
+      expect(container.querySelector('.filter-box-wrapper')).toBeInTheDocument();
+    });
+
+    it('should have filter-box-container class', () => {
+      const { container } = render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
+
+      expect(container.querySelector('.filter-box-container')).toBeInTheDocument();
+    });
+  });
+
+  describe('conflict detection', () => {
+    it('should not show conflict warning when no conflictRules provided', () => {
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} />);
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('should not show conflict warning when no conflicts detected', () => {
+      const conflictRules = [
+        { field1: 'active', field2: 'completed', reason: 'Active and completed are mutually exclusive' },
+      ];
+
+      render(<FilterBox schema={mockSchema} onFilterChange={jest.fn()} conflictRules={conflictRules} />);
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
   });
 });
