@@ -21523,6 +21523,13 @@ var Ve = Object.assign(xe, {
   Pane: Ie
 });
 
+// THIS FILE IS AUTO GENERATED
+function VscCollapseAll (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 16 16","fill":"currentColor"},"child":[{"tag":"path","attr":{"d":"M9 9H4v1h5V9z"},"child":[]},{"tag":"path","attr":{"fillRule":"evenodd","clipRule":"evenodd","d":"M5 3l1-1h7l1 1v7l-1 1h-2v2l-1 1H3l-1-1V6l1-1h2V3zm1 2h4l1 1v4h2V3H6v2zm4 1H3v7h7V6z"},"child":[]}]})(props);
+}function VscExpandAll (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 16 16","fill":"currentColor"},"child":[{"tag":"path","attr":{"d":"M9 9H4v1h5V9z"},"child":[]},{"tag":"path","attr":{"d":"M7 12V7H6v5h1z"},"child":[]},{"tag":"path","attr":{"fillRule":"evenodd","clipRule":"evenodd","d":"M5 3l1-1h7l1 1v7l-1 1h-2v2l-1 1H3l-1-1V6l1-1h2V3zm1 2h4l1 1v4h2V3H6v2zm4 1H3v7h7V6z"},"child":[]}]})(props);
+}
+
 const token = '%[a-f0-9]{2}';
 const singleMatcher = new RegExp('(' + token + ')|([^%]+?)', 'gi');
 const multiMatcher = new RegExp('(' + token + ')+', 'gi');
@@ -78611,8 +78618,12 @@ var VariablesTable = function (_a) {
 
 /** Minimum pane size when collapsed (in pixels) */
 var MIN_PANE_SIZE = 50;
-/** Default expanded size for info panel (percentage) */
-var INFO_EXPANDED_SIZE = 300;
+/** Default expanded size for info panel (in pixels) */
+var INFO_EXPANDED_SIZE = 320;
+/** Info panel width threshold to determine collapsed state (in pixels) */
+var INFO_WIDTH_THRESHOLD = 100;
+/** Tabs panel height threshold to determine collapsed state (in pixels) */
+var TABS_HEIGHT_THRESHOLD = 200;
 /**
  * Renders the history view layout with resizable panes.
  * Contains process info panel, BPMN viewer, and audit log/variables tabs.
@@ -78624,83 +78635,155 @@ var HistoryViewLayout = function (_a) {
     var settings = loadSettings();
     var horizontalRef = reactExports.useRef(null);
     var verticalRef = reactExports.useRef(null);
-    var _d = reactExports.useState(typeof settings.leftPaneSize === 'number' && settings.leftPaneSize <= MIN_PANE_SIZE), infoPaneCollapsed = _d[0], setInfoPaneCollapsed = _d[1];
+    var containerRef = reactExports.useRef(null);
+    var _d = reactExports.useState(typeof settings.leftPaneSize === 'number' ? settings.leftPaneSize : INFO_EXPANDED_SIZE), infoPaneSize = _d[0], setInfoPaneSize = _d[1];
+    // Track bottom tabs pane size (derived from container height - top pane size)
     var _e = reactExports.useState(function () {
-        var containerHeight = 600;
-        return typeof settings.topPaneSize === 'number' && settings.topPaneSize > containerHeight * 0.8;
-    }), tabsPaneCollapsed = _e[0], setTabsPaneCollapsed = _e[1];
-    /** Toggle the left info panel between collapsed and expanded */
+        if (typeof settings.topPaneSize === 'number') {
+            // topPaneSize is the BPMN viewer height; tabs height = container - topPaneSize
+            var containerHeight = 600;
+            return containerHeight - settings.topPaneSize;
+        }
+        return 300; // Default: 50% of 600px container
+    }), tabsPaneSize = _e[0], setTabsPaneSize = _e[1];
+    /** Get container height for calculations */
+    var getContainerHeight = function () {
+        var _a, _b;
+        return (_b = (_a = containerRef.current) === null || _a === void 0 ? void 0 : _a.clientHeight) !== null && _b !== void 0 ? _b : 600;
+    };
+    /** Toggle the left info panel between collapsed (50px) and expanded (320px) */
     var toggleInfoPanel = function () {
         var _a;
-        var newSize = infoPaneCollapsed ? INFO_EXPANDED_SIZE : MIN_PANE_SIZE;
-        (_a = horizontalRef.current) === null || _a === void 0 ? void 0 : _a.resize([newSize]);
-        saveSettings(__assign(__assign({}, loadSettings()), { leftPaneSize: newSize }));
-        setInfoPaneCollapsed(!infoPaneCollapsed);
+        var isCollapsed = infoPaneSize < INFO_WIDTH_THRESHOLD;
+        var newInfoSize = isCollapsed ? INFO_EXPANDED_SIZE : MIN_PANE_SIZE;
+        // Allotment resize takes array of sizes for each pane in order
+        // First pane is info panel, second pane gets remaining space
+        (_a = horizontalRef.current) === null || _a === void 0 ? void 0 : _a.resize([newInfoSize, Infinity]);
+        saveSettings(__assign(__assign({}, loadSettings()), { leftPaneSize: newInfoSize }));
+        setInfoPaneSize(newInfoSize);
     };
-    /** Toggle the bottom tabs panel between collapsed and expanded */
+    /** Toggle the bottom tabs panel between collapsed (50px) and expanded (50vh) */
     var toggleTabsPanel = function () {
         var _a;
-        var containerHeight = 600;
-        var topSize = tabsPaneCollapsed ? containerHeight * 0.5 : containerHeight * 0.85;
-        (_a = verticalRef.current) === null || _a === void 0 ? void 0 : _a.resize([topSize]);
-        saveSettings(__assign(__assign({}, loadSettings()), { topPaneSize: topSize }));
-        setTabsPaneCollapsed(!tabsPaneCollapsed);
+        var containerHeight = getContainerHeight();
+        var expandedTabsHeight = containerHeight * 0.5;
+        // If tabs are small (< 200px), expand them to 50vh; otherwise collapse to 50px
+        var isCollapsed = tabsPaneSize < TABS_HEIGHT_THRESHOLD;
+        var newTabsSize = isCollapsed ? expandedTabsHeight : MIN_PANE_SIZE;
+        // topPaneSize = containerHeight - tabsSize
+        var newTopSize = containerHeight - newTabsSize;
+        // Allotment resize takes array of sizes for each pane in order
+        // First pane is BPMN viewer (top), second pane is tabs (bottom)
+        (_a = verticalRef.current) === null || _a === void 0 ? void 0 : _a.resize([newTopSize, newTabsSize]);
+        saveSettings(__assign(__assign({}, loadSettings()), { topPaneSize: newTopSize }));
+        setTabsPaneSize(newTabsSize);
+    };
+    /** Toggle all panels between fully collapsed and fully expanded */
+    var toggleAllPanels = function () {
+        var _a, _b, _c, _d;
+        var containerHeight = getContainerHeight();
+        var bothCollapsed = infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD;
+        if (bothCollapsed) {
+            // Expand both: info panel to 320px, tabs to 50vh
+            var expandedTabsHeight = containerHeight * 0.5;
+            var newTopSize = containerHeight - expandedTabsHeight;
+            (_a = horizontalRef.current) === null || _a === void 0 ? void 0 : _a.resize([INFO_EXPANDED_SIZE, Infinity]);
+            (_b = verticalRef.current) === null || _b === void 0 ? void 0 : _b.resize([newTopSize, expandedTabsHeight]);
+            saveSettings(__assign(__assign({}, loadSettings()), { leftPaneSize: INFO_EXPANDED_SIZE, topPaneSize: newTopSize }));
+            setInfoPaneSize(INFO_EXPANDED_SIZE);
+            setTabsPaneSize(expandedTabsHeight);
+        }
+        else {
+            // Collapse both: info panel to 50px, tabs to 50px
+            var newTopSize = containerHeight - MIN_PANE_SIZE;
+            (_c = horizontalRef.current) === null || _c === void 0 ? void 0 : _c.resize([MIN_PANE_SIZE, Infinity]);
+            (_d = verticalRef.current) === null || _d === void 0 ? void 0 : _d.resize([newTopSize, MIN_PANE_SIZE]);
+            saveSettings(__assign(__assign({}, loadSettings()), { leftPaneSize: MIN_PANE_SIZE, topPaneSize: newTopSize }));
+            setInfoPaneSize(MIN_PANE_SIZE);
+            setTabsPaneSize(MIN_PANE_SIZE);
+        }
     };
     return (React.createElement(Container, null,
-        React.createElement(Ve, { ref: horizontalRef, vertical: false, onChange: function (numbers) {
-                var _a;
-                saveSettings(__assign(__assign({}, loadSettings()), { leftPaneSize: (_a = numbers[0]) !== null && _a !== void 0 ? _a : null }));
-            } },
-            React.createElement(Ve.Pane, { preferredSize: (_b = settings.leftPaneSize) !== null && _b !== void 0 ? _b : '33%', minSize: MIN_PANE_SIZE },
-                React.createElement("div", { style: { height: '100%', position: 'relative' } },
-                    React.createElement(ProcessInfoPanel, { instance: instance, definition: definition }),
-                    React.createElement("button", { type: "button", onClick: toggleInfoPanel, style: {
-                            position: 'absolute',
-                            right: 0,
-                            top: '10px',
-                            background: 'white',
-                            border: '1px solid #ccc',
-                            borderRight: 'none',
-                            borderRadius: '3px 0 0 3px',
-                            color: '#333',
-                            cursor: 'pointer',
-                            padding: '4px 3px',
-                            lineHeight: '1',
-                            zIndex: 10,
-                            boxShadow: '-2px 2px 4px rgba(0,0,0,0.1)',
-                        }, title: infoPaneCollapsed ? 'Expand info panel' : 'Collapse info panel', "aria-label": infoPaneCollapsed ? 'Expand info panel' : 'Collapse info panel' }, infoPaneCollapsed ? React.createElement(GoChevronRight, null) : React.createElement(GoChevronLeft, null)))),
-            React.createElement(Ve.Pane, null,
-                React.createElement(Ve, { ref: verticalRef, vertical: true, onChange: function (numbers) {
-                        var _a;
-                        saveSettings(__assign(__assign({}, loadSettings()), { topPaneSize: (_a = numbers[0]) !== null && _a !== void 0 ? _a : null }));
-                    } },
-                    React.createElement(Ve.Pane, { preferredSize: (_c = settings.topPaneSize) !== null && _c !== void 0 ? _c : '66%' },
-                        React.createElement("div", { style: { height: '100%', position: 'relative' } },
-                            React.createElement(BPMNViewer, { activities: activities, diagramXML: diagramXML, className: "ctn-content", style: { width: '100%', height: '100%' }, showRuntimeToggle: instance.state === 'ACTIVE' }),
-                            React.createElement("button", { type: "button", onClick: toggleTabsPanel, style: {
-                                    position: 'absolute',
-                                    left: '10px',
-                                    bottom: 0,
-                                    background: 'white',
-                                    border: '1px solid #ccc',
-                                    borderBottom: 'none',
-                                    borderRadius: '3px 3px 0 0',
-                                    color: '#333',
-                                    cursor: 'pointer',
-                                    padding: '3px 4px',
-                                    lineHeight: '1',
-                                    zIndex: 10,
-                                    boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
-                                }, title: tabsPaneCollapsed ? 'Expand tabs panel' : 'Collapse tabs panel', "aria-label": tabsPaneCollapsed ? 'Expand tabs panel' : 'Collapse tabs panel' }, tabsPaneCollapsed ? React.createElement(GoChevronUp, null) : React.createElement(GoChevronDown, null)))),
-                    React.createElement(Ve.Pane, { minSize: MIN_PANE_SIZE },
-                        React.createElement("div", { className: "ctn-row ctn-content-bottom ctn-tabbed", style: { height: '100%', position: 'relative' } },
-                            React.createElement(Tabs, null,
-                                React.createElement(Tab, { label: "Audit Log" },
-                                    React.createElement(AuditLogTable, { activities: activities, decisions: decisionByActivity })),
-                                React.createElement(Tab, { label: "Variables" },
-                                    React.createElement(VariablesTable, { instance: historicInstance, activities: activityById, variables: variables })),
-                                instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (React.createElement(Tab, { label: "Terminated" },
-                                    React.createElement(RestartProcessForm, { api: api, processDefinitionId: instance.processDefinitionId })))))))))));
+        React.createElement("div", { ref: containerRef, style: { height: '100%', width: '100%' } },
+            React.createElement(Ve, { ref: horizontalRef, vertical: false, onChange: function (numbers) {
+                    var _a;
+                    var newLeftSize = (_a = numbers[0]) !== null && _a !== void 0 ? _a : infoPaneSize;
+                    setInfoPaneSize(newLeftSize);
+                    saveSettings(__assign(__assign({}, loadSettings()), { leftPaneSize: newLeftSize }));
+                } },
+                React.createElement(Ve.Pane, { preferredSize: (_b = settings.leftPaneSize) !== null && _b !== void 0 ? _b : '33%', minSize: MIN_PANE_SIZE },
+                    React.createElement("div", { style: { height: '100%', position: 'relative' } },
+                        React.createElement(ProcessInfoPanel, { instance: instance, definition: definition }),
+                        React.createElement("button", { type: "button", onClick: toggleInfoPanel, style: {
+                                position: 'absolute',
+                                right: 0,
+                                top: '10px',
+                                background: 'white',
+                                border: '1px solid #ccc',
+                                borderRight: 'none',
+                                borderRadius: '3px 0 0 3px',
+                                color: '#333',
+                                cursor: 'pointer',
+                                padding: '4px 3px',
+                                lineHeight: '1',
+                                zIndex: 10,
+                                boxShadow: '-2px 2px 4px rgba(0,0,0,0.1)',
+                            }, title: infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel', "aria-label": infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel' }, infoPaneSize < INFO_WIDTH_THRESHOLD ? React.createElement(GoChevronRight, null) : React.createElement(GoChevronLeft, null)))),
+                React.createElement(Ve.Pane, null,
+                    React.createElement(Ve, { ref: verticalRef, vertical: true, onChange: function (numbers) {
+                            var _a;
+                            var newTopSize = (_a = numbers[0]) !== null && _a !== void 0 ? _a : 0;
+                            var containerHeight = getContainerHeight();
+                            var newTabsSize = containerHeight - newTopSize;
+                            setTabsPaneSize(newTabsSize);
+                            saveSettings(__assign(__assign({}, loadSettings()), { topPaneSize: newTopSize }));
+                        } },
+                        React.createElement(Ve.Pane, { preferredSize: (_c = settings.topPaneSize) !== null && _c !== void 0 ? _c : '66%' },
+                            React.createElement("div", { style: { height: '100%', position: 'relative' } },
+                                React.createElement(BPMNViewer, { activities: activities, diagramXML: diagramXML, className: "ctn-content", style: { width: '100%', height: '100%' }, showRuntimeToggle: instance.state === 'ACTIVE' }),
+                                React.createElement("button", { type: "button", onClick: toggleTabsPanel, style: {
+                                        position: 'absolute',
+                                        left: '10px',
+                                        bottom: 0,
+                                        background: 'white',
+                                        border: '1px solid #ccc',
+                                        borderBottom: 'none',
+                                        borderRadius: '3px 3px 0 0',
+                                        color: '#333',
+                                        cursor: 'pointer',
+                                        padding: '3px 4px',
+                                        lineHeight: '1',
+                                        zIndex: 10,
+                                        boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
+                                    }, title: tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel', "aria-label": tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel' }, tabsPaneSize < TABS_HEIGHT_THRESHOLD ? React.createElement(GoChevronUp, null) : React.createElement(GoChevronDown, null)),
+                                React.createElement("button", { type: "button", onClick: toggleAllPanels, style: {
+                                        position: 'absolute',
+                                        left: '50px',
+                                        bottom: 0,
+                                        background: 'white',
+                                        border: '1px solid #ccc',
+                                        borderBottom: 'none',
+                                        borderRadius: '3px 3px 0 0',
+                                        color: '#333',
+                                        cursor: 'pointer',
+                                        padding: '3px 4px',
+                                        lineHeight: '1',
+                                        zIndex: 10,
+                                        boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
+                                    }, title: infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
+                                        ? 'Restore side panels'
+                                        : 'Maximize diagram', "aria-label": infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
+                                        ? 'Restore side panels'
+                                        : 'Maximize diagram' }, infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD ? (React.createElement(VscCollapseAll, null)) : (React.createElement(VscExpandAll, null))))),
+                        React.createElement(Ve.Pane, { minSize: MIN_PANE_SIZE },
+                            React.createElement("div", { className: "ctn-row ctn-content-bottom ctn-tabbed", style: { height: '100%', position: 'relative' } },
+                                React.createElement(Tabs, null,
+                                    React.createElement(Tab, { label: "Audit Log" },
+                                        React.createElement(AuditLogTable, { activities: activities, decisions: decisionByActivity })),
+                                    React.createElement(Tab, { label: "Variables" },
+                                        React.createElement(VariablesTable, { instance: historicInstance, activities: activityById, variables: variables })),
+                                    instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (React.createElement(Tab, { label: "Terminated" },
+                                        React.createElement(RestartProcessForm, { api: api, processDefinitionId: instance.processDefinitionId }))))))))))));
 };
 
 var Page = function (_a) {

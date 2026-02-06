@@ -66,7 +66,7 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
           processDefinitionKey: processDefinition.key,
           externallyTerminated: 'true',
         });
-        const terminated = (terminatedResponse as HistoricProcessInstance[]) ?? [];
+        const terminated = terminatedResponse as HistoricProcessInstance[];
         setTerminatedInstances(terminated);
 
         // Load BPMN XML to get available activities
