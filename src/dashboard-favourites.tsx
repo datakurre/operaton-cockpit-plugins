@@ -94,7 +94,7 @@ interface StarButtonProps {
 const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => {
   const [isFav, setIsFav] = useState<boolean>(false);
   const [definition, setDefinition] = useState<ProcessDefinition | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Load process definition details
@@ -105,10 +105,10 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
           const data = (await response.json()) as ProcessDefinition;
           setDefinition(data);
         }
-      } catch (error) {
-        console.error('Failed to load process definition:', error);
+      } catch {
+        // Silently fail
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -135,7 +135,7 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return null;
   }
 
@@ -166,6 +166,7 @@ interface DashboardTableProps {
  */
 const DashboardTable: React.FC<DashboardTableProps> = ({ api: _api }) => {
   const [favourites, setFavourites] = useState<FavouriteDefinition[]>([]);
+  // eslint-disable-next-line @typescript-eslint/naming-convention -- Common React state naming pattern
   const [loading, setLoading] = useState<boolean>(true);
 
   const loadData = (): void => {
@@ -215,7 +216,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api: _api }) => {
           {favourites.map(fav => (
             <tr key={fav.id}>
               <td>
-                <a href={`#/process-definition/${fav.id}/runtime`}>{fav.name || fav.key}</a>
+                <a href={`#/process-definition/${fav.id}/runtime`}>{fav.name ?? fav.key}</a>
               </td>
               <td>{fav.key}</td>
               <td>{fav.version}</td>
@@ -223,7 +224,9 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api: _api }) => {
                 <button
                   type="button"
                   className="btn btn-default btn-xs"
-                  onClick={() => handleRemove(fav.id)}
+                  onClick={() => {
+                    handleRemove(fav.id);
+                  }}
                   title="Remove from favourites"
                 >
                   <span className="glyphicon glyphicon-star" />

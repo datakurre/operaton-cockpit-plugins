@@ -10,7 +10,11 @@ import RobotModule from '../RobotModule';
 import { Canvas } from '../services/ViewerService';
 import { HistoricActivityInstance } from '../types';
 import { clearSequenceFlow, renderSequenceFlow, renderActivities } from '../utils/bpmn';
-import { ZOOM_INCREMENT } from '../utils/constants';
+import {
+  ZOOM_INCREMENT,
+  ZOOM_RESET_DELAY_INITIAL_MS,
+  ZOOM_RESET_DELAY_FINAL_MS,
+} from '../utils/constants';
 import ResetZoomButton from './ResetZoomButton';
 import { ToggleHistoryViewButton } from './ToggleHistoryViewButton';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';
@@ -94,8 +98,8 @@ const BPMNViewer: React.FC<Props> = ({ activities, className, diagramXML, style,
         resetZoom();
         setTimeout(resetZoom, 0);
         requestAnimationFrame(resetZoom);
-        setTimeout(resetZoom, 100);
-        setTimeout(resetZoom, 300);
+        setTimeout(resetZoom, ZOOM_RESET_DELAY_INITIAL_MS);
+        setTimeout(resetZoom, ZOOM_RESET_DELAY_FINAL_MS);
 
         renderActivities(viewer as unknown as BpmnViewerInstance, activities ?? []);
 

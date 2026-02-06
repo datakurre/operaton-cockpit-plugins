@@ -22,42 +22,44 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [Makefile](Makefile): Development shortcuts (formatting, etc.)
 
 ### Built outputs (committed for convenience)
+- `admin-nologin.js` – Admin no-login plugin (hides signin form via CSS)
+- `admin-route-authorization.js` – Admin authorization management route
 - `cockpit-custom-styles.js` – Custom stylesheet plugin for UI customization
 - `cockpit-nologin.js` – Cockpit no-login plugin (hides signin form via CSS)
 - `dashboard-favourites.js` – Process definition favorites star button and dashboard table
 - `decisions-dashboard.js` – DMN decision table testing dashboard
 - `definition-historic-activities.js` – Process definition statistics overlay
 - `definition-tab-modify.js` – Process definition modification template builder
+- `instance-action-unlock.js` – External task unlock action
+- `instance-auto-refresh.js` – Auto-refresh toggle for instance views
 - `instance-historic-activities.js` – Process instance audit log and overlays
 - `instance-route-history.js` – Full history route view
-- `instance-auto-refresh.js` – Auto-refresh toggle for instance views
 - `instance-tab-modify.js` – Process modification and message correlation
-- `instance-action-unlock.js` – External task unlock action
+- `robot-module.js` – BPMN module utilities for diagram rendering
 - `tasklist-audit-log.js` – Tasklist audit log tab
 - `tasklist-nologin.js` – Tasklist no-login plugin (hides signin form via CSS)
-- `admin-nologin.js` – Admin no-login plugin (hides signin form via CSS)
 - `welcome-nologin.js` – Welcome no-login plugin (hides signin form via CSS)
-- `robot-module.js` – BPMN module utilities for diagram rendering
 - `*.js.map` – Source maps (development builds only)
 
 ### Plugin entrypoints (`src/`)
+- [src/admin-nologin.tsx](src/admin-nologin.tsx): Admin no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
+- [src/admin-route-authorization.tsx](src/admin-route-authorization.tsx): Admin authorization management route. Two-panel layout with resource type list and authorization CRUD operations.
 - [src/cockpit-custom-styles.tsx](src/cockpit-custom-styles.tsx): Minimal plugin that only applies custom stylesheets (SCSS) for UI customization without any JavaScript functionality.
 - [src/cockpit-nologin.tsx](src/cockpit-nologin.tsx): Cockpit no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
 - [src/dashboard-favourites.tsx](src/dashboard-favourites.tsx): Process definition favorites plugin. Adds a star button on process definition runtime views to favorite/unfavorite definitions, and provides a dashboard table showing favorited process definitions with version info and direct links.
 - [src/decisions-dashboard.tsx](src/decisions-dashboard.tsx): DMN decision table testing dashboard. Provides a UI for selecting deployed decision definitions, parsing DMN inputs, evaluating decisions via the API, displaying results, and highlighting matched rules on the rendered decision table.
 - [src/definition-historic-activities.tsx](src/definition-historic-activities.tsx): Adds a runtime tab and diagram overlay for historic activity statistics with a filter UI and badge overlays.
 - [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition modification template builder tab for designing modification instructions that can be applied to specific process instances.
+- [src/instance-action-unlock.tsx](src/instance-action-unlock.tsx): Process instance action button that provides a dialog for unlocking external tasks that are locked by workers, with batch selection and individual retry capabilities.
+- [src/instance-auto-refresh.tsx](src/instance-auto-refresh.tsx): Diagram plugin exposing a toggle for auto-refresh on an instance view.
 - [src/instance-historic-activities.tsx](src/instance-historic-activities.tsx): Adds audit-log tab and diagram overlays for a process instance, including sequence-flow highlighting.
 - [src/instance-route-history.tsx](src/instance-route-history.tsx): Full history route (`#/history/process-instance/:id`) with breadcrumbs, BPMN viewer, audit log, variables, pagination, and filter box.
-- [src/instance-auto-refresh.tsx](src/instance-auto-refresh.tsx): Diagram plugin exposing a toggle for auto-refresh on an instance view.
 - [src/instance-tab-modify.tsx](src/instance-tab-modify.tsx): Process instance modification tab with sub-tabs for modifying process flow (start/cancel activities) and correlating messages. Includes a visual form builder for variables with type-specific inputs and comprehensive validation.
-- [src/instance-action-unlock.tsx](src/instance-action-unlock.tsx): Process instance action button that provides a dialog for unlocking external tasks that are locked by workers, with batch selection and individual retry capabilities.
-- [src/tasklist-audit-log.tsx](src/tasklist-audit-log.tsx): Tasklist detail tab that loads the instance audit log.
-- [src/tasklist-nologin.tsx](src/tasklist-nologin.tsx): Tasklist no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
-- [src/admin-nologin.tsx](src/admin-nologin.tsx): Admin no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
-- [src/welcome-nologin.tsx](src/welcome-nologin.tsx): Welcome no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
 - [src/nologin.scss](src/nologin.scss): Shared stylesheet for all no-login plugins. Hides `form[name="signinForm"]` across all Operaton/Camunda webapps.
 - [src/RobotModule/index.ts](src/RobotModule/index.ts): Additional BPMN module utilities for diagram rendering.
+- [src/tasklist-audit-log.tsx](src/tasklist-audit-log.tsx): Tasklist detail tab that loads the instance audit log.
+- [src/tasklist-nologin.tsx](src/tasklist-nologin.tsx): Tasklist no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
+- [src/welcome-nologin.tsx](src/welcome-nologin.tsx): Welcome no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
 
 ### Services (`src/services/`)
 - [HistoryService.ts](src/services/HistoryService.ts): History API abstraction for testability with typed interfaces for historic activities and variables
@@ -66,12 +68,14 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 ### Shared utilities (`src/utils/`)
 - [api.ts](src/utils/api.ts): API helpers and CSRF-aware fetch wrappers
 - [angular.ts](src/utils/angular.ts): Angular service abstraction for testability (route reloading)
+- [authorization.ts](src/utils/authorization.ts): Authorization types, constants (AUTH_TYPES, RESOURCE_TYPES, PERMISSIONS_BY_RESOURCE), and helper functions for admin authorization management
 - [bpmn.ts](src/utils/bpmn.ts): Re-exports from `bpmn/` submodule for backwards compatibility
 - [bpmnParsing.ts](src/utils/bpmnParsing.ts): BPMN XML parsing for extracting activities, sequence flows, and message definitions
 - [constants.ts](src/utils/constants.ts): Centralized UI, timing, pagination, retry, and validation constants
 - [filterAutocomplete.ts](src/utils/filterAutocomplete.ts): Configurable autocomplete handler for filter boxes with category operators and date picker support
 - [formatting.ts](src/utils/formatting.ts): Date formatting (`formatDateTime`, `formatDateForApi`) and URL building (`buildCockpitUrl`, `buildHistoryUrl`) utilities
 - [misc.ts](src/utils/misc.ts): Local storage and querystring settings utilities
+- [resizable-layout.scss](src/utils/resizable-layout.scss): Shared SCSS styles for Allotment-based resizable layouts (Resizer, Pane borders)
 - [storage.ts](src/utils/storage.ts): Injectable storage abstraction with `MemoryStorage` for testing
 - [variables.ts](src/utils/variables.ts): Variable transformation utilities (`transformVariables`, `transformVariableValue`) for API requests
 
@@ -106,6 +110,7 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [StatisticsTable.tsx](src/Components/StatisticsTable.tsx): Activity statistics table
 - [VariablesTable.tsx](src/Components/VariablesTable.tsx): Process variables table
 - [SortableTable.tsx](src/Components/SortableTable.tsx): Generic sortable table wrapper with react-table and ARIA support
+- [SortableAuthorizationsTable.tsx](src/Components/SortableAuthorizationsTable.tsx): Sortable authorization table with react-table for admin authorization management
 
 **BPMN viewer:**
 - [BPMN.tsx](src/Components/BPMN.tsx): BPMN viewer wrapper with zoom controls and history toggle buttons
@@ -130,6 +135,8 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [FilterBox.tsx](src/Components/FilterBox.tsx): Query filter UI with CodeMirror editor, custom autocomplete, and date picker integration
 - [VariableBuilder.tsx](src/Components/VariableBuilder.tsx): Dynamic variable input builder with type-specific controls (String, Integer, Boolean, JSON, Date, etc.) and form validation
 - [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Message correlation form with BPMN message parsing and variable configuration
+- [AuthorizationFormModal.tsx](src/Components/AuthorizationFormModal.tsx): Modal form for creating/editing authorizations with type, identity, permissions, and resource ID selection
+- [AuthorizationDeleteModal.tsx](src/Components/AuthorizationDeleteModal.tsx): Confirmation modal for deleting authorization records
 - [SelectField.tsx](src/Components/SelectField.tsx): Reusable form select field with consistent styling
 - [FormButton.tsx](src/Components/FormButton.tsx): Reusable form button with variants (primary, secondary, danger, success)
 - [InstructionCard.tsx](src/Components/InstructionCard.tsx): Process modification instruction card with type selector

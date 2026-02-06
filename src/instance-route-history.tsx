@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function, max-statements, max-depth, @typescript-eslint/naming-convention -- Complex history view with filtering and pagination */
 import './Components/Button.scss';
 import './instance-route-history.scss';
 
@@ -125,12 +126,9 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
         baseQuery['processDefinitionId'] = processDefinitionId;
       }
 
-      const countResult = (await post(
-        api,
-        '/history/process-instance/count',
-        {},
-        JSON.stringify(baseQuery)
-      )) as { count: number };
+      const countResult = (await post(api, '/history/process-instance/count', {}, JSON.stringify(baseQuery))) as {
+        count: number;
+      };
       setInstancesCount(countResult.count);
 
       // Fetch instances and optionally filter by version client-side
@@ -143,13 +141,17 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
 
       // Apply version filter client-side if specified (API doesn't support version operators)
       if (versionFilter) {
-        fetchedInstances = fetchedInstances.filter((instance) => {
+        fetchedInstances = fetchedInstances.filter(instance => {
           const defId = instance['processDefinitionId'] as string | undefined;
-          if (!defId) return false;
+          if (!defId) {
+            return false;
+          }
           // Extract version from processDefinitionId (format: key:version:deploymentId)
           const versionPart = defId.split(':')[1];
           const instanceVersion = versionPart !== undefined ? parseInt(versionPart, 10) : NaN;
-          if (isNaN(instanceVersion)) return false;
+          if (isNaN(instanceVersion)) {
+            return false;
+          }
 
           switch (versionFilter.operator) {
             case 'eq':

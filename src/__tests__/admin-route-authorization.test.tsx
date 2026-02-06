@@ -13,7 +13,65 @@
  * @module
  */
 
-// react-select-filter-box is mocked via moduleNameMapper in jest.config.js
+// Mock @waylay/react-filter-box before any imports that use it
+jest.mock('@waylay/react-filter-box', () => {
+  const React = require('react');
+
+  // Mock GridDataAutoCompleteHandler for FilterAutoCompleteHandler
+  class MockGridDataAutoCompleteHandler {
+    constructor(_data: unknown[], _options: unknown[]) {}
+    needCategories(): string[] {
+      return [];
+    }
+    needOperators(): string[] {
+      return [];
+    }
+    needValues(): string[] {
+      return [];
+    }
+  }
+
+  return {
+    __esModule: true,
+    GridDataAutoCompleteHandler: MockGridDataAutoCompleteHandler,
+    default: class MockReactFilterBox extends React.Component<{
+      query?: string;
+      onParseOk?: (expressions: unknown[]) => void;
+      onChange?: (query: string) => void;
+    }> {
+      parser = { getSuggestions: () => [] };
+
+      componentDidMount() {
+        if (this.props.query) {
+          this.onSubmit(this.props.query);
+        }
+      }
+
+      onSubmit(_query: string) {
+        if (this.props.onParseOk) {
+          this.props.onParseOk([]);
+        }
+      }
+
+      render() {
+        return (
+          <div data-testid="filter-box">
+            <input
+              data-testid="filter-input"
+              defaultValue={this.props.query}
+              onChange={e => {
+                if (this.props.onChange) {
+                  this.props.onChange(e.target.value);
+                }
+              }}
+            />
+          </div>
+        );
+      }
+    },
+    Expression: {},
+  };
+});
 
 // Mock allotment since it has complex resize functionality
 jest.mock('allotment', () => ({
@@ -357,12 +415,8 @@ describe('AuthorizationsView Component', () => {
       await user.click(screen.getByText('Create new authorization'));
 
       await waitFor(() => {
-        // Wait for modal to render
-        expect(screen.getByText('Create New Authorization')).toBeInTheDocument();
-      });
-
-      // Application resource type should have ACCESS permission checkbox
-      await waitFor(() => {
+        // Application resource type should have ALL and ACCESS permissions
+        expect(screen.getByLabelText('ALL')).toBeInTheDocument();
         expect(screen.getByLabelText('ACCESS')).toBeInTheDocument();
       });
     });
@@ -378,33 +432,14 @@ describe('AuthorizationsView Component', () => {
       await user.click(screen.getByText('Create new authorization'));
 
       await waitFor(() => {
-        expect(screen.getByLabelText('ACCESS')).toBeInTheDocument();
+        expect(screen.getByLabelText('ALL')).toBeInTheDocument();
       });
 
-      // Check initial state - ALL is selected by default which means ACCESS is also checked
-      const accessCheckbox = screen.getByLabelText('ACCESS') as HTMLInputElement;
-      expect(accessCheckbox.checked).toBe(true);
-
-      // Click ACCESS to uncheck it
-      await user.click(accessCheckbox);
-
-      // Wait for it to be unchecked
-      await waitFor(() => {
-        const updatedCheckbox = screen.getByLabelText('ACCESS') as HTMLInputElement;
-        expect(updatedCheckbox.checked).toBe(false);
-      });
-
-      // Click again to check it
+      // Click ACCESS to add it (should remove ALL and add ACCESS)
       await user.click(screen.getByLabelText('ACCESS'));
 
-      // Wait for the checkbox to be checked again
-      await waitFor(
-        () => {
-          const updatedCheckbox = screen.getByLabelText('ACCESS') as HTMLInputElement;
-          expect(updatedCheckbox.checked).toBe(true);
-        },
-        { timeout: 3000 }
-      );
+      const accessCheckbox = screen.getByLabelText('ACCESS') as HTMLInputElement;
+      expect(accessCheckbox.checked).toBe(true);
     });
 
     it('should submit form and create authorization', async () => {

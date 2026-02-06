@@ -7,12 +7,16 @@
 
 /* eslint-disable max-lines-per-function, jsx-a11y/anchor-is-valid, jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Sortable table with inline actions */
 import React, { useMemo } from 'react';
-import { FaEdit, FaTrash, FaCopy } from 'react-icons/fa';
 import { GoChevronDown, GoChevronUp } from 'react-icons/go';
 import { TiMinus } from 'react-icons/ti';
 import { Column, useSortBy, useTable, CellProps } from 'react-table';
 
-import { Authorization, AuthorizationRow, getAuthTypeLabel, renderIdentityDisplay } from '../utils/authorization';
+import {
+  Authorization,
+  AuthorizationRow,
+  getAuthTypeLabel,
+  renderIdentityDisplay,
+} from '../utils/authorization';
 
 /** ARIA sort direction value for accessible table headers */
 type AriaSortValue = 'ascending' | 'descending' | 'none';
@@ -20,7 +24,6 @@ type AriaSortValue = 'ascending' | 'descending' | 'none';
 interface SortableAuthorizationsTableProps {
   authorizations: Authorization[];
   onEdit: (auth: Authorization) => void;
-  onClone: (auth: Authorization) => void;
   onDelete: (auth: Authorization) => void;
 }
 
@@ -31,7 +34,6 @@ interface SortableAuthorizationsTableProps {
 const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = ({
   authorizations,
   onEdit,
-  onClone,
   onDelete,
 }) => {
   // Convert authorizations to row data
@@ -87,33 +89,22 @@ const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = 
                 onEdit(row.original.original);
               }}
               className="action-link action-edit"
-              title="Edit authorization"
             >
-              <FaEdit className="action-icon" aria-hidden="true" /> Edit
-            </a>
-            <a
-              onClick={() => {
-                onClone(row.original.original);
-              }}
-              className="action-link action-clone"
-              title="Clone authorization"
-            >
-              <FaCopy className="action-icon" aria-hidden="true" /> Clone
+              Edit
             </a>
             <a
               onClick={() => {
                 onDelete(row.original.original);
               }}
               className="action-link action-delete"
-              title="Delete authorization"
             >
-              <FaTrash className="action-icon" aria-hidden="true" /> Delete
+              Delete
             </a>
           </>
         ),
       },
     ],
-    [onEdit, onClone, onDelete]
+    [onEdit, onDelete]
   );
 
   // Use react-table with sorting

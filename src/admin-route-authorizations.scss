@@ -1,14 +1,11 @@
 /**
- * Admin Route Authorization Styles
+ * Admin Route Authorizations Styles
  *
  * Layout styles matching instance-route-history pattern:
  * - Uses Allotment for resizable two-panel layout
  * - Left pane: Resource type list
  * - Right pane: Authorization table
  */
-
-// Shared resizable layout styles
-@import './utils/resizable-layout.scss';
 
 // Container styles - uses ctn-main with top:0, bottom:0 like instance-route-history
 // The breadcrumbs-panel margin reset ensures no extra spacing at the top
@@ -18,6 +15,50 @@
 
 .ctn-content-container {
   height: 100%;
+}
+
+// Pane border styling (matches instance-route-history.scss)
+.Pane.vertical.Pane1 {
+  border-right: 1px solid #ddd;
+}
+
+// Resizer styling (matches instance-route-history.scss)
+.Resizer {
+  background: rgba(255, 255, 255, 0);
+  opacity: 0.2;
+  z-index: 1;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-background-clip: padding;
+  -webkit-background-clip: padding;
+  background-clip: padding-box;
+}
+
+.Resizer:hover {
+  -webkit-transition: all 2s ease;
+  transition: all 2s ease;
+}
+
+.Resizer.vertical {
+  width: 11px;
+  margin: 0 -5px;
+  border-left: 5px solid rgba(255, 255, 255, 0);
+  border-right: 5px solid rgba(255, 255, 255, 0);
+  cursor: col-resize;
+}
+
+.Resizer.vertical:hover {
+  border-left: 5px solid rgba(0, 0, 0, 0.5);
+  border-right: 5px solid rgba(0, 0, 0, 0.5);
+}
+
+.Resizer.disabled {
+  cursor: not-allowed;
+}
+
+.Resizer.disabled:hover {
+  border-color: transparent;
 }
 
 // Resource type list in left pane
@@ -188,81 +229,4 @@
       text-overflow: ellipsis;
     }
   }
-}
-
-// Sort indicator color constant
-$sort-indicator-color: #155cb5;
-
-// Authorization table action links
-.authorization-content .cam-table {
-  .action-link {
-    cursor: pointer;
-
-    &.action-edit {
-      margin-right: 10px;
-    }
-
-    &.action-delete {
-      color: #c00;
-    }
-  }
-
-  // Sortable table header styling
-  th {
-    &.sortable {
-      cursor: pointer;
-    }
-
-    .sort-icon-wrapper {
-      position: absolute;
-      font-size: 125%;
-      margin-left: 4px;
-    }
-
-    .sort-icon {
-      color: $sort-indicator-color;
-    }
-  }
-}
-
-// Filter controls layout
-.filter-controls {
-  margin-bottom: 15px;
-
-  .page-size-label {
-    margin-right: 10px;
-    display: inline-block;
-
-    select {
-      width: auto;
-      display: inline-block;
-      margin-left: 5px;
-    }
-  }
-}
-
-// Button group flex layout
-.btn-group-flex {
-  display: flex;
-}
-
-// Modal permission actions
-.permission-actions {
-  margin-bottom: 5px;
-
-  .btn + .btn {
-    margin-left: 5px;
-  }
-}
-
-// Create button icon
-.create-btn-icon {
-  margin-left: 5px;
-}
-
-// Main container positioning (full height layout)
-.ctn-main.authorization-view {
-  position: absolute;
-  top: 0;
-  bottom: 0;
 }

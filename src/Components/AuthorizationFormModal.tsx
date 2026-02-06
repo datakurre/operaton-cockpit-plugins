@@ -119,55 +119,23 @@ const AuthorizationFormModal: React.FC<AuthorizationFormModalProps> = ({
   };
 
   /**
-   * Get specific permissions (excluding ALL) for display
-   */
-  const getSpecificPermissions = (): string[] => {
-    return availablePermissions.filter(p => p !== 'ALL');
-  };
-
-  /**
-   * Check if all specific permissions are selected
-   */
-  const areAllPermissionsSelected = (): boolean => {
-    const specific = getSpecificPermissions();
-    return specific.every(p => form.permissions.includes(p)) || form.permissions.includes('ALL');
-  };
-
-  /**
    * Toggle a permission
    */
   const togglePermission = (perm: string): void => {
     setForm(prev => {
-      const specific = getSpecificPermissions();
-      const currentlySelected = prev.permissions.includes('ALL') ? specific : prev.permissions.filter(p => p !== 'ALL');
-
-      const newPerms = currentlySelected.includes(perm)
-        ? currentlySelected.filter(p => p !== perm)
-        : [...currentlySelected, perm];
-
-      // If all specific permissions are now selected, save as ["ALL"]
-      if (newPerms.length === specific.length && specific.length > 0) {
+      const newPerms = prev.permissions.includes(perm)
+        ? prev.permissions.filter(p => p !== perm)
+        : [...prev.permissions, perm];
+      // If ALL is selected, only keep ALL
+      if (perm === 'ALL' && !prev.permissions.includes('ALL')) {
         return { ...prev, permissions: ['ALL'] };
       }
-
-      // Otherwise save the specific permissions (can be empty)
-      return { ...prev, permissions: newPerms };
+      // If selecting another permission while ALL is selected, remove ALL
+      if (perm !== 'ALL' && prev.permissions.includes('ALL')) {
+        return { ...prev, permissions: [perm] };
+      }
+      return { ...prev, permissions: newPerms.length > 0 ? newPerms : ['ALL'] };
     });
-  };
-
-  /**
-   * Toggle all permissions
-   */
-  const toggleAllPermissions = (): void => {
-    const allSelected = areAllPermissionsSelected();
-
-    if (allSelected) {
-      // Deselect all
-      setForm(prev => ({ ...prev, permissions: [] }));
-    } else {
-      // Select all
-      setForm(prev => ({ ...prev, permissions: ['ALL'] }));
-    }
   };
 
   return (
@@ -267,35 +235,22 @@ const AuthorizationFormModal: React.FC<AuthorizationFormModalProps> = ({
 
               {/* Permissions */}
               <div className="form-group">
-                <label>
-                  Permissions
-                  <button
-                    type="button"
-                    className="btn btn-xs btn-link"
-                    onClick={toggleAllPermissions}
-                    style={{ marginLeft: '10px' }}
-                  >
-                    {areAllPermissionsSelected() ? 'Deselect All' : 'Select All'}
-                  </button>
-                </label>
+                <label>Permissions</label>
                 <div className="permissions-grid">
-                  {getSpecificPermissions().map(perm => {
-                    const isChecked = form.permissions.includes('ALL') || form.permissions.includes(perm);
-                    return (
-                      <div key={perm} className="checkbox permission-item">
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => {
-                              togglePermission(perm);
-                            }}
-                          />{' '}
-                          {perm}
-                        </label>
-                      </div>
-                    );
-                  })}
+                  {availablePermissions.map(perm => (
+                    <div key={perm} className="checkbox permission-item">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={form.permissions.includes(perm)}
+                          onChange={() => {
+                            togglePermission(perm);
+                          }}
+                        />{' '}
+                        {perm}
+                      </label>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -303,11 +258,7 @@ const AuthorizationFormModal: React.FC<AuthorizationFormModalProps> = ({
               <button type="button" className="btn btn-default" onClick={onCancel}>
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={isSaving || !form.identityId || form.permissions.length === 0}
-              >
+              <button type="submit" className="btn btn-primary" disabled={isSaving || !form.identityId}>
                 {isSaving ? 'Saving...' : getSubmitButtonLabel(isEditing)}
               </button>
             </div>
