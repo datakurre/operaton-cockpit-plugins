@@ -12,7 +12,17 @@ import { GoChevronDown, GoChevronUp } from 'react-icons/go';
 import { TiMinus } from 'react-icons/ti';
 import { Column, useSortBy, useTable, CellProps } from 'react-table';
 
-import { Authorization, AuthorizationRow, getAuthTypeLabel, renderIdentityDisplay } from '../utils/authorization';
+import {
+  Authorization,
+  AuthorizationRow,
+  getAuthTypeLabel,
+  getResourceTypeName,
+  renderIdentityDisplay,
+  renderResourceIdDisplay,
+  ResourceValidationMap,
+  ResolvedIdMap,
+  ResourceUrlOptions,
+} from '../utils/authorization';
 
 /** ARIA sort direction value for accessible table headers */
 type AriaSortValue = 'ascending' | 'descending' | 'none';
@@ -22,6 +32,18 @@ interface SortableAuthorizationsTableProps {
   onEdit: (auth: Authorization) => void;
   onClone: (auth: Authorization) => void;
   onDelete: (auth: Authorization) => void;
+  /** Optional map of resource IDs to their validation status */
+  validationState?: ResourceValidationMap;
+  /** Optional map of resource IDs to their resolved IDs (for keys -> actual IDs) */
+  resolvedIds?: ResolvedIdMap;
+  /** Optional cockpit base URL for cross-app navigation */
+  cockpitBaseUrl?: string | undefined;
+  /** Optional tasklist base URL for cross-app navigation */
+  tasklistBaseUrl?: string | undefined;
+  /** Whether to show action buttons (default: true) */
+  showActions?: boolean;
+  /** Whether to show resource type column (default: false) */
+  showResourceType?: boolean;
 }
 
 /**
@@ -33,6 +55,12 @@ const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = 
   onEdit,
   onClone,
   onDelete,
+  validationState,
+  resolvedIds,
+  cockpitBaseUrl,
+  tasklistBaseUrl,
+  showActions = true,
+  showResourceType = false,
 }) => {
   // Convert authorizations to row data
   const data = useMemo<AuthorizationRow[]>(
@@ -47,14 +75,28 @@ const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = 
           identity: auth.userId ?? auth.groupId ?? '-',
           permissions: auth.permissions?.join(', ') ?? '-',
           resourceId: auth.resourceId ?? '*',
+          resourceType: auth.resourceType ?? null,
+          resourceTypeName: getResourceTypeName(auth.resourceType ?? null),
         })
       ),
     [authorizations]
   );
 
   // Define columns for the table
-  const columns = useMemo<Column<AuthorizationRow>[]>(
-    () => [
+  const columns = useMemo<Column<AuthorizationRow>[]>(() => {
+    const baseColumns: Column<AuthorizationRow>[] = [];
+
+    // Conditionally add Resource Type column first
+    if (showResourceType) {
+      baseColumns.push({
+        Header: 'Resource Type',
+        accessor: 'resourceTypeName',
+        Cell: ({ value }: CellProps<AuthorizationRow, string>) => <span>{value}</span>,
+      });
+    }
+
+    // Add remaining columns
+    baseColumns.push(
       {
         Header: 'Type',
         accessor: 'typeLabel',
@@ -74,12 +116,24 @@ const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = 
       {
         Header: 'Resource ID',
         accessor: 'resourceId',
-        Cell: ({ value }: CellProps<AuthorizationRow, string>) => <span>{value}</span>,
-      },
-      {
+        Cell: ({ row }: CellProps<AuthorizationRow, string>) => {
+          const resourceId = row.original.original.resourceId;
+          const status = resourceId && validationState ? validationState[resourceId] : undefined;
+          const urlOptions: ResourceUrlOptions = {
+            cockpitBaseUrl,
+            tasklistBaseUrl,
+            resolvedId: resourceId && resolvedIds ? resolvedIds[resourceId] : undefined,
+          };
+          return renderResourceIdDisplay(row.original.original.resourceType, resourceId, status, urlOptions);
+        },
+      }
+    );
+
+    // Only add Action column if showActions is true
+    if (showActions) {
+      baseColumns.push({
         Header: 'Action',
         id: 'action',
-        disableSortBy: true,
         Cell: ({ row }: CellProps<AuthorizationRow>) => (
           <>
             <a
@@ -111,10 +165,11 @@ const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = 
             </a>
           </>
         ),
-      },
-    ],
-    [onEdit, onClone, onDelete]
-  );
+      });
+    }
+
+    return baseColumns;
+  }, [onEdit, onClone, onDelete, validationState, resolvedIds, cockpitBaseUrl, tasklistBaseUrl, showActions, showResourceType]);
 
   // Use react-table with sorting
   const tableInstance = useTable({ columns: columns as Column<object>[], data: data as object[] }, useSortBy);

@@ -216,6 +216,8 @@ $sort-indicator-color: #155cb5;
 
   // Sortable table header styling
   th {
+    position: relative;
+
     &.sortable {
       cursor: pointer;
     }

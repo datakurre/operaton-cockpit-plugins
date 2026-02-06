@@ -50,3 +50,11 @@
         max-width: 3vw;
     }
 }
+
+.dashboard section.deprecate {
+    margin-top: 0;
+}
+
+.decisions-dashboard .dashboard-view + .dashboard-view {
+    margin-top: -15px;
+}
