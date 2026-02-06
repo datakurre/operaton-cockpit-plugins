@@ -23,6 +23,7 @@ import {
 } from 'react-select-filter-box';
 
 import { type LegacyExpression, toLegacyExpressions } from '../utils/filterSchema';
+import { type FilterConflict, validateFilterConflicts } from '../utils/filterExpressionParsers';
 
 // Cast the component to avoid React version type conflicts
 // The library bundles its own @types/react which conflicts with ours
@@ -263,6 +264,8 @@ export interface FilterBoxProps {
   disabled?: boolean;
   /** Storage key for saved searches - allows separate saved searches per context */
   storageKey?: string;
+  /** Optional conflict rules for validating filter combinations */
+  conflictRules?: FilterConflict[];
 }
 
 /**
@@ -277,13 +280,26 @@ const FilterBox: React.FC<FilterBoxProps> = ({
   placeholder = 'Add a filter...',
   disabled = false,
   storageKey = SAVED_SEARCHES_KEY_PREFIX,
+  conflictRules,
 }) => {
   const [expressions, setExpressions] = useState<FilterExpression[]>(initialExpressions);
   const [key, setKey] = useState(0);
+  const [conflicts, setConflicts] = useState<FilterConflict[]>([]);
   const previousInitialExpressionsRef = useRef<string>(JSON.stringify(initialExpressions));
 
   // Serialize expressions for saved searches
   const serializedExpressions = serialize(expressions);
+
+  // Validate for conflicts whenever expressions change
+  useEffect(() => {
+    if (conflictRules && conflictRules.length > 0) {
+      const legacyExprs = toLegacyExpressions(expressions);
+      const detected = validateFilterConflicts(legacyExprs, conflictRules);
+      setConflicts(detected);
+    } else {
+      setConflicts([]);
+    }
+  }, [expressions, conflictRules]);
 
   // Update expressions when initialExpressions prop changes
   useEffect(() => {
@@ -364,6 +380,16 @@ const FilterBox: React.FC<FilterBoxProps> = ({
         onLoadExpressions={handleLoadExpressions}
         storageKey={storageKey}
       />
+      {conflicts.length > 0 ? (
+        <div className="filter-box-conflicts" role="alert">
+          <span className="filter-box-conflicts__icon" aria-hidden="true">⚠️</span>
+          <span className="filter-box-conflicts__message">
+            {conflicts.length === 1 
+              ? conflicts[0]?.reason 
+              : `${conflicts.length} filter conflicts: ${conflicts.map(c => c.reason).join('; ')}`}
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -371,4 +397,4 @@ const FilterBox: React.FC<FilterBoxProps> = ({
 export default FilterBox;
 
 // Re-export types for convenience
-export type { FilterExpression, FilterSchema, LegacyExpression };
+export type { FilterExpression, FilterSchema, LegacyExpression, FilterConflict };
