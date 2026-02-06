@@ -44,7 +44,7 @@
     "react-icons": "^5.5.0",
     "react-jason": "^1.1.2",
     "react-modal": "^3.16.3",
-    "react-select-filter-box": "github:jyukopla/react-select-filter-box#5b1693d3cc095baf1244d13dd8f8a58edf812ae0",
+    "react-select-filter-box": "github:jyukopla/react-select-filter-box#68c87e500ccac3e7b5bbef4964e189cf8beebf57",
     "react-table": "^7.8.0",
     "react-tabs": "^6.1.0",
     "svg-curves": "^1.0.0",

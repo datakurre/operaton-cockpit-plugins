@@ -306,7 +306,9 @@ interface GroupDto {
 /**
  * Create an autocompleter for user search via /user API endpoint.
  * 
- * Searches users by ID with wildcard matching (e.g., "john" matches "john.doe").
+ * Searches users by first name, last name, and email with substring matching.
+ * Performs three separate API calls and combines results, removing duplicates.
+ * This is necessary because the REST API uses AND logic for multiple parameters.
  * Returns user IDs as suggestions. Handles permission errors gracefully.
  * 
  * @param api - API configuration
@@ -325,33 +327,70 @@ export function createUserAutocompleter(
 ): ReturnType<typeof createAsyncAutocompleter> {
   return createApiAutocompleter(
     async (query: string, apiConfig: API, signal?: AbortSignal): Promise<AutocompleteItem[]> => {
-      const url = `${apiConfig.engineApi}/user?idIn=${encodeURIComponent(query)}*`;
-      const response = await fetch(url, {
-        signal: signal ?? null,
-        headers: {
-          Accept: 'application/json',
-          'X-XSRF-TOKEN': apiConfig.CSRFToken,
-        },
-      });
+      const encodedQuery = encodeURIComponent(query);
+      const headers = {
+        Accept: 'application/json',
+        'X-XSRF-TOKEN': apiConfig.CSRFToken,
+      };
 
-      // Handle permission denied gracefully
-      if (response.status === 403) {
-        console.warn('User search permission denied');
-        return [];
+      // Perform three separate searches (REST API uses AND logic, not OR)
+      const searches = [
+        `${apiConfig.engineApi}/user?firstNameLike=%${encodedQuery}%`,
+        `${apiConfig.engineApi}/user?lastNameLike=%${encodedQuery}%`,
+        `${apiConfig.engineApi}/user?emailLike=%${encodedQuery}%`,
+      ];
+
+      const results = await Promise.all(
+        searches.map(async url => {
+          try {
+            const response = await fetch(url, {
+              signal: signal ?? null,
+              headers,
+            });
+
+            // Handle permission denied gracefully
+            if (response.status === 403) {
+              console.warn('User search permission denied');
+              return [];
+            }
+
+            if (!response.ok) {
+              throw new Error(`User search failed: ${response.status}`);
+            }
+
+            return (await response.json()) as UserProfileDto[];
+          } catch (error) {
+            // If one search fails, continue with others
+            console.warn('User search request failed:', error);
+            return [];
+          }
+        })
+      );
+
+      // Combine results and remove duplicates by user ID
+      const userMap = new Map<string, UserProfileDto>();
+      for (const userList of results) {
+        for (const user of userList) {
+          if (user.id && !userMap.has(user.id)) {
+            userMap.set(user.id, user);
+          }
+        }
       }
 
-      if (!response.ok) {
-        throw new Error(`User search failed: ${response.status}`);
-      }
-
-      const users = (await response.json()) as UserProfileDto[];
-      return users
-        .filter(u => u.id)
-        .map(u => ({
+      return Array.from(userMap.values()).map(u => {
+        const parts: string[] = [];
+        if (u.firstName || u.lastName) {
+          parts.push(`${u.firstName ?? ''} ${u.lastName ?? ''}`.trim());
+        }
+        if (u.email) {
+          parts.push(`<${u.email}>`);
+        }
+        return {
           type: 'value' as const,
           key: u.id ?? '',
-          label: u.firstName && u.lastName ? `${u.id} (${u.firstName} ${u.lastName})` : (u.id ?? ''),
-        }));
+          label: parts.length > 0 ? `${u.id} (${parts.join(' ')})` : (u.id ?? ''),
+        };
+      });
     },
     {
       api,
@@ -367,7 +406,7 @@ export function createUserAutocompleter(
 /**
  * Create an autocompleter for group search via /group API endpoint.
  * 
- * Searches groups by ID with wildcard matching. Returns group IDs with names as suggestions.
+ * Searches groups by name with substring matching. Returns group IDs with names as suggestions.
  * Handles permission errors gracefully.
  * 
  * @param api - API configuration
@@ -386,7 +425,7 @@ export function createGroupAutocompleter(
 ): ReturnType<typeof createAsyncAutocompleter> {
   return createApiAutocompleter(
     async (query: string, apiConfig: API, signal?: AbortSignal): Promise<AutocompleteItem[]> => {
-      const url = `${apiConfig.engineApi}/group?idIn=${encodeURIComponent(query)}*`;
+      const url = `${apiConfig.engineApi}/group?nameLike=%${encodeURIComponent(query)}%`;
       const response = await fetch(url, {
         signal: signal ?? null,
         headers: {
@@ -778,7 +817,7 @@ export function createInstanceQuerySchema(
       createStringField('superProcessInstanceId', 'Super Process Instance ID', [OPERATORS.eq]),
       createStringField('subProcessInstanceId', 'Sub Process Instance ID', [OPERATORS.eq]),
 
-      // Variable filters
+      // Variable filters (deprecated, use freeform fields instead)
       createStringField('variable', 'Variable', [OPERATORS.eq, OPERATORS.like, OPERATORS.ilike]),
 
       // Version filter
@@ -812,13 +851,21 @@ export function createInstanceQuerySchema(
       // Activity filters
       executedActivityIdInField,
       activeActivityIdInField,
-      createStringField('activityIdIn', 'Activity ID (Async/Incident)', [OPERATORS.eq]),
 
       // Other filters
       startedByField,
       tenantIdInField,
       createBooleanField('withoutTenantId', 'Without Tenant ID'),
     ],
+    allowFreeformFields: true,
+    freeformFieldConfig: {
+      type: 'string',
+      placeholder: 'Type variable name...',
+      createLabel: 'Variable: ',
+      group: 'Process Variables',
+      operators: [OPERATORS.eq, OPERATORS.like, OPERATORS.ilike],
+      validateFieldName: (name: string) => /^[a-zA-Z_]\w*$/.test(name) || 'Variable name must start with a letter or underscore and contain only alphanumeric characters and underscores',
+    },
   };
 }
 

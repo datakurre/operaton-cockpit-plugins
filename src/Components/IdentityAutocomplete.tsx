@@ -86,44 +86,73 @@ export const IdentityAutocomplete: React.FC<IdentityAutocompleteProps> = ({
 
       setIsLoading(true);
       try {
-        const endpoint = identityType === 'user' ? '/user' : '/group';
-        const params: Record<string, string> = {
-          maxResults: String(MAX_SUGGESTIONS),
-        };
-
         if (identityType === 'user') {
-          // For users, search by first name, last name, or email
-          params['firstNameLike'] = `%${query}%`;
-          params['lastNameLike'] = `%${query}%`;
-          params['emailLike'] = `%${query}%`;
-        } else {
-          // For groups, search by name
-          params['nameLike'] = `%${query}%`;
-        }
+          // For users, perform three separate searches (REST API uses AND logic, not OR)
+          const params = { maxResults: String(MAX_SUGGESTIONS) };
+          const searches = [
+            get(api, '/user', { ...params, firstNameLike: `%${query}%` }),
+            get(api, '/user', { ...params, lastNameLike: `%${query}%` }),
+            get(api, '/user', { ...params, emailLike: `%${query}%` }),
+          ];
 
-        const result = (await get(api, endpoint, params)) as UserDto[] | GroupDto[] | null;
+          const results = await Promise.all(
+            searches.map(async search => {
+              try {
+                return ((await search) as UserDto[] | null) ?? [];
+              } catch (err) {
+                console.warn('User search request failed:', err);
+                return [];
+              }
+            })
+          );
 
-        if (result && result.length > 0) {
-          const formatted = result.map(item => {
-            if (identityType === 'user') {
-              const user = item as UserDto;
-              const displayName =
-                user.firstName || user.lastName ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : user.id;
+          // Combine results and remove duplicates by user ID
+          const userMap = new Map<string, UserDto>();
+          for (const userList of results) {
+            for (const user of userList) {
+              if (user.id && !userMap.has(user.id)) {
+                userMap.set(user.id, user);
+              }
+            }
+          }
+
+          const uniqueUsers = Array.from(userMap.values());
+          if (uniqueUsers.length > 0) {
+            const formatted = uniqueUsers.map(user => {
+              const parts: string[] = [];
+              if (user.firstName || user.lastName) {
+                parts.push(`${user.firstName ?? ''} ${user.lastName ?? ''}`.trim());
+              }
+              if (user.email) {
+                parts.push(`<${user.email}>`);
+              }
               return {
                 id: user.id,
-                label: displayName !== user.id ? `${user.id} (${displayName})` : user.id,
+                label: parts.length > 0 ? `${user.id} (${parts.join(' ')})` : user.id,
               };
-            } else {
-              const group = item as GroupDto;
-              return {
-                id: group.id,
-                label: group.name ? `${group.id} (${group.name})` : group.id,
-              };
-            }
-          });
-          setSuggestions(formatted);
+            });
+            setSuggestions(formatted.slice(0, MAX_SUGGESTIONS));
+          } else {
+            setSuggestions([]);
+          }
         } else {
-          setSuggestions([]);
+          // For groups, single search by name
+          const params: Record<string, string> = {
+            maxResults: String(MAX_SUGGESTIONS),
+            nameLike: `%${query}%`,
+          };
+
+          const result = (await get(api, '/group', params)) as GroupDto[] | null;
+
+          if (result && result.length > 0) {
+            const formatted = result.map(group => ({
+              id: group.id,
+              label: group.name ? `${group.id} (${group.name})` : group.id,
+            }));
+            setSuggestions(formatted);
+          } else {
+            setSuggestions([]);
+          }
         }
       } catch (err) {
         if (err instanceof ApiError) {

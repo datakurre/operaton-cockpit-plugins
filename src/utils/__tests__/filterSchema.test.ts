@@ -248,8 +248,8 @@ describe('filterSchema', () => {
     it('should create schema with all required fields', () => {
       const schema = createInstanceQuerySchema();
 
-      // Should have all the instance query fields (including Phase 7 additions)
-      expect(schema.fields).toHaveLength(45);
+      // Should have all the instance query fields (44 after removing invalid activityIdIn)
+      expect(schema.fields).toHaveLength(44);
       const keys = schema.fields.map(f => f.key);
       expect(keys).toContain('started');
       expect(keys).toContain('finished');
@@ -267,6 +267,8 @@ describe('filterSchema', () => {
       expect(keys).toContain('state');
       expect(keys).toContain('executedActivityIdIn');
       expect(keys).toContain('activeActivityIdIn');
+      // Verify activityIdIn is NOT present (invalid field)
+      expect(keys).not.toContain('activityIdIn');
     });
 
     it('should have correct operators for key field', () => {
@@ -295,6 +297,49 @@ describe('filterSchema', () => {
         OPERATORS.lte,
         OPERATORS.gte,
       ]);
+    });
+
+    it('should have allowFreeformFields enabled', () => {
+      const schema = createInstanceQuerySchema();
+
+      expect(schema.allowFreeformFields).toBe(true);
+    });
+
+    it('should have freeformFieldConfig configured for variables', () => {
+      const schema = createInstanceQuerySchema();
+
+      expect(schema.freeformFieldConfig).toBeDefined();
+      expect(schema.freeformFieldConfig?.type).toBe('string');
+      expect(schema.freeformFieldConfig?.placeholder).toBe('Type variable name...');
+      expect(schema.freeformFieldConfig?.createLabel).toBe('Variable: ');
+      expect(schema.freeformFieldConfig?.group).toBe('Process Variables');
+    });
+
+    it('should have correct operators for freeform fields', () => {
+      const schema = createInstanceQuerySchema();
+
+      expect(schema.freeformFieldConfig?.operators).toEqual([OPERATORS.eq, OPERATORS.like, OPERATORS.ilike]);
+    });
+
+    it('should validate variable names with alphanumeric and underscore pattern', () => {
+      const schema = createInstanceQuerySchema();
+      const validate = schema.freeformFieldConfig?.validateFieldName;
+
+      expect(validate).toBeDefined();
+      if (validate) {
+        // Valid names
+        expect(validate('orderId')).toBe(true);
+        expect(validate('_private')).toBe(true);
+        expect(validate('var_name_123')).toBe(true);
+        expect(validate('camelCase')).toBe(true);
+        expect(validate('snake_case')).toBe(true);
+
+        // Invalid names
+        expect(validate('123invalid')).not.toBe(true); // starts with number
+        expect(validate('var-name')).not.toBe(true); // contains hyphen
+        expect(validate('var name')).not.toBe(true); // contains space
+        expect(validate('var.name')).not.toBe(true); // contains dot
+      }
     });
   });
 
@@ -949,16 +994,33 @@ describe('filterSchema', () => {
     });
 
     it('should fetch users from /user API endpoint', async () => {
-      const mockUsers = [
+      const mockUsersFirstName = [
         { id: 'john.doe', firstName: 'John', lastName: 'Doe' },
-        { id: 'jane.smith', firstName: 'Jane', lastName: 'Smith' },
+      ];
+      const mockUsersLastName = [
+        { id: 'jane.johnson', firstName: 'Jane', lastName: 'Johnson' },
+      ];
+      const mockUsersEmail = [
+        { id: 'johnny.boy', firstName: 'Johnny', lastName: 'Boy', email: 'john@example.com' },
       ];
 
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => mockUsers,
-      });
+      // Mock three separate API calls
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => mockUsersFirstName,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => mockUsersLastName,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => mockUsersEmail,
+        });
 
       const autocompleter = require('../filterSchema').createUserAutocompleter(mockApi, {
         minChars: 1,
@@ -976,8 +1038,31 @@ describe('filterSchema', () => {
 
       const result = await autocompleter.getSuggestions(context);
 
-      expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/engine-rest/user?idIn=john*',
+      // Verify all three API calls were made
+      expect(global.fetch).toHaveBeenCalledTimes(3);
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        1,
+        'http://localhost:8080/engine-rest/user?firstNameLike=%john%',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Accept: 'application/json',
+            'X-XSRF-TOKEN': 'test-token',
+          }),
+        })
+      );
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        'http://localhost:8080/engine-rest/user?lastNameLike=%john%',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Accept: 'application/json',
+            'X-XSRF-TOKEN': 'test-token',
+          }),
+        })
+      );
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        3,
+        'http://localhost:8080/engine-rest/user?emailLike=%john%',
         expect.objectContaining({
           headers: expect.objectContaining({
             Accept: 'application/json',
@@ -986,9 +1071,11 @@ describe('filterSchema', () => {
         })
       );
 
+      // Verify results are combined and deduplicated
       expect(result).toEqual([
         { type: 'value', key: 'john.doe', label: 'john.doe (John Doe)' },
-        { type: 'value', key: 'jane.smith', label: 'jane.smith (Jane Smith)' },
+        { type: 'value', key: 'jane.johnson', label: 'jane.johnson (Jane Johnson)' },
+        { type: 'value', key: 'johnny.boy', label: 'johnny.boy (Johnny Boy <john@example.com>)' },
       ]);
     });
 
@@ -997,11 +1084,22 @@ describe('filterSchema', () => {
         { id: 'system' },
       ];
 
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => mockUsers,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => mockUsers,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => [],
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => [],
+        });
 
       const autocompleter = require('../filterSchema').createUserAutocompleter(mockApi, {
         minChars: 1,
@@ -1023,9 +1121,54 @@ describe('filterSchema', () => {
       ]);
     });
 
+    it('should remove duplicate users across searches', async () => {
+      const duplicateUser = { id: 'john.doe', firstName: 'John', lastName: 'Doe', email: 'john@example.com' };
+      
+      // Same user appears in multiple search results
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => [duplicateUser],
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => [duplicateUser],
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => [duplicateUser],
+        });
+
+      const autocompleter = require('../filterSchema').createUserAutocompleter(mockApi, {
+        minChars: 1,
+        debounceMs: 0,
+        shouldCacheResults: false,
+      });
+
+      const context = {
+        inputValue: 'john',
+        field: { key: 'startedBy', label: 'Started By', type: 'string' as const },
+        operator: { key: 'eq', label: 'equals' },
+        existingExpressions: [],
+        schema: { fields: [] },
+      };
+
+      const result = await autocompleter.getSuggestions(context);
+
+      // Should only appear once
+      expect(result).toEqual([
+        { type: 'value', key: 'john.doe', label: 'john.doe (John Doe <john@example.com>)' },
+      ]);
+      expect(result).toHaveLength(1);
+    });
+
     it('should handle 403 permission denied gracefully', async () => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
 
+      // All three searches return 403
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 403,
@@ -1048,6 +1191,7 @@ describe('filterSchema', () => {
 
       expect(result).toEqual([]);
       expect(consoleWarnSpy).toHaveBeenCalledWith('User search permission denied');
+      expect(consoleWarnSpy).toHaveBeenCalledTimes(3); // Once for each search
 
       consoleWarnSpy.mockRestore();
     });
@@ -1059,11 +1203,22 @@ describe('filterSchema', () => {
         { firstName: 'Jane', lastName: 'Smith' },
       ];
 
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => mockUsers,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => mockUsers,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => [],
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: async () => [],
+        });
 
       const autocompleter = require('../filterSchema').createUserAutocompleter(mockApi, {
         minChars: 1,
@@ -1136,7 +1291,7 @@ describe('filterSchema', () => {
       const result = await autocompleter.getSuggestions(context);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/engine-rest/group?idIn=admin*',
+        'http://localhost:8080/engine-rest/group?nameLike=%admin%',
         expect.objectContaining({
           headers: expect.objectContaining({
             Accept: 'application/json',
