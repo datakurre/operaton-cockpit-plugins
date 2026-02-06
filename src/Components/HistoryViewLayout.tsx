@@ -5,8 +5,8 @@
 import 'allotment/dist/style.css';
 
 import { Allotment, AllotmentHandle } from 'allotment';
-import React, { useRef } from 'react';
-import { GoChevronLeft, GoChevronRight, GoChevronUp } from 'react-icons/go';
+import React, { useRef, useState } from 'react';
+import { GoChevronLeft, GoChevronRight, GoChevronUp, GoChevronDown } from 'react-icons/go';
 
 import AuditLogTable from './AuditLogTable';
 import BPMNViewer from './BPMN';
@@ -77,28 +77,30 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
   const horizontalRef = useRef<AllotmentHandle>(null);
   const verticalRef = useRef<AllotmentHandle>(null);
 
+  const [infoPaneCollapsed, setInfoPaneCollapsed] = useState(
+    typeof settings.leftPaneSize === 'number' && settings.leftPaneSize <= MIN_PANE_SIZE
+  );
+  const [tabsPaneCollapsed, setTabsPaneCollapsed] = useState(() => {
+    const containerHeight = 600;
+    return typeof settings.topPaneSize === 'number' && settings.topPaneSize > containerHeight * 0.8;
+  });
+
   /** Toggle the left info panel between collapsed and expanded */
   const toggleInfoPanel = (): void => {
-    const currentSize = settings.leftPaneSize ?? INFO_EXPANDED_SIZE;
-    const isCollapsed = typeof currentSize === 'number' && currentSize <= MIN_PANE_SIZE;
-    const newSize = isCollapsed ? INFO_EXPANDED_SIZE : MIN_PANE_SIZE;
+    const newSize = infoPaneCollapsed ? INFO_EXPANDED_SIZE : MIN_PANE_SIZE;
     horizontalRef.current?.resize([newSize]);
     saveSettings({ ...loadSettings(), leftPaneSize: newSize });
+    setInfoPaneCollapsed(!infoPaneCollapsed);
   };
 
   /** Toggle the bottom tabs panel between collapsed and expanded */
   const toggleTabsPanel = (): void => {
-    const currentSize = settings.topPaneSize;
-    // If tabs are collapsed (top pane takes most space), expand tabs
-    // If tabs are expanded, collapse them
-    const containerHeight = 600; // Approximate, will be auto-adjusted
-    const isTabsCollapsed = typeof currentSize === 'number' && currentSize > containerHeight * 0.8;
-    const topSize = isTabsCollapsed ? containerHeight * 0.5 : containerHeight * 0.85;
+    const containerHeight = 600;
+    const topSize = tabsPaneCollapsed ? containerHeight * 0.5 : containerHeight * 0.85;
     verticalRef.current?.resize([topSize]);
     saveSettings({ ...loadSettings(), topPaneSize: topSize });
+    setTabsPaneCollapsed(!tabsPaneCollapsed);
   };
-
-  const infoPaneCollapsed = typeof settings.leftPaneSize === 'number' && settings.leftPaneSize <= MIN_PANE_SIZE;
 
   return (
     <Container>
@@ -122,15 +124,17 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
               style={{
                 position: 'absolute',
                 right: 0,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'var(--cam-navbar-inverse-bg, #333)',
-                border: 'none',
+                top: '10px',
+                background: 'white',
+                border: '1px solid #ccc',
+                borderRight: 'none',
                 borderRadius: '3px 0 0 3px',
-                color: 'white',
+                color: '#333',
                 cursor: 'pointer',
-                padding: '8px 2px',
+                padding: '4px 3px',
+                lineHeight: '1',
                 zIndex: 10,
+                boxShadow: '-2px 2px 4px rgba(0,0,0,0.1)',
               }}
               title={infoPaneCollapsed ? 'Expand info panel' : 'Collapse info panel'}
               aria-label={infoPaneCollapsed ? 'Expand info panel' : 'Collapse info panel'}
@@ -151,38 +155,42 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
             }}
           >
             <Allotment.Pane preferredSize={settings.topPaneSize ?? '66%'}>
-              <BPMNViewer
-                activities={activities}
-                diagramXML={diagramXML}
-                className="ctn-content"
-                style={{ width: '100%', height: '100%' }}
-                showRuntimeToggle={instance.state === 'ACTIVE'}
-              />
-            </Allotment.Pane>
-            <Allotment.Pane minSize={MIN_PANE_SIZE}>
-              <div className="ctn-row ctn-content-bottom ctn-tabbed" style={{ height: '100%', position: 'relative' }}>
+              <div style={{ height: '100%', position: 'relative' }}>
+                <BPMNViewer
+                  activities={activities}
+                  diagramXML={diagramXML}
+                  className="ctn-content"
+                  style={{ width: '100%', height: '100%' }}
+                  showRuntimeToggle={instance.state === 'ACTIVE'}
+                />
                 {/* Chevron to collapse/expand tabs panel */}
                 <button
                   type="button"
                   onClick={toggleTabsPanel}
                   style={{
                     position: 'absolute',
-                    left: '50%',
-                    top: 0,
-                    transform: 'translateX(-50%)',
-                    background: 'var(--cam-navbar-inverse-bg, #333)',
-                    border: 'none',
-                    borderRadius: '0 0 3px 3px',
-                    color: 'white',
+                    left: '10px',
+                    bottom: 0,
+                    background: 'white',
+                    border: '1px solid #ccc',
+                    borderBottom: 'none',
+                    borderRadius: '3px 3px 0 0',
+                    color: '#333',
                     cursor: 'pointer',
-                    padding: '2px 8px',
+                    padding: '3px 4px',
+                    lineHeight: '1',
                     zIndex: 10,
+                    boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
                   }}
-                  title="Toggle tabs panel size"
-                  aria-label="Toggle tabs panel size"
+                  title={tabsPaneCollapsed ? 'Expand tabs panel' : 'Collapse tabs panel'}
+                  aria-label={tabsPaneCollapsed ? 'Expand tabs panel' : 'Collapse tabs panel'}
                 >
-                  <GoChevronUp />
+                  {tabsPaneCollapsed ? <GoChevronUp /> : <GoChevronDown />}
                 </button>
+              </div>
+            </Allotment.Pane>
+            <Allotment.Pane minSize={MIN_PANE_SIZE}>
+              <div className="ctn-row ctn-content-bottom ctn-tabbed" style={{ height: '100%', position: 'relative' }}>
                 <Tabs>
                   <Tab label="Audit Log">
                     <AuditLogTable activities={activities} decisions={decisionByActivity} />

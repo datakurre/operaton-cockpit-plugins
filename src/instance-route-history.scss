@@ -20,7 +20,14 @@
 .ctn-tabbed {
   .ctn-tabbed-content {
     position: relative !important;
+    top: 0;
     height: 100%;
     overflow: auto;
+    padding: 0 10px 10px 10px;
   }
+}
+
+// Add border to tabs allotment pane
+.split-view-view:has(.ctn-tabbed) {
+  border-left: 1px solid #ccc;
 }
