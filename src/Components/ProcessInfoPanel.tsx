@@ -8,14 +8,14 @@ import { Clippy } from './Clippy';
 /** Properties of a historic process instance for display. */
 interface ProcessInstance {
   id: string;
-  businessKey?: string | null;
-  processDefinitionVersion?: number;
+  businessKey?: string | null | undefined;
+  processDefinitionVersion?: number | null | undefined;
   processDefinitionId: string;
-  processDefinitionKey?: string;
-  processDefinitionName?: string;
-  tenantId?: string | null;
-  superProcessInstanceId?: string | null;
-  state?: string;
+  processDefinitionKey?: string | null | undefined;
+  processDefinitionName?: string | undefined;
+  tenantId?: string | null | undefined;
+  superProcessInstanceId?: string | null | undefined;
+  state?: string | undefined;
 }
 
 /** Properties of a process definition for display (supports nullable OpenAPI fields). */

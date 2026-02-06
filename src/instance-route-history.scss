@@ -14,3 +14,13 @@
 .react-tabs__tab-panel--selected {
   z-index: 1;
 }
+
+// Override Camunda 7 default styles that use absolute positioning
+// Our tabs need relative/static positioning to work in the allotment layout
+.ctn-tabbed {
+  .ctn-tabbed-content {
+    position: relative !important;
+    height: 100%;
+    overflow: auto;
+  }
+}
