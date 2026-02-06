@@ -29,7 +29,12 @@ const plugins = [
   commonjs({
     include: "node_modules/**",
   }),
-  typescript(),
+  typescript({
+    noEmitOnError: !isDevelopment,
+    compilerOptions: {
+      outDir: ".",
+    },
+  }),
   image(),
   json(),
   scss({

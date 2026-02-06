@@ -72,6 +72,7 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [bpmn.ts](src/utils/bpmn.ts): Re-exports from `bpmn/` submodule for backwards compatibility
 - [bpmnParsing.ts](src/utils/bpmnParsing.ts): BPMN XML parsing for extracting activities, sequence flows, and message definitions
 - [constants.ts](src/utils/constants.ts): Centralized UI, timing, pagination, retry, and validation constants
+- [filterExpressionParsers.ts](src/utils/filterExpressionParsers.ts): Pure functions for parsing FilterBox expressions to API query parameters. Provides `parseActivityInstanceExpressions()`, `parseProcessInstanceExpressions()`, `parseAuthorizationExpressions()` with typed interfaces for each query type.
 - [filterSchema.ts](src/utils/filterSchema.ts): Schema-based filter configuration using react-select-filter-box. Provides `createDefinitionFilterSchema()`, `createInstanceQuerySchema()`, `createAuthorizationFilterSchema()`, and legacy expression converters for backward compatibility.
 - [formatting.ts](src/utils/formatting.ts): Date formatting (`formatDateTime`, `formatDateForApi`) and URL building (`buildCockpitUrl`, `buildHistoryUrl`) utilities
 - [misc.ts](src/utils/misc.ts): Local storage and querystring settings utilities
@@ -136,6 +137,10 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [FilterBox.scss](src/Components/FilterBox.scss): Styles for FilterBox and saved searches dropdown
 - [VariableBuilder.tsx](src/Components/VariableBuilder.tsx): Dynamic variable input builder with type-specific controls (String, Integer, Boolean, JSON, Date, etc.) and form validation
 - [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Message correlation form with BPMN message parsing and variable configuration
+- [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx): Batch process modification form with instance selection, dry-run preview, and modification instructions
+- [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx): Batch message correlation form for correlating messages to multiple process instances
+- [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx): Batch signal broadcast form for broadcasting signals globally
+- [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx): Dry-run result preview component showing affected process instances
 - [AuthorizationFormModal.tsx](src/Components/AuthorizationFormModal.tsx): Modal form for creating/editing authorizations with type, identity, permissions, and resource ID selection
 - [AuthorizationDeleteModal.tsx](src/Components/AuthorizationDeleteModal.tsx): Confirmation modal for deleting authorization records
 - [SelectField.tsx](src/Components/SelectField.tsx): Reusable form select field with consistent styling

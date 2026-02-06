@@ -30,6 +30,7 @@ import {
   evaluateDecision,
   getDecisionDefinitions,
   getDecisionDefinitionXml,
+  getLatestDecisionInstance,
   DecisionEvaluationResult,
 } from './utils/api';
 
@@ -88,68 +89,90 @@ function parseInputValue(value: string, type: string): unknown {
 }
 
 /**
- * Highlights matched rules in the DMN viewer.
+ * Highlights matched rules in the DMN viewer using rule IDs from history.
+ *
+ * After evaluating a decision, we query the decision history to get the matched
+ * rule IDs, then use dmn-js's data-row-id attributes to highlight the correct rows.
+ *
+ * This approach works correctly for all hit policies (FIRST, UNIQUE, COLLECT, RULE ORDER, etc.)
+ * because it uses the actual rule IDs returned by the engine.
+ *
  * @param viewerRef - Reference to the DMN viewer
- * @param hitCount - Number of matched rules
+ * @param ruleIds - Array of matched rule IDs from the decision history
  */
-function highlightMatchedRules(viewerRef: React.RefObject<DmnJsViewer | null>, hitCount: number): void {
-  if (viewerRef.current === null || hitCount === 0) {
+function highlightMatchedRules(viewerRef: React.RefObject<DmnJsViewer | null>, ruleIds: string[]): void {
+  if (viewerRef.current === null || ruleIds.length === 0) {
     return;
   }
 
   const activeViewer = viewerRef.current.getActiveViewer();
   if (activeViewer === null) {
+    console.warn('No active viewer');
     return;
   }
 
-  try {
-    const container = activeViewer.get<HTMLElement | null>('_container');
-    if (container === null) {
-      return;
-    }
-
-    // Clear previous highlights
-    const previousHits = container.querySelectorAll('.dmn-rule-hit, .dmn-rule-hit-first');
-    previousHits.forEach(row => {
-      row.classList.remove('dmn-rule-hit', 'dmn-rule-hit-first');
-    });
-
-    // Highlight matched rules
-    const ruleRows = container.querySelectorAll('tbody tr');
-    for (let i = 0; i < Math.min(hitCount, ruleRows.length); i++) {
-      const row = ruleRows[i];
-      if (row) {
-        row.classList.add(i === 0 ? 'dmn-rule-hit-first' : 'dmn-rule-hit');
+  // Delay to ensure DOM is ready
+  setTimeout(() => {
+    try {
+      // Clear previous highlights
+      const existingStyle = document.getElementById('dmn-rule-highlights');
+      if (existingStyle) {
+        existingStyle.remove();
       }
+
+      console.log(`Highlighting ${ruleIds.length} rules:`, ruleIds);
+
+      // Create dynamic CSS rules using data-row-id selectors (same as dmn-testing-plugin)
+      const firstRuleId = ruleIds[0];
+      const otherRuleIds = ruleIds.slice(1);
+
+      const firstRowSelector = `[data-row-id="${firstRuleId}"]`;
+      const otherRowSelectors = otherRuleIds.map(id => `[data-row-id="${id}"]`).join(',');
+
+      const cssRules = `
+        /* First matched rule - blue highlight */
+        ${firstRowSelector},
+        ${firstRowSelector} > * {
+          background-color: #cce5ff !important;
+        }
+        ${firstRowSelector} > * {
+          font-weight: 500 !important;
+        }
+        
+        /* Other matched rules - green highlight */
+        ${otherRowSelectors ? `${otherRowSelectors},` : ''}
+        ${otherRowSelectors ? `${otherRowSelectors} > * {` : ''}
+        ${otherRowSelectors ? `  background-color: #d4edda !important;` : ''}
+        ${otherRowSelectors ? `}` : ''}
+      `;
+
+      // Inject the dynamic styles
+      const styleElement = document.createElement('style');
+      styleElement.id = 'dmn-rule-highlights';
+      styleElement.textContent = cssRules;
+      document.head.appendChild(styleElement);
+
+      console.log(`Successfully highlighted ${ruleIds.length} rules using data-row-id attributes`);
+    } catch (e) {
+      console.error('Failed to highlight rules:', e);
     }
-  } catch (e) {
-    console.warn('Failed to highlight rules:', e);
-  }
+  }, 100);
 }
 
 /**
  * Clears rule highlights from the DMN viewer.
- * @param viewerRef - Reference to the DMN viewer
+ * @param _viewerRef - Reference to the DMN viewer (unused, kept for API consistency)
  */
-function clearRuleHighlights(viewerRef: React.RefObject<DmnJsViewer | null>): void {
-  if (viewerRef.current === null) {
-    return;
+function clearRuleHighlights(_viewerRef: React.RefObject<DmnJsViewer | null>): void {
+  try {
+    const existingStyle = document.getElementById('dmn-rule-highlights');
+    if (existingStyle) {
+      existingStyle.remove();
+      console.log('Cleared DMN rule highlights');
+    }
+  } catch (e) {
+    console.warn('Failed to clear highlights:', e);
   }
-
-  const activeViewer = viewerRef.current.getActiveViewer();
-  if (activeViewer === null) {
-    return;
-  }
-
-  const container = activeViewer.get<HTMLElement | null>('_container');
-  if (container === null) {
-    return;
-  }
-
-  const rows = container.querySelectorAll('.dmn-rule-hit, .dmn-rule-hit-first');
-  rows.forEach(row => {
-    row.classList.remove('dmn-rule-hit', 'dmn-rule-hit-first');
-  });
 }
 
 /**
@@ -311,12 +334,32 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
         }
       });
 
+      // Step 1: Evaluate the decision
       const evaluationResults = await evaluateDecision(api, selectedDecisionId, variables);
       setResults(evaluationResults);
-      setSuccessMessage(`Decision evaluated successfully. ${evaluationResults.length} rule(s) matched.`);
 
-      // Highlight matched rules in the viewer
-      highlightMatchedRules(viewerRef, evaluationResults.length);
+      // Step 2: Fetch the latest decision instance from history to get rule IDs
+      const historyInstance = await getLatestDecisionInstance(api, selectedDecisionId);
+
+      if (historyInstance?.outputs && historyInstance.outputs.length > 0) {
+        // Extract unique rule IDs from outputs (handle COLLECT policies with multiple outputs per rule)
+        const ruleIds = Array.from(
+          new Set(historyInstance.outputs.map(output => output.ruleId).filter((id): id is string => id != null))
+        );
+        console.log('Matched rule IDs from history:', ruleIds);
+
+        setSuccessMessage(
+          `Decision evaluated successfully. ${ruleIds.length} rule${ruleIds.length !== 1 ? 's' : ''} matched.`
+        );
+
+        // Highlight matched rules using rule IDs
+        if (ruleIds.length > 0) {
+          highlightMatchedRules(viewerRef, ruleIds);
+        }
+      } else {
+        setSuccessMessage('Decision evaluated successfully. No rules matched.');
+        console.warn('No outputs found in decision history');
+      }
     } catch (err) {
       console.error('Decision evaluation failed:', err);
       const errorMessage = err instanceof Error ? err.message : 'Decision evaluation failed';
@@ -337,9 +380,10 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
     setSuccessMessage(null);
   }, []);
 
-  const title = decisions.length > 0 
-    ? `DMN Decision Simulator (${decisions.length} definition${decisions.length !== 1 ? 's' : ''})`
-    : 'DMN Decision Simulator';
+  const title =
+    decisions.length > 0
+      ? `DMN Decision Simulator (${decisions.length} definition${decisions.length !== 1 ? 's' : ''})`
+      : 'DMN Decision Simulator';
 
   // Error state with no decisions
   if (error && decisions.length === 0) {
@@ -358,51 +402,50 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
       emptyMessage="No decision definitions found. Deploy a DMN diagram to get started."
     >
       <div className="decisions-dashboard">
+        <DecisionSelector
+          decisions={decisions}
+          selectedId={selectedDecisionId}
+          onSelect={handleDecisionSelect}
+          disabled={isEvaluating}
+        />
 
-      <DecisionSelector
-        decisions={decisions}
-        selectedId={selectedDecisionId}
-        onSelect={handleDecisionSelect}
-        disabled={isEvaluating}
-      />
+        {error && <ErrorMessage message={error} />}
+        {successMessage && <SuccessMessage message={successMessage} />}
 
-      {error && <ErrorMessage message={error} />}
-      {successMessage && <SuccessMessage message={successMessage} />}
+        {selectedDecisionId && (
+          <div className="decisions-dashboard__content">
+            <div className="decisions-dashboard__left-panel">
+              <DecisionInputForm
+                inputs={inputs}
+                values={inputValues}
+                onChange={handleInputChange}
+                onEvaluate={() => {
+                  void handleEvaluate();
+                }}
+                onClear={handleClear}
+                isLoading={isEvaluating}
+              />
 
-      {selectedDecisionId && (
-        <div className="decisions-dashboard__content">
-          <div className="decisions-dashboard__left-panel">
-            <DecisionInputForm
-              inputs={inputs}
-              values={inputValues}
-              onChange={handleInputChange}
-              onEvaluate={() => {
-                void handleEvaluate();
-              }}
-              onClear={handleClear}
-              isLoading={isEvaluating}
-            />
+              <DecisionResults results={results} outputs={outputs} error={evaluationError} />
+            </div>
 
-            <DecisionResults results={results} outputs={outputs} error={evaluationError} />
-          </div>
-
-          <div className="decisions-dashboard__right-panel">
-            <div className="decisions-dashboard__viewer-container">
-              {dmnXml ? (
-                <DmnViewer xml={dmnXml} onViewReady={handleViewerReady} />
-              ) : (
-                <p className="decisions-dashboard__empty">Loading DMN diagram...</p>
-              )}
+            <div className="decisions-dashboard__right-panel">
+              <div className="decisions-dashboard__viewer-container">
+                {dmnXml ? (
+                  <DmnViewer xml={dmnXml} onViewReady={handleViewerReady} />
+                ) : (
+                  <p className="decisions-dashboard__empty">Loading DMN diagram...</p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {!selectedDecisionId && decisions.length > 0 && (
-        <div className="decisions-dashboard__empty">
-          <p>Select a decision definition to begin testing.</p>
-        </div>
-      )}
+        {!selectedDecisionId && decisions.length > 0 && (
+          <div className="decisions-dashboard__empty">
+            <p>Select a decision definition to begin testing.</p>
+          </div>
+        )}
       </div>
     </DashboardSection>
   );

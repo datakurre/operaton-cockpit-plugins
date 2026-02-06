@@ -26,7 +26,6 @@ class MockDmnViewer {
   /**
    * Creates a new mock DMN viewer instance.
    * @param options - Viewer options
-   * @param options.container - Container element for the viewer
    */
   constructor(options?: { container?: HTMLElement }) {
     this._container = options?.container ?? null;

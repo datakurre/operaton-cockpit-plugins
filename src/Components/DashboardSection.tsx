@@ -13,6 +13,8 @@ interface DashboardSectionProps {
   emptyMessage?: string;
   /** Whether the section has data (if false, shows empty state) */
   hasData?: boolean;
+  /** Optional refresh callback - displays a refresh icon button when provided */
+  onRefresh?: () => void;
 }
 
 /**
@@ -33,6 +35,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   isLoading = false,
   emptyMessage,
   hasData = true,
+  onRefresh,
 }) => {
   const [activeSection, setActiveSection] = useState<boolean>(!initialCollapsed);
 
@@ -43,13 +46,32 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   return (
     <section className={`processes-dashboard ${!activeSection ? 'section-collapsed' : ''}`}>
       <div className="inner">
-        <button className="section-toggle btn btn-link btn-sm" onClick={toggleSection} title="Toggle this section">
-          <span className={`glyphicon ${activeSection ? 'glyphicon-menu-up' : 'glyphicon-menu-down'}`} />
-        </button>
-
         <header>
-          <div className="row">
-            <h1 className="col-xs-6 section-title">{title}</h1>
+          <div className="row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 50px 0 15px' }}>
+            <h1 className="section-title" style={{ margin: 0, flex: 1 }}>
+              {title}
+            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              {onRefresh && (
+                <button
+                  className="btn btn-default btn-sm"
+                  onClick={onRefresh}
+                  title="Refresh"
+                  disabled={isLoading}
+                  style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <span className="glyphicon glyphicon-refresh" />
+                  <span>Refresh</span>
+                </button>
+              )}
+              <button
+                className="section-toggle btn btn-link btn-sm"
+                onClick={toggleSection}
+                title="Toggle this section"
+              >
+                <span className={`glyphicon ${activeSection ? 'glyphicon-menu-up' : 'glyphicon-menu-down'}`} />
+              </button>
+            </div>
           </div>
         </header>
 

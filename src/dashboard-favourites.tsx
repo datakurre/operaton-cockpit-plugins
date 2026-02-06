@@ -165,12 +165,12 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
       onClick={handleToggle}
       aria-label={isFav ? 'Remove from favourites' : 'Add to favourites'}
       title={isFav ? 'Remove from favourites' : 'Add to favourites'}
-      style={{ 
-        width: '40px', 
-        height: '34px', 
+      style={{
+        width: '40px',
+        height: '34px',
         marginTop: '5px',
         padding: '6px 8px',
-        minWidth: '40px'
+        minWidth: '40px',
       }}
     >
       <span className={isFav ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'} aria-hidden="true" />
@@ -217,7 +217,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
         // Build query string with all definition IDs
         const ids = favourites.map(f => `processDefinitionIdIn=${encodeURIComponent(f.id)}`).join('&');
         const response = await fetch(`${api.engineApi}/process-definition/statistics?${ids}&incidents=true`);
-        
+
         if (response.ok) {
           const data = (await response.json()) as ProcessDefinitionStatistics[];
           const statsMap = new Map<string, ProcessDefinitionStatistics>();
@@ -266,71 +266,85 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
     });
   }, [favourites, statistics]);
 
+  // Handler for removing favourites
+  const handleRemoveFavourite = (definitionId: string): void => {
+    removeFavourite(definitionId);
+    loadData();
+  };
+
   // Define table columns with AngularJS-compatible class names
+  // Note: headerClassName and className are custom properties accessed via type casting in SortableTable
   const columns = useMemo<Column<ProcessDefinitionRow>[]>(
-    () => [
-      {
-        Header: 'State',
-        accessor: 'state',
-        headerClassName: 'state',
-        className: 'state',
-        Cell: ({ row }: CellProps<ProcessDefinitionRow, number>) => {
-          const { incidents } = row.original;
-          if (incidents > 0) {
-            return (
-              <div className="circle circle-red">
-                {/* State circle for incidents */}
-              </div>
-            );
-          }
-          return (
-            <div className="circle circle-green">
-              {/* State circle for healthy */}
-            </div>
-          );
+    () =>
+      [
+        {
+          Header: 'State',
+          accessor: 'state',
+          headerClassName: 'state',
+          className: 'state',
+          Cell: ({ row }: CellProps<ProcessDefinitionRow, number>) => {
+            const { incidents } = row.original;
+            if (incidents > 0) {
+              return <div className="circle circle-red">{/* State circle for incidents */}</div>;
+            }
+            return <div className="circle circle-green">{/* State circle for healthy */}</div>;
+          },
         },
-      },
-      {
-        Header: 'Incidents',
-        accessor: 'incidents',
-        headerClassName: 'incidents',
-        className: 'incidents',
-        Cell: ({ value }: CellProps<ProcessDefinitionRow, number>) => <span>{value}</span>,
-      },
-      {
-        Header: 'Running Instances',
-        accessor: 'instances',
-        headerClassName: 'instances',
-        className: 'instances',
-        Cell: ({ value }: CellProps<ProcessDefinitionRow, number>) => <span>{value}</span>,
-      },
-      {
-        Header: 'Key',
-        accessor: 'key',
-        headerClassName: 'key',
-        className: 'key',
-        Cell: ({ value, row }: CellProps<ProcessDefinitionRow, string>) => (
-          <Clippy value={value}>
-            <a href={`#/process-definition/${row.original.id}/runtime`}>{value}</a>
-          </Clippy>
-        ),
-      },
-      {
-        Header: 'Name',
-        accessor: 'name',
-        headerClassName: 'name',
-        className: 'name',
-        Cell: ({ value }: CellProps<ProcessDefinitionRow, string | null>) => <span>{value ?? ''}</span>,
-      },
-      {
-        Header: 'Tenant ID',
-        accessor: 'tenantId',
-        headerClassName: 'tenantID',
-        className: 'tenant-id',
-        Cell: ({ value }: CellProps<ProcessDefinitionRow, string | null>) => <span>{value ?? ''}</span>,
-      },
-    ],
-    []
+        {
+          Header: 'Incidents',
+          accessor: 'incidents',
+          headerClassName: 'incidents',
+          className: 'incidents',
+          Cell: ({ value }: CellProps<ProcessDefinitionRow, number>) => <span>{value}</span>,
+        },
+        {
+          Header: 'Running Instances',
+          accessor: 'instances',
+          headerClassName: 'instances',
+          className: 'instances',
+          Cell: ({ value }: CellProps<ProcessDefinitionRow, number>) => <span>{value}</span>,
+        },
+        {
+          Header: 'Key',
+          accessor: 'key',
+          headerClassName: 'key',
+          className: 'key',
+          Cell: ({ value, row }: CellProps<ProcessDefinitionRow, string>) => (
+            <Clippy value={value}>
+              <a href={`#/process-definition/${row.original.id}/runtime`}>{value}</a>
+            </Clippy>
+          ),
+        },
+        {
+          Header: 'Name',
+          accessor: 'name',
+          headerClassName: 'name',
+          className: 'name',
+          Cell: ({ value }: CellProps<ProcessDefinitionRow, string | null>) => <span>{value ?? ''}</span>,
+        },
+        {
+          Header: 'Actions',
+          id: 'actions',
+          disableSortBy: true,
+          Cell: ({ row }: CellProps<ProcessDefinitionRow, never>) => (
+            <button
+              type="button"
+              className="btn btn-default btn-sm"
+              onClick={() => handleRemoveFavourite(row.original.id)}
+              aria-label="Remove from favourites"
+              title="Remove from favourites"
+              style={{
+                padding: '4px 8px',
+                minWidth: '32px',
+              }}
+            >
+              <span className="glyphicon glyphicon-star" aria-hidden="true" />
+            </button>
+          ),
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Custom column properties for AngularJS compatibility
+      ] as any,
+    [handleRemoveFavourite]
   );
 
   const title = `${favourites.length} favourite process definition${favourites.length !== 1 ? 's' : ''}`;

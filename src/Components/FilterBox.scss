@@ -6,11 +6,31 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
 }
 
 .filter-box-wrapper {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  width: 100%;
+  position: relative; // Establish positioning context for dropdown
+
+  // Ensure the filter-box inside takes full width
+  .filter-box {
+    display: block;
+    width: 100%;
+  }
+
+  // Override dropdown positioning when usePortal=false
+  // The library uses absolute positioning relative to the closest positioned ancestor
+  .autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    z-index: 1000;
+  }
 }
 
 // Saved searches dropdown
