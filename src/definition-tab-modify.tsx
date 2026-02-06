@@ -315,7 +315,11 @@ const BatchModifyForm: React.FC<Omit<DefinitionPluginParams, 'root'>> = ({ api, 
         <div className="modify-form__section">
           <div className="modify-form__field">
             <label htmlFor="instanceSelectionMode">Select Instances By</label>
-            <select id="instanceSelectionMode" {...methods.register('instanceSelectionMode')} className="modify-form__input">
+            <select
+              id="instanceSelectionMode"
+              {...methods.register('instanceSelectionMode')}
+              className="modify-form__input"
+            >
               <option value="all">All active instances of this definition</option>
               <option value="query">Query (filter by activity/state)</option>
               <option value="specific">Specific instance IDs</option>
@@ -430,8 +434,8 @@ const BatchModifyForm: React.FC<Omit<DefinitionPluginParams, 'root'>> = ({ api, 
 
         <WarningBox>
           Batch modification is a powerful operation that affects multiple process instances simultaneously. Always use
-          dry-run mode first to verify the affected instances. The operation will be executed asynchronously as a
-          batch job.
+          dry-run mode first to verify the affected instances. The operation will be executed asynchronously as a batch
+          job.
         </WarningBox>
 
         {error && <ErrorMessage message={error} />}
@@ -836,8 +840,8 @@ const BatchSignalForm: React.FC<Omit<DefinitionPluginParams, 'root'>> = ({ api, 
         <VariableBuilder name="processVariables" showLocalFlag={false} />
 
         <WarningBox>
-          Signals are broadcast globally and will trigger all matching signal catch events across all process
-          instances, not just this process definition. Use with caution in production environments.
+          Signals are broadcast globally and will trigger all matching signal catch events across all process instances,
+          not just this process definition. Use with caution in production environments.
         </WarningBox>
 
         {error && <ErrorMessage message={error} />}

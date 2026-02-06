@@ -455,10 +455,7 @@ export async function modifyProcessInstance(
  * @param params - Optional query parameters for filtering
  * @returns Promise resolving to array of decision definitions
  */
-export async function getDecisionDefinitions(
-  api: API,
-  params?: Record<string, string>
-): Promise<DecisionDefinition[]> {
+export async function getDecisionDefinitions(api: API, params?: Record<string, string>): Promise<DecisionDefinition[]> {
   return (await get(api, '/decision-definition', {
     sortBy: 'name',
     sortOrder: 'asc',

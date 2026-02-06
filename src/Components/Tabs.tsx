@@ -30,11 +30,11 @@ export const Tabs: React.FC<TabsProps> = ({ children }) => {
               className={`nav-link ${index === activeTab ? 'active' : ''}`}
               role="tab"
               aria-selected={index === activeTab}
-              onClick={(e) => {
+              onClick={e => {
                 e.preventDefault();
                 handleTabClick(index);
               }}
-              onKeyDown={(e) => {
+              onKeyDown={e => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
                   handleTabClick(index);

@@ -84,10 +84,18 @@ const BPMNViewer: React.FC<Props> = ({ activities, className, diagramXML, style,
         viewer.attachTo(ref.current);
 
         const canvas = viewer.get('canvas') as Canvas;
-        setTimeout(() => {
+        // Reset zoom multiple times to handle rendering timing issues:
+        // Once immediately, once after microtask, once with requestAnimationFrame,
+        // and twice more with delays to ensure proper fit after all rendering completes
+        const resetZoom = (): void => {
           canvas.zoom('fit-viewport', { x: 0, y: 0 });
           canvas.scroll({ dx: 0, dy: 0 });
-        });
+        };
+        resetZoom();
+        setTimeout(resetZoom, 0);
+        requestAnimationFrame(resetZoom);
+        setTimeout(resetZoom, 100);
+        setTimeout(resetZoom, 300);
 
         renderActivities(viewer as unknown as BpmnViewerInstance, activities ?? []);
 
