@@ -71,7 +71,7 @@ describe('Clippy', () => {
 
       const container = screen.getByText('Hover me').closest('span');
       const button = screen.getByLabelText('Copy to clipboard');
-      
+
       fireEvent.mouseOver(container!);
 
       expect(button).toHaveStyle({ visibility: 'visible' });

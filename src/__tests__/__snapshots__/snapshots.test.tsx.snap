@@ -710,7 +710,7 @@ exports[`Snapshot Tests Navigation Components Tabs renders correctly 1`] = `
       </li>
     </ul>
     <div
-      class="tab-content"
+      class="tabs-content-wrapper"
     >
       <div
         class="tab-pane active ctn-tabbed-content ctn-scroll"
