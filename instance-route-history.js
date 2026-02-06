@@ -19012,7 +19012,7 @@ function createInstanceQuerySchema(api, activityContext) {
             createStringField('processInstanceIds', 'Instance IDs', [OPERATORS.eq]),
             createStringField('processInstanceIdNotIn', 'Instance ID (Exclude)', [OPERATORS.eq]),
             createStringField('key', 'Process Key', [OPERATORS.eq, OPERATORS.like]),
-            createStringField('processInstanceBusinessKeyIn', 'Business Keys', [OPERATORS.eq]),
+            createStringField('processInstanceBusinessKeyIn', 'Business Key', [OPERATORS.eq, OPERATORS.like]),
             processDefinitionNameField,
             createStringField('processDefinitionKey', 'Process Definition Key', [OPERATORS.eq, OPERATORS.like]),
             createStringField('processDefinitionKeyIn', 'Process Definition Keys', [OPERATORS.eq]),
@@ -19247,6 +19247,7 @@ var PROCESS_STRING_FIELDS = {
     'key:==': 'processInstanceBusinessKey',
     'key:like': 'processInstanceBusinessKeyLike',
     'processInstanceBusinessKeyIn:==': 'processInstanceBusinessKeyIn',
+    'processInstanceBusinessKeyIn:like': 'processInstanceBusinessKeyLike',
     'processDefinitionName:==': 'processDefinitionName',
     'processDefinitionName:like': 'processDefinitionNameLike',
     'processDefinitionKey:==': 'processDefinitionKey',
@@ -19346,7 +19347,12 @@ function parseVersionFilter(query, operator, value) {
     }
 }
 /** Fields that need % wrapping for like operator */
-var FIELDS_NEEDING_LIKE_WRAP = new Set(['processDefinitionName', 'processDefinitionKey', 'incidentMessage']);
+var FIELDS_NEEDING_LIKE_WRAP = new Set([
+    'processDefinitionName',
+    'processDefinitionKey',
+    'incidentMessage',
+    'processInstanceBusinessKeyIn',
+]);
 /**
  * Known process instance filter field names.
  * Used to detect freeform (variable) fields vs predefined fields.
@@ -76300,16 +76306,15 @@ var RestartProcessForm = function (_a) {
     reactExports.useEffect(function () {
         var loadData = function () { return __awaiter(void 0, void 0, void 0, function () {
             var processDefResponse, processDefinition, terminatedResponse, terminated, bpmnActivities, err_1, errorMessage;
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _b.trys.push([0, 4, 5, 6]);
+                        _a.trys.push([0, 4, 5, 6]);
                         setIsLoading(true);
                         setError(null);
                         return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId))];
                     case 1:
-                        processDefResponse = _b.sent();
+                        processDefResponse = _a.sent();
                         processDefinition = processDefResponse;
                         if (!(processDefinition === null || processDefinition === void 0 ? void 0 : processDefinition.key)) {
                             throw new Error('Could not determine process definition key');
@@ -76319,12 +76324,12 @@ var RestartProcessForm = function (_a) {
                                 externallyTerminated: 'true',
                             })];
                     case 2:
-                        terminatedResponse = _b.sent();
-                        terminated = (_a = terminatedResponse) !== null && _a !== void 0 ? _a : [];
+                        terminatedResponse = _a.sent();
+                        terminated = terminatedResponse;
                         setTerminatedInstances(terminated);
                         return [4 /*yield*/, getBpmnElements(processDefinitionId, api)];
                     case 3:
-                        bpmnActivities = (_b.sent()).activities;
+                        bpmnActivities = (_a.sent()).activities;
                         setActivities(bpmnActivities);
                         // Auto-select first instance and activity if available
                         if (terminated.length > 0 && terminated[0]) {
@@ -76335,7 +76340,7 @@ var RestartProcessForm = function (_a) {
                         }
                         return [3 /*break*/, 6];
                     case 4:
-                        err_1 = _b.sent();
+                        err_1 = _a.sent();
                         console.error('Error loading data:', err_1);
                         errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
                         setError("Failed to load data: ".concat(errorMessage));
@@ -79140,18 +79145,84 @@ function createHistoryService(api) {
 /* eslint-disable complexity, max-statements -- Query conversion requires explicit field mappings */
 function toApiQuery(params) {
     var result = {};
+    // Date fields
     if (params.startedAfter) {
         result.startedAfter = params.startedAfter;
+    }
+    if (params.startedBefore) {
+        result.startedBefore = params.startedBefore;
+    }
+    if (params.finishedAfter) {
+        result.finishedAfter = params.finishedAfter;
     }
     if (params.finishedBefore) {
         result.finishedBefore = params.finishedBefore;
     }
+    if (params.executedActivityAfter) {
+        result.executedActivityAfter = params.executedActivityAfter;
+    }
+    if (params.executedActivityBefore) {
+        result.executedActivityBefore = params.executedActivityBefore;
+    }
+    if (params.executedJobAfter) {
+        result.executedJobAfter = params.executedJobAfter;
+    }
+    if (params.executedJobBefore) {
+        result.executedJobBefore = params.executedJobBefore;
+    }
+    // Process definition fields
+    if (params.processDefinitionId) {
+        result.processDefinitionId = params.processDefinitionId;
+    }
+    if (params.processDefinitionKey) {
+        result.processDefinitionKey = params.processDefinitionKey;
+    }
+    if (params.processDefinitionName) {
+        result.processDefinitionName = params.processDefinitionName;
+    }
+    if (params.processDefinitionNameLike) {
+        result.processDefinitionNameLike = params.processDefinitionNameLike;
+    }
+    if (params.processDefinitionKeyIn) {
+        result.processDefinitionKeyIn = params.processDefinitionKeyIn.split(',').map(function (k) { return k.trim(); });
+    }
+    if (params.processDefinitionKeyNotIn) {
+        result.processDefinitionKeyNotIn = params.processDefinitionKeyNotIn.split(',').map(function (k) { return k.trim(); });
+    }
+    // Process instance identifiers
+    if (params.processInstanceId) {
+        result.processInstanceId = params.processInstanceId;
+    }
+    if (params.processInstanceIds) {
+        result.processInstanceIds = params.processInstanceIds.split(',').map(function (id) { return id.trim(); });
+    }
+    if (params.processInstanceIdNotIn) {
+        result.processInstanceIdNotIn = params.processInstanceIdNotIn.split(',').map(function (id) { return id.trim(); });
+    }
+    // Business key fields
     if (params.processInstanceBusinessKey) {
         result.processInstanceBusinessKey = params.processInstanceBusinessKey;
     }
     if (params.processInstanceBusinessKeyLike) {
         result.processInstanceBusinessKeyLike = params.processInstanceBusinessKeyLike;
     }
+    if (params.processInstanceBusinessKeyIn) {
+        result.processInstanceBusinessKeyIn = params.processInstanceBusinessKeyIn.split(',').map(function (k) { return k.trim(); });
+    }
+    // Hierarchy fields
+    if (params.rootProcessInstances !== undefined) {
+        result.rootProcessInstances = params.rootProcessInstances;
+    }
+    if (params.rootProcessInstanceId) {
+        result.rootProcessInstanceId = params.rootProcessInstanceId;
+    }
+    if (params.superProcessInstanceId) {
+        result.superProcessInstanceId = params.superProcessInstanceId;
+    }
+    if (params.subProcessInstanceId) {
+        result.subProcessInstanceId = params.subProcessInstanceId;
+    }
+    // Variable fields
     if (params.variables && params.variables.length > 0) {
         result.variables = params.variables;
     }
@@ -79161,40 +79232,13 @@ function toApiQuery(params) {
     if (params.variableValuesIgnoreCase !== undefined) {
         result.variableValuesIgnoreCase = params.variableValuesIgnoreCase;
     }
+    // State boolean fields
     if (params.finished !== undefined) {
         result.finished = params.finished;
     }
     if (params.unfinished !== undefined) {
         result.unfinished = params.unfinished;
     }
-    if (params.withIncidents !== undefined) {
-        result.withIncidents = params.withIncidents;
-    }
-    if (params.incidentType) {
-        result.incidentType = params.incidentType;
-    }
-    if (params.incidentStatus) {
-        result.incidentStatus = params.incidentStatus;
-    }
-    if (params.startedBy) {
-        result.startedBy = params.startedBy;
-    }
-    // Convert tenantIdIn from string to array
-    if (params.tenantIdIn) {
-        result.tenantIdIn = params.tenantIdIn.split(',').map(function (t) { return t.trim(); });
-    }
-    if (params.state) {
-        result.state = params.state;
-    }
-    // Convert executedActivityIdIn from string to array
-    if (params.executedActivityIdIn) {
-        result.executedActivityIdIn = params.executedActivityIdIn.split(',').map(function (a) { return a.trim(); });
-    }
-    // Convert activeActivityIdIn from string to array
-    if (params.activeActivityIdIn) {
-        result.activeActivityIdIn = params.activeActivityIdIn.split(',').map(function (a) { return a.trim(); });
-    }
-    // State boolean fields
     if (params.active !== undefined) {
         result.active = params.active;
     }
@@ -79209,6 +79253,51 @@ function toApiQuery(params) {
     }
     if (params.internallyTerminated !== undefined) {
         result.internallyTerminated = params.internallyTerminated;
+    }
+    if (params.state) {
+        result.state = params.state;
+    }
+    // Incident fields
+    if (params.withIncidents !== undefined) {
+        result.withIncidents = params.withIncidents;
+    }
+    if (params.withRootIncidents !== undefined) {
+        result.withRootIncidents = params.withRootIncidents;
+    }
+    if (params.withJobsRetrying !== undefined) {
+        result.withJobsRetrying = params.withJobsRetrying;
+    }
+    if (params.incidentType) {
+        result.incidentType = params.incidentType;
+    }
+    if (params.incidentStatus) {
+        result.incidentStatus = params.incidentStatus;
+    }
+    if (params.incidentMessage) {
+        result.incidentMessage = params.incidentMessage;
+    }
+    if (params.incidentMessageLike) {
+        result.incidentMessageLike = params.incidentMessageLike;
+    }
+    if (params.incidentIdIn) {
+        result.incidentIdIn = params.incidentIdIn.split(',').map(function (id) { return id.trim(); });
+    }
+    // Activity fields
+    if (params.executedActivityIdIn) {
+        result.executedActivityIdIn = params.executedActivityIdIn.split(',').map(function (a) { return a.trim(); });
+    }
+    if (params.activeActivityIdIn) {
+        result.activeActivityIdIn = params.activeActivityIdIn.split(',').map(function (a) { return a.trim(); });
+    }
+    // Other fields
+    if (params.startedBy) {
+        result.startedBy = params.startedBy;
+    }
+    if (params.tenantIdIn) {
+        result.tenantIdIn = params.tenantIdIn.split(',').map(function (t) { return t.trim(); });
+    }
+    if (params.withoutTenantId !== undefined) {
+        result.withoutTenantId = params.withoutTenantId;
     }
     return result;
 }

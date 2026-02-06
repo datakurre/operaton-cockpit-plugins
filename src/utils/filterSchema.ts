@@ -826,7 +826,7 @@ export function createInstanceQuerySchema(api?: API, activityContext?: ActivityA
       createStringField('processInstanceIds', 'Instance IDs', [OPERATORS.eq]),
       createStringField('processInstanceIdNotIn', 'Instance ID (Exclude)', [OPERATORS.eq]),
       createStringField('key', 'Process Key', [OPERATORS.eq, OPERATORS.like]),
-      createStringField('processInstanceBusinessKeyIn', 'Business Keys', [OPERATORS.eq]),
+      createStringField('processInstanceBusinessKeyIn', 'Business Key', [OPERATORS.eq, OPERATORS.like]),
       processDefinitionNameField,
       createStringField('processDefinitionKey', 'Process Definition Key', [OPERATORS.eq, OPERATORS.like]),
       createStringField('processDefinitionKeyIn', 'Process Definition Keys', [OPERATORS.eq]),
