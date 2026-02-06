@@ -1,3 +1,4 @@
+/* eslint-disable max-statements, complexity, @typescript-eslint/naming-convention -- Complex dashboard with external task management */
 /**
  * Dashboard Integrations Plugin
  *
@@ -15,6 +16,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { API } from './types';
 import { get, post } from './utils/api';
+import { MINUTES_PER_HOUR } from './utils/constants';
 import { formatDateTime, buildCockpitUrl } from './utils/formatting';
 import LoadingSpinner from './Components/LoadingSpinner';
 import ErrorMessage from './Components/ErrorMessage';
@@ -220,19 +222,26 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
    * Batch retry selected tasks
    */
   const handleBatchRetry = async (): Promise<void> => {
-    if (selectedTasks.size === 0) return;
-    
+    if (selectedTasks.size === 0) {
+      return;
+    }
+
     const taskIds = Array.from(selectedTasks);
     for (const taskId of taskIds) {
       setActionLoading(prev => new Set(prev).add(taskId));
     }
-    
+
     try {
       // Use batch endpoint if available, otherwise retry individually
-      await post(api, '/external-task/retries', {}, JSON.stringify({
-        externalTaskIds: taskIds,
-        retries: 1,
-      }));
+      await post(
+        api,
+        '/external-task/retries',
+        {},
+        JSON.stringify({
+          externalTaskIds: taskIds,
+          retries: 1,
+        })
+      );
       setSelectedTasks(new Set());
       await fetchTasks();
     } catch {
@@ -269,20 +278,24 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
    * Format lock expiration time with remaining time
    */
   const formatLockTime = (lockTime: string | null): string => {
-    if (!lockTime) return '-';
+    if (!lockTime) {
+      return '-';
+    }
     const lockDate = new Date(lockTime);
-    if (isNaN(lockDate.getTime())) return '-';
-    
+    if (isNaN(lockDate.getTime())) {
+      return '-';
+    }
+
     const now = new Date();
     if (lockDate <= now) {
       return `Expired at ${formatDateTime(lockTime)}`;
     }
-    
+
     const remainingMs = lockDate.getTime() - now.getTime();
     const remainingSecs = Math.floor(remainingMs / 1000);
-    const mins = Math.floor(remainingSecs / 60);
-    const secs = remainingSecs % 60;
-    
+    const mins = Math.floor(remainingSecs / MINUTES_PER_HOUR);
+    const secs = remainingSecs % MINUTES_PER_HOUR;
+
     return `${formatDateTime(lockTime)} (${mins}m ${secs}s remaining)`;
   };
 
@@ -315,19 +328,11 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   return (
     <div>
       <div style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <button 
-          className="btn btn-default" 
-          onClick={() => void fetchTasks()}
-          disabled={isLoading}
-        >
+        <button className="btn btn-default" onClick={() => void fetchTasks()} disabled={isLoading}>
           Refresh
         </button>
         {selectedTasks.size > 0 && (
-          <button 
-            className="btn btn-primary" 
-            onClick={() => void handleBatchRetry()}
-            disabled={actionLoading.size > 0}
-          >
+          <button className="btn btn-primary" onClick={() => void handleBatchRetry()} disabled={actionLoading.size > 0}>
             Retry Selected ({selectedTasks.size})
           </button>
         )}
@@ -354,14 +359,12 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
           </tr>
         </thead>
         <tbody>
-          {tasks.map((task) => {
+          {tasks.map(task => {
             const taskId = task.id ?? '';
-            const processName = task.processDefinitionId 
-              ? processNames.get(task.processDefinitionId) ?? task.processDefinitionKey 
+            const processName = task.processDefinitionId
+              ? (processNames.get(task.processDefinitionId) ?? task.processDefinitionKey)
               : '-';
-            const taskIncidents = task.processInstanceId 
-              ? incidents.get(task.processInstanceId) ?? []
-              : [];
+            const taskIncidents = task.processInstanceId ? (incidents.get(task.processInstanceId) ?? []) : [];
             const hasIncident = taskIncidents.length > 0;
             const locked = isLocked(task);
             const loading = actionLoading.has(taskId);
@@ -372,14 +375,14 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                   <input
                     type="checkbox"
                     checked={selectedTasks.has(taskId)}
-                    onChange={() => handleToggleTask(taskId)}
+                    onChange={() => {
+                      handleToggleTask(taskId);
+                    }}
                   />
                 </td>
                 <td>
                   {task.processInstanceId ? (
-                    <a href={`#${getInstanceUrl(task.processInstanceId)}`}>
-                      {processName}
-                    </a>
+                    <a href={`#${getInstanceUrl(task.processInstanceId)}`}>{processName}</a>
                   ) : (
                     processName
                   )}
@@ -393,8 +396,8 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                 <td>{task.retries ?? 0}</td>
                 <td>
                   {hasIncident ? (
-                    <span 
-                      style={{ color: 'red', cursor: 'pointer' }} 
+                    <span
+                      style={{ color: 'red', cursor: 'pointer' }}
                       title={taskIncidents[0]?.incidentMessage ?? 'Incident'}
                     >
                       ⚠️ Yes

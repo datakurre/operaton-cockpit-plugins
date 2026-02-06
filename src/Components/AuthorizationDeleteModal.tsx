@@ -8,7 +8,12 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Modal backdrop with programmatic dismiss */
 import React, { useEffect } from 'react';
 
-import { Authorization, getAuthTypeLabel, getResourceTypeName, renderIdentityDisplay } from '../utils/authorization';
+import {
+  Authorization,
+  getAuthTypeLabel,
+  getResourceTypeName,
+  renderIdentityDisplay,
+} from '../utils/authorization';
 
 interface AuthorizationDeleteModalProps {
   authorization: Authorization;

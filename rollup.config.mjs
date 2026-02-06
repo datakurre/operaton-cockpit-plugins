@@ -221,6 +221,18 @@ const allConfigs = [
       if (warning.code === 'THIS_IS_UNDEFINED') { return; }
       superOnWarn(warning);
     },
+    input: "src/admin-route-authorization.tsx",
+    output: {
+      file: "admin-route-authorization.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
     input: "src/cockpit-nologin.tsx",
     output: {
       file: "cockpit-nologin.js",

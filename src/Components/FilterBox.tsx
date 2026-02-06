@@ -12,6 +12,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import ReactFilterBox, { Expression } from '@waylay/react-filter-box';
 
+import { CODEMIRROR_INIT_DELAY_MS } from '../utils/constants';
+
 /** Storage key for saved searches */
 const SAVED_SEARCHES_KEY = 'minimal-history-plugin-saved-searches';
 
@@ -56,6 +58,7 @@ interface SavedSearchesDropdownProps {
   onLoadQuery: (query: string) => void;
 }
 
+// eslint-disable-next-line max-lines-per-function -- Dropdown with state management, local storage, and event handlers
 const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQuery, onLoadQuery }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
@@ -69,20 +72,29 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQu
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    if (!isOpen) return;
-    
+    if (!isOpen) {
+      return;
+    }
+
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [isOpen]);
 
   const handleSave = () => {
-    if (!newSearchName.trim() || !currentQuery.trim()) return;
-    const newSearches = [...savedSearches.filter(s => s.name !== newSearchName.trim()), { name: newSearchName.trim(), query: currentQuery }];
+    if (!newSearchName.trim() || !currentQuery.trim()) {
+      return;
+    }
+    const newSearches = [
+      ...savedSearches.filter(s => s.name !== newSearchName.trim()),
+      { name: newSearchName.trim(), query: currentQuery },
+    ];
     setSavedSearches(newSearches);
     saveSavedSearches(newSearches);
     setNewSearchName('');
@@ -105,7 +117,9 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQu
     <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+        }}
         style={{
           background: 'none',
           border: 'none',
@@ -122,11 +136,11 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQu
       >
         {/* Disk icon */}
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M2 2h10l2 2v10H2V2zm1 1v10h10V4.414L11.586 3H3zm1 5h8v5H4V8zm1 1v3h6V9H5z"/>
+          <path d="M2 2h10l2 2v10H2V2zm1 1v10h10V4.414L11.586 3H3zm1 5h8v5H4V8zm1 1v3h6V9H5z" />
         </svg>
         {/* Chevron down */}
         <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
-          <path d="M2 3l3 4 3-4H2z"/>
+          <path d="M2 3l3 4 3-4H2z" />
         </svg>
       </button>
       {isOpen && (
@@ -152,8 +166,14 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQu
                 type="text"
                 placeholder="Save search as..."
                 value={newSearchName}
-                onChange={(e) => setNewSearchName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                onChange={e => {
+                  setNewSearchName(e.target.value);
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    handleSave();
+                  }
+                }}
                 style={{
                   flex: 1,
                   padding: '4px 8px',
@@ -182,10 +202,13 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQu
           {/* Saved searches list */}
           {savedSearches.length > 0 ? (
             <div>
-              {savedSearches.map((search) => (
+              {savedSearches.map(search => (
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Dropdown item with mouse-only interaction
                 <div
                   key={search.name}
-                  onClick={() => handleLoad(search)}
+                  onClick={() => {
+                    handleLoad(search);
+                  }}
                   style={{
                     padding: '8px 12px',
                     cursor: 'pointer',
@@ -194,13 +217,15 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQu
                     alignItems: 'center',
                     borderBottom: '1px solid #f0f0f0',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = '#f5f5f5')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'white')}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#f5f5f5')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'white')}
                 >
                   <span style={{ fontSize: '13px' }}>{search.name}</span>
                   <button
                     type="button"
-                    onClick={(e) => handleDelete(search.name, e)}
+                    onClick={e => {
+                      handleDelete(search.name, e);
+                    }}
                     style={{
                       background: 'none',
                       border: 'none',
@@ -227,6 +252,7 @@ const SavedSearchesDropdown: React.FC<SavedSearchesDropdownProps> = ({ currentQu
   );
 };
 
+ 
 class SimpleReactFilterBox extends ReactFilterBox {
   componentDidMount() {
     if (this.props['query']) {
@@ -323,12 +349,15 @@ const FilterBox = (props: any) => {
   const filterBoxRef = useRef<any>(null);
 
   // Handler to load a saved query
-  const handleLoadQuery = useCallback((savedQuery: string) => {
-    setLoadedQuery(savedQuery);
-    setQuery(savedQuery);
-    setFilterBoxKey(prev => prev + 1);
-    props.autoCompleteHandler.setQuery(savedQuery);
-  }, [props.autoCompleteHandler]);
+  const handleLoadQuery = useCallback(
+    (savedQuery: string) => {
+      setLoadedQuery(savedQuery);
+      setQuery(savedQuery);
+      setFilterBoxKey(prev => prev + 1);
+      props.autoCompleteHandler.setQuery(savedQuery);
+    },
+    [props.autoCompleteHandler]
+  );
 
   // Initialize autoCompleteHandler with the initial query synchronously.
   // This must happen before the first render to ensure the handler is ready
@@ -350,7 +379,9 @@ const FilterBox = (props: any) => {
   // Set up focus listener to show autocomplete immediately
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     const handleFocusIn = (e: FocusEvent) => {
       // Check if focus is on the CodeMirror input
@@ -358,27 +389,30 @@ const FilterBox = (props: any) => {
       if (target.closest('.CodeMirror')) {
         // Delay to ensure CodeMirror is ready
         setTimeout(() => {
-          const codeMirror = container.querySelector('.CodeMirror') as any;
-          if (codeMirror?.CodeMirror) {
-            const cm = codeMirror.CodeMirror;
-            // Trigger autocomplete if input is empty or has minimal content
-            if (cm.getValue().trim().length === 0 && cm.showHint) {
-              cm.showHint({ completeSingle: false });
-            }
+          const codeMirror = container.querySelector('.CodeMirror');
+          const cm = (codeMirror as any)?.CodeMirror;
+          // Trigger autocomplete if input is empty or has minimal content
+          if (cm?.getValue?.().trim().length === 0) {
+            // Trigger a change event to make react-filter-box show autocomplete
+            // We insert and remove a space to trigger the autocomplete popup
+            cm.replaceRange(' ', { line: 0, ch: 0 });
+            cm.replaceRange('', { line: 0, ch: 0 }, { line: 0, ch: 1 });
           }
-        }, 50);
+        }, CODEMIRROR_INIT_DELAY_MS);
       }
     };
 
     container.addEventListener('focusin', handleFocusIn);
-    return () => container.removeEventListener('focusin', handleFocusIn);
+    return () => {
+      container.removeEventListener('focusin', handleFocusIn);
+    };
   }, []);
 
   // Cast to any to avoid React type conflicts between @waylay/react-filter-box and project React types
   const FilterBoxComponent = SimpleReactFilterBox as any;
 
   // Determine which query to use for the filter box
-  const effectiveQuery = loadedQuery !== null ? loadedQuery : initialQuery;
+  const effectiveQuery = loadedQuery ?? initialQuery;
 
   return (
     <div className="form-control" ref={containerRef} style={{ display: 'flex', alignItems: 'center' }}>
