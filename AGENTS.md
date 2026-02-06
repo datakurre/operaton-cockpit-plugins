@@ -72,7 +72,8 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [bpmn.ts](src/utils/bpmn.ts): Re-exports from `bpmn/` submodule for backwards compatibility
 - [bpmnParsing.ts](src/utils/bpmnParsing.ts): BPMN XML parsing for extracting activities, sequence flows, and message definitions
 - [constants.ts](src/utils/constants.ts): Centralized UI, timing, pagination, retry, and validation constants
-- [filterAutocomplete.ts](src/utils/filterAutocomplete.ts): Configurable autocomplete handler for filter boxes with category operators and date picker support
+- [filterExpressionParsers.ts](src/utils/filterExpressionParsers.ts): Pure functions for parsing FilterBox expressions to API query parameters. Provides `parseActivityInstanceExpressions()`, `parseProcessInstanceExpressions()`, `parseAuthorizationExpressions()` with typed interfaces for each query type.
+- [filterSchema.ts](src/utils/filterSchema.ts): Schema-based filter configuration using react-select-filter-box. Provides `createDefinitionFilterSchema()`, `createInstanceQuerySchema()`, `createAuthorizationFilterSchema()`, and legacy expression converters for backward compatibility.
 - [formatting.ts](src/utils/formatting.ts): Date formatting (`formatDateTime`, `formatDateForApi`) and URL building (`buildCockpitUrl`, `buildHistoryUrl`) utilities
 - [misc.ts](src/utils/misc.ts): Local storage and querystring settings utilities
 - [resizable-layout.scss](src/utils/resizable-layout.scss): Shared SCSS styles for Allotment-based resizable layouts (Resizer, Pane borders)
@@ -132,9 +133,14 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [ToggleSequenceFlowButton.tsx](src/Components/ToggleSequenceFlowButton.tsx): Sequence flow highlighting toggle
 
 **Forms and inputs:**
-- [FilterBox.tsx](src/Components/FilterBox.tsx): Query filter UI with CodeMirror editor, custom autocomplete, and date picker integration
+- [FilterBox.tsx](src/Components/FilterBox.tsx): Token-based filter builder using react-select-filter-box with schema-based configuration, saved searches persistence, and legacy expression conversion
+- [FilterBox.scss](src/Components/FilterBox.scss): Styles for FilterBox and saved searches dropdown
 - [VariableBuilder.tsx](src/Components/VariableBuilder.tsx): Dynamic variable input builder with type-specific controls (String, Integer, Boolean, JSON, Date, etc.) and form validation
 - [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Message correlation form with BPMN message parsing and variable configuration
+- [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx): Batch process modification form with instance selection, dry-run preview, and modification instructions
+- [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx): Batch message correlation form for correlating messages to multiple process instances
+- [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx): Batch signal broadcast form for broadcasting signals globally
+- [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx): Dry-run result preview component showing affected process instances
 - [AuthorizationFormModal.tsx](src/Components/AuthorizationFormModal.tsx): Modal form for creating/editing authorizations with type, identity, permissions, and resource ID selection
 - [AuthorizationDeleteModal.tsx](src/Components/AuthorizationDeleteModal.tsx): Confirmation modal for deleting authorization records
 - [SelectField.tsx](src/Components/SelectField.tsx): Reusable form select field with consistent styling
@@ -321,7 +327,6 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
 **Note:** End-to-end testing is intentionally skipped. The plugins integrate with Operaton/Camunda Cockpit's Angular-based runtime environment, making browser automation setup complex. The unit and integration tests provide sufficient coverage for the React components and API interactions.
 
 ## Known issues and fixes
-- **React 18 warning with `@waylay/react-filter-box`**: The package uses `ReactDOM.render()` internally (in `AutoCompletePopup.tsx`) which triggers a console warning: "ReactDOM.render is no longer supported in React 18". This does not affect functionality - React falls back to React 17 behavior. The warning originates from the dependency, not this project's source code.
-- **TypeScript warnings with `@waylay/react-filter-box`**: The package bundles its own `@types/react` which conflicts with the project's React types. [src/Components/FilterBox.tsx](src/Components/FilterBox.tsx) casts `SimpleReactFilterBox` to `any` to bypass this incompatibility while maintaining type safety elsewhere.
-- **FilterBox initialization race condition**: The `SimpleReactFilterBox` component extends the upstream `ReactFilterBox` and defers its initial `onSubmit()` call by one event loop tick (using `setTimeout(0)`) to ensure CodeMirror and the AutoCompletePopup are fully initialized before submission. Additionally, the `autoCompleteHandler.setQuery()` call is executed synchronously during state initialization to prevent typeahead suggestions from failing. Without these fixes, the component would partially work with syntax highlighting but no typeahead suggestions, and filter changes wouldn't update the actual REST requests.
+- **react-select-filter-box installed from git**: The package is installed from GitHub and built during postinstall because there are no npm releases. The postinstall script clones the repo, applies patches for TypeScript errors, builds the library, and creates a symlink for the CSS file.
+- **TypeScript warnings with react-select-filter-box**: The package bundles its own `@types/react` which conflicts with the project's React types. [src/Components/FilterBox.tsx](src/Components/FilterBox.tsx) casts the component to a local type to bypass this incompatibility.
 

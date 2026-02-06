@@ -1,0 +1,1933 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Snapshot Tests Feedback Components ErrorMessage renders correctly 1`] = `
+<div>
+  <div
+    aria-live="assertive"
+    class="alert alert-danger"
+    role="alert"
+  >
+    Something went wrong
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Feedback Components LoadingSpinner renders correctly 1`] = `
+<div>
+  <div
+    aria-busy="true"
+    aria-live="polite"
+    class="loading"
+    role="status"
+  >
+    <span
+      class="visually-hidden"
+    >
+      Loading...
+    </span>
+    Loading...
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Feedback Components LoadingSpinner with custom message renders correctly 1`] = `
+<div>
+  <div
+    aria-busy="true"
+    aria-live="polite"
+    class="loading"
+    role="status"
+  >
+    <span
+      class="visually-hidden"
+    >
+      Please wait...
+    </span>
+    Please wait...
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Feedback Components SuccessMessage renders correctly 1`] = `
+<div>
+  <div
+    aria-live="polite"
+    class="alert alert-success"
+    role="status"
+  >
+    Operation completed
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Feedback Components WarningBox renders correctly 1`] = `
+<div>
+  <div
+    aria-live="polite"
+    role="alert"
+    style="padding: 10px; background-color: rgb(255, 243, 205); border: 1px solid rgb(255, 193, 7); border-radius: 2px; margin-bottom: 15px;"
+  >
+    <strong>
+      ⚠️ 
+      Warning
+      :
+    </strong>
+     
+    This is a warning about process modification
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Feedback Components WarningBox with custom title renders correctly 1`] = `
+<div>
+  <div
+    aria-live="polite"
+    role="alert"
+    style="padding: 10px; background-color: rgb(255, 243, 205); border: 1px solid rgb(255, 193, 7); border-radius: 2px; margin-bottom: 15px;"
+  >
+    <strong>
+      ⚠️ 
+      Caution
+      :
+    </strong>
+     
+    Be careful with this operation
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Form Components FormButton all variants render correctly 1`] = `
+<div>
+  <div>
+    <button
+      aria-disabled="false"
+      style="padding: 8px 16px; background-color: rgb(73, 80, 87); color: white; border-radius: 2px; cursor: pointer; font-size: 14px; min-width: 90px;"
+      type="button"
+    >
+      Primary
+    </button>
+    <button
+      aria-disabled="false"
+      style="padding: 8px 16px; background-color: rgb(108, 117, 125); color: white; border-radius: 2px; cursor: pointer; font-size: 14px; min-width: 90px;"
+      type="button"
+    >
+      Secondary
+    </button>
+    <button
+      aria-disabled="false"
+      style="padding: 8px 16px; background-color: rgb(220, 53, 69); color: white; border-radius: 2px; cursor: pointer; font-size: 14px; min-width: 90px;"
+      type="button"
+    >
+      Danger
+    </button>
+    <button
+      aria-disabled="false"
+      style="padding: 8px 16px; background-color: rgb(40, 167, 69); color: white; border-radius: 2px; cursor: pointer; font-size: 14px; min-width: 90px;"
+      type="button"
+    >
+      Success
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Form Components FormButton disabled state renders correctly 1`] = `
+<div>
+  <button
+    aria-disabled="true"
+    disabled=""
+    style="padding: 8px 16px; background-color: rgb(173, 181, 189); color: white; border-radius: 2px; cursor: not-allowed; font-size: 14px; min-width: 90px;"
+    type="button"
+  >
+    Disabled
+  </button>
+</div>
+`;
+
+exports[`Snapshot Tests Form Components FormButton primary variant renders correctly 1`] = `
+<div>
+  <button
+    aria-disabled="false"
+    style="padding: 8px 16px; background-color: rgb(73, 80, 87); color: white; border-radius: 2px; cursor: pointer; font-size: 14px; min-width: 90px;"
+    type="button"
+  >
+    Submit
+  </button>
+</div>
+`;
+
+exports[`Snapshot Tests Form Components SelectField renders correctly 1`] = `
+<div>
+  <div
+    style="margin-bottom: 10px;"
+  >
+    <label
+      for="select-resource"
+    >
+      Select Resource
+      : 
+    </label>
+    <select
+      aria-disabled="false"
+      aria-required="false"
+      class="form-control"
+      id="select-resource"
+      name="resource"
+      style="width: 400px; display: inline-block; margin-left: 10px;"
+    >
+      <option
+        value="process-instance"
+      >
+        Process Instance
+      </option>
+      <option
+        value="process-definition"
+      >
+        Process Definition
+      </option>
+      <option
+        value="task"
+      >
+        Task
+      </option>
+    </select>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Form Components SelectField with placeholder renders correctly 1`] = `
+<div>
+  <div
+    style="margin-bottom: 10px;"
+  >
+    <label
+      for="select-type"
+    >
+      Select Type
+      : 
+    </label>
+    <select
+      aria-disabled="false"
+      aria-required="false"
+      class="form-control"
+      id="select-type"
+      name="type"
+      style="width: 400px; display: inline-block; margin-left: 10px;"
+    >
+      <option
+        value=""
+      >
+        Choose an option
+      </option>
+      <option
+        value="a"
+      >
+        Option A
+      </option>
+    </select>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Navigation Components Pagination last page renders correctly 1`] = `
+<div>
+  <nav>
+    <ul
+      class="pagination-sm pagination"
+      role="menu"
+    >
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          First
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          Previous
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          4
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          5
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          6
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          7
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          8
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          9
+        </button>
+      </li>
+      <li
+        class="pagination-page active "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          10
+        </button>
+      </li>
+      <li
+        class="pagination-page  disabled"
+        role="menuitem"
+      >
+        <button
+          class="pagination-link disabled"
+          disabled=""
+          style="background: none; padding: 4px 8px; cursor: default;"
+          type="button"
+        >
+          Next
+        </button>
+      </li>
+      <li
+        class="pagination-page  disabled"
+        role="menuitem"
+      >
+        <button
+          class="pagination-link disabled"
+          disabled=""
+          style="background: none; padding: 4px 8px; cursor: default;"
+          type="button"
+        >
+          Last
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>
+`;
+
+exports[`Snapshot Tests Navigation Components Pagination middle page renders correctly 1`] = `
+<div>
+  <nav>
+    <ul
+      class="pagination-sm pagination"
+      role="menu"
+    >
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          First
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          Previous
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          2
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          3
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          4
+        </button>
+      </li>
+      <li
+        class="pagination-page active "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          5
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          6
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          7
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          8
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          Next
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          Last
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>
+`;
+
+exports[`Snapshot Tests Navigation Components Pagination renders correctly 1`] = `
+<div>
+  <nav>
+    <ul
+      class="pagination-sm pagination"
+      role="menu"
+    >
+      <li
+        class="pagination-page  disabled"
+        role="menuitem"
+      >
+        <button
+          class="pagination-link disabled"
+          disabled=""
+          style="background: none; padding: 4px 8px; cursor: default;"
+          type="button"
+        >
+          First
+        </button>
+      </li>
+      <li
+        class="pagination-page  disabled"
+        role="menuitem"
+      >
+        <button
+          class="pagination-link disabled"
+          disabled=""
+          style="background: none; padding: 4px 8px; cursor: default;"
+          type="button"
+        >
+          Previous
+        </button>
+      </li>
+      <li
+        class="pagination-page active "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          1
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          2
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          3
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          4
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          5
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          6
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          7
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          Next
+        </button>
+      </li>
+      <li
+        class="pagination-page  "
+        role="menuitem"
+      >
+        <button
+          class="pagination-link "
+          style="background: none; padding: 4px 8px; cursor: pointer;"
+          type="button"
+        >
+          Last
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>
+`;
+
+exports[`Snapshot Tests Navigation Components Tabs renders correctly 1`] = `
+<div>
+  <div>
+    <ul
+      class="nav nav-tabs"
+      role="tablist"
+    >
+      <li
+        class="nav-item active"
+      >
+        <a
+          aria-selected="true"
+          class="nav-link active"
+          href="#"
+          role="tab"
+        >
+          Modify
+        </a>
+      </li>
+      <li
+        class="nav-item "
+      >
+        <a
+          aria-selected="false"
+          class="nav-link "
+          href="#"
+          role="tab"
+        >
+          Message
+        </a>
+      </li>
+      <li
+        class="nav-item "
+      >
+        <a
+          aria-selected="false"
+          class="nav-link "
+          href="#"
+          role="tab"
+        >
+          Signal
+        </a>
+      </li>
+    </ul>
+    <div
+      class="tab-content"
+    >
+      <div
+        class="tab-pane active"
+        role="tabpanel"
+      >
+        Modify content
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`] = `
+<div>
+  <div
+    class="ctn-column"
+  >
+    <dl
+      class="process-information"
+    >
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Instance ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        instance-123
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Business Key:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        ORDER-2024-001
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Version:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        1
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        <a
+          href="#/process-definition/orderProcess:1:abc/runtime"
+        >
+          orderProcess:1:abc
+        </a>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Key:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        orderProcess
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Name:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        Order Process
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Tenant ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Deployment ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        <a
+          href="#/repository?deployment=deploy-123&resourceName=order-process.bpmn&deploymentsQuery=%5B%7B%22type%22%3A%22id%22%2C%22operator%22%3A%22eq%22%2C%22value%22%3A%22deploy-123%22%7D%5D"
+        >
+          deploy-123
+        </a>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Super Process instance ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          State:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        ACTIVE
+      </dd>
+    </dl>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Process Components ProcessInfoPanel with null values renders correctly 1`] = `
+<div>
+  <div
+    class="ctn-column"
+  >
+    <dl
+      class="process-information"
+    >
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Instance ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        instance-456
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Business Key:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Version:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        2
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        <a
+          href="#/process-definition/orderProcess:2:def/runtime"
+        >
+          orderProcess:2:def
+        </a>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Key:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        orderProcess
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Name:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        Order Process
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Tenant ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        tenant-1
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Deployment ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        <a
+          href="#/repository?deployment=&resourceName=&deploymentsQuery=%5B%7B%22type%22%3A%22id%22%2C%22operator%22%3A%22eq%22%2C%22value%22%3A%22%22%7D%5D"
+        />
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Super Process instance ID:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        <a
+          href="#/history/process-instance/parent-instance-789"
+        >
+          parent-instance-789
+        </a>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          State:
+          <span
+            style="font-size: 120%; width: 1.2em;"
+          />
+        </span>
+      </dt>
+      <dd>
+        COMPLETED
+      </dd>
+    </dl>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Table Components AuditLogTable empty state renders correctly 1`] = `
+<div>
+  <table
+    aria-label="Audit log table"
+    class="cam-table"
+    role="table"
+  >
+    <thead>
+      <tr
+        role="row"
+      >
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Activity Name
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Start Time
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            End Time
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Duration
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Type
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            User
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Canceled
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      role="rowgroup"
+    />
+  </table>
+</div>
+`;
+
+exports[`Snapshot Tests Table Components AuditLogTable with activities renders correctly 1`] = `
+<div>
+  <table
+    aria-label="Audit log table"
+    class="cam-table"
+    role="table"
+  >
+    <thead>
+      <tr
+        role="row"
+      >
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Activity Name
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Start Time
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            End Time
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Duration
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Type
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            User
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+        <th
+          aria-sort="none"
+          colspan="1"
+          role="columnheader"
+          style="cursor: pointer;"
+          title="Toggle SortBy"
+        >
+          <span
+            class=""
+          >
+            Canceled
+          </span>
+          <a
+            style="margin-left: 5px;"
+          >
+            <svg
+              aria-hidden="true"
+              baseProfile="tiny"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="color: rgb(21, 92, 181);"
+              version="1.2"
+              viewBox="0 0 24 24"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 11h-12c-1.104 0-2 .896-2 2s.896 2 2 2h12c1.104 0 2-.896 2-2s-.896-2-2-2z"
+              />
+            </svg>
+          </a>
+        </th>
+      </tr>
+    </thead>
+    <tbody
+      role="rowgroup"
+    >
+      <tr
+        role="row"
+      >
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            Start
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            2024-01-15T10:00:00
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            2024-01-15T10:00:01
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            style="white-space: nowrap;"
+          >
+            00:00:01.0
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            startEvent
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            false
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+      </tr>
+      <tr
+        role="row"
+      >
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            Review Document
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            2024-01-15T10:00:01
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            2024-01-15T11:30:00
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            style="white-space: nowrap;"
+          >
+            01:29:59.0
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            userTask
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            admin
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+        <td
+          role="cell"
+        >
+          <span
+            role="group"
+            style="display: flex; align-items: center;"
+            tabindex="0"
+          >
+            false
+            <span
+              style="font-size: 120%; width: 1.2em;"
+            />
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`Snapshot Tests Utility Components BreadcrumbsPanel legacy props renders correctly 1`] = `
+<div>
+  <div
+    cam-breadcrumbs-panel=""
+    class="breadcrumbs-panel"
+  >
+    <ul
+      class="cam-breadcrumb"
+    >
+      <li>
+        <a
+          class="text"
+          href="#/"
+        >
+          Dashboard
+        </a>
+         
+      </li>
+      <li>
+        <span
+          class="divider"
+        >
+          »
+        </span>
+         
+        <a
+          class="text"
+          href="#/processes/"
+        >
+          Processes
+        </a>
+      </li>
+      <li>
+        <span
+          class="divider"
+        >
+          »
+        </span>
+         
+        <a
+          class="text"
+          href="#/process-definition/process:1:abc/runtime"
+        >
+          Order Process
+        </a>
+      </li>
+      <li
+        class="active"
+      >
+        <span
+          class="divider"
+        >
+          »
+        </span>
+         
+        <span
+          class="text"
+        >
+          instance-123
+        </span>
+         
+        <span
+          class="divider"
+        >
+          :
+        </span>
+         
+        History
+      </li>
+    </ul>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Utility Components BreadcrumbsPanel renders correctly 1`] = `
+<div>
+  <div
+    cam-breadcrumbs-panel=""
+    class="breadcrumbs-panel"
+  >
+    <ul
+      class="cam-breadcrumb"
+    >
+      <li>
+        <a
+          class="text"
+          href="#/"
+        >
+          Dashboard
+        </a>
+         
+      </li>
+      <li>
+        <span
+          class="divider"
+        >
+          »
+        </span>
+         
+        <a
+          class="text"
+          href="#/processes/"
+        >
+          Processes
+        </a>
+      </li>
+      <li
+        class="active"
+      >
+        <span
+          class="divider"
+        >
+          »
+        </span>
+         
+        <span
+          class="text"
+        >
+          My Process
+        </span>
+         
+        <span
+          class="divider"
+        >
+          :
+        </span>
+         
+        instance-abc : History
+      </li>
+    </ul>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Utility Components Clippy renders correctly 1`] = `
+<div>
+  <span
+    role="group"
+    style="display: flex; align-items: center;"
+    tabindex="0"
+  >
+    Click to copy
+    <span
+      style="font-size: 120%; width: 1.2em;"
+    />
+  </span>
+</div>
+`;

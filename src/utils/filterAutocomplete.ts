@@ -168,11 +168,10 @@ export function createInstanceQueryHandler(
       started: { operators: ['after'], isDate: true },
       finished: { operators: ['before'], isDate: true },
       key: { operators: ['==', 'like'] },
-      variable: { operators: ['==', 'like', 'ilike'] },
-      version: { operators: ['any', '==', '<', '>', '<=', '>='] },
     },
-    singleUseCategories: ['started', 'finished', 'version'],
+    singleUseCategories: ['key', 'started', 'finished'],
     defaultOperators: ['==', 'like', 'ilike'],
+    acceptAnyCategory: true,
   };
   return new FilterAutoCompleteHandler(data, options, config);
 }

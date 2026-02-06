@@ -1,0 +1,109 @@
+/**
+ * Date picker widget styles
+ *
+ * Styles for the custom date picker widget used in FilterBox.
+ */
+
+.date-picker-widget {
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+}
+
+.date-picker-widget .react-datepicker {
+  border: none;
+  font-family: inherit;
+}
+
+.date-picker-widget .react-datepicker__header {
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.date-picker-widget .react-datepicker__current-month,
+.date-picker-widget .react-datepicker__day-name {
+  color: #333;
+}
+
+.date-picker-widget .react-datepicker__day--selected,
+.date-picker-widget .react-datepicker__day--keyboard-selected {
+  background-color: #b5152b;
+  color: white;
+}
+
+.date-picker-widget .react-datepicker__day--selected:hover,
+.date-picker-widget .react-datepicker__day--keyboard-selected:hover {
+  background-color: #8a1021;
+}
+
+.date-picker-widget .react-datepicker__day:hover {
+  background-color: #f0f0f0;
+}
+
+.date-picker-widget .react-datepicker__today-button {
+  background: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+  color: #333;
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.date-picker-widget .react-datepicker__today-button:hover {
+  background: #eeeeee;
+}
+
+.date-picker-widget__summary {
+  margin-top: 16px;
+  padding: 8px 12px;
+  background: #e8f5e9;
+  border-radius: 4px;
+  text-align: center;
+  color: #2e7d32;
+  font-size: 14px;
+}
+
+.date-picker-widget__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.date-picker-widget__actions button {
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-picker-widget__actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.date-picker-widget__actions .btn-primary {
+  background-color: #b5152b;
+  border-color: #b5152b;
+  color: white;
+}
+
+.date-picker-widget__actions .btn-primary:hover:not(:disabled) {
+  background-color: #8a1021;
+  border-color: #8a1021;
+}
+
+.date-picker-widget__actions .btn-default {
+  background-color: #f5f5f5;
+  border-color: #ddd;
+  color: #333;
+}
+
+.date-picker-widget__actions .btn-default:hover {
+  background-color: #eeeeee;
+}

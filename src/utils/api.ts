@@ -556,6 +556,33 @@ export async function getDecisionDefinitionXml(
 export type DecisionEvaluationResult = Record<string, VariableValueDto>[];
 
 /**
+ * Gets the most recent historic decision instance for a decision definition.
+ * Includes outputs with ruleId information for highlighting matched rules.
+ * @param api - The API configuration object
+ * @param decisionDefinitionId - The decision definition ID
+ * @returns Promise resolving to the historic decision instance with outputs, or null if not found
+ */
+export async function getLatestDecisionInstance(
+  api: API,
+  decisionDefinitionId: string
+): Promise<HistoricDecisionInstance | null> {
+  try {
+    const result = (await get(api, '/history/decision-instance', {
+      decisionDefinitionId,
+      includeOutputs: 'true',
+      sortBy: 'evaluationTime',
+      sortOrder: 'desc',
+      maxResults: '1',
+    })) as HistoricDecisionInstance[];
+
+    return result.length > 0 ? (result[0] ?? null) : null;
+  } catch (error) {
+    console.error('Failed to get latest decision instance:', error);
+    return null;
+  }
+}
+
+/**
  * Evaluates a decision definition with the given variables.
  * @param api - The API configuration object
  * @param decisionDefinitionId - The decision definition ID
