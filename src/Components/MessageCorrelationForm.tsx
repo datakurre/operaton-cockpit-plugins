@@ -175,16 +175,6 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
         </div>
 
         <div className="form-group">
-          <h5>Process Variables</h5>
-          <VariableBuilder name="processVariables" showLocalFlag={false} />
-        </div>
-
-        <div className="form-group">
-          <h5>Process Variables Local</h5>
-          <VariableBuilder name="processVariablesLocal" showLocalFlag={false} />
-        </div>
-
-        <div className="form-group">
           <label>
             <input
               type="checkbox"
@@ -193,7 +183,7 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
                 setShowAdvancedOptions(!showAdvancedOptions);
               }}
             />{' '}
-            Advanced Correlation Options
+            Advanced Options
           </label>
         </div>
 
@@ -206,6 +196,14 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
             <div className="form-group">
               <h5>Local Correlation Keys</h5>
               <VariableBuilder name="localCorrelationKeys" showLocalFlag={false} />
+            </div>
+            <div className="form-group">
+              <h5>Process Variables</h5>
+              <VariableBuilder name="processVariables" showLocalFlag={false} />
+            </div>
+            <div className="form-group">
+              <h5>Process Variables Local</h5>
+              <VariableBuilder name="processVariablesLocal" showLocalFlag={false} />
             </div>
           </>
         )}

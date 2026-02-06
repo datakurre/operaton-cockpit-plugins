@@ -14,7 +14,7 @@ import { createRoot } from 'react-dom/client';
 
 // Third-party libraries
 import type DmnJsViewer from 'dmn-js';
-import type { DmnElement, DmnInput, DmnOutput, DmnRule } from 'dmn-js';
+import type { DmnElement, DmnInput, DmnOutput } from 'dmn-js';
 
 // Local components
 import DecisionInputForm, { DecisionInputField } from './Components/DecisionInputForm';
@@ -22,15 +22,14 @@ import DecisionResults, { DecisionOutputField } from './Components/DecisionResul
 import DecisionSelector from './Components/DecisionSelector';
 import DmnViewer from './Components/DmnViewer';
 import ErrorMessage from './Components/ErrorMessage';
+import LoadingSpinner from './Components/LoadingSpinner';
 import SuccessMessage from './Components/SuccessMessage';
-import DashboardSection from './Components/DashboardSection';
 
 // Local utilities
 import {
   evaluateDecision,
   getDecisionDefinitions,
   getDecisionDefinitionXml,
-  getLatestDecisionInstance,
   DecisionEvaluationResult,
 } from './utils/api';
 
@@ -71,17 +70,13 @@ function getVariableType(typeRef: string | undefined): string {
  * @returns The parsed value
  */
 function parseInputValue(value: string, type: string): unknown {
-  // For boolean, empty string means false (default value)
-  if (type === 'Boolean') {
-    return value === 'true';
-  }
-
-  // For other types, empty string means null (no value)
   if (value === '') {
     return null;
   }
 
   switch (type) {
+    case 'Boolean':
+      return value === 'true';
     case 'Integer':
     case 'Long':
       return parseInt(value, 10);
@@ -93,177 +88,68 @@ function parseInputValue(value: string, type: string): unknown {
 }
 
 /**
- * Extracts allowed values from DMN input entries for dropdown inputs.
- * Parses FEEL expressions to extract simple literals (strings, numbers, booleans).
- * Supports FEEL list syntax where a single input entry contains multiple comma-separated values.
- * @param rules - Array of DMN rules
- * @param inputIndex - Index of the input column
- * @returns Array of unique allowed values, or undefined if values are complex expressions
- */
-function extractAllowedValues(rules: DmnRule[] | undefined, inputIndex: number): string[] | undefined {
-  if (!rules || rules.length === 0) {
-    return undefined;
-  }
-
-  const values = new Set<string>();
-  let hasNonEmptyEntry = false;
-
-  for (const rule of rules) {
-    const inputEntry = rule.inputEntry?.[inputIndex];
-    if (!inputEntry?.text) {
-      continue;
-    }
-
-    const text = inputEntry.text.trim();
-
-    // Skip empty or dash (no constraint) - these mean "any value"
-    if (text === '' || text === '-') {
-      continue;
-    }
-
-    hasNonEmptyEntry = true;
-
-    // Match simple literals:
-    // - Quoted strings: "value" or 'value'
-    // - Boolean: true, false
-    // - Numbers: 123, 45.67, -10
-    // - FEEL list syntax: "val1", "val2", "val3"
-    // - Comma-separated values: "val1","val2" or true,false
-
-    // Try to parse comma-separated values (FEEL list syntax)
-    const parts = text.split(',').map(p => p.trim());
-
-    for (const part of parts) {
-      // Quoted string: "value" or 'value' (including strings with special chars, underscores, etc.)
-      const quotedRegex = /^["']([^"']+)["']$/;
-      const quotedMatch = quotedRegex.exec(part);
-      if (quotedMatch) {
-        values.add(quotedMatch[1] ?? '');
-        continue;
-      }
-
-      // Boolean: true or false
-      if (part === 'true' || part === 'false') {
-        values.add(part);
-        continue;
-      }
-
-      // Number: integer or decimal
-      if (/^-?\d+(\.\d+)?$/.test(part)) {
-        values.add(part);
-        continue;
-      }
-
-      // If we encounter anything else (expressions, functions, ranges, etc.),
-      // log it but DON'T mark as complex - just skip this part/rule
-      // This allows dropdowns for columns that have SOME simple values mixed with complex expressions
-      if (part !== '') {
-        console.log(`Input ${inputIndex}: skipping complex expression/unmatched part: "${part}"`);
-      }
-    }
-  }
-
-  // Debug logging
-  if (hasNonEmptyEntry) {
-    console.log(`Input ${inputIndex}: found ${values.size} unique values`, Array.from(values));
-  }
-
-  // Only return allowed values if:
-  // 1. We have at least 2 unique options (a dropdown with 1 option is pointless)
-  // 2. We found at least one non-empty entry
-  // Note: We no longer check hasComplexExpression - we just extract what we can
-  if (values.size < 2 || !hasNonEmptyEntry) {
-    return undefined;
-  }
-
-  return Array.from(values).sort();
-}
-
-/**
- * Highlights matched rules in the DMN viewer using rule IDs from history.
- *
- * After evaluating a decision, we query the decision history to get the matched
- * rule IDs, then use dmn-js's data-row-id attributes to highlight the correct rows.
- *
- * This approach works correctly for all hit policies (FIRST, UNIQUE, COLLECT, RULE ORDER, etc.)
- * because it uses the actual rule IDs returned by the engine.
- *
+ * Highlights matched rules in the DMN viewer.
  * @param viewerRef - Reference to the DMN viewer
- * @param ruleIds - Array of matched rule IDs from the decision history
+ * @param hitCount - Number of matched rules
  */
-function highlightMatchedRules(viewerRef: React.RefObject<DmnJsViewer | null>, ruleIds: string[]): void {
-  if (viewerRef.current === null || ruleIds.length === 0) {
+function highlightMatchedRules(viewerRef: React.RefObject<DmnJsViewer | null>, hitCount: number): void {
+  if (viewerRef.current === null || hitCount === 0) {
     return;
   }
 
   const activeViewer = viewerRef.current.getActiveViewer();
   if (activeViewer === null) {
-    console.warn('No active viewer');
     return;
   }
 
-  // Delay to ensure DOM is ready
-  setTimeout(() => {
-    try {
-      // Clear previous highlights
-      const existingStyle = document.getElementById('dmn-rule-highlights');
-      if (existingStyle) {
-        existingStyle.remove();
-      }
-
-      console.log(`Highlighting ${ruleIds.length} rules:`, ruleIds);
-
-      // Create dynamic CSS rules using data-row-id selectors (same as dmn-testing-plugin)
-      const firstRuleId = ruleIds[0];
-      const otherRuleIds = ruleIds.slice(1);
-
-      const firstRowSelector = firstRuleId ? `[data-row-id="${firstRuleId}"]` : '';
-      const otherRowSelectors = otherRuleIds.map(id => `[data-row-id="${id}"]`).join(',');
-
-      const cssRules = `
-        /* First matched rule - blue highlight */
-        ${firstRowSelector},
-        ${firstRowSelector} > * {
-          background-color: #cce5ff !important;
-        }
-        ${firstRowSelector} > * {
-          font-weight: 500 !important;
-        }
-        
-        /* Other matched rules - green highlight */
-        ${otherRowSelectors ? `${otherRowSelectors},` : ''}
-        ${otherRowSelectors ? `${otherRowSelectors} > * {` : ''}
-        ${otherRowSelectors ? `  background-color: #d4edda !important;` : ''}
-        ${otherRowSelectors ? `}` : ''}
-      `;
-
-      // Inject the dynamic styles
-      const styleElement = document.createElement('style');
-      styleElement.id = 'dmn-rule-highlights';
-      styleElement.textContent = cssRules;
-      document.head.appendChild(styleElement);
-
-      console.log(`Successfully highlighted ${ruleIds.length} rules using data-row-id attributes`);
-    } catch (e) {
-      console.error('Failed to highlight rules:', e);
+  try {
+    const container = activeViewer.get<HTMLElement | null>('_container');
+    if (container === null) {
+      return;
     }
-  }, 100);
+
+    // Clear previous highlights
+    const previousHits = container.querySelectorAll('.dmn-rule-hit, .dmn-rule-hit-first');
+    previousHits.forEach(row => {
+      row.classList.remove('dmn-rule-hit', 'dmn-rule-hit-first');
+    });
+
+    // Highlight matched rules
+    const ruleRows = container.querySelectorAll('tbody tr');
+    for (let i = 0; i < Math.min(hitCount, ruleRows.length); i++) {
+      const row = ruleRows[i];
+      if (row) {
+        row.classList.add(i === 0 ? 'dmn-rule-hit-first' : 'dmn-rule-hit');
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to highlight rules:', e);
+  }
 }
 
 /**
  * Clears rule highlights from the DMN viewer.
- * @param _viewerRef - Reference to the DMN viewer (unused, kept for API consistency)
+ * @param viewerRef - Reference to the DMN viewer
  */
-function clearRuleHighlights(_viewerRef: React.RefObject<DmnJsViewer | null>): void {
-  try {
-    const existingStyle = document.getElementById('dmn-rule-highlights');
-    if (existingStyle) {
-      existingStyle.remove();
-      console.log('Cleared DMN rule highlights');
-    }
-  } catch (e) {
-    console.warn('Failed to clear highlights:', e);
+function clearRuleHighlights(viewerRef: React.RefObject<DmnJsViewer | null>): void {
+  if (viewerRef.current === null) {
+    return;
   }
+
+  const activeViewer = viewerRef.current.getActiveViewer();
+  if (activeViewer === null) {
+    return;
+  }
+
+  const container = activeViewer.get<HTMLElement | null>('_container');
+  if (container === null) {
+    return;
+  }
+
+  const rows = container.querySelectorAll('.dmn-rule-hit, .dmn-rule-hit-first');
+  rows.forEach(row => {
+    row.classList.remove('dmn-rule-hit', 'dmn-rule-hit-first');
+  });
 }
 
 /**
@@ -348,41 +234,12 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
     const logic = decision.decisionLogic;
 
     // Extract inputs
-    // Priority for variable name (used in API): camunda:inputVariable > inputVariable > non-empty expression text > label
-    // Priority for display label: label > non-empty expression text > inputVariable
-    const parsedInputs: DecisionInputField[] = (logic.input ?? []).map((input: DmnInput, index: number) => {
-      const camundaInputVar = input.$attrs?.['camunda:inputVariable'];
-      const expressionText = input.inputExpression?.text;
-      const hasExpressionText = expressionText !== undefined && expressionText !== '';
-
-      // Variable name for API: prefer camunda:inputVariable, then inputVariable, then expression text, then label
-      const variableName =
-        camundaInputVar ??
-        input.inputVariable ??
-        (hasExpressionText ? expressionText : null) ??
-        input.label ??
-        input.id;
-
-      // Display label: prefer label, then expression text, then variable name
-      const displayLabel = input.label ?? (hasExpressionText ? expressionText : null) ?? variableName;
-
-      // Extract allowed values from rules for dropdown inputs
-      const allowedValues = extractAllowedValues(logic.rule, index);
-
-      const field: DecisionInputField = {
-        id: input.id,
-        name: variableName,
-        label: displayLabel,
-        typeRef: input.inputExpression?.typeRef ?? 'string',
-      };
-
-      // Only add allowedValues if it exists (for exactOptionalPropertyTypes)
-      if (allowedValues !== undefined) {
-        field.allowedValues = allowedValues;
-      }
-
-      return field;
-    });
+    const parsedInputs: DecisionInputField[] = (logic.input ?? []).map((input: DmnInput) => ({
+      id: input.id,
+      name: input.inputExpression?.text ?? input.label ?? input.id,
+      label: input.label ?? input.inputExpression?.text ?? input.id,
+      typeRef: input.inputExpression?.typeRef ?? 'string',
+    }));
 
     // Extract outputs
     const parsedOutputs: DecisionOutputField[] = (logic.output ?? []).map((output: DmnOutput) => ({
@@ -398,8 +255,7 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
     // Initialize input values
     const initialValues: Record<string, string> = {};
     parsedInputs.forEach(input => {
-      // Boolean inputs default to 'false' so they submit by default
-      initialValues[input.name] = input.typeRef.toLowerCase() === 'boolean' ? 'false' : '';
+      initialValues[input.name] = '';
     });
     setInputValues(initialValues);
   }, []);
@@ -417,8 +273,7 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
   const handleClear = useCallback(() => {
     const clearedValues: Record<string, string> = {};
     inputs.forEach(input => {
-      // Boolean inputs reset to 'false' so they submit by default
-      clearedValues[input.name] = input.typeRef.toLowerCase() === 'boolean' ? 'false' : '';
+      clearedValues[input.name] = '';
     });
     setInputValues(clearedValues);
     setResults(null);
@@ -448,41 +303,20 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
         const type = getVariableType(input.typeRef);
         const parsedValue = parseInputValue(rawValue, type);
 
-        // Always submit boolean values (including false), skip null for other types
-        if (parsedValue !== null || type === 'Boolean') {
+        if (parsedValue !== null) {
           variables[input.name] = {
-            value: parsedValue === null ? false : parsedValue,
+            value: parsedValue,
             type,
           };
         }
       });
 
-      // Step 1: Evaluate the decision
       const evaluationResults = await evaluateDecision(api, selectedDecisionId, variables);
       setResults(evaluationResults);
+      setSuccessMessage(`Decision evaluated successfully. ${evaluationResults.length} rule(s) matched.`);
 
-      // Step 2: Fetch the latest decision instance from history to get rule IDs
-      const historyInstance = await getLatestDecisionInstance(api, selectedDecisionId);
-
-      if (historyInstance?.outputs && historyInstance.outputs.length > 0) {
-        // Extract unique rule IDs from outputs (handle COLLECT policies with multiple outputs per rule)
-        const ruleIds = Array.from(
-          new Set(historyInstance.outputs.map(output => output.ruleId).filter((id): id is string => id !== null))
-        );
-        console.log('Matched rule IDs from history:', ruleIds);
-
-        setSuccessMessage(
-          `Decision evaluated successfully. ${ruleIds.length} rule${ruleIds.length !== 1 ? 's' : ''} matched.`
-        );
-
-        // Highlight matched rules using rule IDs
-        if (ruleIds.length > 0) {
-          highlightMatchedRules(viewerRef, ruleIds);
-        }
-      } else {
-        setSuccessMessage('Decision evaluated successfully. No rules matched.');
-        console.warn('No outputs found in decision history');
-      }
+      // Highlight matched rules in the viewer
+      highlightMatchedRules(viewerRef, evaluationResults.length);
     } catch (err) {
       console.error('Decision evaluation failed:', err);
       const errorMessage = err instanceof Error ? err.message : 'Decision evaluation failed';
@@ -503,74 +337,80 @@ const DecisionsDashboard: React.FC<DashboardPluginParams> = ({ api }) => {
     setSuccessMessage(null);
   }, []);
 
-  const title =
-    decisions.length > 0
-      ? `DMN Decision Simulator (${decisions.length} definition${decisions.length !== 1 ? 's' : ''})`
-      : 'DMN Decision Simulator';
+  if (isLoading) {
+    return (
+      <div className="decisions-dashboard">
+        <LoadingSpinner />
+        <p className="decisions-dashboard__loading">Loading decision definitions...</p>
+      </div>
+    );
+  }
 
-  // Error state with no decisions
   if (error && decisions.length === 0) {
     return (
-      <DashboardSection title="DMN Decision Simulator" hasData={false} emptyMessage="">
+      <div className="decisions-dashboard">
         <ErrorMessage message={error} />
-      </DashboardSection>
+      </div>
     );
   }
 
   return (
-    <DashboardSection
-      title={title}
-      isLoading={isLoading}
-      hasData={decisions.length > 0}
-      emptyMessage="No decision definitions found. Deploy a DMN diagram to get started."
-    >
-      <div className="decisions-dashboard">
-        <DecisionSelector
-          decisions={decisions}
-          selectedId={selectedDecisionId}
-          onSelect={handleDecisionSelect}
-          disabled={isEvaluating}
-        />
-
-        {error && <ErrorMessage message={error} />}
-        {successMessage && <SuccessMessage message={successMessage} />}
-
-        {selectedDecisionId && (
-          <div className="decisions-dashboard__content">
-            <div className="decisions-dashboard__left-panel">
-              <DecisionInputForm
-                inputs={inputs}
-                values={inputValues}
-                onChange={handleInputChange}
-                onEvaluate={() => {
-                  void handleEvaluate();
-                }}
-                onClear={handleClear}
-                isLoading={isEvaluating}
-              />
-
-              <DecisionResults results={results} outputs={outputs} error={evaluationError} />
-            </div>
-
-            <div className="decisions-dashboard__right-panel">
-              <div className="decisions-dashboard__viewer-container">
-                {dmnXml ? (
-                  <DmnViewer xml={dmnXml} onViewReady={handleViewerReady} />
-                ) : (
-                  <p className="decisions-dashboard__empty">Loading DMN diagram...</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!selectedDecisionId && decisions.length > 0 && (
-          <div className="decisions-dashboard__empty">
-            <p>Select a decision definition to begin testing.</p>
-          </div>
-        )}
+    <div className="decisions-dashboard">
+      <div className="decisions-dashboard__header">
+        <h3>DMN Decision Simulator</h3>
       </div>
-    </DashboardSection>
+
+      <DecisionSelector
+        decisions={decisions}
+        selectedId={selectedDecisionId}
+        onSelect={handleDecisionSelect}
+        disabled={isEvaluating}
+      />
+
+      {error && <ErrorMessage message={error} />}
+      {successMessage && <SuccessMessage message={successMessage} />}
+
+      {selectedDecisionId && (
+        <div className="decisions-dashboard__content">
+          <div className="decisions-dashboard__left-panel">
+            <DecisionInputForm
+              inputs={inputs}
+              values={inputValues}
+              onChange={handleInputChange}
+              onEvaluate={() => {
+                void handleEvaluate();
+              }}
+              onClear={handleClear}
+              isLoading={isEvaluating}
+            />
+
+            <DecisionResults results={results} outputs={outputs} error={evaluationError} />
+          </div>
+
+          <div className="decisions-dashboard__right-panel">
+            <div className="decisions-dashboard__viewer-container">
+              {dmnXml ? (
+                <DmnViewer xml={dmnXml} onViewReady={handleViewerReady} />
+              ) : (
+                <p className="decisions-dashboard__empty">Loading DMN diagram...</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!selectedDecisionId && decisions.length > 0 && (
+        <div className="decisions-dashboard__empty">
+          <p>Select a decision definition to begin testing.</p>
+        </div>
+      )}
+
+      {decisions.length === 0 && !error && (
+        <div className="decisions-dashboard__empty">
+          <p>No decision definitions found. Deploy a DMN diagram to get started.</p>
+        </div>
+      )}
+    </div>
   );
 };
 

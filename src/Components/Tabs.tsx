@@ -25,17 +25,16 @@ export const Tabs: React.FC<TabsProps> = ({ children }) => {
       <ul className="nav nav-tabs" role="tablist">
         {React.Children.map(children, (child, index) => (
           <li className={`nav-item ${index === activeTab ? 'active' : ''}`} key={child.props.label}>
-            {/* eslint-disable-next-line jsx-a11y/anchor-is-valid -- Matches Cockpit UI pattern */}
             <a
               href="#"
               className={`nav-link ${index === activeTab ? 'active' : ''}`}
               role="tab"
               aria-selected={index === activeTab}
-              onClick={e => {
+              onClick={(e) => {
                 e.preventDefault();
                 handleTabClick(index);
               }}
-              onKeyDown={e => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
                   handleTabClick(index);

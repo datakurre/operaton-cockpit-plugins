@@ -30,14 +30,11 @@ declare module 'dmn-js' {
   export interface DmnInput {
     id: string;
     label?: string;
-    inputVariable?: string;
     inputExpression?: {
       id: string;
       typeRef?: string;
       text?: string;
     };
-    /** Camunda extension attributes (e.g., camunda:inputVariable) */
-    $attrs?: Record<string, string>;
   }
 
   export interface DmnOutput {

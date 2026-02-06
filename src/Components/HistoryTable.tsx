@@ -1,5 +1,5 @@
 import React from 'react';
-import { CellProps, Column, SortByFn } from 'react-table';
+import { CellProps, Column } from 'react-table';
 
 import { HistoricProcessInstance } from '../types';
 import { formatDateTime } from '../utils/formatting';
@@ -22,31 +22,6 @@ interface InstanceRow {
   /** End time as Date object or null if still running */
   endTime: Date | null;
 }
-
-/**
- * Custom sort function for Date columns.
- * Handles null values by treating them as either "far future" (for endTime)
- * or properly comparing Date objects.
- */
-const dateSortFn: SortByFn<InstanceRow> = (rowA, rowB, columnId) => {
-  const a = rowA.values[columnId] as Date | null;
-  const b = rowB.values[columnId] as Date | null;
-
-  // Handle null values - null is treated as "far future" for endTime
-  // This keeps running processes (no end time) at one end of the sort
-  if (a === null && b === null) {
-    return 0;
-  }
-  if (a === null) {
-    return 1;
-  } // null goes to end
-  if (b === null) {
-    return -1;
-  } // null goes to end
-
-  // Compare Date objects using timestamps
-  return a.getTime() - b.getTime();
-};
 
 interface Props {
   instances: HistoricProcessInstance[];
@@ -76,7 +51,6 @@ const HistoryTable: React.FC<Props> = ({ instances }) => {
       {
         Header: 'Start Time',
         accessor: 'startTime',
-        sortType: dateSortFn,
         Cell: ({ value }: CellProps<InstanceRow, Date>) => {
           const formatted = formatDateTime(value);
           return <Clippy value={formatted}>{formatted}</Clippy>;
@@ -85,7 +59,6 @@ const HistoryTable: React.FC<Props> = ({ instances }) => {
       {
         Header: 'End Time',
         accessor: 'endTime',
-        sortType: dateSortFn,
         Cell: ({ value }: CellProps<InstanceRow, Date | null>) => {
           const formatted = value ? formatDateTime(value) : '';
           return <Clippy value={formatted}>{formatted}</Clippy>;

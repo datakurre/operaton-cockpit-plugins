@@ -1,15 +1,16 @@
 /**
  * Admin no-login plugin
- *
- * This plugin disables the login form for Admin by hiding it with CSS.
+ * 
+ * This plugin disables the login form for Admin by rendering nothing.
  * It is intended for use in environments where authentication is handled
- * externally (e.g., via SSO, reverse proxy, or pre-authentication).
+ * externally (e.g., via SSO, reverse proxy).
  */
-
-import './nologin.scss';
-
-/**
- * No-login plugin that injects a stylesheet to hide the signin form.
- * No render function needed - the SCSS import handles everything.
- */
-export default [];
+export default [
+  {
+    id: 'adminNoLogin',
+    pluginPoint: 'admin.login',
+    render: (): void => {
+      // Render nothing to disable login form
+    },
+  },
+];
