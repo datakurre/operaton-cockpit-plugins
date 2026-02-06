@@ -18,8 +18,8 @@ import type { API } from './types';
 import { get, post } from './utils/api';
 import { MINUTES_PER_HOUR } from './utils/constants';
 import { formatDateTime, buildCockpitUrl } from './utils/formatting';
-import LoadingSpinner from './Components/LoadingSpinner';
 import ErrorMessage from './Components/ErrorMessage';
+import DashboardSection from './Components/DashboardSection';
 
 // =============================================================================
 // Types
@@ -299,34 +299,27 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     return `${formatDateTime(lockTime)} (${mins}m ${secs}s remaining)`;
   };
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+  const title = `${tasks.length} external task${tasks.length !== 1 ? 's' : ''}`;
 
+  // Error state overlay
   if (error) {
     return (
-      <div>
+      <DashboardSection title="External Tasks" hasData={false} emptyMessage="">
         <ErrorMessage message={error} />
         <button className="btn btn-default" onClick={() => void fetchTasks()}>
           Retry
         </button>
-      </div>
-    );
-  }
-
-  if (tasks.length === 0) {
-    return (
-      <div className="no-data">
-        <p>No external tasks found.</p>
-        <button className="btn btn-default" onClick={() => void fetchTasks()}>
-          Refresh
-        </button>
-      </div>
+      </DashboardSection>
     );
   }
 
   return (
-    <div>
+    <DashboardSection
+      title={title}
+      isLoading={isLoading}
+      hasData={tasks.length > 0}
+      emptyMessage="No external tasks found."
+    >
       <div style={{ marginBottom: '10px', display: 'flex', gap: '10px', alignItems: 'center' }}>
         <button className="btn btn-default" onClick={() => void fetchTasks()} disabled={isLoading}>
           Refresh
@@ -433,7 +426,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
           })}
         </tbody>
       </table>
-    </div>
+    </DashboardSection>
   );
 };
 
@@ -447,15 +440,14 @@ interface DashboardParams {
 
 export default [
   {
-    id: 'dashboardIntegrations',
-    pluginPoint: 'cockpit.dashboard.section',
-    properties: {
-      label: 'Integrations',
-      // Place after other dashboard sections
-      priority: 50,
-    },
+    id: 'dashboardIntegrationsDashboard',
+    pluginPoint: 'cockpit.processes.dashboard',
     render: (node: Element, { api }: DashboardParams): void => {
-      createRoot(node).render(<IntegrationsTable api={api} />);
+      createRoot(node).render(
+        <React.StrictMode>
+          <IntegrationsTable api={api} />
+        </React.StrictMode>
+      );
     },
   },
 ];

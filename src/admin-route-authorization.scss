@@ -8,7 +8,7 @@
  */
 
 // Shared resizable layout styles
-@import './utils/resizable-layout.scss';
+@use './utils/resizable-layout.scss';
 
 // Container styles - uses ctn-main with top:0, bottom:0 like instance-route-history
 // The breadcrumbs-panel margin reset ensures no extra spacing at the top

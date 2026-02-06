@@ -13,65 +13,7 @@
  * @module
  */
 
-// Mock @waylay/react-filter-box before any imports that use it
-jest.mock('@waylay/react-filter-box', () => {
-  const React = require('react');
-
-  // Mock GridDataAutoCompleteHandler for FilterAutoCompleteHandler
-  class MockGridDataAutoCompleteHandler {
-    constructor(_data: unknown[], _options: unknown[]) {}
-    needCategories(): string[] {
-      return [];
-    }
-    needOperators(): string[] {
-      return [];
-    }
-    needValues(): string[] {
-      return [];
-    }
-  }
-
-  return {
-    __esModule: true,
-    GridDataAutoCompleteHandler: MockGridDataAutoCompleteHandler,
-    default: class MockReactFilterBox extends React.Component<{
-      query?: string;
-      onParseOk?: (expressions: unknown[]) => void;
-      onChange?: (query: string) => void;
-    }> {
-      parser = { getSuggestions: () => [] };
-
-      componentDidMount() {
-        if (this.props.query) {
-          this.onSubmit(this.props.query);
-        }
-      }
-
-      onSubmit(_query: string) {
-        if (this.props.onParseOk) {
-          this.props.onParseOk([]);
-        }
-      }
-
-      render() {
-        return (
-          <div data-testid="filter-box">
-            <input
-              data-testid="filter-input"
-              defaultValue={this.props.query}
-              onChange={e => {
-                if (this.props.onChange) {
-                  this.props.onChange(e.target.value);
-                }
-              }}
-            />
-          </div>
-        );
-      }
-    },
-    Expression: {},
-  };
-});
+// react-select-filter-box is mocked via moduleNameMapper in jest.config.js
 
 // Mock allotment since it has complex resize functionality
 jest.mock('allotment', () => ({

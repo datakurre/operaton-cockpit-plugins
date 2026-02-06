@@ -26,7 +26,6 @@ import './Components/Modal.scss';
 import { Allotment } from 'allotment';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { Expression } from '@waylay/react-filter-box';
 
 import AuthorizationDeleteModal from './Components/AuthorizationDeleteModal';
 import AuthorizationFormModal from './Components/AuthorizationFormModal';
@@ -41,8 +40,7 @@ import type { API } from './types';
 import { get, ApiError } from './utils/api';
 import { Authorization, RESOURCE_TYPES, getResourceTypeName } from './utils/authorization';
 import { ADMIN_PANEL_WIDTH_PX, DEFAULT_PAGE_SIZE } from './utils/constants';
-import { FilterAutoCompleteHandler } from './utils/filterAutocomplete';
-import type { FilterAutoCompleteConfig } from './utils/filterAutocomplete';
+import { createAuthorizationFilterSchema, type LegacyExpression } from './utils/filterSchema';
 import { loadSettings, saveSettings } from './utils/misc';
 
 // =============================================================================
@@ -58,49 +56,8 @@ const PAGE_SIZE_200 = 200;
 /** Page size options */
 const PAGE_SIZE_OPTIONS = [PAGE_SIZE_25, PAGE_SIZE_50, PAGE_SIZE_100, PAGE_SIZE_200];
 
-/**
- * Filter autocomplete configuration for authorizations.
- * Category names match the Operaton REST API query parameters directly.
- * See: https://docs.camunda.org/rest/camunda-bpm-platform/7.18/#tag/Authorization/operation/queryAuthorizations
- */
-const FILTER_CONFIG: FilterAutoCompleteConfig = {
-  categoryOperators: {
-    id: { operators: ['=='] },
-    userIdIn: { operators: ['=='] },
-    groupIdIn: { operators: ['=='] },
-    resourceId: { operators: ['=='] },
-    type: { operators: ['=='] },
-  },
-  defaultOperators: ['=='],
-};
-
-/** Filter option type for autocomplete */
-interface FilterOption {
-  columnField: string;
-  columnText: string;
-  type: string;
-  customValuesFunc?: () => string[];
-}
-
-/**
- * Creates filter options for authorization queries.
- * Field names match Operaton REST API query parameters directly.
- * @returns Filter options for the FilterBox component
- */
-function createFilterOptions(): FilterOption[] {
-  return [
-    { columnField: 'id', columnText: 'id', type: 'text' },
-    { columnField: 'userIdIn', columnText: 'userIdIn', type: 'text' },
-    { columnField: 'groupIdIn', columnText: 'groupIdIn', type: 'text' },
-    { columnField: 'resourceId', columnText: 'resourceId', type: 'text' },
-    {
-      columnField: 'type',
-      columnText: 'type',
-      type: 'text',
-      customValuesFunc: () => ['0', '1', '2'],
-    },
-  ];
-}
+/** Filter schema for authorization queries */
+const authorizationFilterSchema = createAuthorizationFilterSchema();
 
 // =============================================================================
 // Main Component
@@ -114,7 +71,7 @@ interface AuthorizationsViewProps {
  * Left panel (aside): Resource type list
  * Right panel (section-content): Authorization table with CRUD operations
  */
- 
+
 const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   // Default to Application (0) as in Angular app
   const [selectedResourceType, setSelectedResourceType] = useState<number>(0);
@@ -127,15 +84,6 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
   const [error, setError] = useState<string | null>(null);
   const [filterParams, setFilterParams] = useState<Record<string, string>>({});
   const [filterKey, setFilterKey] = useState(0);
-
-  // Filter options - static since field names now match API params directly
-  const filterOptions = useMemo(() => createFilterOptions(), []);
-
-  // Filter autocomplete handler
-  const autoCompleteHandler = useMemo(
-    () => new FilterAutoCompleteHandler([], filterOptions, FILTER_CONFIG),
-    [filterOptions]
-  );
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -219,7 +167,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
    * @param expressions - Array of filter expressions from FilterBox
    * @returns Record of API query parameters
    */
-  const parseFilterExpressions = useCallback((expressions: Expression[]): Record<string, string> => {
+  const parseFilterExpressions = useCallback((expressions: LegacyExpression[]): Record<string, string> => {
     const params: Record<string, string> = {};
     // Valid API parameters for authorization endpoint
     const validParams = ['id', 'userIdIn', 'groupIdIn', 'resourceId', 'type'];
@@ -243,7 +191,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
    * Handle filter query submission
    */
   const handleFilterSubmit = useCallback(
-    (expressions: Expression[]): void => {
+    (expressions: LegacyExpression[]): void => {
       const params = parseFilterExpressions(expressions);
       setFilterParams(params);
       setCurrentPage(1);
@@ -309,11 +257,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
           }}
         >
           {/* Left pane - Resource type list */}
-          <Allotment.Pane
-            preferredSize={settings.leftPaneSize ?? ADMIN_PANEL_WIDTH_PX}
-            minSize={150}
-            maxSize={350}
-          >
+          <Allotment.Pane preferredSize={settings.leftPaneSize ?? ADMIN_PANEL_WIDTH_PX} minSize={150} maxSize={350}>
             <div className="resource-type-list">
               <ul>
                 {RESOURCE_TYPES.map(rt => (
@@ -368,10 +312,12 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
                   <div className="col-sm-9">
                     <FilterBox
                       key={filterKey}
-                      options={filterOptions}
-                      autoCompleteHandler={autoCompleteHandler}
-                      onParseOk={handleFilterSubmit}
-                      defaultQuery={(): string => ''}
+                      schema={authorizationFilterSchema}
+                      onFilterChange={() => {
+                        // New format handled by onLegacyFilterChange
+                      }}
+                      onLegacyFilterChange={handleFilterSubmit}
+                      placeholder="Add filter..."
                     />
                   </div>
                   <div className="col-sm-3 text-right">

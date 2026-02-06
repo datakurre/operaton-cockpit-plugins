@@ -4,7 +4,6 @@ import './instance-route-history.scss';
 
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Expression } from '@waylay/react-filter-box';
 
 import BreadcrumbsPanel from './Components/BreadcrumbsPanel';
 import FilterBox from './Components/FilterBox';
@@ -27,32 +26,11 @@ import {
   getDecisions,
 } from './utils/api';
 import { DEFAULT_PAGE_SIZE } from './utils/constants';
-import { createInstanceQueryHandler } from './utils/filterAutocomplete';
+import { createInstanceQuerySchema, type LegacyExpression } from './utils/filterSchema';
 import { sortActivitiesByEndTime, sortByName, mapDecisionsByActivity } from './utils/misc';
 
-const InstanceQueryOptions = [
-  {
-    columnField: 'started',
-    type: 'date',
-  },
-  {
-    columnField: 'finished',
-    type: 'date',
-  },
-  {
-    columnField: 'key',
-    type: 'string',
-  },
-  {
-    columnField: 'variable',
-    columnText: 'variable (use name:value format)',
-    type: 'string',
-  },
-  {
-    columnField: 'version',
-    type: 'string',
-  },
-];
+/** Filter schema for instance history queries */
+const instanceQuerySchema = createInstanceQuerySchema();
 
 /** Interface for parsed filter tokens from filter expressions */
 interface ParsedFilterTokens {
@@ -92,8 +70,7 @@ const hooks: Record<string, (node: Element) => void> = {
  * Manages filter parsing, pagination, and history table rendering.
  */
 const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinitionId }) => {
-  const [autoCompleteHandler] = useState(() => createInstanceQueryHandler([], InstanceQueryOptions));
-  const [expressions, setExpressions] = useState([] as Expression[]);
+  const [expressions, setExpressions] = useState<LegacyExpression[]>([]);
   const [query, setQuery] = useState({} as ParsedFilterTokens);
   const [historyTabNode, setHistoryTabNode] = useState<Element | null>(initialState['historyTabNode'] ?? null);
 
@@ -180,21 +157,20 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
     const parsedQuery: ParsedFilterTokens = {};
     const variables: { name: string; operator: string; value: string }[] = [];
     for (const { category, operator, value } of expressions) {
-      const strValue = value ?? '';
-      if (category === 'started' && operator === 'after' && !isNaN(new Date(strValue).getTime())) {
-        parsedQuery.startedAfter = `${strValue}T00:00:00.000+0000`;
-      } else if (category === 'finished' && operator === 'before' && !isNaN(new Date(strValue).getTime())) {
-        parsedQuery.finishedBefore = `${strValue}T00:00:00.000+0000`;
+      if (category === 'started' && operator === 'after' && !isNaN(new Date(value).getTime())) {
+        parsedQuery.startedAfter = `${value}T00:00:00.000+0000`;
+      } else if (category === 'finished' && operator === 'before' && !isNaN(new Date(value).getTime())) {
+        parsedQuery.finishedBefore = `${value}T00:00:00.000+0000`;
       } else if (category === 'key' && operator === '==') {
-        parsedQuery.processInstanceBusinessKey = strValue;
+        parsedQuery.processInstanceBusinessKey = value;
       } else if (category === 'key' && operator === 'like') {
-        parsedQuery.processInstanceBusinessKeyLike = strValue;
+        parsedQuery.processInstanceBusinessKeyLike = value;
       } else if (category === 'variable') {
         // Parse variable filter in format "name:value"
-        const colonIndex = strValue.indexOf(':');
+        const colonIndex = value.indexOf(':');
         if (colonIndex > 0) {
-          const varName = strValue.substring(0, colonIndex);
-          const varValue = strValue.substring(colonIndex + 1);
+          const varName = value.substring(0, colonIndex);
+          const varValue = value.substring(colonIndex + 1);
           const opType = operator === 'like' || operator === 'ilike' ? 'like' : 'eq';
           variables.push({
             name: varName,
@@ -211,8 +187,8 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
         if (operator === 'any') {
           parsedQuery.useAllVersions = true;
         } else {
-          const versionNum = parseInt(strValue, 10);
-          if (!isNaN(versionNum) && operator !== undefined) {
+          const versionNum = parseInt(value, 10);
+          if (!isNaN(versionNum)) {
             parsedQuery.useAllVersions = true;
             const opMap: Record<string, 'eq' | 'lt' | 'lte' | 'gt' | 'gte'> = {
               '==': 'eq',
@@ -252,10 +228,12 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
   return historyTabNode !== null ? (
     <Portal node={root}>
       <FilterBox
-        options={InstanceQueryOptions}
-        autoCompleteHandler={autoCompleteHandler}
-        onParseOk={setExpressions}
-        defaultQuery={(): string => ''}
+        schema={instanceQuerySchema}
+        onFilterChange={() => {
+          // New format handled by onLegacyFilterChange
+        }}
+        onLegacyFilterChange={setExpressions}
+        placeholder="Add filter..."
       />
       {instances.length > 0 ? <HistoryTable instances={instances} /> : null}
       <Pagination currentPage={currentPage} perPage={perPage} total={instancesCount} onPage={pageClicked} />

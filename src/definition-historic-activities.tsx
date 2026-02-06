@@ -2,7 +2,6 @@ import './Components/Button.scss';
 
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Expression } from '@waylay/react-filter-box';
 
 import FilterBox from './Components/FilterBox';
 import Portal from './Components/Portal';
@@ -12,23 +11,11 @@ import type { BpmnViewerInstance, OverlayManager } from './services/ViewerServic
 import { DefinitionPluginParams, HistoricActivityInstance } from './types';
 import { get } from './utils/api';
 import { MS_PER_SECOND, SECONDS_PER_HOUR, HOURS_PER_DAY, DAYS_PER_WEEK, DEFAULT_MAX_RESULTS } from './utils/constants';
-import { createDefinitionFilterHandler } from './utils/filterAutocomplete';
+import { createDefinitionFilterSchema, type LegacyExpression } from './utils/filterSchema';
 import { filter } from './utils/misc';
 
-const DefinitionFilterOptions = [
-  {
-    columnField: 'started',
-    type: 'date',
-  },
-  {
-    columnField: 'finished',
-    type: 'date',
-  },
-  {
-    columnField: 'maxResults',
-    type: 'text',
-  },
-];
+/** Filter schema for definition statistics */
+const definitionFilterSchema = createDefinitionFilterSchema();
 
 interface PluginState {
   viewer: BpmnViewerInstance | null;
@@ -60,8 +47,7 @@ const hooks: PluginHooks = {
  */
 // eslint-disable-next-line max-lines-per-function -- Plugin with coordinated state for diagram, overlays, and table
 const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinitionId }) => {
-  const [autoCompleteHandler] = useState(() => createDefinitionFilterHandler([], DefinitionFilterOptions));
-  const [expressions, setExpressions] = useState<Expression[]>([]);
+  const [expressions, setExpressions] = useState<LegacyExpression[]>([]);
   const [query, setQuery] = useState<Record<string, string | null>>({});
   const [viewer, setViewer] = useState<BpmnViewerInstance | null>(initialState.viewer);
   const [statistics, setStatistics] = useState<Element | null>(initialState.statistics);
@@ -95,13 +81,12 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
         maxResults: String(DEFAULT_MAX_RESULTS),
       };
       for (const { category, operator, value } of expressions) {
-        const strValue = value ?? '';
-        if (category === 'started' && operator === 'after' && !isNaN(new Date(strValue).getTime())) {
-          filterQuery['startedAfter'] = `${strValue}T00:00:00.000+0000`;
-        } else if (category === 'finished' && operator === 'before' && !isNaN(new Date(strValue).getTime())) {
-          filterQuery['finishedBefore'] = `${strValue}T00:00:00.000+0000`;
-        } else if (category === 'maxResults' && operator === 'is' && !isNaN(parseInt(strValue, 10))) {
-          filterQuery['maxResults'] = strValue;
+        if (category === 'started' && operator === 'after' && !isNaN(new Date(value).getTime())) {
+          filterQuery['startedAfter'] = `${value}T00:00:00.000+0000`;
+        } else if (category === 'finished' && operator === 'before' && !isNaN(new Date(value).getTime())) {
+          filterQuery['finishedBefore'] = `${value}T00:00:00.000+0000`;
+        } else if (category === 'maxResults' && operator === 'is' && !isNaN(parseInt(value, 10))) {
+          filterQuery['maxResults'] = value;
         }
       }
       setQuery(filterQuery);
@@ -201,16 +186,12 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
   return statistics ? (
     <Portal node={root}>
       <FilterBox
-        options={DefinitionFilterOptions}
-        autoCompleteHandler={autoCompleteHandler}
-        onParseOk={setExpressions}
-        defaultQuery={(): string => {
-          const weekAgoMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_PER_WEEK;
-          const oneDayMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY;
-          const weekAgo = new Date(new Date().getTime() - weekAgoMs).toISOString().split('T')[0] ?? '';
-          const tomorrow = new Date(new Date().getTime() + oneDayMs).toISOString().split('T')[0] ?? '';
-          return `started after ${weekAgo} AND finished before ${tomorrow} AND maxResults is ${DEFAULT_MAX_RESULTS}`;
+        schema={definitionFilterSchema}
+        onFilterChange={() => {
+          // New format handled by onLegacyFilterChange
         }}
+        onLegacyFilterChange={setExpressions}
+        placeholder="Add filter..."
       />
       {activities.length > 0 ? (
         <StatisticsTable
