@@ -102,7 +102,7 @@
 }
 
 .react-datepicker-popper {
-  z-index: 1001; // Higher than FilterBox autocomplete dropdown (z-index: 1000)
+  z-index: 1;
 }
 
 .react-datepicker-popper[data-placement^="bottom"] {

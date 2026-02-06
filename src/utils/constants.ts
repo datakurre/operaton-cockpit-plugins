@@ -26,15 +26,6 @@ export const SUBMIT_FEEDBACK_DELAY_MS = 2000;
 /** Delay for BPMN renderer initialization in milliseconds */
 export const RENDER_DELAY_MS = 1500;
 
-/** Delay for CodeMirror initialization in milliseconds */
-export const CODEMIRROR_INIT_DELAY_MS = 50;
-
-/** Initial delay for BPMN zoom reset in milliseconds */
-export const ZOOM_RESET_DELAY_INITIAL_MS = 100;
-
-/** Final delay for BPMN zoom reset in milliseconds */
-export const ZOOM_RESET_DELAY_FINAL_MS = 300;
-
 // =============================================================================
 // Time Calculation Constants
 // =============================================================================
@@ -51,12 +42,6 @@ export const DAYS_PER_WEEK = 7;
 /** Milliseconds per second */
 export const MS_PER_SECOND = 1000;
 
-/** Minutes per hour */
-export const MINUTES_PER_HOUR = 60;
-
-/** Width of admin panel in pixels */
-export const ADMIN_PANEL_WIDTH_PX = 220;
-
 // =============================================================================
 // Pagination Constants
 // =============================================================================
@@ -66,31 +51,6 @@ export const DEFAULT_PAGE_SIZE = 50;
 
 /** Default maximum results for history API queries */
 export const DEFAULT_MAX_RESULTS = 1000;
-
-/** Maximum number of records per page */
-export const MAX_PAGE_SIZE = 2000;
-
-// =============================================================================
-// Resource Type Constants (for authorization management)
-// =============================================================================
-
-/** Resource type ID for Process Definition */
-export const RESOURCE_TYPE_PROCESS_DEFINITION = 6;
-
-/** Resource type ID for Task */
-export const RESOURCE_TYPE_TASK = 7;
-
-/** Resource type ID for Process Instance */
-export const RESOURCE_TYPE_PROCESS_INSTANCE = 8;
-
-/** Resource type ID for Deployment */
-export const RESOURCE_TYPE_DEPLOYMENT = 9;
-
-/** Resource type ID for Decision Definition */
-export const RESOURCE_TYPE_DECISION_DEFINITION = 10;
-
-/** Resource type ID for Tenant */
-export const RESOURCE_TYPE_TENANT = 14;
 
 // =============================================================================
 // Retry Constants

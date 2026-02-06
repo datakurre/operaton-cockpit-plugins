@@ -29,12 +29,7 @@ const plugins = [
   commonjs({
     include: "node_modules/**",
   }),
-  typescript({
-    noEmitOnError: !isDevelopment,
-    compilerOptions: {
-      outDir: ".",
-    },
-  }),
+  typescript(),
   image(),
   json(),
   scss({
@@ -166,21 +161,9 @@ const allConfigs = [
       if (warning.code === 'THIS_IS_UNDEFINED') { return; }
       superOnWarn(warning);
     },
-    input: "src/dashboard-favourites.tsx",
+    input: "src/definition-favourites.tsx",
     output: {
-      file: "dashboard-favourites.js",
-      sourcemap: isDevelopment,
-    },
-    plugins,
-  },
-  {
-    onwarn: function(warning, superOnWarn) {
-      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
-      superOnWarn(warning);
-    },
-    input: "src/dashboard-integrations.tsx",
-    output: {
-      file: "dashboard-integrations.js",
+      file: "definition-favourites.js",
       sourcemap: isDevelopment,
     },
     plugins,
@@ -217,30 +200,6 @@ const allConfigs = [
     input: "src/admin-nologin.tsx",
     output: {
       file: "admin-nologin.js",
-      sourcemap: isDevelopment,
-    },
-    plugins,
-  },
-  {
-    onwarn: function(warning, superOnWarn) {
-      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
-      superOnWarn(warning);
-    },
-    input: "src/admin-route-authorization.tsx",
-    output: {
-      file: "admin-route-authorization.js",
-      sourcemap: isDevelopment,
-    },
-    plugins,
-  },
-  {
-    onwarn: function(warning, superOnWarn) {
-      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
-      superOnWarn(warning);
-    },
-    input: "src/cockpit-nologin.tsx",
-    output: {
-      file: "cockpit-nologin.js",
       sourcemap: isDevelopment,
     },
     plugins,
