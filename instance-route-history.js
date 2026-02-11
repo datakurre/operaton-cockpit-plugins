@@ -76298,49 +76298,67 @@ var RestartProcessForm = function (_a) {
     var _c = reactExports.useState(null), selectedInstance = _c[0], setSelectedInstance = _c[1];
     var _d = reactExports.useState([]), activities = _d[0], setActivities = _d[1];
     var _e = reactExports.useState(''), selectedActivity = _e[0], setSelectedActivity = _e[1];
-    var _f = reactExports.useState(true), isLoading = _f[0], setIsLoading = _f[1];
-    var _g = reactExports.useState(false), isSubmitting = _g[0], setIsSubmitting = _g[1];
-    var _h = reactExports.useState(null), error = _h[0], setError = _h[1];
-    var _j = reactExports.useState(null), success = _j[0], setSuccess = _j[1];
+    var _f = reactExports.useState(false), isAcknowledgeCompleted = _f[0], setIsAcknowledgeCompleted = _f[1];
+    var _g = reactExports.useState(true), isLoading = _g[0], setIsLoading = _g[1];
+    var _h = reactExports.useState(false), isSubmitting = _h[0], setIsSubmitting = _h[1];
+    var _j = reactExports.useState(null), error = _j[0], setError = _j[1];
+    var _k = reactExports.useState(null), success = _k[0], setSuccess = _k[1];
     // Load terminated instances and BPMN activities on mount
     reactExports.useEffect(function () {
         var loadData = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var processDefResponse, processDefinition, terminatedResponse, terminated, bpmnActivities, err_1, errorMessage;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var processDefResponse, processDefinition, _a, externallyTerminatedResponse, internallyTerminatedResponse, completedResponse, externallyTerminated, internallyTerminated, completed, allInstances, bpmnActivities, err_1, errorMessage;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _a.trys.push([0, 4, 5, 6]);
+                        _b.trys.push([0, 4, 5, 6]);
                         setIsLoading(true);
                         setError(null);
                         return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId))];
                     case 1:
-                        processDefResponse = _a.sent();
+                        processDefResponse = _b.sent();
                         processDefinition = processDefResponse;
                         if (!(processDefinition === null || processDefinition === void 0 ? void 0 : processDefinition.key)) {
                             throw new Error('Could not determine process definition key');
                         }
-                        return [4 /*yield*/, get(api, '/history/process-instance', {
-                                processDefinitionKey: processDefinition.key,
-                                externallyTerminated: 'true',
-                            })];
+                        return [4 /*yield*/, Promise.all([
+                                get(api, '/history/process-instance', {
+                                    processDefinitionKey: processDefinition.key,
+                                    externallyTerminated: 'true',
+                                }),
+                                get(api, '/history/process-instance', {
+                                    processDefinitionKey: processDefinition.key,
+                                    internallyTerminated: 'true',
+                                }),
+                                get(api, '/history/process-instance', {
+                                    processDefinitionKey: processDefinition.key,
+                                    completed: 'true',
+                                }),
+                            ])];
                     case 2:
-                        terminatedResponse = _a.sent();
-                        terminated = terminatedResponse;
-                        setTerminatedInstances(terminated);
+                        _a = _b.sent(), externallyTerminatedResponse = _a[0], internallyTerminatedResponse = _a[1], completedResponse = _a[2];
+                        externallyTerminated = externallyTerminatedResponse.map(function (inst) { return (__assign(__assign({}, inst), { terminationType: 'external' })); });
+                        internallyTerminated = internallyTerminatedResponse.map(function (inst) { return (__assign(__assign({}, inst), { terminationType: 'internal' })); });
+                        completed = completedResponse.filter(function (inst) { return !inst.state.includes('TERMINATED'); }).map(function (inst) { return (__assign(__assign({}, inst), { terminationType: 'completed' })); });
+                        allInstances = __spreadArray$1(__spreadArray$1(__spreadArray$1([], externallyTerminated, true), internallyTerminated, true), completed, true).sort(function (a, b) {
+                            var aTime = a.endTime ? new Date(a.endTime).getTime() : 0;
+                            var bTime = b.endTime ? new Date(b.endTime).getTime() : 0;
+                            return bTime - aTime;
+                        });
+                        setTerminatedInstances(allInstances);
                         return [4 /*yield*/, getBpmnElements(processDefinitionId, api)];
                     case 3:
-                        bpmnActivities = (_a.sent()).activities;
+                        bpmnActivities = (_b.sent()).activities;
                         setActivities(bpmnActivities);
                         // Auto-select first instance and activity if available
-                        if (terminated.length > 0 && terminated[0]) {
-                            setSelectedInstance(terminated[0]);
+                        if (allInstances.length > 0 && allInstances[0]) {
+                            setSelectedInstance(allInstances[0]);
                         }
                         if (bpmnActivities.length > 0 && bpmnActivities[0]) {
                             setSelectedActivity(bpmnActivities[0].id);
                         }
                         return [3 /*break*/, 6];
                     case 4:
-                        err_1 = _a.sent();
+                        err_1 = _b.sent();
                         console.error('Error loading data:', err_1);
                         errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
                         setError("Failed to load data: ".concat(errorMessage));
@@ -76364,6 +76382,11 @@ var RestartProcessForm = function (_a) {
                 case 0:
                     if (!selectedInstance || !selectedActivity) {
                         setError('Please select an instance and starting activity');
+                        return [2 /*return*/];
+                    }
+                    // Require acknowledgment for completed processes (not terminated ones)
+                    if (selectedInstance.terminationType === 'completed' && !isAcknowledgeCompleted) {
+                        setError('Please acknowledge that this process completed normally before restarting');
                         return [2 /*return*/];
                     }
                     _a.label = 1;
@@ -76424,22 +76447,32 @@ var RestartProcessForm = function (_a) {
     }
     if (terminatedInstances.length === 0) {
         return (React.createElement("div", { className: "modify-form__info" },
-            React.createElement("p", null, "No externally terminated process instances found for this process definition."),
-            React.createElement("p", null, "Process instances must be terminated externally (e.g., via API or external task failure) to appear here for restart.")));
+            React.createElement("p", null, "No terminated or completed process instances found for this process definition."),
+            React.createElement("p", null, "Externally terminated, internally terminated, and normally completed process instances can be restarted from this view.")));
     }
     return (React.createElement("div", { className: "modify-form" },
-        React.createElement("h4", null, "Restart Terminated Process Instance"),
-        React.createElement("p", null, "Select a terminated instance and the activity to restart from."),
+        React.createElement("h4", null, "Restart Process Instance"),
+        React.createElement("p", null, "Select a terminated or completed instance and the activity to restart from."),
         React.createElement("div", { className: "form-group" },
-            React.createElement(SelectField, { label: "Terminated Instance", value: selectedInstance ? selectedInstance.id : '', onChange: function (value) {
+            React.createElement(SelectField, { label: "Terminated or Completed Instance", value: selectedInstance ? selectedInstance.id : '', onChange: function (value) {
                     var instance = terminatedInstances.find(function (i) { return i.id === value; });
-                    setSelectedInstance(instance || null);
-                }, options: terminatedInstances.map(function (inst) { return ({
-                    value: inst.id,
-                    label: inst.businessKey
-                        ? "".concat(inst.businessKey, " (ended ").concat(inst.endTime, ")")
-                        : "".concat(inst.id, " (ended ").concat(inst.endTime, ")"),
-                }); }) })),
+                    setSelectedInstance(instance !== null && instance !== void 0 ? instance : null);
+                    // Reset acknowledge checkbox when changing instances
+                    setIsAcknowledgeCompleted(false);
+                }, options: terminatedInstances.map(function (inst) {
+                    var _a;
+                    var statusLabel = inst.terminationType === 'external'
+                        ? 'EXTERNALLY TERMINATED'
+                        : inst.terminationType === 'internal'
+                            ? 'INTERNALLY TERMINATED'
+                            : 'COMPLETED';
+                    var baseLabel = (_a = inst.businessKey) !== null && _a !== void 0 ? _a : inst.id;
+                    var endTimeStr = inst.endTime ? new Date(inst.endTime).toLocaleString() : 'N/A';
+                    return {
+                        value: inst.id,
+                        label: "[".concat(statusLabel, "] ").concat(baseLabel, " (ended ").concat(endTimeStr, ")"),
+                    };
+                }) })),
         React.createElement("div", { className: "form-group" },
             React.createElement(SelectField, { label: "Starting Activity", value: selectedActivity, onChange: function (value) {
                     setSelectedActivity(value);
@@ -76447,10 +76480,18 @@ var RestartProcessForm = function (_a) {
                     value: act.id,
                     label: act.name ? "".concat(act.name, " (").concat(act.id, ")") : act.id,
                 }); }) })),
-        React.createElement(WarningBox, null, "Restarting a process instance will create a new execution context. Ensure the selected starting activity is appropriate for the process state."),
+        (selectedInstance === null || selectedInstance === void 0 ? void 0 : selectedInstance.terminationType) === 'completed' && (React.createElement("div", { className: "form-group", style: { marginTop: '1rem', marginBottom: '1rem' } },
+            React.createElement("label", { style: { display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' } },
+                React.createElement("input", { type: "checkbox", checked: isAcknowledgeCompleted, onChange: function (e) {
+                        setIsAcknowledgeCompleted(e.target.checked);
+                    }, style: { cursor: 'pointer' } }),
+                React.createElement("span", null, "I acknowledge that this process completed normally and understand that restarting it may have unintended side effects.")))),
+        React.createElement(WarningBox, null, "Restarting a process instance will create a new execution context. For completed processes, this may cause duplicate operations or side effects. Ensure the selected starting activity is appropriate for the process state."),
         error && React.createElement(ErrorMessage, { message: error }),
         success && React.createElement(SuccessMessage, { message: success }),
-        React.createElement(FormButton, { variant: "primary", onClick: function () { return void handleRestart(); }, disabled: isSubmitting || !selectedInstance, minWidth: 160 }, isSubmitting ? 'Restarting...' : 'Restart Instance')));
+        React.createElement(FormButton, { variant: "primary", onClick: function () { return void handleRestart(); }, disabled: isSubmitting ||
+                !selectedInstance ||
+                (selectedInstance.terminationType === 'completed' && !isAcknowledgeCompleted), minWidth: 160 }, isSubmitting ? 'Restarting...' : 'Restart Instance')));
 };
 
 /**
