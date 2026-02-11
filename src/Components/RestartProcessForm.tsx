@@ -26,6 +26,8 @@ interface HistoricProcessInstance {
   endTime: string;
   processDefinitionId: string;
   state: string;
+  /** Termination type: 'external', 'internal', or 'completed' */
+  terminationType?: 'external' | 'internal' | 'completed';
 }
 
 interface RestartProcessFormProps {
@@ -42,6 +44,7 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
   const [selectedInstance, setSelectedInstance] = useState<HistoricProcessInstance | null>(null);
   const [activities, setActivities] = useState<BpmnElement[]>([]);
   const [selectedActivity, setSelectedActivity] = useState<string>('');
+  const [isAcknowledgeCompleted, setIsAcknowledgeCompleted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,21 +64,50 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
           throw new Error('Could not determine process definition key');
         }
 
-        // Fetch externally terminated instances for this process definition
-        const terminatedResponse = await get(api, '/history/process-instance', {
-          processDefinitionKey: processDefinition.key,
-          externallyTerminated: 'true',
+        // Fetch externally terminated, internally terminated, AND completed instances for this process definition
+        const [externallyTerminatedResponse, internallyTerminatedResponse, completedResponse] = await Promise.all([
+          get(api, '/history/process-instance', {
+            processDefinitionKey: processDefinition.key,
+            externallyTerminated: 'true',
+          }),
+          get(api, '/history/process-instance', {
+            processDefinitionKey: processDefinition.key,
+            internallyTerminated: 'true',
+          }),
+          get(api, '/history/process-instance', {
+            processDefinitionKey: processDefinition.key,
+            completed: 'true',
+          }),
+        ]);
+        const externallyTerminated = (externallyTerminatedResponse as HistoricProcessInstance[]).map(inst => ({
+          ...inst,
+          terminationType: 'external' as const,
+        }));
+        const internallyTerminated = (internallyTerminatedResponse as HistoricProcessInstance[]).map(inst => ({
+          ...inst,
+          terminationType: 'internal' as const,
+        }));
+        const completed = (completedResponse as HistoricProcessInstance[]).filter(
+          inst => !inst.state.includes('TERMINATED')
+        ).map(inst => ({
+          ...inst,
+          terminationType: 'completed' as const,
+        }));
+        // Combine and sort by endTime (most recent first)
+        const allInstances = [...externallyTerminated, ...internallyTerminated, ...completed].sort((a, b) => {
+          const aTime = a.endTime ? new Date(a.endTime).getTime() : 0;
+          const bTime = b.endTime ? new Date(b.endTime).getTime() : 0;
+          return bTime - aTime;
         });
-        const terminated = terminatedResponse as HistoricProcessInstance[];
-        setTerminatedInstances(terminated);
+        setTerminatedInstances(allInstances);
 
         // Load BPMN XML to get available activities
         const { activities: bpmnActivities } = await getBpmnElements(processDefinitionId, api);
         setActivities(bpmnActivities);
 
         // Auto-select first instance and activity if available
-        if (terminated.length > 0 && terminated[0]) {
-          setSelectedInstance(terminated[0]);
+        if (allInstances.length > 0 && allInstances[0]) {
+          setSelectedInstance(allInstances[0]);
         }
         if (bpmnActivities.length > 0 && bpmnActivities[0]) {
           setSelectedActivity(bpmnActivities[0].id);
@@ -98,6 +130,12 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
   const handleRestart = async (): Promise<void> => {
     if (!selectedInstance || !selectedActivity) {
       setError('Please select an instance and starting activity');
+      return;
+    }
+
+    // Require acknowledgment for completed processes (not terminated ones)
+    if (selectedInstance.terminationType === 'completed' && !isAcknowledgeCompleted) {
+      setError('Please acknowledge that this process completed normally before restarting');
       return;
     }
 
@@ -172,10 +210,9 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
   if (terminatedInstances.length === 0) {
     return (
       <div className="modify-form__info">
-        <p>No externally terminated process instances found for this process definition.</p>
+        <p>No terminated or completed process instances found for this process definition.</p>
         <p>
-          Process instances must be terminated externally (e.g., via API or external task failure) to appear here for
-          restart.
+          Externally terminated, internally terminated, and normally completed process instances can be restarted from this view.
         </p>
       </div>
     );
@@ -183,23 +220,33 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
 
   return (
     <div className="modify-form">
-      <h4>Restart Terminated Process Instance</h4>
-      <p>Select a terminated instance and the activity to restart from.</p>
+      <h4>Restart Process Instance</h4>
+      <p>Select a terminated or completed instance and the activity to restart from.</p>
 
       <div className="form-group">
         <SelectField
-          label="Terminated Instance"
+          label="Terminated or Completed Instance"
           value={selectedInstance ? selectedInstance.id : ''}
           onChange={value => {
             const instance = terminatedInstances.find(i => i.id === value);
-            setSelectedInstance(instance || null);
+            setSelectedInstance(instance ?? null);
+            // Reset acknowledge checkbox when changing instances
+            setIsAcknowledgeCompleted(false);
           }}
-          options={terminatedInstances.map(inst => ({
-            value: inst.id,
-            label: inst.businessKey
-              ? `${inst.businessKey} (ended ${inst.endTime})`
-              : `${inst.id} (ended ${inst.endTime})`,
-          }))}
+          options={terminatedInstances.map(inst => {
+            const statusLabel =
+              inst.terminationType === 'external'
+                ? 'EXTERNALLY TERMINATED'
+                : inst.terminationType === 'internal'
+                  ? 'INTERNALLY TERMINATED'
+                  : 'COMPLETED';
+            const baseLabel = inst.businessKey ?? inst.id;
+            const endTimeStr = inst.endTime ? new Date(inst.endTime).toLocaleString() : 'N/A';
+            return {
+              value: inst.id,
+              label: `[${statusLabel}] ${baseLabel} (ended ${endTimeStr})`,
+            };
+          })}
         />
       </div>
 
@@ -217,9 +264,25 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
         />
       </div>
 
+      {selectedInstance?.terminationType === 'completed' && (
+        <div className="form-group" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={isAcknowledgeCompleted}
+              onChange={e => {
+                setIsAcknowledgeCompleted(e.target.checked);
+              }}
+              style={{ cursor: 'pointer' }}
+            />
+            <span>I acknowledge that this process completed normally and understand that restarting it may have unintended side effects.</span>
+          </label>
+        </div>
+      )}
+
       <WarningBox>
-        Restarting a process instance will create a new execution context. Ensure the selected starting activity is
-        appropriate for the process state.
+        Restarting a process instance will create a new execution context. For completed processes, this may cause
+        duplicate operations or side effects. Ensure the selected starting activity is appropriate for the process state.
       </WarningBox>
 
       {error && <ErrorMessage message={error} />}
@@ -228,7 +291,11 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
       <FormButton
         variant="primary"
         onClick={() => void handleRestart()}
-        disabled={isSubmitting || !selectedInstance}
+        disabled={
+          isSubmitting ||
+          !selectedInstance ||
+          (selectedInstance.terminationType === 'completed' && !isAcknowledgeCompleted)
+        }
         minWidth={160}
       >
         {isSubmitting ? 'Restarting...' : 'Restart Instance'}
