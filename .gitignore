@@ -23,6 +23,7 @@ build/
 .devcontainer.json
 .devenv*
 devenv.local.nix
+devenv.local.yaml
 .direnv/
 .envrc
 # Testing and Coverage

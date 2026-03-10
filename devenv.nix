@@ -1,10 +1,12 @@
-{ ... }:
 let
   shell =
-    { config, ... }:
+    { config, pkgs, devenv-module-operaton, ... }:
     {
       services.operaton.port = 8080;
-      services.operaton.postgresql.enable = true;
+      services.operaton.package = devenv-module-operaton.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      services.operaton.enable = true;
+      services.operaton.forwardHeadersStrategy = "native";
+      services.operaton.postgres.enable = true;
 
       services.caddy = {
         enable = true;
@@ -75,18 +77,9 @@ let
         yarn.enable = true;
       };
     };
-  devcontainer =
-    { pkgs, ... }:
-    {
-      devcontainer.enable = true;
-    };
 in
 {
   profiles.shell.module = {
     imports = [ shell ];
-  };
-
-  profiles.devcontainer.module = {
-    imports = [ devcontainer ];
   };
 }
