@@ -1,14 +1,20 @@
 {
   profiles.devcontainer.module = {
+    devcontainer.enable = true;
     devcontainer.tweaks = [
+      "gpg-agent"
       "podman"
       "vscode"
-      "gpg-agent"
     ];
     devcontainer.settings.customizations.vscode.extensions = [
+      "datakurre.devenv"
+      "jnoortheen.nix-ide"
       "GitHub.copilot"
       "GitHub.copilot-chat"
+      "mkhl.direnv"
       "vscodevim.vim"
     ];
+    # mvn2nix requires a lot of stack
+    devcontainer.settings.containerEnv.RUST_MIN_STACK = "134217728";
   };
 }

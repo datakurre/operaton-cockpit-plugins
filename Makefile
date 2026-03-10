@@ -6,11 +6,19 @@ help:
 build: node_modules ## Build the project
 	npm run build
 
-develop: devenv.local.nix ## Launch opinionated IDE
-	devenv --profile devcontainer shell -- code .
+.PHONY: shell
+shell: ## Enter devenv shell
+	devenv shell
+
+.PHONY: develop
+develop: devenv.local.nix devenv.local.yaml ## Bootstrap opinionated development environment
+	devenv shell --profile=devcontainer -- code .
 
 devenv.local.nix:
 	cp devenv.local.nix.example devenv.local.nix
+
+devenv.local.yaml:
+	cp devenv.local.yaml.example devenv.local.yaml
 
 up: ## Launch devenv fixture
 	devenv up

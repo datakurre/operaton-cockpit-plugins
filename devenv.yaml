@@ -2,20 +2,8 @@
 inputs:
   nixpkgs:
     url: github:nixos/nixpkgs/master
-  mvn2nix:
-    url: gitlab:vasara-bpm/mvn2nix
-  devenv-module-mvn2nix:
-    url: gitlab:vasara-bpm/devenv-module-mvn2nix
-    flake: false
   devenv-module-operaton:
     url: gitlab:vasara-bpm/devenv-module-operaton
-    flake: false
-  devenv-module-devcontainer:
-    url: github:datakurre/devenv-module-devcontainer
-    flake: false
-allowUnfree: true
 imports:
-- devenv-module-mvn2nix
-- devenv-module-operaton
-- devenv-module-devcontainer
+- devenv-module-operaton/module.nix
 profile: shell
