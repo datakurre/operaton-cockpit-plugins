@@ -1,6 +1,5 @@
 export default {
   customScripts: [
-          'scripts/cockpit-custom-styles.js',
           'scripts/decisions-dashboard.js',
           'scripts/dashboard-favourites.js',
           'scripts/dashboard-integrations.js',
@@ -10,8 +9,7 @@ export default {
           'scripts/instance-action-unlock.js',
           'scripts/instance-historic-activities.js',
           'scripts/instance-route-history.js',
-          'scripts/instance-tab-modify.js',
-          'scripts/jupyter-lite-route.js'
+          'scripts/instance-tab-modify.js'
      ],
      bpmnJs: {
        additionalModules: [
