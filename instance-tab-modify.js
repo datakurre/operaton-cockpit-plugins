@@ -13948,53 +13948,72 @@ function isMessageEventType(elementType) {
     return MESSAGE_EVENT_TYPES.some(function (t) { return elementType === t; });
 }
 /**
- * Collect messages from event definitions in an element
+ * Collect messages from event definitions in an element into the shared map.
+ * Uses a Map so that a message already added from a non-start event can be
+ * upgraded to isStartEvent=true when the same message is later encountered on
+ * a start event of the main process.
  * @param el - The element to check
  * @param allMessages - All available messages
- * @param collected - Set of already collected message IDs
- * @returns Array of new messages found
+ * @param collected - Map from message ID to the collected BpmnMessage entry
+ * @param insideEventSubprocess - Whether we are inside an event subprocess
  */
-function collectMessagesFromElement(el, allMessages, collected) {
-    var result = [];
+function collectMessagesFromElement(el, allMessages, collected, insideEventSubprocess) {
+    // A start event is a "process start event" only when it is NOT inside an event subprocess
+    var isProcessStartEvent = el.$type === 'bpmn:StartEvent' && !insideEventSubprocess;
+    // Everything else (catch events, boundary events, event subprocess start events) counts as catch usage
+    var isCatchContext = !isProcessStartEvent;
     // Check event definitions
     if (isMessageEventType(el.$type) && el.eventDefinitions !== undefined) {
         for (var _i = 0, _a = el.eventDefinitions; _i < _a.length; _i++) {
             var evtDef = _a[_i];
-            var message = extractMessageFromEventDef(evtDef, allMessages);
-            if (message !== undefined && !collected.has(message.id)) {
-                collected.add(message.id);
-                result.push(message);
+            var base = extractMessageFromEventDef(evtDef, allMessages);
+            if (base !== undefined) {
+                var existing = collected.get(base.id);
+                if (existing === undefined) {
+                    collected.set(base.id, __assign(__assign({}, base), { isStartEvent: isProcessStartEvent, hasCatchUsage: isCatchContext }));
+                }
+                else {
+                    // Upgrade flags independently — both can become true over multiple encounters
+                    if (isProcessStartEvent)
+                        existing.isStartEvent = true;
+                    if (isCatchContext)
+                        existing.hasCatchUsage = true;
+                }
             }
         }
     }
-    // Handle receive tasks with direct messageRef
+    // Handle receive tasks with direct messageRef (always catch usage)
     if (el.$type === 'bpmn:ReceiveTask' && el.messageRef !== undefined) {
-        var message = allMessages.find(function (msg) { var _a; return msg.id === ((_a = el.messageRef) === null || _a === void 0 ? void 0 : _a.id); });
-        if (message !== undefined && !collected.has(message.id)) {
-            collected.add(message.id);
-            result.push(message);
+        var base = allMessages.find(function (msg) { var _a; return msg.id === ((_a = el.messageRef) === null || _a === void 0 ? void 0 : _a.id); });
+        if (base !== undefined) {
+            var existing = collected.get(base.id);
+            if (existing === undefined) {
+                collected.set(base.id, __assign(__assign({}, base), { isStartEvent: false, hasCatchUsage: true }));
+            }
+            else {
+                existing.hasCatchUsage = true;
+            }
         }
     }
-    return result;
 }
 /**
  * Recursively collect messages from flow elements
  * @param elements - Flow elements to search
  * @param allMessages - All available messages
- * @param collected - Set of already collected message IDs
- * @returns Array of messages found
+ * @param collected - Map from message ID to the collected BpmnMessage entry
+ * @param insideEventSubprocess - Whether we are currently inside an event subprocess
  */
-function collectMessagesFromEvents(elements, allMessages, collected) {
-    var result = [];
+function collectMessagesFromEvents(elements, allMessages, collected, insideEventSubprocess) {
+    var _a;
     for (var _i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
         var el = elements_1[_i];
-        result.push.apply(result, collectMessagesFromElement(el, allMessages, collected));
-        // Recurse into subprocesses
+        collectMessagesFromElement(el, allMessages, collected, insideEventSubprocess);
+        // Recurse into subprocesses, tracking whether the subprocess is event-triggered
         if (el.flowElements !== undefined) {
-            result.push.apply(result, collectMessagesFromEvents(el.flowElements, allMessages, collected));
+            var childIsEventSubprocess = el.$type === 'bpmn:SubProcess' && ((_a = el.triggeredByEvent) !== null && _a !== void 0 ? _a : false);
+            collectMessagesFromEvents(el.flowElements, allMessages, collected, insideEventSubprocess || childIsEventSubprocess);
         }
     }
-    return result;
 }
 /**
  * Fetches and parses BPMN elements from a process definition
@@ -14003,7 +14022,7 @@ function collectMessagesFromEvents(elements, allMessages, collected) {
  * @returns Parsed activities, sequence flows, and messages
  */
 var getBpmnElements = function (processDefinitionId, api) { return __awaiter(void 0, void 0, void 0, function () {
-    var definitionData, bpmnModdle, result, definitions, rootElements, processes, flowElements, activities, sequenceFlows, allMessages, messageEvents;
+    var definitionData, bpmnModdle, result, definitions, rootElements, processes, flowElements, activities, sequenceFlows, allMessages, collectedMessages, messageEvents;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -14050,9 +14069,13 @@ var getBpmnElements = function (processDefinitionId, api) { return __awaiter(voi
                     return ({
                         id: (_a = msg.id) !== null && _a !== void 0 ? _a : '',
                         name: (_b = msg.name) !== null && _b !== void 0 ? _b : '',
+                        isStartEvent: false,
+                        hasCatchUsage: false,
                     });
                 });
-                messageEvents = collectMessagesFromEvents(flowElements, allMessages, new Set());
+                collectedMessages = new Map();
+                collectMessagesFromEvents(flowElements, allMessages, collectedMessages, false);
+                messageEvents = Array.from(collectedMessages.values());
                 return [2 /*return*/, { activities: activities, sequenceFlows: sequenceFlows, messages: messageEvents }];
         }
     });
@@ -14164,7 +14187,7 @@ var MessageCorrelationForm = function (_a) {
     });
     reactExports.useEffect(function () {
         var loadMessages = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var defId, instanceData, messages_1, err_1;
+            var defId, instanceData, allMessages, err_1;
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -14182,8 +14205,8 @@ var MessageCorrelationForm = function (_a) {
                         if (!(defId !== undefined && defId !== '')) return [3 /*break*/, 4];
                         return [4 /*yield*/, getBpmnElements(defId, api)];
                     case 3:
-                        messages_1 = (_b.sent()).messages;
-                        setMessages(messages_1);
+                        allMessages = (_b.sent()).messages;
+                        setMessages(allMessages.filter(function (m) { return !m.isStartEvent || m.hasCatchUsage; }));
                         return [3 /*break*/, 5];
                     case 4: throw new Error('Could not determine process definition ID.');
                     case 5: return [3 /*break*/, 8];
@@ -14249,7 +14272,7 @@ var MessageCorrelationForm = function (_a) {
     if (messages.length === 0 && !error) {
         return (React.createElement("div", { className: "message-correlation-form" },
             React.createElement("p", null, "No message catch events found in the process definition."),
-            React.createElement("p", { className: "message-correlation-form__info-text" }, "Message correlation requires the process to have message intermediate catch events, message boundary events, or receive tasks.")));
+            React.createElement("p", { className: "message-correlation-form__info-text" }, "Message correlation requires the process to have message intermediate catch events, message boundary events, receive tasks, or event subprocess start events.")));
     }
     // Show error during initial load (not post-submission errors/success)
     if (messages.length === 0 && error && error !== SUCCESS_MESSAGE) {
