@@ -13769,53 +13769,72 @@ function isMessageEventType(elementType) {
     return MESSAGE_EVENT_TYPES.some(function (t) { return elementType === t; });
 }
 /**
- * Collect messages from event definitions in an element
+ * Collect messages from event definitions in an element into the shared map.
+ * Uses a Map so that a message already added from a non-start event can be
+ * upgraded to isStartEvent=true when the same message is later encountered on
+ * a start event of the main process.
  * @param el - The element to check
  * @param allMessages - All available messages
- * @param collected - Set of already collected message IDs
- * @returns Array of new messages found
+ * @param collected - Map from message ID to the collected BpmnMessage entry
+ * @param insideEventSubprocess - Whether we are inside an event subprocess
  */
-function collectMessagesFromElement(el, allMessages, collected) {
-    var result = [];
+function collectMessagesFromElement(el, allMessages, collected, insideEventSubprocess) {
+    // A start event is a "process start event" only when it is NOT inside an event subprocess
+    var isProcessStartEvent = el.$type === 'bpmn:StartEvent' && !insideEventSubprocess;
+    // Everything else (catch events, boundary events, event subprocess start events) counts as catch usage
+    var isCatchContext = !isProcessStartEvent;
     // Check event definitions
     if (isMessageEventType(el.$type) && el.eventDefinitions !== undefined) {
         for (var _i = 0, _a = el.eventDefinitions; _i < _a.length; _i++) {
             var evtDef = _a[_i];
-            var message = extractMessageFromEventDef(evtDef, allMessages);
-            if (message !== undefined && !collected.has(message.id)) {
-                collected.add(message.id);
-                result.push(message);
+            var base = extractMessageFromEventDef(evtDef, allMessages);
+            if (base !== undefined) {
+                var existing = collected.get(base.id);
+                if (existing === undefined) {
+                    collected.set(base.id, __assign(__assign({}, base), { isStartEvent: isProcessStartEvent, hasCatchUsage: isCatchContext }));
+                }
+                else {
+                    // Upgrade flags independently — both can become true over multiple encounters
+                    if (isProcessStartEvent)
+                        existing.isStartEvent = true;
+                    if (isCatchContext)
+                        existing.hasCatchUsage = true;
+                }
             }
         }
     }
-    // Handle receive tasks with direct messageRef
+    // Handle receive tasks with direct messageRef (always catch usage)
     if (el.$type === 'bpmn:ReceiveTask' && el.messageRef !== undefined) {
-        var message = allMessages.find(function (msg) { var _a; return msg.id === ((_a = el.messageRef) === null || _a === void 0 ? void 0 : _a.id); });
-        if (message !== undefined && !collected.has(message.id)) {
-            collected.add(message.id);
-            result.push(message);
+        var base = allMessages.find(function (msg) { var _a; return msg.id === ((_a = el.messageRef) === null || _a === void 0 ? void 0 : _a.id); });
+        if (base !== undefined) {
+            var existing = collected.get(base.id);
+            if (existing === undefined) {
+                collected.set(base.id, __assign(__assign({}, base), { isStartEvent: false, hasCatchUsage: true }));
+            }
+            else {
+                existing.hasCatchUsage = true;
+            }
         }
     }
-    return result;
 }
 /**
  * Recursively collect messages from flow elements
  * @param elements - Flow elements to search
  * @param allMessages - All available messages
- * @param collected - Set of already collected message IDs
- * @returns Array of messages found
+ * @param collected - Map from message ID to the collected BpmnMessage entry
+ * @param insideEventSubprocess - Whether we are currently inside an event subprocess
  */
-function collectMessagesFromEvents(elements, allMessages, collected) {
-    var result = [];
+function collectMessagesFromEvents(elements, allMessages, collected, insideEventSubprocess) {
+    var _a;
     for (var _i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
         var el = elements_1[_i];
-        result.push.apply(result, collectMessagesFromElement(el, allMessages, collected));
-        // Recurse into subprocesses
+        collectMessagesFromElement(el, allMessages, collected, insideEventSubprocess);
+        // Recurse into subprocesses, tracking whether the subprocess is event-triggered
         if (el.flowElements !== undefined) {
-            result.push.apply(result, collectMessagesFromEvents(el.flowElements, allMessages, collected));
+            var childIsEventSubprocess = el.$type === 'bpmn:SubProcess' && ((_a = el.triggeredByEvent) !== null && _a !== void 0 ? _a : false);
+            collectMessagesFromEvents(el.flowElements, allMessages, collected, insideEventSubprocess || childIsEventSubprocess);
         }
     }
-    return result;
 }
 /**
  * Fetches and parses BPMN elements from a process definition
@@ -13824,7 +13843,7 @@ function collectMessagesFromEvents(elements, allMessages, collected) {
  * @returns Parsed activities, sequence flows, and messages
  */
 var getBpmnElements = function (processDefinitionId, api) { return __awaiter(void 0, void 0, void 0, function () {
-    var definitionData, bpmnModdle, result, definitions, rootElements, processes, flowElements, activities, sequenceFlows, allMessages, messageEvents;
+    var definitionData, bpmnModdle, result, definitions, rootElements, processes, flowElements, activities, sequenceFlows, allMessages, collectedMessages, messageEvents;
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -13871,9 +13890,13 @@ var getBpmnElements = function (processDefinitionId, api) { return __awaiter(voi
                     return ({
                         id: (_a = msg.id) !== null && _a !== void 0 ? _a : '',
                         name: (_b = msg.name) !== null && _b !== void 0 ? _b : '',
+                        isStartEvent: false,
+                        hasCatchUsage: false,
                     });
                 });
-                messageEvents = collectMessagesFromEvents(flowElements, allMessages, new Set());
+                collectedMessages = new Map();
+                collectMessagesFromEvents(flowElements, allMessages, collectedMessages, false);
+                messageEvents = Array.from(collectedMessages.values());
                 return [2 /*return*/, { activities: activities, sequenceFlows: sequenceFlows, messages: messageEvents }];
         }
     });
@@ -13967,10 +13990,12 @@ var BatchMessageForm = function (_a) {
             processVariables: [],
         },
     });
-    var handleSubmit = methods.handleSubmit, reset = methods.reset;
+    var handleSubmit = methods.handleSubmit, reset = methods.reset, watch = methods.watch;
+    var selectedMessageName = watch('messageName');
+    var selectedMessage = messages.find(function (m) { return m.name === selectedMessageName; });
     reactExports.useEffect(function () {
         var loadMessages = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var messages_1, _err_1, errorMessage;
+            var allMessages, _err_1, errorMessage;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -13978,8 +14003,8 @@ var BatchMessageForm = function (_a) {
                         setIsLoading(true);
                         return [4 /*yield*/, getBpmnElements(processDefinitionId, api)];
                     case 1:
-                        messages_1 = (_a.sent()).messages;
-                        setMessages(messages_1);
+                        allMessages = (_a.sent()).messages;
+                        setMessages(allMessages);
                         setError(null);
                         return [3 /*break*/, 4];
                     case 2:
@@ -14042,11 +14067,12 @@ var BatchMessageForm = function (_a) {
      * Submit the message correlation request
      */
     var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var payload, err_2, errorMessage;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var isStart, payload, payload, err_2, errorMessage;
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    _a.trys.push([0, 2, 3, 4]);
+                    _b.trys.push([0, 5, 6, 7]);
                     setIsSubmitting(true);
                     setError(null);
                     setSuccessMessage(null);
@@ -14056,6 +14082,18 @@ var BatchMessageForm = function (_a) {
                         setIsSubmitting(false);
                         return [2 /*return*/];
                     }
+                    isStart = (_a = selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) !== null && _a !== void 0 ? _a : false;
+                    if (!isStart) return [3 /*break*/, 2];
+                    payload = {
+                        messageName: data.messageName,
+                        processVariables: data.processVariables.length > 0 ? transformVariables$1(data.processVariables) : undefined,
+                    };
+                    return [4 /*yield*/, post(api, '/message', {}, JSON.stringify(payload))];
+                case 1:
+                    _b.sent();
+                    setSuccessMessage("Message \"".concat(data.messageName, "\" sent successfully. A new process instance will be started."));
+                    return [3 /*break*/, 4];
+                case 2:
                     payload = {
                         messageName: data.messageName,
                         processInstanceQuery: {
@@ -14066,21 +14104,22 @@ var BatchMessageForm = function (_a) {
                         payload['variables'] = transformVariables$1(data.processVariables);
                     }
                     return [4 /*yield*/, post(api, '/process-instance/message-async', {}, JSON.stringify(payload))];
-                case 1:
-                    _a.sent();
+                case 3:
+                    _b.sent();
                     setSuccessMessage("Message \"".concat(data.messageName, "\" correlation submitted successfully as a batch operation! ") +
                         "Check the batch operations view for progress.");
-                    return [3 /*break*/, 4];
-                case 2:
-                    err_2 = _a.sent();
+                    _b.label = 4;
+                case 4: return [3 /*break*/, 7];
+                case 5:
+                    err_2 = _b.sent();
                     console.error('Message correlation error:', err_2);
                     errorMessage = err_2 instanceof Error ? err_2.message : String(err_2);
                     setError("Failed to correlate message: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 4];
-                case 3:
+                    return [3 /*break*/, 7];
+                case 6:
                     setIsSubmitting(false);
                     return [7 /*endfinally*/];
-                case 4: return [2 /*return*/];
+                case 7: return [2 /*return*/];
             }
         });
     }); };
@@ -14114,12 +14153,14 @@ var BatchMessageForm = function (_a) {
                     React.createElement("label", { htmlFor: "messageName" }, "Message"),
                     React.createElement("select", __assign({ id: "messageName" }, methods.register('messageName'), { className: "modify-form__input" }),
                         React.createElement("option", { value: "" }, "Select a message..."),
-                        messages.map(function (m) { return (React.createElement("option", { key: m.name, value: m.name }, m.name)); }))),
+                        messages.map(function (m) { return (React.createElement("option", { key: m.name, value: m.name },
+                            m.name,
+                            m.isStartEvent ? ' (start event)' : '')); }))),
                 messages.length === 0 && (React.createElement("p", { className: "modify-form__hint" }, "No message events found in this process definition.")),
-                React.createElement("div", { className: "modify-form__actions" },
+                (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) !== true && (React.createElement("div", { className: "modify-form__actions" },
                     React.createElement(FormButton, { type: "button", variant: "secondary", onClick: function () {
                             void runDryRun();
-                        }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Preview Instances')),
+                        }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Preview Instances'))),
                 dryRunResult && (React.createElement("div", { className: "modify-form__dry-run-result" },
                     React.createElement("h5", null,
                         "Found ",
@@ -14137,11 +14178,15 @@ var BatchMessageForm = function (_a) {
                             " more"))))))),
             React.createElement("h4", null, "Process Variables"),
             React.createElement(VariableBuilder, { name: "processVariables", showLocalFlag: false }),
-            React.createElement(WarningBox, null, "This message will be correlated asynchronously to ALL active instances of this process definition as a batch operation. Make sure the message name and variables are correct before submitting."),
+            (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true ? (React.createElement(WarningBox, null, "This message is configured on a start event. Sending it will start a new process instance.")) : (React.createElement(WarningBox, null, "This message will be correlated asynchronously to ALL active instances of this process definition as a batch operation. Make sure the message name and variables are correct before submitting.")),
             error && React.createElement(ErrorMessage, { message: error }),
             successMessage && React.createElement(SuccessMessage, { message: successMessage }),
             React.createElement("div", { className: "modify-form__actions" },
-                React.createElement(FormButton, { type: "submit", disabled: isSubmitting, variant: "primary", minWidth: 160 }, isSubmitting ? 'Correlating...' : 'Correlate Message'),
+                React.createElement(FormButton, { type: "submit", disabled: isSubmitting, variant: "primary", minWidth: 160 }, isSubmitting
+                    ? 'Sending...'
+                    : (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true
+                        ? 'Start Process'
+                        : 'Correlate Message'),
                 React.createElement(FormButton, { type: "button", variant: "secondary", onClick: handleReset, minWidth: 100 }, "Reset")))));
 };
 
