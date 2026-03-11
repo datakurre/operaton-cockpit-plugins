@@ -57,14 +57,17 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
     },
   });
 
-  const { handleSubmit, reset } = methods;
+  const { handleSubmit, reset, watch } = methods;
+
+  const selectedMessageName = watch('messageName');
+  const selectedMessage = messages.find(m => m.name === selectedMessageName);
 
   useEffect(() => {
     const loadMessages = async (): Promise<void> => {
       try {
         setIsLoading(true);
-        const { messages } = await getBpmnElements(processDefinitionId, api);
-        setMessages(messages);
+        const { messages: allMessages } = await getBpmnElements(processDefinitionId, api);
+        setMessages(allMessages);
         setError(null);
       } catch (_err) {
         console.error('Error loading messages:', _err);
@@ -127,23 +130,38 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
         return;
       }
 
-      const payload: Record<string, unknown> = {
-        messageName: data.messageName,
-        processInstanceQuery: {
-          processDefinitionId,
-        },
-      };
+      const isStart = selectedMessage?.isStartEvent ?? false;
 
-      if (data.processVariables.length > 0) {
-        payload['variables'] = transformVariables(data.processVariables);
+      if (isStart) {
+        // Start a new process instance via message
+        const payload: Record<string, unknown> = {
+          messageName: data.messageName,
+          processVariables: data.processVariables.length > 0 ? transformVariables(data.processVariables) : undefined,
+        };
+
+        await post(api, '/message', {}, JSON.stringify(payload));
+
+        setSuccessMessage(`Message "${data.messageName}" sent successfully. A new process instance will be started.`);
+      } else {
+        // Correlate to all active instances as a batch operation
+        const payload: Record<string, unknown> = {
+          messageName: data.messageName,
+          processInstanceQuery: {
+            processDefinitionId,
+          },
+        };
+
+        if (data.processVariables.length > 0) {
+          payload['variables'] = transformVariables(data.processVariables);
+        }
+
+        await post(api, '/process-instance/message-async', {}, JSON.stringify(payload));
+
+        setSuccessMessage(
+          `Message "${data.messageName}" correlation submitted successfully as a batch operation! ` +
+            `Check the batch operations view for progress.`
+        );
       }
-
-      await post(api, '/process-instance/message-async', {}, JSON.stringify(payload));
-
-      setSuccessMessage(
-        `Message "${data.messageName}" correlation submitted successfully as a batch operation! ` +
-          `Check the batch operations view for progress.`
-      );
     } catch (err) {
       console.error('Message correlation error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -203,7 +221,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
               <option value="">Select a message...</option>
               {messages.map(m => (
                 <option key={m.name} value={m.name}>
-                  {m.name}
+                  {m.name}{m.isStartEvent ? ' (start event)' : ''}
                 </option>
               ))}
             </select>
@@ -213,19 +231,21 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
             <p className="modify-form__hint">No message events found in this process definition.</p>
           )}
 
-          <div className="modify-form__actions">
-            <FormButton
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                void runDryRun();
-              }}
-              disabled={isDryRun}
-              minWidth={120}
-            >
-              {isDryRun ? 'Querying...' : 'Preview Instances'}
-            </FormButton>
-          </div>
+          {selectedMessage?.isStartEvent !== true && (
+            <div className="modify-form__actions">
+              <FormButton
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  void runDryRun();
+                }}
+                disabled={isDryRun}
+                minWidth={120}
+              >
+                {isDryRun ? 'Querying...' : 'Preview Instances'}
+              </FormButton>
+            </div>
+          )}
 
           {dryRunResult && (
             <div className="modify-form__dry-run-result">
@@ -251,17 +271,25 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
         <h4>Process Variables</h4>
         <VariableBuilder name="processVariables" showLocalFlag={false} />
 
-        <WarningBox>
-          This message will be correlated asynchronously to ALL active instances of this process definition as a batch
-          operation. Make sure the message name and variables are correct before submitting.
-        </WarningBox>
+        {selectedMessage?.isStartEvent === true ? (
+          <WarningBox>This message is configured on a start event. Sending it will start a new process instance.</WarningBox>
+        ) : (
+          <WarningBox>
+            This message will be correlated asynchronously to ALL active instances of this process definition as a batch
+            operation. Make sure the message name and variables are correct before submitting.
+          </WarningBox>
+        )}
 
         {error && <ErrorMessage message={error} />}
         {successMessage && <SuccessMessage message={successMessage} />}
 
         <div className="modify-form__actions">
           <FormButton type="submit" disabled={isSubmitting} variant="primary" minWidth={160}>
-            {isSubmitting ? 'Correlating...' : 'Correlate Message'}
+            {isSubmitting
+              ? 'Sending...'
+              : selectedMessage?.isStartEvent === true
+                ? 'Start Process'
+                : 'Correlate Message'}
           </FormButton>
           <FormButton type="button" variant="secondary" onClick={handleReset} minWidth={100}>
             Reset

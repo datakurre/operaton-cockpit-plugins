@@ -16,6 +16,10 @@ export interface BpmnElement {
 export interface BpmnMessage {
   id: string;
   name: string;
+  /** True when this message is referenced by a top-level process start event */
+  isStartEvent: boolean;
+  /** True when this message is also referenced by a catch event, boundary event, receive task, or event subprocess start event */
+  hasCatchUsage: boolean;
 }
 
 /** BPMN moddle element with common properties */
@@ -23,6 +27,7 @@ interface ModdleElement {
   $type: string;
   id?: string;
   name?: string;
+  triggeredByEvent?: boolean;
   flowElements?: ModdleElement[];
   eventDefinitions?: ModdleEventDefinition[];
   messageRef?: ModdleMessageRef;
@@ -100,66 +105,88 @@ function isMessageEventType(elementType: string): boolean {
 }
 
 /**
- * Collect messages from event definitions in an element
+ * Collect messages from event definitions in an element into the shared map.
+ * Uses a Map so that a message already added from a non-start event can be
+ * upgraded to isStartEvent=true when the same message is later encountered on
+ * a start event of the main process.
  * @param el - The element to check
  * @param allMessages - All available messages
- * @param collected - Set of already collected message IDs
- * @returns Array of new messages found
+ * @param collected - Map from message ID to the collected BpmnMessage entry
+ * @param insideEventSubprocess - Whether we are inside an event subprocess
  */
 function collectMessagesFromElement(
   el: ModdleElement,
   allMessages: BpmnMessage[],
-  collected: Set<string>
-): BpmnMessage[] {
-  const result: BpmnMessage[] = [];
+  collected: Map<string, BpmnMessage>,
+  insideEventSubprocess: boolean
+): void {
+  // A start event is a "process start event" only when it is NOT inside an event subprocess
+  const isProcessStartEvent = el.$type === 'bpmn:StartEvent' && !insideEventSubprocess;
+  // Everything else (catch events, boundary events, event subprocess start events) counts as catch usage
+  const isCatchContext = !isProcessStartEvent;
 
   // Check event definitions
   if (isMessageEventType(el.$type) && el.eventDefinitions !== undefined) {
     for (const evtDef of el.eventDefinitions) {
-      const message = extractMessageFromEventDef(evtDef, allMessages);
-      if (message !== undefined && !collected.has(message.id)) {
-        collected.add(message.id);
-        result.push(message);
+      const base = extractMessageFromEventDef(evtDef, allMessages);
+      if (base !== undefined) {
+        const existing = collected.get(base.id);
+        if (existing === undefined) {
+          collected.set(base.id, {
+            ...base,
+            isStartEvent: isProcessStartEvent,
+            hasCatchUsage: isCatchContext,
+          });
+        } else {
+          // Upgrade flags independently — both can become true over multiple encounters
+          if (isProcessStartEvent) existing.isStartEvent = true;
+          if (isCatchContext) existing.hasCatchUsage = true;
+        }
       }
     }
   }
 
-  // Handle receive tasks with direct messageRef
+  // Handle receive tasks with direct messageRef (always catch usage)
   if (el.$type === 'bpmn:ReceiveTask' && el.messageRef !== undefined) {
-    const message = allMessages.find(msg => msg.id === el.messageRef?.id);
-    if (message !== undefined && !collected.has(message.id)) {
-      collected.add(message.id);
-      result.push(message);
+    const base = allMessages.find(msg => msg.id === el.messageRef?.id);
+    if (base !== undefined) {
+      const existing = collected.get(base.id);
+      if (existing === undefined) {
+        collected.set(base.id, { ...base, isStartEvent: false, hasCatchUsage: true });
+      } else {
+        existing.hasCatchUsage = true;
+      }
     }
   }
-
-  return result;
 }
 
 /**
  * Recursively collect messages from flow elements
  * @param elements - Flow elements to search
  * @param allMessages - All available messages
- * @param collected - Set of already collected message IDs
- * @returns Array of messages found
+ * @param collected - Map from message ID to the collected BpmnMessage entry
+ * @param insideEventSubprocess - Whether we are currently inside an event subprocess
  */
 function collectMessagesFromEvents(
   elements: ModdleElement[],
   allMessages: BpmnMessage[],
-  collected: Set<string>
-): BpmnMessage[] {
-  const result: BpmnMessage[] = [];
-
+  collected: Map<string, BpmnMessage>,
+  insideEventSubprocess: boolean
+): void {
   for (const el of elements) {
-    result.push(...collectMessagesFromElement(el, allMessages, collected));
+    collectMessagesFromElement(el, allMessages, collected, insideEventSubprocess);
 
-    // Recurse into subprocesses
+    // Recurse into subprocesses, tracking whether the subprocess is event-triggered
     if (el.flowElements !== undefined) {
-      result.push(...collectMessagesFromEvents(el.flowElements, allMessages, collected));
+      const childIsEventSubprocess = el.$type === 'bpmn:SubProcess' && (el.triggeredByEvent ?? false);
+      collectMessagesFromEvents(
+        el.flowElements,
+        allMessages,
+        collected,
+        insideEventSubprocess || childIsEventSubprocess
+      );
     }
   }
-
-  return result;
 }
 
 /**
@@ -214,9 +241,13 @@ export const getBpmnElements = async (
     .map((msg: ModdleElement) => ({
       id: msg.id ?? '',
       name: msg.name ?? '',
+      isStartEvent: false,
+      hasCatchUsage: false,
     }));
 
-  const messageEvents = collectMessagesFromEvents(flowElements, allMessages, new Set<string>());
+  const collectedMessages = new Map<string, BpmnMessage>();
+  collectMessagesFromEvents(flowElements, allMessages, collectedMessages, false);
+  const messageEvents = Array.from(collectedMessages.values());
 
   return { activities, sequenceFlows, messages: messageEvents };
 };

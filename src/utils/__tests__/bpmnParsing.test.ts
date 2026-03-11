@@ -144,6 +144,8 @@ describe('utils/bpmnParsing', () => {
       expect(messages).toContainEqual({
         id: 'Message_Order',
         name: 'OrderReceived',
+        isStartEvent: false,
+        hasCatchUsage: true,
       });
     });
 
@@ -156,6 +158,8 @@ describe('utils/bpmnParsing', () => {
       expect(messages).toContainEqual({
         id: 'Message_Cancel',
         name: 'CancelOrder',
+        isStartEvent: false,
+        hasCatchUsage: true,
       });
     });
 
