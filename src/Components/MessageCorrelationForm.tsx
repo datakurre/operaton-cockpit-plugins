@@ -80,8 +80,8 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
         }
 
         if (defId !== undefined && defId !== '') {
-          const { messages } = await getBpmnElements(defId, api);
-          setMessages(messages);
+          const { messages: allMessages } = await getBpmnElements(defId, api);
+          setMessages(allMessages.filter(m => !m.isStartEvent || m.hasCatchUsage));
         } else {
           throw new Error('Could not determine process definition ID.');
         }
@@ -140,7 +140,7 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
         <p>No message catch events found in the process definition.</p>
         <p className="message-correlation-form__info-text">
           Message correlation requires the process to have message intermediate catch events, message boundary events,
-          or receive tasks.
+          receive tasks, or event subprocess start events.
         </p>
       </div>
     );

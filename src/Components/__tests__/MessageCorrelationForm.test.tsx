@@ -53,8 +53,8 @@ describe('MessageCorrelationForm', () => {
   };
 
   const mockMessages = [
-    { id: 'Message_Order', name: 'OrderReceived' },
-    { id: 'Message_Cancel', name: 'CancelOrder' },
+    { id: 'Message_Order', name: 'OrderReceived', isStartEvent: false, hasCatchUsage: true },
+    { id: 'Message_Cancel', name: 'CancelOrder', isStartEvent: false, hasCatchUsage: true },
   ];
 
   beforeEach(() => {
