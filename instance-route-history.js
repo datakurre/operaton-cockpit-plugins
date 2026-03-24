@@ -69481,8 +69481,8 @@ var PageLink = function (_a) {
             onPage(page);
         }
     };
-    return (React.createElement("li", { role: "menuitem", className: "pagination-page ".concat(isActive ? 'active' : '', " ").concat(isDisabled ? 'disabled' : ''), key: label },
-        React.createElement("a", { href: "#", className: isDisabled ? 'disabled' : '', onClick: function (e) { return pageClicked(e, page); } }, label)));
+    return (React.createElement("li", { role: "menuitem", className: "page-item ".concat(isActive ? 'active' : '', " ").concat(isDisabled ? 'disabled' : ''), key: label },
+        React.createElement("a", { href: "#", className: "page-link".concat(isDisabled ? ' disabled' : ''), onClick: function (e) { return pageClicked(e, page); } }, label)));
 };
 
 var Pagination = function (_a) {
