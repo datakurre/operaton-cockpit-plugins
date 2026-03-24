@@ -19,10 +19,10 @@ const PageLink: React.FC<Props> = ({ label, page, isDisabled, isActive, onPage }
   return (
     <li
       role="menuitem"
-      className={`pagination-page ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
+      className={`page-item ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
       key={label}
     >
-      <a href="#" className={isDisabled ? 'disabled' : ''} onClick={e => pageClicked(e, page)}>
+      <a href="#" className={`page-link${isDisabled ? ' disabled' : ''}`} onClick={e => pageClicked(e, page)}>
         {label}
       </a>
     </li>
@@ -30,3 +30,4 @@ const PageLink: React.FC<Props> = ({ label, page, isDisabled, isActive, onPage }
 };
 
 export default PageLink;
+
