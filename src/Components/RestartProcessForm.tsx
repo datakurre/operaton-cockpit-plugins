@@ -33,13 +33,38 @@ interface HistoricProcessInstance {
 interface RestartProcessFormProps {
   api: API;
   processDefinitionId: string;
+  /** When provided, skip instance selection and restart this specific instance. */
+  processInstanceId?: string;
+  /** State of the specific instance (e.g. EXTERNALLY_TERMINATED). Used to derive termination type. */
+  processInstanceState?: string;
+  /** Business key of the specific instance, used to locate the new instance after restart. */
+  processInstanceBusinessKey?: string | null;
+}
+
+/**
+ * Derive termination type from process instance state string.
+ * @param state - The state string from the API
+ * @returns The termination type category
+ */
+function deriveTerminationType(state: string): 'external' | 'internal' | 'completed' {
+  if (state.includes('EXTERNALLY_TERMINATED')) return 'external';
+  if (state.includes('INTERNALLY_TERMINATED')) return 'internal';
+  return 'completed';
 }
 
 /**
  * Form for restarting terminated process instances.
- * Fetches terminated instances and allows selecting one to restart from a specific activity.
+ * When processInstanceId is provided, restarts that specific instance directly.
+ * Otherwise fetches terminated instances for the definition and allows selecting one.
  */
-const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDefinitionId }) => {
+const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
+  api,
+  processDefinitionId,
+  processInstanceId,
+  processInstanceState,
+  processInstanceBusinessKey,
+}) => {
+  const isSingleInstanceMode = processInstanceId !== undefined;
   const [terminatedInstances, setTerminatedInstances] = useState<HistoricProcessInstance[]>([]);
   const [selectedInstance, setSelectedInstance] = useState<HistoricProcessInstance | null>(null);
   const [activities, setActivities] = useState<BpmnElement[]>([]);
@@ -50,67 +75,78 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Load terminated instances and BPMN activities on mount
+  // Load data on mount
   useEffect(() => {
     const loadData = async (): Promise<void> => {
       try {
         setIsLoading(true);
         setError(null);
 
-        // Get process definition to extract key
-        const processDefResponse = await get(api, `/process-definition/${processDefinitionId}`);
-        const processDefinition = processDefResponse as { key?: string; id: string } | null;
-        if (!processDefinition?.key) {
-          throw new Error('Could not determine process definition key');
-        }
-
-        // Fetch externally terminated, internally terminated, AND completed instances for this process definition
-        const [externallyTerminatedResponse, internallyTerminatedResponse, completedResponse] = await Promise.all([
-          get(api, '/history/process-instance', {
-            processDefinitionKey: processDefinition.key,
-            externallyTerminated: 'true',
-          }),
-          get(api, '/history/process-instance', {
-            processDefinitionKey: processDefinition.key,
-            internallyTerminated: 'true',
-          }),
-          get(api, '/history/process-instance', {
-            processDefinitionKey: processDefinition.key,
-            completed: 'true',
-          }),
-        ]);
-        const externallyTerminated = (externallyTerminatedResponse as HistoricProcessInstance[]).map(inst => ({
-          ...inst,
-          terminationType: 'external' as const,
-        }));
-        const internallyTerminated = (internallyTerminatedResponse as HistoricProcessInstance[]).map(inst => ({
-          ...inst,
-          terminationType: 'internal' as const,
-        }));
-        const completed = (completedResponse as HistoricProcessInstance[]).filter(
-          inst => !inst.state.includes('TERMINATED')
-        ).map(inst => ({
-          ...inst,
-          terminationType: 'completed' as const,
-        }));
-        // Combine and sort by endTime (most recent first)
-        const allInstances = [...externallyTerminated, ...internallyTerminated, ...completed].sort((a, b) => {
-          const aTime = a.endTime ? new Date(a.endTime).getTime() : 0;
-          const bTime = b.endTime ? new Date(b.endTime).getTime() : 0;
-          return bTime - aTime;
-        });
-        setTerminatedInstances(allInstances);
-
-        // Load BPMN XML to get available activities
+        // Load BPMN activities (always needed)
         const { activities: bpmnActivities } = await getBpmnElements(processDefinitionId, api);
         setActivities(bpmnActivities);
-
-        // Auto-select first instance and activity if available
-        if (allInstances.length > 0 && allInstances[0]) {
-          setSelectedInstance(allInstances[0]);
-        }
         if (bpmnActivities.length > 0 && bpmnActivities[0]) {
           setSelectedActivity(bpmnActivities[0].id);
+        }
+
+        if (isSingleInstanceMode) {
+          // Use the specific instance passed in via props — no list fetch needed
+          const terminationType = deriveTerminationType(processInstanceState ?? '');
+          setSelectedInstance({
+            id: processInstanceId,
+            businessKey: processInstanceBusinessKey ?? null,
+            endTime: '',
+            processDefinitionId,
+            state: processInstanceState ?? '',
+            terminationType,
+          });
+        } else {
+          // Get process definition to extract key
+          const processDefResponse = await get(api, `/process-definition/${processDefinitionId}`);
+          const processDefinition = processDefResponse as { key?: string; id: string } | null;
+          if (!processDefinition?.key) {
+            throw new Error('Could not determine process definition key');
+          }
+
+          // Fetch externally terminated, internally terminated, AND completed instances for this process definition
+          const [externallyTerminatedResponse, internallyTerminatedResponse, completedResponse] = await Promise.all([
+            get(api, '/history/process-instance', {
+              processDefinitionKey: processDefinition.key,
+              externallyTerminated: 'true',
+            }),
+            get(api, '/history/process-instance', {
+              processDefinitionKey: processDefinition.key,
+              internallyTerminated: 'true',
+            }),
+            get(api, '/history/process-instance', {
+              processDefinitionKey: processDefinition.key,
+              completed: 'true',
+            }),
+          ]);
+          const externallyTerminated = (externallyTerminatedResponse as HistoricProcessInstance[]).map(inst => ({
+            ...inst,
+            terminationType: 'external' as const,
+          }));
+          const internallyTerminated = (internallyTerminatedResponse as HistoricProcessInstance[]).map(inst => ({
+            ...inst,
+            terminationType: 'internal' as const,
+          }));
+          const completed = (completedResponse as HistoricProcessInstance[]).filter(
+            inst => !inst.state.includes('TERMINATED')
+          ).map(inst => ({
+            ...inst,
+            terminationType: 'completed' as const,
+          }));
+          // Combine and sort by endTime (most recent first)
+          const allInstances = [...externallyTerminated, ...internallyTerminated, ...completed].sort((a, b) => {
+            const aTime = a.endTime ? new Date(a.endTime).getTime() : 0;
+            const bTime = b.endTime ? new Date(b.endTime).getTime() : 0;
+            return bTime - aTime;
+          });
+          setTerminatedInstances(allInstances);
+          if (allInstances.length > 0 && allInstances[0]) {
+            setSelectedInstance(allInstances[0]);
+          }
         }
       } catch (err) {
         console.error('Error loading data:', err);
@@ -204,10 +240,10 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
   };
 
   if (isLoading) {
-    return <div className="modify-form__loading">Loading terminated instances and activities...</div>;
+    return <div className="modify-form__loading">{isSingleInstanceMode ? 'Loading activities...' : 'Loading terminated instances and activities...'}</div>;
   }
 
-  if (terminatedInstances.length === 0) {
+  if (!isSingleInstanceMode && terminatedInstances.length === 0) {
     return (
       <div className="modify-form__info">
         <p>No terminated or completed process instances found for this process definition.</p>
@@ -223,32 +259,34 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({ api, processDef
       <h4>Restart Process Instance</h4>
       <p>Select a terminated or completed instance and the activity to restart from.</p>
 
-      <div className="form-group">
-        <SelectField
-          label="Terminated or Completed Instance"
-          value={selectedInstance ? selectedInstance.id : ''}
-          onChange={value => {
-            const instance = terminatedInstances.find(i => i.id === value);
-            setSelectedInstance(instance ?? null);
-            // Reset acknowledge checkbox when changing instances
-            setIsAcknowledgeCompleted(false);
-          }}
-          options={terminatedInstances.map(inst => {
-            const statusLabel =
-              inst.terminationType === 'external'
-                ? 'EXTERNALLY TERMINATED'
-                : inst.terminationType === 'internal'
-                  ? 'INTERNALLY TERMINATED'
-                  : 'COMPLETED';
-            const baseLabel = inst.businessKey ?? inst.id;
-            const endTimeStr = inst.endTime ? new Date(inst.endTime).toLocaleString() : 'N/A';
-            return {
-              value: inst.id,
-              label: `[${statusLabel}] ${baseLabel} (ended ${endTimeStr})`,
-            };
-          })}
-        />
-      </div>
+      {!isSingleInstanceMode && (
+        <div className="form-group">
+          <SelectField
+            label="Terminated or Completed Instance"
+            value={selectedInstance ? selectedInstance.id : ''}
+            onChange={value => {
+              const instance = terminatedInstances.find(i => i.id === value);
+              setSelectedInstance(instance ?? null);
+              // Reset acknowledge checkbox when changing instances
+              setIsAcknowledgeCompleted(false);
+            }}
+            options={terminatedInstances.map(inst => {
+              const statusLabel =
+                inst.terminationType === 'external'
+                  ? 'EXTERNALLY TERMINATED'
+                  : inst.terminationType === 'internal'
+                    ? 'INTERNALLY TERMINATED'
+                    : 'COMPLETED';
+              const baseLabel = inst.businessKey ?? inst.id;
+              const endTimeStr = inst.endTime ? new Date(inst.endTime).toLocaleString() : 'N/A';
+              return {
+                value: inst.id,
+                label: `[${statusLabel}] ${baseLabel} (ended ${endTimeStr})`,
+              };
+            })}
+          />
+        </div>
+      )}
 
       <div className="form-group">
         <SelectField
