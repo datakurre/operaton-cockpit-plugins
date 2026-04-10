@@ -175,22 +175,44 @@ describe('utils/bpmnParsing', () => {
       await expect(getBpmnElements('def-123', mockApi)).rejects.toThrow('Failed to load process definition XML');
     });
 
-    it('should extract activities from subprocesses', async () => {
+    it('should extract activities from subprocesses recursively', async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({ bpmn20Xml: bpmnWithSubprocess }));
 
       const { activities } = await getBpmnElements('def-123', mockApi);
 
-      // Should find the main SubProcess
+      // Top-level elements
+      expect(activities).toContainEqual(expect.objectContaining({ id: 'StartEvent_1', type: 'StartEvent' }));
       expect(activities).toContainEqual(
-        expect.objectContaining({
-          id: 'SubProcess_1',
-          name: 'Review Process',
-          type: 'SubProcess',
-        })
+        expect.objectContaining({ id: 'SubProcess_1', name: 'Review Process', type: 'SubProcess' })
+      );
+      expect(activities).toContainEqual(expect.objectContaining({ id: 'EndEvent_1', type: 'EndEvent' }));
+
+      // Nested subprocess activities
+      expect(activities).toContainEqual(expect.objectContaining({ id: 'SubStart_1', name: 'Sub Start', type: 'StartEvent' }));
+      expect(activities).toContainEqual(expect.objectContaining({ id: 'SubTask_1', name: 'Review', type: 'UserTask' }));
+      expect(activities).toContainEqual(expect.objectContaining({ id: 'SubEnd_1', name: 'Sub End', type: 'EndEvent' }));
+    });
+
+    it('should extract sequence flows from subprocesses recursively', async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ bpmn20Xml: bpmnWithSubprocess }));
+
+      const { sequenceFlows } = await getBpmnElements('def-123', mockApi);
+
+      // Top-level flows
+      expect(sequenceFlows).toContainEqual(
+        expect.objectContaining({ id: 'Flow_1', sourceRef: 'StartEvent_1', targetRef: 'SubProcess_1' })
+      );
+      expect(sequenceFlows).toContainEqual(
+        expect.objectContaining({ id: 'Flow_4', sourceRef: 'SubProcess_1', targetRef: 'EndEvent_1' })
       );
 
-      // Note: Current implementation doesn't recurse into subprocesses for activities
-      // It only looks at top-level flowElements
+      // Nested subprocess flows
+      expect(sequenceFlows).toContainEqual(
+        expect.objectContaining({ id: 'SubFlow_1', sourceRef: 'SubStart_1', targetRef: 'SubTask_1' })
+      );
+      expect(sequenceFlows).toContainEqual(
+        expect.objectContaining({ id: 'SubFlow_2', sourceRef: 'SubTask_1', targetRef: 'SubEnd_1' })
+      );
     });
 
     it('should return empty messages array when no message events exist', async () => {

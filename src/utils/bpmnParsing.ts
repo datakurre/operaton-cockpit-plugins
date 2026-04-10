@@ -190,6 +190,48 @@ function collectMessagesFromEvents(
 }
 
 /**
+ * Recursively collect all activity elements from flow elements including nested subprocesses.
+ * @param elements - Flow elements to search
+ * @param collected - Array to push discovered activities into
+ */
+function collectActivities(elements: ModdleElement[], collected: BpmnElement[]): void {
+  for (const el of elements) {
+    if (isActivityType(el.$type)) {
+      collected.push({
+        id: el.id ?? '',
+        name: el.name ?? el.id ?? '',
+        type: el.$type.replace('bpmn:', ''),
+      });
+    }
+    if (el.flowElements !== undefined) {
+      collectActivities(el.flowElements, collected);
+    }
+  }
+}
+
+/**
+ * Recursively collect all sequence flow elements from flow elements including nested subprocesses.
+ * @param elements - Flow elements to search
+ * @param collected - Array to push discovered sequence flows into
+ */
+function collectSequenceFlows(elements: ModdleElement[], collected: BpmnElement[]): void {
+  for (const el of elements) {
+    if (el.$type === 'bpmn:SequenceFlow') {
+      collected.push({
+        id: el.id ?? '',
+        name: el.name ?? el.id ?? '',
+        type: el.$type.replace('bpmn:', ''),
+        sourceRef: el.sourceRef?.id,
+        targetRef: el.targetRef?.id,
+      });
+    }
+    if (el.flowElements !== undefined) {
+      collectSequenceFlows(el.flowElements, collected);
+    }
+  }
+}
+
+/**
  * Fetches and parses BPMN elements from a process definition
  * @param processDefinitionId - The ID of the process definition
  * @param api - The API configuration object
@@ -218,23 +260,11 @@ export const getBpmnElements = async (
   const processes = rootElements.filter((el: ModdleElement) => el.$type === 'bpmn:Process');
   const flowElements = processes.flatMap((process: ModdleElement) => process.flowElements ?? []);
 
-  const activities: BpmnElement[] = flowElements
-    .filter((el: ModdleElement) => isActivityType(el.$type))
-    .map((el: ModdleElement) => ({
-      id: el.id ?? '',
-      name: el.name ?? el.id ?? '',
-      type: el.$type.replace('bpmn:', ''),
-    }));
+  const activities: BpmnElement[] = [];
+  collectActivities(flowElements, activities);
 
-  const sequenceFlows: BpmnElement[] = flowElements
-    .filter((el: ModdleElement) => el.$type === 'bpmn:SequenceFlow')
-    .map((el: ModdleElement) => ({
-      id: el.id ?? '',
-      name: el.name ?? el.id ?? '',
-      type: el.$type.replace('bpmn:', ''),
-      sourceRef: el.sourceRef?.id,
-      targetRef: el.targetRef?.id,
-    }));
+  const sequenceFlows: BpmnElement[] = [];
+  collectSequenceFlows(flowElements, sequenceFlows);
 
   const allMessages: BpmnMessage[] = rootElements
     .filter((el: ModdleElement) => el.$type === 'bpmn:Message')
