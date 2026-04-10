@@ -299,7 +299,13 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                     </Tab>
                     {instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (
                       <Tab label="Terminated">
-                        <RestartProcessForm api={api} processDefinitionId={instance.processDefinitionId} />
+                        <RestartProcessForm
+                          api={api}
+                          processDefinitionId={instance.processDefinitionId}
+                          processInstanceId={instance.id}
+                          processInstanceState={instance.state}
+                          processInstanceBusinessKey={instance.businessKey}
+                        />
                       </Tab>
                     )}
                   </Tabs>
