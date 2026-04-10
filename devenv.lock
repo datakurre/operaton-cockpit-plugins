@@ -3,11 +3,11 @@
     "devenv": {
       "locked": {
         "dir": "src/modules",
-        "lastModified": 1773077419,
-        "narHash": "sha256-Vr3Zrg4DEm4xy0StawiTEUs8TXruj1WdRZyDhlq1aPg=",
+        "lastModified": 1775673122,
+        "narHash": "sha256-zVHWCQ0kCkaNIubCVv5fZyrPYfI4EGEPLRFRARwGSl8=",
         "owner": "cachix",
         "repo": "devenv",
-        "rev": "2105b1a0272e32b0d6a9e213b1c381ab4ae4a692",
+        "rev": "010a22c855d22b127c6fb007868b2f3fc09bc2c8",
         "type": "github"
       },
       "original": {
@@ -20,16 +20,31 @@
     "devenv-module-devcontainer": {
       "flake": false,
       "locked": {
-        "lastModified": 1772985947,
-        "narHash": "sha256-Ie4wWxbg5hFkPUyoBqJLIDVPQfBVrgGVKrkbT6qLLYs=",
+        "lastModified": 1775203419,
+        "narHash": "sha256-lasDZlcdVDDi4SDjMw77E+8BEto3Os45HjRnuUkoJtA=",
         "owner": "datakurre",
         "repo": "devenv-module-devcontainer",
-        "rev": "bde2966fda08382e4e3405ac1af55ee22ef75eb3",
+        "rev": "be28f5111bc646960aec9062fd0417bbf1a14b9f",
         "type": "github"
       },
       "original": {
         "owner": "datakurre",
         "repo": "devenv-module-devcontainer",
+        "type": "github"
+      }
+    },
+    "devenv-module-devcontainer-nixpkgs": {
+      "locked": {
+        "lastModified": 1775738622,
+        "narHash": "sha256-/eJypMG29n7OrYTK0Q7NWWXyQF9Lqcmohgaimq27+Uk=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "026f737325447137e169d340295b40e261550223",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
         "type": "github"
       }
     },
@@ -40,11 +55,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1772127163,
-        "narHash": "sha256-K00z+fHlj413Ubza3jlzM1fe97gE8DMizEVta6ApUP8=",
+        "lastModified": 1773749755,
+        "narHash": "sha256-UYiGOE4URAoMFNtUrleB+RY27hB7a5Bcq2rE4I/Hh0o=",
         "owner": "vasara-bpm",
         "repo": "devenv-module-operaton",
-        "rev": "a69d1f3d8e02d9313fb8076451778245416a59fc",
+        "rev": "4fff0dfcd09a2b0d374a4dedf9705f602c78d9ce",
         "type": "gitlab"
       },
       "original": {
@@ -124,11 +139,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1773146873,
-        "narHash": "sha256-/vE3KpMsKrJzBRJXL7pxyHF9qp7QQS24i7D0wzRSWZE=",
+        "lastModified": 1775738512,
+        "narHash": "sha256-/3j33QHLOsv6SoQdc98q3SESmHxF643t6a+C9xWV9Bk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "9f09a3f274aa7e65d4f4d2fb46773d1a5b2a99d1",
+        "rev": "f222f2ec8bc10de5f3bdabf539d8c80b02404932",
         "type": "github"
       },
       "original": {
@@ -142,6 +157,7 @@
       "inputs": {
         "devenv": "devenv",
         "devenv-module-devcontainer": "devenv-module-devcontainer",
+        "devenv-module-devcontainer-nixpkgs": "devenv-module-devcontainer-nixpkgs",
         "devenv-module-operaton": "devenv-module-operaton",
         "nixpkgs": "nixpkgs_3"
       }
