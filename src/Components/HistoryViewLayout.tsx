@@ -303,8 +303,8 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                           api={api}
                           processDefinitionId={instance.processDefinitionId}
                           processInstanceId={instance.id}
-                          processInstanceState={instance.state}
-                          processInstanceBusinessKey={instance.businessKey}
+                          processInstanceState={instance.state ?? ''}
+                          processInstanceBusinessKey={instance.businessKey ?? null}
                         />
                       </Tab>
                     )}
