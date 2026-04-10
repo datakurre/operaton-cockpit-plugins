@@ -76240,6 +76240,50 @@ function collectMessagesFromEvents(elements, allMessages, collected, insideEvent
     }
 }
 /**
+ * Recursively collect all activity elements from flow elements including nested subprocesses.
+ * @param elements - Flow elements to search
+ * @param collected - Array to push discovered activities into
+ */
+function collectActivities(elements, collected) {
+    var _a, _b, _c;
+    for (var _i = 0, elements_2 = elements; _i < elements_2.length; _i++) {
+        var el = elements_2[_i];
+        if (isActivityType(el.$type)) {
+            collected.push({
+                id: (_a = el.id) !== null && _a !== void 0 ? _a : '',
+                name: (_c = (_b = el.name) !== null && _b !== void 0 ? _b : el.id) !== null && _c !== void 0 ? _c : '',
+                type: el.$type.replace('bpmn:', ''),
+            });
+        }
+        if (el.flowElements !== undefined) {
+            collectActivities(el.flowElements, collected);
+        }
+    }
+}
+/**
+ * Recursively collect all sequence flow elements from flow elements including nested subprocesses.
+ * @param elements - Flow elements to search
+ * @param collected - Array to push discovered sequence flows into
+ */
+function collectSequenceFlows(elements, collected) {
+    var _a, _b, _c, _d, _e;
+    for (var _i = 0, elements_3 = elements; _i < elements_3.length; _i++) {
+        var el = elements_3[_i];
+        if (el.$type === 'bpmn:SequenceFlow') {
+            collected.push({
+                id: (_a = el.id) !== null && _a !== void 0 ? _a : '',
+                name: (_c = (_b = el.name) !== null && _b !== void 0 ? _b : el.id) !== null && _c !== void 0 ? _c : '',
+                type: el.$type.replace('bpmn:', ''),
+                sourceRef: (_d = el.sourceRef) === null || _d === void 0 ? void 0 : _d.id,
+                targetRef: (_e = el.targetRef) === null || _e === void 0 ? void 0 : _e.id,
+            });
+        }
+        if (el.flowElements !== undefined) {
+            collectSequenceFlows(el.flowElements, collected);
+        }
+    }
+}
+/**
  * Fetches and parses BPMN elements from a process definition
  * @param processDefinitionId - The ID of the process definition
  * @param api - The API configuration object
@@ -76264,28 +76308,10 @@ var getBpmnElements = function (processDefinitionId, api) { return __awaiter(voi
                 rootElements = (_a = definitions.rootElements) !== null && _a !== void 0 ? _a : [];
                 processes = rootElements.filter(function (el) { return el.$type === 'bpmn:Process'; });
                 flowElements = processes.flatMap(function (process) { var _a; return (_a = process.flowElements) !== null && _a !== void 0 ? _a : []; });
-                activities = flowElements
-                    .filter(function (el) { return isActivityType(el.$type); })
-                    .map(function (el) {
-                    var _a, _b, _c;
-                    return ({
-                        id: (_a = el.id) !== null && _a !== void 0 ? _a : '',
-                        name: (_c = (_b = el.name) !== null && _b !== void 0 ? _b : el.id) !== null && _c !== void 0 ? _c : '',
-                        type: el.$type.replace('bpmn:', ''),
-                    });
-                });
-                sequenceFlows = flowElements
-                    .filter(function (el) { return el.$type === 'bpmn:SequenceFlow'; })
-                    .map(function (el) {
-                    var _a, _b, _c, _d, _e;
-                    return ({
-                        id: (_a = el.id) !== null && _a !== void 0 ? _a : '',
-                        name: (_c = (_b = el.name) !== null && _b !== void 0 ? _b : el.id) !== null && _c !== void 0 ? _c : '',
-                        type: el.$type.replace('bpmn:', ''),
-                        sourceRef: (_d = el.sourceRef) === null || _d === void 0 ? void 0 : _d.id,
-                        targetRef: (_e = el.targetRef) === null || _e === void 0 ? void 0 : _e.id,
-                    });
-                });
+                activities = [];
+                collectActivities(flowElements, activities);
+                sequenceFlows = [];
+                collectSequenceFlows(flowElements, sequenceFlows);
                 allMessages = rootElements
                     .filter(function (el) { return el.$type === 'bpmn:Message'; })
                     .map(function (msg) {
