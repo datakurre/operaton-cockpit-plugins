@@ -131,12 +131,12 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
             ...inst,
             terminationType: 'internal' as const,
           }));
-          const completed = (completedResponse as HistoricProcessInstance[]).filter(
-            inst => !inst.state.includes('TERMINATED')
-          ).map(inst => ({
-            ...inst,
-            terminationType: 'completed' as const,
-          }));
+          const completed = (completedResponse as HistoricProcessInstance[])
+            .filter(inst => !inst.state.includes('TERMINATED'))
+            .map(inst => ({
+              ...inst,
+              terminationType: 'completed' as const,
+            }));
           // Combine and sort by endTime (most recent first)
           const allInstances = [...externallyTerminated, ...internallyTerminated, ...completed].sort((a, b) => {
             const aTime = a.endTime ? new Date(a.endTime).getTime() : 0;
@@ -240,7 +240,11 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
   };
 
   if (isLoading) {
-    return <div className="modify-form__loading">{isSingleInstanceMode ? 'Loading activities...' : 'Loading terminated instances and activities...'}</div>;
+    return (
+      <div className="modify-form__loading">
+        {isSingleInstanceMode ? 'Loading activities...' : 'Loading terminated instances and activities...'}
+      </div>
+    );
   }
 
   if (!isSingleInstanceMode && terminatedInstances.length === 0) {
@@ -248,7 +252,8 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
       <div className="modify-form__info">
         <p>No terminated or completed process instances found for this process definition.</p>
         <p>
-          Externally terminated, internally terminated, and normally completed process instances can be restarted from this view.
+          Externally terminated, internally terminated, and normally completed process instances can be restarted from
+          this view.
         </p>
       </div>
     );
@@ -313,14 +318,18 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
               }}
               style={{ cursor: 'pointer' }}
             />
-            <span>I acknowledge that this process completed normally and understand that restarting it may have unintended side effects.</span>
+            <span>
+              I acknowledge that this process completed normally and understand that restarting it may have unintended
+              side effects.
+            </span>
           </label>
         </div>
       )}
 
       <WarningBox>
         Restarting a process instance will create a new execution context. For completed processes, this may cause
-        duplicate operations or side effects. Ensure the selected starting activity is appropriate for the process state.
+        duplicate operations or side effects. Ensure the selected starting activity is appropriate for the process
+        state.
       </WarningBox>
 
       {error && <ErrorMessage message={error} />}
