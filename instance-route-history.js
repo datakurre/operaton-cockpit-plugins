@@ -76338,11 +76338,25 @@ var getBpmnElements = function (processDefinitionId, api) { return __awaiter(voi
  * Based on the Jupyter notebook example in TODO-restart-terminated-process.ipynb.
  */
 /**
+ * Derive termination type from process instance state string.
+ * @param state - The state string from the API
+ * @returns The termination type category
+ */
+function deriveTerminationType(state) {
+    if (state.includes('EXTERNALLY_TERMINATED'))
+        return 'external';
+    if (state.includes('INTERNALLY_TERMINATED'))
+        return 'internal';
+    return 'completed';
+}
+/**
  * Form for restarting terminated process instances.
- * Fetches terminated instances and allows selecting one to restart from a specific activity.
+ * When processInstanceId is provided, restarts that specific instance directly.
+ * Otherwise fetches terminated instances for the definition and allows selecting one.
  */
 var RestartProcessForm = function (_a) {
-    var api = _a.api, processDefinitionId = _a.processDefinitionId;
+    var api = _a.api, processDefinitionId = _a.processDefinitionId, processInstanceId = _a.processInstanceId, processInstanceState = _a.processInstanceState, processInstanceBusinessKey = _a.processInstanceBusinessKey;
+    var isSingleInstanceMode = processInstanceId !== undefined;
     var _b = reactExports.useState([]), terminatedInstances = _b[0], setTerminatedInstances = _b[1];
     var _c = reactExports.useState(null), selectedInstance = _c[0], setSelectedInstance = _c[1];
     var _d = reactExports.useState([]), activities = _d[0], setActivities = _d[1];
@@ -76352,18 +76366,36 @@ var RestartProcessForm = function (_a) {
     var _h = reactExports.useState(false), isSubmitting = _h[0], setIsSubmitting = _h[1];
     var _j = reactExports.useState(null), error = _j[0], setError = _j[1];
     var _k = reactExports.useState(null), success = _k[0], setSuccess = _k[1];
-    // Load terminated instances and BPMN activities on mount
+    // Load data on mount
     reactExports.useEffect(function () {
         var loadData = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var processDefResponse, processDefinition, _a, externallyTerminatedResponse, internallyTerminatedResponse, completedResponse, externallyTerminated, internallyTerminated, completed, allInstances, bpmnActivities, err_1, errorMessage;
+            var bpmnActivities, terminationType, processDefResponse, processDefinition, _a, externallyTerminatedResponse, internallyTerminatedResponse, completedResponse, externallyTerminated, internallyTerminated, completed, allInstances, err_1, errorMessage;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 4, 5, 6]);
+                        _b.trys.push([0, 6, 7, 8]);
                         setIsLoading(true);
                         setError(null);
-                        return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId))];
+                        return [4 /*yield*/, getBpmnElements(processDefinitionId, api)];
                     case 1:
+                        bpmnActivities = (_b.sent()).activities;
+                        setActivities(bpmnActivities);
+                        if (bpmnActivities.length > 0 && bpmnActivities[0]) {
+                            setSelectedActivity(bpmnActivities[0].id);
+                        }
+                        if (!isSingleInstanceMode) return [3 /*break*/, 2];
+                        terminationType = deriveTerminationType(processInstanceState !== null && processInstanceState !== void 0 ? processInstanceState : '');
+                        setSelectedInstance({
+                            id: processInstanceId,
+                            businessKey: processInstanceBusinessKey !== null && processInstanceBusinessKey !== void 0 ? processInstanceBusinessKey : null,
+                            endTime: '',
+                            processDefinitionId: processDefinitionId,
+                            state: processInstanceState !== null && processInstanceState !== void 0 ? processInstanceState : '',
+                            terminationType: terminationType,
+                        });
+                        return [3 /*break*/, 5];
+                    case 2: return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId))];
+                    case 3:
                         processDefResponse = _b.sent();
                         processDefinition = processDefResponse;
                         if (!(processDefinition === null || processDefinition === void 0 ? void 0 : processDefinition.key)) {
@@ -76383,7 +76415,7 @@ var RestartProcessForm = function (_a) {
                                     completed: 'true',
                                 }),
                             ])];
-                    case 2:
+                    case 4:
                         _a = _b.sent(), externallyTerminatedResponse = _a[0], internallyTerminatedResponse = _a[1], completedResponse = _a[2];
                         externallyTerminated = externallyTerminatedResponse.map(function (inst) { return (__assign(__assign({}, inst), { terminationType: 'external' })); });
                         internallyTerminated = internallyTerminatedResponse.map(function (inst) { return (__assign(__assign({}, inst), { terminationType: 'internal' })); });
@@ -76394,28 +76426,21 @@ var RestartProcessForm = function (_a) {
                             return bTime - aTime;
                         });
                         setTerminatedInstances(allInstances);
-                        return [4 /*yield*/, getBpmnElements(processDefinitionId, api)];
-                    case 3:
-                        bpmnActivities = (_b.sent()).activities;
-                        setActivities(bpmnActivities);
-                        // Auto-select first instance and activity if available
                         if (allInstances.length > 0 && allInstances[0]) {
                             setSelectedInstance(allInstances[0]);
                         }
-                        if (bpmnActivities.length > 0 && bpmnActivities[0]) {
-                            setSelectedActivity(bpmnActivities[0].id);
-                        }
-                        return [3 /*break*/, 6];
-                    case 4:
+                        _b.label = 5;
+                    case 5: return [3 /*break*/, 8];
+                    case 6:
                         err_1 = _b.sent();
                         console.error('Error loading data:', err_1);
                         errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
                         setError("Failed to load data: ".concat(errorMessage));
-                        return [3 /*break*/, 6];
-                    case 5:
+                        return [3 /*break*/, 8];
+                    case 7:
                         setIsLoading(false);
                         return [7 /*endfinally*/];
-                    case 6: return [2 /*return*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         }); };
@@ -76492,9 +76517,9 @@ var RestartProcessForm = function (_a) {
         });
     }); };
     if (isLoading) {
-        return React.createElement("div", { className: "modify-form__loading" }, "Loading terminated instances and activities...");
+        return React.createElement("div", { className: "modify-form__loading" }, isSingleInstanceMode ? 'Loading activities...' : 'Loading terminated instances and activities...');
     }
-    if (terminatedInstances.length === 0) {
+    if (!isSingleInstanceMode && terminatedInstances.length === 0) {
         return (React.createElement("div", { className: "modify-form__info" },
             React.createElement("p", null, "No terminated or completed process instances found for this process definition."),
             React.createElement("p", null, "Externally terminated, internally terminated, and normally completed process instances can be restarted from this view.")));
@@ -76502,7 +76527,7 @@ var RestartProcessForm = function (_a) {
     return (React.createElement("div", { className: "modify-form" },
         React.createElement("h4", null, "Restart Process Instance"),
         React.createElement("p", null, "Select a terminated or completed instance and the activity to restart from."),
-        React.createElement("div", { className: "form-group" },
+        !isSingleInstanceMode && (React.createElement("div", { className: "form-group" },
             React.createElement(SelectField, { label: "Terminated or Completed Instance", value: selectedInstance ? selectedInstance.id : '', onChange: function (value) {
                     var instance = terminatedInstances.find(function (i) { return i.id === value; });
                     setSelectedInstance(instance !== null && instance !== void 0 ? instance : null);
@@ -76521,7 +76546,7 @@ var RestartProcessForm = function (_a) {
                         value: inst.id,
                         label: "[".concat(statusLabel, "] ").concat(baseLabel, " (ended ").concat(endTimeStr, ")"),
                     };
-                }) })),
+                }) }))),
         React.createElement("div", { className: "form-group" },
             React.createElement(SelectField, { label: "Starting Activity", value: selectedActivity, onChange: function (value) {
                     setSelectedActivity(value);
@@ -78725,22 +78750,22 @@ var TABS_HEIGHT_THRESHOLD = 200;
  * Includes chevron buttons to quickly expand/collapse panes.
  */
 var HistoryViewLayout = function (_a) {
-    var _b, _c;
+    var _b, _c, _d, _e;
     var instance = _a.instance, historicInstance = _a.historicInstance, definition = _a.definition, diagramXML = _a.diagramXML, activities = _a.activities, variables = _a.variables, activityById = _a.activityById, decisionByActivity = _a.decisionByActivity, api = _a.api;
     var settings = loadSettings();
     var horizontalRef = reactExports.useRef(null);
     var verticalRef = reactExports.useRef(null);
     var containerRef = reactExports.useRef(null);
-    var _d = reactExports.useState(typeof settings.leftPaneSize === 'number' ? settings.leftPaneSize : INFO_EXPANDED_SIZE), infoPaneSize = _d[0], setInfoPaneSize = _d[1];
+    var _f = reactExports.useState(typeof settings.leftPaneSize === 'number' ? settings.leftPaneSize : INFO_EXPANDED_SIZE), infoPaneSize = _f[0], setInfoPaneSize = _f[1];
     // Track bottom tabs pane size (derived from container height - top pane size)
-    var _e = reactExports.useState(function () {
+    var _g = reactExports.useState(function () {
         if (typeof settings.topPaneSize === 'number') {
             // topPaneSize is the BPMN viewer height; tabs height = container - topPaneSize
             var containerHeight = 600;
             return containerHeight - settings.topPaneSize;
         }
         return 300; // Default: 50% of 600px container
-    }), tabsPaneSize = _e[0], setTabsPaneSize = _e[1];
+    }), tabsPaneSize = _g[0], setTabsPaneSize = _g[1];
     /** Get container height for calculations */
     var getContainerHeight = function () {
         var _a, _b;
@@ -78878,7 +78903,7 @@ var HistoryViewLayout = function (_a) {
                                     React.createElement(Tab, { label: "Variables" },
                                         React.createElement(VariablesTable, { instance: historicInstance, activities: activityById, variables: variables })),
                                     instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (React.createElement(Tab, { label: "Terminated" },
-                                        React.createElement(RestartProcessForm, { api: api, processDefinitionId: instance.processDefinitionId }))))))))))));
+                                        React.createElement(RestartProcessForm, { api: api, processDefinitionId: instance.processDefinitionId, processInstanceId: instance.id, processInstanceState: (_d = instance.state) !== null && _d !== void 0 ? _d : '', processInstanceBusinessKey: (_e = instance.businessKey) !== null && _e !== void 0 ? _e : null }))))))))))));
 };
 
 var Page = function (_a) {
