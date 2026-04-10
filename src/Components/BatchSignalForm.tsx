@@ -116,7 +116,7 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
       await post(api, '/signal', {}, JSON.stringify(payload));
 
       setSuccessMessage(
-        `Signal "${data.signalName}" broadcast successfully! All matching signal catch events have been triggered.`
+        `Signal "${data.signalName}" broadcast engine-wide. All matching signal catch events across all process definitions have been triggered.`
       );
     } catch (err) {
       console.error('Signal broadcast error:', err);
@@ -147,10 +147,11 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
         className="modify-form"
       >
         <div className="modify-form__header">
-          <p className="modify-form__description">
-            Broadcast a signal event. The signal will be delivered to all matching signal catch events across all
-            process instances.
-          </p>
+          <WarningBox title="Engine-Wide Broadcast">
+            Signals are delivered to ALL matching signal catch events across ALL process definitions and instances in
+            the engine — not only instances of this process definition. Ensure the signal name is unique or that
+            engine-wide delivery is intentional.
+          </WarningBox>
         </div>
 
         <div className="modify-form__section">
@@ -182,7 +183,8 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
           {dryRunResult && (
             <div className="modify-form__dry-run-result">
               <h5>
-                Found {dryRunResult.count} active instance{dryRunResult.count !== 1 ? 's' : ''}
+                Found {dryRunResult.count} active instance{dryRunResult.count !== 1 ? 's' : ''} for this definition (the
+                signal will broadcast engine-wide across all definitions)
               </h5>
               {dryRunResult.instances.length > 0 && (
                 <ul className="modify-form__instance-list">
@@ -202,11 +204,6 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
 
         <h4>Variables</h4>
         <VariableBuilder name="processVariables" showLocalFlag={false} />
-
-        <WarningBox>
-          Signals are broadcast globally and will trigger all matching signal catch events across all process instances,
-          not just this process definition. Use with caution in production environments.
-        </WarningBox>
 
         {error && <ErrorMessage message={error} />}
         {successMessage && <SuccessMessage message={successMessage} />}

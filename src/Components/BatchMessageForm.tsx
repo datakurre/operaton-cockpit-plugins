@@ -221,7 +221,8 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
               <option value="">Select a message...</option>
               {messages.map(m => (
                 <option key={m.name} value={m.name}>
-                  {m.name}{m.isStartEvent ? ' (start event)' : ''}
+                  {m.name}
+                  {m.isStartEvent ? ' (start event)' : ''}
                 </option>
               ))}
             </select>
@@ -272,7 +273,9 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
         <VariableBuilder name="processVariables" showLocalFlag={false} />
 
         {selectedMessage?.isStartEvent === true ? (
-          <WarningBox>This message is configured on a start event. Sending it will start a new process instance.</WarningBox>
+          <WarningBox>
+            This message is configured on a start event. Sending it will start a new process instance.
+          </WarningBox>
         ) : (
           <WarningBox>
             This message will be correlated asynchronously to ALL active instances of this process definition as a batch

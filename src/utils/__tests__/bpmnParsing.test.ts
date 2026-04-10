@@ -188,7 +188,9 @@ describe('utils/bpmnParsing', () => {
       expect(activities).toContainEqual(expect.objectContaining({ id: 'EndEvent_1', type: 'EndEvent' }));
 
       // Nested subprocess activities
-      expect(activities).toContainEqual(expect.objectContaining({ id: 'SubStart_1', name: 'Sub Start', type: 'StartEvent' }));
+      expect(activities).toContainEqual(
+        expect.objectContaining({ id: 'SubStart_1', name: 'Sub Start', type: 'StartEvent' })
+      );
       expect(activities).toContainEqual(expect.objectContaining({ id: 'SubTask_1', name: 'Review', type: 'UserTask' }));
       expect(activities).toContainEqual(expect.objectContaining({ id: 'SubEnd_1', name: 'Sub End', type: 'EndEvent' }));
     });

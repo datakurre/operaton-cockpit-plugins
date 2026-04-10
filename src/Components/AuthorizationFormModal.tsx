@@ -11,6 +11,7 @@ import React, { useState, useEffect } from 'react';
 import ErrorMessage from './ErrorMessage';
 import IdentityAutocomplete from './IdentityAutocomplete';
 import ResourceAutocomplete from './ResourceAutocomplete';
+import WarningBox from './WarningBox';
 import type { API } from '../types';
 import { post, ApiError } from '../utils/api';
 import {
@@ -263,6 +264,11 @@ const AuthorizationFormModal: React.FC<AuthorizationFormModalProps> = ({
                   placeholder="e.g., * for all resources"
                 />
                 <small className="text-muted">Use * for all {getResourceTypeName(resourceType) || 'resources'}</small>
+                {(form.resourceId === '*' || form.resourceId === '') && (
+                  <WarningBox>
+                    Resource ID * grants this permission on ALL {getResourceTypeName(resourceType) || 'resources'}.
+                  </WarningBox>
+                )}
               </div>
 
               {/* Permissions */}
