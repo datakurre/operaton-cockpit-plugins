@@ -184,7 +184,7 @@ describe('authorization', () => {
       const { container } = render(element);
 
       expect(container.textContent).toContain('admin');
-      expect(container.querySelector('.glyphicon-user')).toBeTruthy();
+      expect(container.querySelector('[aria-label="User icon"]')).toBeTruthy();
     });
 
     it('should render group identity with icon', () => {
@@ -192,7 +192,7 @@ describe('authorization', () => {
       const { container } = render(element);
 
       expect(container.textContent).toContain('managers');
-      expect(container.querySelector('.glyphicon-th')).toBeTruthy();
+      expect(container.querySelector('[aria-label="Group icon"]')).toBeTruthy();
     });
 
     it('should prefer user over group when both provided', () => {

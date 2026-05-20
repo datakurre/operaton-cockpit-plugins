@@ -26,6 +26,7 @@ import './Components/Modal.scss';
 import { Allotment } from 'allotment';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createRoot } from 'react-dom/client';
+import { FaCheckCircle, FaPlusCircle } from 'react-icons/fa';
 
 import AuthorizationDeleteModal from './Components/AuthorizationDeleteModal';
 import AuthorizationFormModal from './Components/AuthorizationFormModal';
@@ -418,7 +419,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
                     {isValidating && validationProgress
                       ? `Checking ${validationProgress.current}/${validationProgress.total}...`
                       : 'Check resources'}
-                    <span className="glyphicon glyphicon-ok-circle create-btn-icon" />
+                    <FaCheckCircle className="create-btn-icon" aria-hidden="true" />
                   </button>
                   {/* Hide create button in "All" view since it's read-only */}
                   {selectedResourceType !== ALL_RESOURCE_TYPES && (
@@ -430,7 +431,7 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
                       disabled={isLoading}
                     >
                       Create new authorization
-                      <span className="glyphicon glyphicon-plus-sign create-btn-icon" />
+                      <FaPlusCircle className="create-btn-icon" aria-hidden="true" />
                     </button>
                   )}
                 </div>

@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { FaStar, FaRegStar, FaTimesCircle } from 'react-icons/fa';
 import { createRoot } from 'react-dom/client';
 import { Column, CellProps } from 'react-table';
 import type { DefinitionPluginParams, RoutePluginParams, ProcessDefinition } from './types';
@@ -157,23 +158,23 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
   return (
     <button
       type="button"
-      className="btn btn-default btn-sm"
+      className="btn btn-default btn-sm btn-outline-secondary"
       onClick={handleToggle}
       aria-label={isFav ? 'Remove from favourites' : 'Add to favourites'}
       title={isFav ? 'Remove from favourites' : 'Add to favourites'}
       style={{
         width: '40px',
         height: '34px',
-        marginTop: '5px',
+        marginTop: '4px',
         padding: '4px 6px',
         minWidth: '40px',
       }}
     >
-      <span
-        className={isFav ? 'glyphicon glyphicon-star' : 'glyphicon glyphicon-star-empty'}
-        aria-hidden="true"
-        style={{ fontSize: '16px' }}
-      />
+      {isFav ? (
+        <FaStar aria-hidden="true" style={{ fontSize: '16px' }} />
+      ) : (
+        <FaRegStar aria-hidden="true" style={{ fontSize: '16px' }} />
+      )}
     </button>
   );
 };
@@ -320,8 +321,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
             if (incidents > 0) {
               return (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  <span
-                    className="glyphicon glyphicon-remove-circle"
+                  <FaTimesCircle
                     style={{ color: '#d9534f', fontSize: '20px' }}
                     aria-label="Has incidents"
                     title={`${incidents} incident${incidents !== 1 ? 's' : ''}`}
@@ -388,7 +388,7 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
                 minWidth: '32px',
               }}
             >
-              <span className="glyphicon glyphicon-star" aria-hidden="true" />
+              <FaStar aria-hidden="true" />
             </button>
           ),
         },

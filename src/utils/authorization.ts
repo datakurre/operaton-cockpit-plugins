@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { FaUser, FaTh } from 'react-icons/fa';
 
 import type { API } from '../types';
 import { get } from './api';
@@ -498,7 +499,7 @@ export function renderIdentityDisplay(userId: string | null, groupId: string | n
     return React.createElement(
       'span',
       { title: 'User' },
-      React.createElement('span', { className: 'glyphicon glyphicon-user' }),
+      React.createElement(FaUser, { 'aria-label': 'User icon' }),
       ' ',
       React.createElement('a', { href: `#/users/${encodeURIComponent(userId)}` }, userId)
     );
@@ -507,7 +508,7 @@ export function renderIdentityDisplay(userId: string | null, groupId: string | n
     return React.createElement(
       'span',
       { title: 'Group' },
-      React.createElement('span', { className: 'glyphicon glyphicon-th' }),
+      React.createElement(FaTh, { 'aria-label': 'Group icon' }),
       ' ',
       React.createElement('a', { href: `#/groups/${encodeURIComponent(groupId)}` }, groupId)
     );
