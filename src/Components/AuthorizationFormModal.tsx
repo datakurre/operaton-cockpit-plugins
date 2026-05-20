@@ -7,6 +7,7 @@
 
 /* eslint-disable max-lines-per-function, jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Complex form modal with many fields */
 import React, { useState, useEffect } from 'react';
+import { FaUser, FaTh } from 'react-icons/fa';
 
 import ErrorMessage from './ErrorMessage';
 import IdentityAutocomplete from './IdentityAutocomplete';
@@ -221,7 +222,7 @@ const AuthorizationFormModal: React.FC<AuthorizationFormModalProps> = ({
                       setForm(prev => ({ ...prev, identityType: 'user' }));
                     }}
                   >
-                    <span className="glyphicon glyphicon-user" /> User
+                    <FaUser aria-hidden="true" /> User
                   </button>
                   <button
                     type="button"
@@ -230,7 +231,7 @@ const AuthorizationFormModal: React.FC<AuthorizationFormModalProps> = ({
                       setForm(prev => ({ ...prev, identityType: 'group' }));
                     }}
                   >
-                    <span className="glyphicon glyphicon-th" /> Group
+                    <FaTh aria-hidden="true" /> Group
                   </button>
                 </div>
               </div>

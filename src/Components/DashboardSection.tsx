@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { TbRefresh } from 'react-icons/tb';
+import { GoChevronUp, GoChevronDown } from 'react-icons/go';
 
 interface DashboardSectionProps {
   /** Section title */
@@ -95,12 +97,12 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
               disabled={isLoading}
               style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              <span className="glyphicon glyphicon-refresh" />
+              <TbRefresh aria-hidden="true" />
               <span>Refresh</span>
             </button>
           )}
           <button className="section-toggle btn btn-link btn-sm" onClick={toggleSection} title="Toggle this section">
-            <span className={`glyphicon ${activeSection ? 'glyphicon-menu-up' : 'glyphicon-menu-down'}`} />
+            {activeSection ? <GoChevronUp aria-hidden="true" /> : <GoChevronDown aria-hidden="true" />}
           </button>
         </div>
       </div>
