@@ -101,7 +101,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
 
 ___$insertStylesToHeader("/**\n * Styles for decisions-dashboard plugin.\n * Provides styling for the DMN decision testing dashboard.\n */\n.decisions-dashboard {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  padding: 10px;\n}\n.decisions-dashboard__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 15px;\n  flex-shrink: 0;\n}\n.decisions-dashboard__header h3 {\n  margin: 0;\n}\n.decisions-dashboard__selector {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  flex-shrink: 0;\n  margin-bottom: 15px;\n}\n.decisions-dashboard__selector label {\n  font-weight: 500;\n  white-space: nowrap;\n}\n.decisions-dashboard__selector select {\n  flex: 1;\n  max-width: 400px;\n  padding: 8px;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  font-size: 0.95em;\n}\n.decisions-dashboard__selector select:focus {\n  outline: none;\n  border-color: #4a90e2;\n}\n.decisions-dashboard__content {\n  display: flex;\n  flex: 1;\n  gap: 15px;\n  min-height: 0;\n  overflow: hidden;\n}\n.decisions-dashboard__left-panel {\n  width: 350px;\n  flex-shrink: 0;\n  display: flex;\n  flex-direction: column;\n  gap: 15px;\n  overflow-y: auto;\n}\n.decisions-dashboard__right-panel {\n  flex: 1;\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  overflow: hidden;\n}\n.decisions-dashboard__viewer-container {\n  flex: 1;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n  background: #f9f9f9;\n  overflow: hidden;\n  min-height: 300px;\n  position: relative;\n}\n.decisions-dashboard__loading, .decisions-dashboard__error, .decisions-dashboard__empty {\n  padding: 20px;\n  text-align: center;\n}\n.decisions-dashboard__error {\n  color: #cc0000;\n  background: #fff5f5;\n  border: 1px solid #ffcccc;\n  border-radius: 4px;\n  margin: 10px 0;\n}\n\n/* Decision selector with autocomplete and version switching */\n.decision-selector {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  margin-bottom: 15px;\n}\n.decision-selector__controls {\n  position: relative;\n}\n.decision-selector__search {\n  width: 100%;\n  padding: 8px 12px;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  font-size: 0.95em;\n}\n.decision-selector__search:focus {\n  outline: none;\n  border-color: #4a90e2;\n  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);\n}\n.decision-selector__dropdown {\n  position: absolute;\n  top: 100%;\n  left: 0;\n  right: 0;\n  margin-top: 4px;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  background: white;\n  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);\n  z-index: 1000;\n  max-height: 300px;\n  overflow-y: auto;\n}\n.decision-selector__dropdown option {\n  padding: 8px 12px;\n  cursor: pointer;\n}\n.decision-selector__dropdown option:hover {\n  background: #f0f0f0;\n}\n.decision-selector__dropdown option:disabled {\n  color: #999;\n  font-style: italic;\n  cursor: default;\n  background: #f5f5f5;\n}\n.decision-selector__selected {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 12px;\n  background: #e8f4f8;\n  border: 1px solid #b3d9e8;\n  border-radius: 3px;\n}\n.decision-selector__name {\n  flex: 1;\n  font-weight: 500;\n  color: #333;\n}\n.decision-selector__version-toggle, .decision-selector__clear {\n  padding: 2px 6px;\n  font-size: 0.85em;\n}\n.decision-selector__version-toggle:disabled, .decision-selector__clear:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.decision-selector__versions {\n  padding: 10px;\n  background: #f9f9f9;\n  border: 1px solid #ddd;\n  border-radius: 3px;\n}\n.decision-selector__versions-title {\n  font-size: 0.85em;\n  font-weight: 500;\n  color: #666;\n  margin-bottom: 8px;\n}\n.decision-selector__version-item {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  padding: 6px 10px;\n  margin-bottom: 4px;\n  background: white;\n  border: 1px solid #ddd;\n  border-radius: 3px;\n  text-align: left;\n  cursor: pointer;\n  font-size: 0.9em;\n}\n.decision-selector__version-item:hover:not(:disabled) {\n  background: #f0f0f0;\n  border-color: #4a90e2;\n}\n.decision-selector__version-item.active {\n  background: #e8f4f8;\n  border-color: #4a90e2;\n  font-weight: 500;\n}\n.decision-selector__version-item:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n\n.dmn-inputs-form {\n  background: #f9f9f9;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n  padding: 15px;\n}\n.dmn-inputs-form h4 {\n  margin: 0 0 15px 0;\n  font-size: 1em;\n  border-bottom: 1px solid #ddd;\n  padding-bottom: 8px;\n}\n.dmn-inputs-form__empty {\n  color: #888;\n  font-style: italic;\n  font-size: 0.9em;\n}\n.dmn-inputs-form__field {\n  margin-bottom: 12px;\n}\n.dmn-inputs-form__field label {\n  display: block;\n  font-weight: 500;\n  margin-bottom: 4px;\n  font-size: 0.9em;\n}\n.dmn-inputs-form__type-hint {\n  font-size: 0.8em;\n  color: #888;\n  font-weight: normal;\n  margin-left: 5px;\n}\n.dmn-inputs-form__input, .dmn-inputs-form__select {\n  width: 100%;\n  padding: 6px 8px;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  font-size: 0.9em;\n}\n.dmn-inputs-form__input:focus, .dmn-inputs-form__select:focus {\n  outline: none;\n  border-color: #4a90e2;\n}\n.dmn-inputs-form__checkbox-wrapper {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.dmn-inputs-form__checkbox-wrapper input[type=checkbox] {\n  width: auto;\n}\n.dmn-inputs-form__checkbox-wrapper label {\n  margin: 0;\n  font-weight: normal;\n}\n.dmn-inputs-form__actions {\n  margin-top: 15px;\n  padding-top: 15px;\n  border-top: 1px solid #ddd;\n  display: flex;\n  gap: 10px;\n}\n\n.dmn-results {\n  background: #f0f8ff;\n  border: 1px solid #b3d4fc;\n  border-radius: 4px;\n  padding: 15px;\n}\n.dmn-results h4 {\n  margin: 0 0 10px 0;\n  font-size: 1em;\n  color: #0066cc;\n}\n.dmn-results__empty {\n  color: #666;\n  font-style: italic;\n  font-size: 0.9em;\n}\n.dmn-results__hit-count {\n  font-size: 0.9em;\n  color: #555;\n  margin-bottom: 10px;\n}\n.dmn-results__table {\n  width: 100%;\n  border-collapse: collapse;\n  font-size: 0.9em;\n}\n.dmn-results__table th,\n.dmn-results__table td {\n  padding: 6px 10px;\n  border: 1px solid #ccc;\n  text-align: left;\n}\n.dmn-results__table th {\n  background: #e6f2ff;\n  font-weight: 500;\n}\n.dmn-results__table td {\n  background: white;\n  font-family: monospace;\n}\n.dmn-results--error {\n  background: #fff5f5;\n  border-color: #ffcccc;\n}\n.dmn-results--error h4 {\n  color: #cc0000;\n}\n\n/* DMN viewer custom styles for hit highlighting */\n.dmn-decision-table-container {\n  height: 100%;\n  width: 100%;\n}\n.dmn-decision-table-container .tjs-container {\n  height: 100% !important;\n  min-height: 100% !important;\n}\n.dmn-decision-table-container {\n  /* Highlight matched rules - green for subsequent matches */\n}\n.dmn-decision-table-container tr.dmn-rule-hit {\n  background-color: #d4edda !important;\n}\n.dmn-decision-table-container tr.dmn-rule-hit td,\n.dmn-decision-table-container tr.dmn-rule-hit th {\n  background-color: #d4edda !important;\n}\n.dmn-decision-table-container {\n  /* First matched rule - blue for emphasis */\n}\n.dmn-decision-table-container tr.dmn-rule-hit-first {\n  background-color: #cce5ff !important;\n}\n.dmn-decision-table-container tr.dmn-rule-hit-first td,\n.dmn-decision-table-container tr.dmn-rule-hit-first th {\n  background-color: #cce5ff !important;\n  font-weight: 500 !important;\n}\n\n/* Ensure styles work for decision table within dmn-js */\n.tjs-table tr.dmn-rule-hit {\n  background-color: #d4edda !important;\n}\n.tjs-table tr.dmn-rule-hit td,\n.tjs-table tr.dmn-rule-hit th {\n  background-color: #d4edda !important;\n}\n.tjs-table tr.dmn-rule-hit-first {\n  background-color: #cce5ff !important;\n}\n.tjs-table tr.dmn-rule-hit-first td,\n.tjs-table tr.dmn-rule-hit-first th {\n  background-color: #cce5ff !important;\n  font-weight: 500 !important;\n}\n\n/* Global fallback for any table row with these classes */\ntr.dmn-rule-hit {\n  background-color: #d4edda !important;\n}\ntr.dmn-rule-hit > * {\n  background-color: #d4edda !important;\n}\n\ntr.dmn-rule-hit-first {\n  background-color: #cce5ff !important;\n}\ntr.dmn-rule-hit-first > * {\n  background-color: #cce5ff !important;\n  font-weight: 500 !important;\n}\n\n/* DRD viewer styles */\n.dmn-drd-container {\n  height: 100%;\n  width: 100%;\n}\n.dmn-drd-container .djs-container {\n  height: 100% !important;\n}\n\n/* Override default dmn-js styles */\n.dmn-js-parent {\n  height: 100%;\n  width: 100%;\n}\n.dmn-js-parent .dmn-decision-table-container,\n.dmn-js-parent .dmn-drd-container,\n.dmn-js-parent .dmn-literal-expression-container {\n  height: 100%;\n}");
 
-function getDefaultExportFromCjs$1 (x) {
+function getDefaultExportFromCjs$2 (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
@@ -157,7 +157,7 @@ function requireReact () {
 }
 
 var reactExports = requireReact();
-var React = /*@__PURE__*/getDefaultExportFromCjs$1(reactExports);
+var React = /*@__PURE__*/getDefaultExportFromCjs$2(reactExports);
 
 var client = {};
 
@@ -184,17 +184,17 @@ var hasRequiredScheduler_production_min;
 function requireScheduler_production_min () {
 	if (hasRequiredScheduler_production_min) return scheduler_production_min;
 	hasRequiredScheduler_production_min = 1;
-	(function (exports$1) {
+	(function (exports) {
 function f(a,b){var c=a.length;a.push(b);a:for(;0<c;){var d=c-1>>>1,e=a[d];if(0<g(e,b))a[d]=b,a[c]=e,c=d;else break a}}function h(a){return 0===a.length?null:a[0]}function k(a){if(0===a.length)return null;var b=a[0],c=a.pop();if(c!==b){a[0]=c;a:for(var d=0,e=a.length,w=e>>>1;d<w;){var m=2*(d+1)-1,C=a[m],n=m+1,x=a[n];if(0>g(C,c))n<e&&0>g(x,C)?(a[d]=x,a[n]=c,d=n):(a[d]=C,a[m]=c,d=m);else if(n<e&&0>g(x,c))a[d]=x,a[n]=c,d=n;else break a}}return b}
-		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports$1.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports$1.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
+		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
 		"undefined"!==typeof navigator&&void 0!==navigator.scheduling&&void 0!==navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending.bind(navigator.scheduling);function G(a){for(var b=h(t);null!==b;){if(null===b.callback)k(t);else if(b.startTime<=a)k(t),b.sortIndex=b.expirationTime,f(r,b);else break;b=h(t);}}function H(a){B=false;G(a);if(!A)if(null!==h(r))A=true,I(J);else {var b=h(t);null!==b&&K(H,b.startTime-a);}}
-		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports$1.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
-		function M(){return exports$1.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports$1.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports$1.unstable_now());},b);}
-		exports$1.unstable_IdlePriority=5;exports$1.unstable_ImmediatePriority=1;exports$1.unstable_LowPriority=4;exports$1.unstable_NormalPriority=3;exports$1.unstable_Profiling=null;exports$1.unstable_UserBlockingPriority=2;exports$1.unstable_cancelCallback=function(a){a.callback=null;};exports$1.unstable_continueExecution=function(){A||z||(A=true,I(J));};
-		exports$1.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports$1.unstable_getCurrentPriorityLevel=function(){return y};exports$1.unstable_getFirstCallbackNode=function(){return h(r)};exports$1.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports$1.unstable_pauseExecution=function(){};
-		exports$1.unstable_requestPaint=function(){};exports$1.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
-		exports$1.unstable_scheduleCallback=function(a,b,c){var d=exports$1.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
-		exports$1.unstable_shouldYield=M;exports$1.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
+		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
+		function M(){return exports.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports.unstable_now());},b);}
+		exports.unstable_IdlePriority=5;exports.unstable_ImmediatePriority=1;exports.unstable_LowPriority=4;exports.unstable_NormalPriority=3;exports.unstable_Profiling=null;exports.unstable_UserBlockingPriority=2;exports.unstable_cancelCallback=function(a){a.callback=null;};exports.unstable_continueExecution=function(){A||z||(A=true,I(J));};
+		exports.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports.unstable_getCurrentPriorityLevel=function(){return y};exports.unstable_getFirstCallbackNode=function(){return h(r)};exports.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports.unstable_pauseExecution=function(){};
+		exports.unstable_requestPaint=function(){};exports.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
+		exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
+		exports.unstable_shouldYield=M;exports.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
 	} (scheduler_production_min));
 	return scheduler_production_min;
 }
@@ -745,6 +745,74 @@ var DecisionResults = function (_a) {
                     outputs.map(function (output) { return (React.createElement("td", { key: output.id }, formatResultValue(row[output.name]))); }))); })))))));
 };
 
+var DefaultContext = {
+  color: undefined,
+  size: undefined,
+  className: undefined,
+  style: undefined,
+  attr: undefined
+};
+var IconContext = React.createContext && /*#__PURE__*/React.createContext(DefaultContext);
+
+var _excluded = ["attr", "size", "title"];
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } } return target; }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), true).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function Tree2Element(tree) {
+  return tree && tree.map((node, i) => /*#__PURE__*/React.createElement(node.tag, _objectSpread({
+    key: i
+  }, node.attr), Tree2Element(node.child)));
+}
+function GenIcon(data) {
+  return props => /*#__PURE__*/React.createElement(IconBase, _extends({
+    attr: _objectSpread({}, data.attr)
+  }, props), Tree2Element(data.child));
+}
+function IconBase(props) {
+  var elem = conf => {
+    var {
+        attr,
+        size,
+        title
+      } = props,
+      svgProps = _objectWithoutProperties(props, _excluded);
+    var computedSize = size || conf.size || "1em";
+    var className;
+    if (conf.className) className = conf.className;
+    if (props.className) className = (className ? className + " " : "") + props.className;
+    return /*#__PURE__*/React.createElement("svg", _extends({
+      stroke: "currentColor",
+      fill: "currentColor",
+      strokeWidth: "0"
+    }, conf.attr, attr, svgProps, {
+      className: className,
+      style: _objectSpread(_objectSpread({
+        color: props.color || conf.color
+      }, conf.style), props.style),
+      height: computedSize,
+      width: computedSize,
+      xmlns: "http://www.w3.org/2000/svg"
+    }), title && /*#__PURE__*/React.createElement("title", null, title), props.children);
+  };
+  return IconContext !== undefined ? /*#__PURE__*/React.createElement(IconContext.Consumer, null, conf => elem(conf)) : elem(DefaultContext);
+}
+
+// THIS FILE IS AUTO GENERATED
+function GoCheck (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 24 24"},"child":[{"tag":"path","attr":{"d":"M21.03 5.72a.75.75 0 0 1 0 1.06l-11.5 11.5a.747.747 0 0 1-1.072-.012l-5.5-5.75a.75.75 0 1 1 1.084-1.036l4.97 5.195L19.97 5.72a.75.75 0 0 1 1.06 0Z"},"child":[]}]})(props);
+}function GoChevronDown (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 24 24"},"child":[{"tag":"path","attr":{"d":"M5.22 8.22a.749.749 0 0 0 0 1.06l6.25 6.25a.749.749 0 0 0 1.06 0l6.25-6.25a.749.749 0 1 0-1.06-1.06L12 13.939 6.28 8.22a.749.749 0 0 0-1.06 0Z"},"child":[]}]})(props);
+}function GoChevronUp (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 24 24"},"child":[{"tag":"path","attr":{"d":"M18.78 15.78a.749.749 0 0 1-1.06 0L12 10.061 6.28 15.78a.749.749 0 1 1-1.06-1.06l6.25-6.25a.749.749 0 0 1 1.06 0l6.25 6.25a.749.749 0 0 1 0 1.06Z"},"child":[]}]})(props);
+}function GoX (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 24 24"},"child":[{"tag":"path","attr":{"d":"M5.72 5.72a.75.75 0 0 1 1.06 0L12 10.94l5.22-5.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L13.06 12l5.22 5.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L12 13.06l-5.22 5.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L10.94 12 5.72 6.78a.75.75 0 0 1 0-1.06Z"},"child":[]}]})(props);
+}
+
 /**
  * Decision selector dropdown component with autocomplete and version selection.
  * @module Components/DecisionSelector
@@ -842,12 +910,12 @@ var DecisionSelector = function (_a) {
                 }, disabled: disabled !== null && disabled !== void 0 ? disabled : currentVersions.length <= 1, title: "Switch version" },
                 "v",
                 selectedDecision.version,
-                currentVersions.length > 1 && (React.createElement("span", { className: "glyphicon glyphicon-triangle-bottom", style: { marginLeft: 4 } }))),
+                currentVersions.length > 1 && React.createElement(GoChevronDown, { "aria-hidden": "true", style: { marginLeft: 4 } })),
             React.createElement("button", { type: "button", className: "btn btn-link btn-xs decision-selector__clear", onClick: function () {
                     onSelect('');
                     setSearchTerm('');
                 }, disabled: disabled, title: "Clear selection" },
-                React.createElement("span", { className: "glyphicon glyphicon-remove" })))),
+                React.createElement(GoX, { "aria-hidden": "true" })))),
         showVersions && currentVersions.length > 1 && (React.createElement("div", { className: "decision-selector__versions" },
             React.createElement("div", { className: "decision-selector__versions-title" }, "Available versions:"),
             currentVersions.map(function (v) {
@@ -859,7 +927,7 @@ var DecisionSelector = function (_a) {
                     }, disabled: disabled },
                     "Version ",
                     v.version,
-                    v.id === selectedId && React.createElement("span", { className: "glyphicon glyphicon-ok", style: { marginLeft: 8 } })));
+                    v.id === selectedId && React.createElement(GoCheck, { "aria-hidden": "true", style: { marginLeft: 8 } })));
             })))));
 };
 
@@ -873,31 +941,31 @@ var DecisionSelector = function (_a) {
  * @return {T[]}
  */
 
-const nativeToString$3 = Object.prototype.toString;
-const nativeHasOwnProperty$2 = Object.prototype.hasOwnProperty;
+const nativeToString$8 = Object.prototype.toString;
+const nativeHasOwnProperty$6 = Object.prototype.hasOwnProperty;
 
-function isUndefined$4(obj) {
+function isUndefined$8(obj) {
   return obj === undefined;
 }
 
-function isDefined$1(obj) {
+function isDefined$2(obj) {
   return obj !== undefined;
 }
 
-function isNil$2(obj) {
+function isNil$6(obj) {
   return obj == null;
 }
 
-function isArray$5(obj) {
-  return nativeToString$3.call(obj) === '[object Array]';
+function isArray$8(obj) {
+  return nativeToString$8.call(obj) === '[object Array]';
 }
 
-function isObject$1(obj) {
-  return nativeToString$3.call(obj) === '[object Object]';
+function isObject$3(obj) {
+  return nativeToString$8.call(obj) === '[object Object]';
 }
 
 function isNumber$3(obj) {
-  return nativeToString$3.call(obj) === '[object Number]';
+  return nativeToString$8.call(obj) === '[object Number]';
 }
 
 /**
@@ -905,8 +973,8 @@ function isNumber$3(obj) {
  *
  * @return {boolean}
  */
-function isFunction$3(obj) {
-  const tag = nativeToString$3.call(obj);
+function isFunction$5(obj) {
+  const tag = nativeToString$8.call(obj);
 
   return (
     tag === '[object Function]' ||
@@ -917,8 +985,8 @@ function isFunction$3(obj) {
   );
 }
 
-function isString$2(obj) {
-  return nativeToString$3.call(obj) === '[object String]';
+function isString$4(obj) {
+  return nativeToString$8.call(obj) === '[object String]';
 }
 
 /**
@@ -929,8 +997,8 @@ function isString$2(obj) {
  *
  * @return {Boolean}
  */
-function has$2(target, key) {
-  return !isNil$2(target) && nativeHasOwnProperty$2.call(target, key);
+function has$6(target, key) {
+  return !isNil$6(target) && nativeHasOwnProperty$6.call(target, key);
 }
 
 /**
@@ -993,13 +1061,13 @@ function has$2(target, key) {
  *
  * @return {Object}
  */
-function find$2(collection, matcher) {
+function find$4(collection, matcher) {
 
-  const matchFn = toMatcher$1(matcher);
+  const matchFn = toMatcher$3(matcher);
 
   let match;
 
-  forEach$2(collection, function(val, key) {
+  forEach$6(collection, function(val, key) {
     if (matchFn(val, key)) {
       match = val;
 
@@ -1023,11 +1091,11 @@ function find$2(collection, matcher) {
  */
 function filter$1(collection, matcher) {
 
-  const matchFn = toMatcher$1(matcher);
+  const matchFn = toMatcher$3(matcher);
 
   let result = [];
 
-  forEach$2(collection, function(val, key) {
+  forEach$6(collection, function(val, key) {
     if (matchFn(val, key)) {
       result.push(val);
     }
@@ -1047,20 +1115,20 @@ function filter$1(collection, matcher) {
  *
  * @return {T} return result that stopped the iteration
  */
-function forEach$2(collection, iterator) {
+function forEach$6(collection, iterator) {
 
   let val,
       result;
 
-  if (isUndefined$4(collection)) {
+  if (isUndefined$8(collection)) {
     return;
   }
 
-  const convertKey = isArray$5(collection) ? toNum$2 : identity$2;
+  const convertKey = isArray$8(collection) ? toNum$6 : identity$6;
 
   for (let key in collection) {
 
-    if (has$2(collection, key)) {
+    if (has$6(collection, key)) {
       val = collection[key];
 
       result = iterator(val, convertKey(key));
@@ -1087,7 +1155,7 @@ function forEach$2(collection, iterator) {
  */
 function reduce$1(collection, iterator, result) {
 
-  forEach$2(collection, function(value, idx) {
+  forEach$6(collection, function(value, idx) {
     result = iterator(result, value, idx);
   });
 
@@ -1147,18 +1215,18 @@ function matchPattern(pattern) {
  *
  * @return {MatchFn<T>}
  */
-function toMatcher$1(matcher) {
-  return isFunction$3(matcher) ? matcher : (e) => {
+function toMatcher$3(matcher) {
+  return isFunction$5(matcher) ? matcher : (e) => {
     return e === matcher;
   };
 }
 
 
-function identity$2(arg) {
+function identity$6(arg) {
   return arg;
 }
 
-function toNum$2(arg) {
+function toNum$6(arg) {
   return Number(arg);
 }
 
@@ -1255,7 +1323,7 @@ function debounce$1(fn, timeout) {
  *
  * @return {Function} bound function
  */
-function bind$5(fn, target) {
+function bind$2(fn, target) {
   return fn.bind(target);
 }
 
@@ -1267,7 +1335,7 @@ function bind$5(fn, target) {
  *
  * @return {Object} the target
  */
-function assign$3(target, ...others) {
+function assign$a(target, ...others) {
   return Object.assign(target, ...others);
 }
 
@@ -1440,9 +1508,9 @@ function EventBus() {
  */
 EventBus.prototype.on = function(events, priority, callback, that) {
 
-  events = isArray$5(events) ? events : [ events ];
+  events = isArray$8(events) ? events : [ events ];
 
-  if (isFunction$3(priority)) {
+  if (isFunction$5(priority)) {
     that = callback;
     callback = priority;
     priority = DEFAULT_PRIORITY$2;
@@ -1455,7 +1523,7 @@ EventBus.prototype.on = function(events, priority, callback, that) {
   var actualCallback = callback;
 
   if (that) {
-    actualCallback = bind$5(callback, that);
+    actualCallback = bind$2(callback, that);
 
     // make sure we remember and are able to remove
     // bound callbacks via {@link #off} using the original
@@ -1499,7 +1567,7 @@ EventBus.prototype.on = function(events, priority, callback, that) {
 EventBus.prototype.once = function(events, priority, callback, that) {
   var self = this;
 
-  if (isFunction$3(priority)) {
+  if (isFunction$5(priority)) {
     that = callback;
     callback = priority;
     priority = DEFAULT_PRIORITY$2;
@@ -1538,7 +1606,7 @@ EventBus.prototype.once = function(events, priority, callback, that) {
  */
 EventBus.prototype.off = function(events, callback) {
 
-  events = isArray$5(events) ? events : [ events ];
+  events = isArray$8(events) ? events : [ events ];
 
   var self = this;
 
@@ -1863,7 +1931,7 @@ InternalEvent.prototype.preventDefault = function() {
 };
 
 InternalEvent.prototype.init = function(data) {
-  assign$3(this, data || {});
+  assign$a(this, data || {});
 };
 
 
@@ -1889,31 +1957,1713 @@ function invokeFunction(fn, args) {
  * @return {T[]}
  */
 
-const nativeToString$2 = Object.prototype.toString;
-const nativeHasOwnProperty$1 = Object.prototype.hasOwnProperty;
+const nativeToString$7 = Object.prototype.toString;
 
-function isUndefined$3(obj) {
+function isString$3(obj) {
+  return nativeToString$7.call(obj) === '[object String]';
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign$9(target, ...others) {
+  return Object.assign(target, ...others);
+}
+
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
+ */
+
+const nativeToString$6 = Object.prototype.toString;
+const nativeHasOwnProperty$5 = Object.prototype.hasOwnProperty;
+
+function isUndefined$7(obj) {
   return obj === undefined;
 }
 
-function isDefined(obj) {
+function isDefined$1(obj) {
   return obj !== undefined;
 }
 
-function isNil$1(obj) {
+function isNil$5(obj) {
   return obj == null;
 }
 
-function isArray$4(obj) {
-  return nativeToString$2.call(obj) === '[object Array]';
+function isArray$7(obj) {
+  return nativeToString$6.call(obj) === '[object Array]';
 }
 
-function isObject(obj) {
-  return nativeToString$2.call(obj) === '[object Object]';
+function isObject$2(obj) {
+  return nativeToString$6.call(obj) === '[object Object]';
 }
 
-function isNumber$2(obj) {
-  return nativeToString$2.call(obj) === '[object Number]';
+function isString$2(obj) {
+  return nativeToString$6.call(obj) === '[object String]';
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has$5(target, key) {
+  return !isNil$5(target) && nativeHasOwnProperty$5.call(target, key);
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
+ *
+ * @return {T} return result that stopped the iteration
+ */
+function forEach$5(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined$7(collection)) {
+    return;
+  }
+
+  const convertKey = isArray$7(collection) ? toNum$5 : identity$5;
+
+  for (let key in collection) {
+
+    if (has$5(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+
+function identity$5(arg) {
+  return arg;
+}
+
+function toNum$5(arg) {
+  return Number(arg);
+}
+
+/**
+ * Bind function against target <this>.
+ *
+ * @param  {Function} fn
+ * @param  {Object}   target
+ *
+ * @return {Function} bound function
+ */
+function bind$1(fn, target) {
+  return fn.bind(target);
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign$8(target, ...others) {
+  return Object.assign(target, ...others);
+}
+
+/**
+ * Sets a nested property of a given object to the specified value.
+ *
+ * This mutates the object and returns it.
+ *
+ * @template T
+ *
+ * @param {T} target The target of the set operation.
+ * @param {(string|number)[]} path The path to the nested value.
+ * @param {any} value The value to set.
+ *
+ * @return {T}
+ */
+function set(target, path, value) {
+
+  let currentTarget = target;
+
+  forEach$5(path, function(key, idx) {
+
+    if (typeof key !== 'number' && typeof key !== 'string') {
+      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
+    }
+
+    if (key === 'constructor') {
+      throw new Error('illegal key: constructor');
+    }
+
+    if (key === '__proto__') {
+      throw new Error('illegal key: __proto__');
+    }
+
+    let nextKey = path[idx + 1];
+    let nextTarget = currentTarget[key];
+
+    if (isDefined$1(nextKey) && isNil$5(nextTarget)) {
+      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
+    }
+
+    if (isUndefined$7(nextKey)) {
+      if (isUndefined$7(value)) {
+        delete currentTarget[key];
+      } else {
+        currentTarget[key] = value;
+      }
+    } else {
+      currentTarget = nextTarget;
+    }
+  });
+
+  return target;
+}
+
+/**
+ * Pick properties from the given target.
+ *
+ * @template T
+ * @template {any[]} V
+ *
+ * @param {T} target
+ * @param {V} properties
+ *
+ * @return Pick<T, V>
+ */
+function pick$1(target, properties) {
+
+  let result = {};
+
+  let obj = Object(target);
+
+  forEach$5(properties, function(prop) {
+
+    if (prop in obj) {
+      result[prop] = target[prop];
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Moddle base element.
+ */
+function Base$1() { }
+
+/**
+ * @template { keyof this } K
+ *
+ * Get property value (typed)
+ *
+ * @overload
+ *
+ * @param {K} name
+ *
+ * @return { this[K] }
+ */
+/**
+ * @template T
+ *
+ * Get property value
+ *
+ * @overload
+ *
+ * @param {string} name
+ *
+ * @return {T}
+ */
+/**
+ * Get property value
+ *
+ * @overload
+ *
+ * @param {string} name
+ *
+ * @return {unknown}
+ */
+Base$1.prototype.get = function(name) {
+  return this.$model.properties.get(this, name);
+};
+
+/**
+ * @template { keyof this } K
+ * @template { this[K] } V
+ *
+ * Set property value
+ *
+ * @overload
+ *
+ * @param {K} name
+ * @param {V} value
+ */
+/**
+ * @template { string } S
+ *
+ * Set property value
+ *
+ * @overload
+ *
+ * @param { S extends keyof this ? never : S } name
+ * @param { any } value
+ */
+Base$1.prototype.set = function(name, value) {
+  this.$model.properties.set(this, name, value);
+};
+
+/**
+ * @typedef {import('./ns.js').Namespace} Namespace
+ * @typedef {import('./moddle.js').default} Moddle
+ * @typedef {import('./properties.js').default} Properties
+ * @typedef {import('./registry.js').EffectiveDescriptor} EffectiveDescriptor
+ * @typedef {import('./base.js').default} BaseElement
+ * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
+ */
+
+/**
+ * @template [T=Record<string,any>]
+ * @typedef {{
+ *   new(attrs?: Partial<T>): ModdleElement<T>;
+ *   prototype: ModdleElement<T>;
+ *   readonly $model: Moddle;
+ *   readonly $descriptor: EffectiveDescriptor;
+ * }} ModdleElementType
+ */
+
+/**
+ * @template [T=Record<string,any>]
+ * @typedef {BaseElement & T & {
+ *   readonly $model: Moddle;
+ *   readonly $descriptor: EffectiveDescriptor;
+ *   readonly $type: Namespace['name'];
+ *   readonly $attrs: Record<string, any>;
+ *   $parent?: ModdleElement | AnyModdleElement;
+ *   hasType: Moddle['hasType'];
+ *   $instanceOf: Moddle['hasType'];
+ * }} ModdleElement
+ */
+
+/**
+ * @template [T=Record<string,any>]
+ * @typedef {BaseElement & T & {
+ *   $type: string;
+ *   $instanceOf: (type: string) => boolean;
+ *   $parent?: ModdleElement | AnyModdleElement;
+ *   readonly $model: Moddle;
+ *   readonly $descriptor: AnyTypeDescriptor;
+ * }} AnyModdleElement
+ */
+
+/**
+ * A model element factory.
+ *
+ * @param {Moddle} model
+ * @param {Properties} properties
+ */
+function Factory(model, properties) {
+
+  /**
+   * @private
+   */
+  this.model = model;
+
+  /**
+   * @private
+   */
+  this.properties = properties;
+}
+
+/**
+ * @template [T=Record<string,any>]
+ * @param {EffectiveDescriptor} descriptor
+ * @return {ModdleElementType<T>}
+ */
+Factory.prototype.createType = function(descriptor) {
+
+  var model = this.model;
+
+  var props = this.properties,
+      prototype = Object.create(Base$1.prototype);
+
+  // initialize default values
+  forEach$5(descriptor.properties, function(p) {
+    if (!p.isMany && p.default !== undefined) {
+      prototype[p.name] = p.default;
+    }
+  });
+
+  props.defineModel(prototype, model);
+  props.defineDescriptor(prototype, descriptor);
+
+  var name = descriptor.ns.name;
+
+  /**
+   * The new type constructor
+   *
+   * @type { ModdleElementType }
+   */
+  function ModdleElement(attrs) {
+    props.define(this, '$type', { value: name, enumerable: true });
+    props.define(this, '$attrs', { value: {} });
+    props.define(this, '$parent', { writable: true });
+
+    forEach$5(attrs, bind$1(function(val, key) {
+      this.set(key, val);
+    }, this));
+  }
+
+  ModdleElement.prototype = prototype;
+
+  ModdleElement.hasType = prototype.$instanceOf = this.model.hasType;
+
+  // static links
+  props.defineModel(ModdleElement, model);
+  props.defineDescriptor(ModdleElement, descriptor);
+
+  return ModdleElement;
+};
+
+/**
+ * Built-in moddle types
+ */
+var BUILTINS = {
+  String: true,
+  Boolean: true,
+  Integer: true,
+  Real: true,
+  Element: true
+};
+
+/**
+ * Converters for built-in types from string representations
+ */
+var TYPE_CONVERTERS = {
+  String: function(s) { return s; },
+  Boolean: function(s) { return s === 'true'; },
+  Integer: function(s) { return parseInt(s, 10); },
+  Real: function(s) { return parseFloat(s); }
+};
+
+/**
+ * @typedef {'String'} StringType
+ * @typedef {'Boolean'} BooleanType
+ * @typedef {'Integer'} IntegerType
+ * @typedef {'Real'} RealType
+ * @typedef {'Element'} ElementType
+ * @typedef {StringType | BooleanType | IntegerType | RealType} BuiltInSimpleType
+ * @typedef {BuiltInSimpleType | ElementType} BuiltInType
+ */
+
+/**
+ * Convert given value to string
+ * @overlord
+ * @param {StringType} type
+ * @param {any} value
+ * @return {string}
+ */
+/**
+ * Convert given value to boolean
+ * @overlord
+ * @param {BooleanType} type
+ * @param {any} value
+ * @return {boolean}
+ */
+/**
+ * Convert given value to number
+ * @overlord
+ * @param {IntegerType | RealType} type
+ * @param {any} value
+ * @return {number}
+ */
+/**
+ * Convert a type to its real representation
+ * @template T
+ * @overlord
+ * @param {Exclude<string,BuiltInSimpleType>} type
+ * @param {T} value
+ * @return {T}
+ */
+function coerceType(type, value) {
+
+  var converter = TYPE_CONVERTERS[type];
+
+  if (converter) {
+    return converter(value);
+  } else {
+    return value;
+  }
+}
+
+/**
+ * Return whether the given type is built-in
+ * @overload
+ * @param {BuiltInType} type
+ * @return {true}
+ */
+/**
+ * Return whether the given type is built-in
+ * @overload
+ * @param {Exclude<string,BuiltInType>} type
+ * @return {false}
+ */
+function isBuiltIn(type) {
+  return !!BUILTINS[type];
+}
+
+/**
+ * Return true if the given type is simple
+ * @overload
+ * @param {BuiltInSimpleType} type
+ * @return {true}
+ */
+/**
+ * Return false the given type is not simple
+ * @overload
+ * @param {Exclude<string,BuiltInSimpleType>} type
+ * @return {false}
+ */
+function isSimple(type) {
+  return !!TYPE_CONVERTERS[type];
+}
+
+/**
+ * @typedef {{
+ *   name: string;
+ *   prefix: string;
+ *   localName: string;
+ * }} Namespace
+ */
+
+/**
+ * Parses a namespaced attribute name of the form (ns:)localName to an object,
+ * given a default prefix to assume in case no explicit namespace is given.
+ *
+ * @param {String} name
+ * @param {String} [defaultPrefix] the default prefix to take, if none is present.
+ *
+ * @return {Namespace} the parsed name
+ */
+function parseName(name, defaultPrefix) {
+  var parts = name.split(/:/),
+      localName, prefix;
+
+  // no prefix (i.e. only local name)
+  if (parts.length === 1) {
+    localName = name;
+    prefix = defaultPrefix;
+  }
+
+  // prefix + local name
+  else if (parts.length === 2) {
+    localName = parts[1];
+    prefix = parts[0];
+  }
+
+  else {
+    throw new Error('expected <prefix:localName> or <localName>, got ' + name);
+  }
+
+  name = (prefix ? prefix + ':' : '') + localName;
+
+  return {
+    name: name,
+    prefix: prefix,
+    localName: localName
+  };
+}
+
+/**
+ * @typedef {import('./ns.js').Namespace} Namespace
+ * @typedef {import('./registry.js').RegisteredPackage} RegisteredPackage
+ * @typedef {import('./registry.js').RegisteredTypeDef} RegisteredTypeDef
+ * @typedef {import('./registry.js').RegisteredPropertyDef} RegisteredPropertyDef
+ */
+
+/**
+ * Effective element descriptor
+ * aka element type descriptor
+ * aka element descriptor
+ * @typedef {{
+ *   readonly ns: Namespace;
+ *   readonly name: Namespace['name'];
+ *   readonly allTypes: Array<RegisteredTypeDef>;
+ *   readonly allTypesByName: Record<string, RegisteredTypeDef>;
+ *   readonly properties: Array<PropertyDescriptor>;
+ *   readonly propertiesByName: Record<string, PropertyDescriptor>;
+ *   readonly bodyProperty?: PropertyDescriptor;
+ *   readonly idProperty?: PropertyDescriptor;
+ *   readonly $pkg?: RegisteredPackage;
+ * }} EffectiveDescriptor
+ */
+
+/**
+ * Property descriptor
+ * @typedef {RegisteredPropertyDef & {
+ *   localName: Namespace['localName'];
+ *   inherited?: boolean;
+ *   definedBy?: RegisteredTypeDef;
+ * }} PropertyDescriptor
+ */
+
+/**
+ * @typedef {{
+ *   name: string;
+ *   isGeneric: true;
+ *   ns: {
+ *     prefix: string;
+ *     localName: string;
+ *     uri: string;
+ *   };
+ * }} AnyTypeDescriptor
+ */
+
+/**
+ * A utility to build element descriptors.
+ * @class DescriptorBuilder
+ * @param {Namespace} nameNs
+ */
+function DescriptorBuilder(nameNs) {
+
+  /**
+   * @private
+   * @type {Namespace}
+   */
+  this.ns = nameNs;
+
+  /**
+   * @private
+   * @type {Namespace['name']}
+   */
+  this.name = nameNs.name;
+
+  /**
+   * @private
+   * @type {Array<RegisteredTypeDef>}
+   */
+  this.allTypes = [];
+
+  /**
+   * @private
+   * @type {Record<string, RegisteredTypeDef>}
+   */
+  this.allTypesByName = {};
+
+  /**
+   * @private
+   * @type {Array<PropertyDescriptor>}
+   */
+  this.properties = [];
+
+  /**
+   * @private
+   * @type {Record<string, PropertyDescriptor>}
+   */
+  this.propertiesByName = {};
+}
+
+/**
+ * @return {EffectiveDescriptor}
+ */
+DescriptorBuilder.prototype.build = function() {
+  return pick$1(this, [
+    'ns',
+    'name',
+    'allTypes',
+    'allTypesByName',
+    'properties',
+    'propertiesByName',
+    'bodyProperty',
+    'idProperty'
+  ]);
+};
+
+/**
+ * Add property at given index.
+ *
+ * @param {PropertyDescriptor} p
+ * @param {Number} [idx]
+ * @param {Boolean} [validate=true]
+ */
+DescriptorBuilder.prototype.addProperty = function(p, idx, validate) {
+
+  if (typeof idx === 'boolean') {
+    validate = idx;
+    idx = undefined;
+  }
+
+  this.addNamedProperty(p, validate !== false);
+
+  var properties = this.properties;
+
+  if (idx !== undefined) {
+    properties.splice(idx, 0, p);
+  } else {
+    properties.push(p);
+  }
+};
+
+/**
+ * @param {PropertyDescriptor} oldProperty
+ * @param {PropertyDescriptor} newProperty
+ * @param {string} replace
+ */
+DescriptorBuilder.prototype.replaceProperty = function(oldProperty, newProperty, replace) {
+  var oldNameNs = oldProperty.ns;
+
+  var props = this.properties,
+      propertiesByName = this.propertiesByName,
+      rename = oldProperty.name !== newProperty.name;
+
+  if (oldProperty.isId) {
+    if (!newProperty.isId) {
+      throw new Error(
+        'property <' + newProperty.ns.name + '> must be id property ' +
+        'to refine <' + oldProperty.ns.name + '>');
+    }
+
+    this.setIdProperty(newProperty, false);
+  }
+
+  if (oldProperty.isBody) {
+
+    if (!newProperty.isBody) {
+      throw new Error(
+        'property <' + newProperty.ns.name + '> must be body property ' +
+        'to refine <' + oldProperty.ns.name + '>');
+    }
+
+    // TODO: Check compatibility
+    this.setBodyProperty(newProperty, false);
+  }
+
+  // validate existence and get location of old property
+  var idx = props.indexOf(oldProperty);
+  if (idx === -1) {
+    throw new Error('property <' + oldNameNs.name + '> not found in property list');
+  }
+
+  // remove old property
+  props.splice(idx, 1);
+
+  // replacing the named property is intentional
+  //
+  //  * validate only if this is a "rename" operation
+  //  * add at specific index unless we "replace"
+  //
+  this.addProperty(newProperty, replace ? undefined : idx, rename);
+
+  // make new property available under old name
+  propertiesByName[oldNameNs.name] = propertiesByName[oldNameNs.localName] = newProperty;
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ * @param {string} targetPropertyName
+ * @param {string} replace
+ */
+DescriptorBuilder.prototype.redefineProperty = function(p, targetPropertyName, replace) {
+
+  var nsPrefix = p.ns.prefix;
+  var parts = targetPropertyName.split('#');
+
+  var name = parseName(parts[0], nsPrefix);
+  var attrName = parseName(parts[1], name.prefix).name;
+
+  var redefinedProperty = this.propertiesByName[attrName];
+  if (!redefinedProperty) {
+    throw new Error('refined property <' + attrName + '> not found');
+  } else {
+    this.replaceProperty(redefinedProperty, p, replace);
+  }
+
+  delete p.redefines;
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ * @param {boolean} validate
+ */
+DescriptorBuilder.prototype.addNamedProperty = function(p, validate) {
+  var ns = p.ns,
+      propsByName = this.propertiesByName;
+
+  if (validate) {
+    this.assertNotDefined(p, ns.name);
+    this.assertNotDefined(p, ns.localName);
+  }
+
+  propsByName[ns.name] = propsByName[ns.localName] = p;
+};
+
+/**
+ * @param {RegisteredPropertyDef} p
+ */
+DescriptorBuilder.prototype.removeNamedProperty = function(p) {
+  var ns = p.ns,
+      propsByName = this.propertiesByName;
+
+  delete propsByName[ns.name];
+  delete propsByName[ns.localName];
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ * @param {boolean} [validate]
+ */
+DescriptorBuilder.prototype.setBodyProperty = function(p, validate) {
+
+  if (validate && this.bodyProperty) {
+    throw new Error(
+      'body property defined multiple times ' +
+      '(<' + this.bodyProperty.ns.name + '>, <' + p.ns.name + '>)');
+  }
+
+  this.bodyProperty = p;
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ * @param {boolean} [validate]
+ */
+DescriptorBuilder.prototype.setIdProperty = function(p, validate) {
+
+  if (validate && this.idProperty) {
+    throw new Error(
+      'id property defined multiple times ' +
+      '(<' + this.idProperty.ns.name + '>, <' + p.ns.name + '>)');
+  }
+
+  this.idProperty = p;
+};
+
+/**
+ * @param {RegisteredTypeDef} typeDescriptor
+ */
+DescriptorBuilder.prototype.assertNotTrait = function(typeDescriptor) {
+
+  const _extends = typeDescriptor.extends || [];
+
+  if (_extends.length) {
+    throw new Error(
+      `cannot create <${ typeDescriptor.name }> extending <${ typeDescriptor.extends }>`
+    );
+  }
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ */
+DescriptorBuilder.prototype.assertNotDefined = function(p, name) {
+  var propertyName = p.name,
+      definedProperty = this.propertiesByName[propertyName];
+
+  if (definedProperty) {
+    throw new Error(
+      'property <' + propertyName + '> already defined; ' +
+      'override of <' + definedProperty.definedBy.ns.name + '#' + definedProperty.ns.name + '> by ' +
+      '<' + p.definedBy.ns.name + '#' + p.ns.name + '> not allowed without redefines');
+  }
+};
+
+/**
+ * @param {string} name
+ * @return {PropertyDescriptor}
+ */
+DescriptorBuilder.prototype.hasProperty = function(name) {
+  return this.propertiesByName[name];
+};
+
+/**
+ * @param {RegisteredTypeDef} t
+ * @param {boolean} inherited
+ */
+DescriptorBuilder.prototype.addTrait = function(t, inherited) {
+
+  if (inherited) {
+    this.assertNotTrait(t);
+  }
+
+  var typesByName = this.allTypesByName,
+      types = this.allTypes;
+
+  var typeName = t.name;
+
+  if (typeName in typesByName) {
+    return;
+  }
+
+  forEach$5(t.properties, bind$1(function(p) {
+
+    // clone property to allow extensions
+    p = assign$8({}, p, {
+      name: p.ns.localName,
+      inherited: inherited
+    });
+
+    Object.defineProperty(p, 'definedBy', {
+      value: t
+    });
+
+    var replaces = p.replaces,
+        redefines = p.redefines;
+
+    // add replace/redefine support
+    if (replaces || redefines) {
+      this.redefineProperty(p, replaces || redefines, replaces);
+    } else {
+      if (p.isBody) {
+        this.setBodyProperty(p);
+      }
+      if (p.isId) {
+        this.setIdProperty(p);
+      }
+      this.addProperty(p);
+    }
+  }, this));
+
+  types.push(t);
+  typesByName[typeName] = t;
+};
+
+/**
+ * @typedef {import('./ns.js').Namespace} Namespace
+ * @typedef {import('./moddle.js').PackageDefinition} PackageDefinition
+ * @typedef {import('./moddle.js').TypeDefinition} TypeDefinition
+ * @typedef {import('./moddle.js').PropertyDefinition} PropertyDefinition
+ * @typedef {import('./properties.js').default} Properties
+ * @typedef {import('./descriptor-builder.js').EffectiveDescriptor} EffectiveDescriptor
+ */
+
+/**
+ * Registered package definition
+ * @typedef {Omit<PackageDefinition, 'types'> & {
+ *   types?: Array<RegisteredTypeDef>;
+ * }} RegisteredPackage
+ */
+
+/**
+ * Registered type definition
+ * @typedef {Omit<TypeDefinition, 'properties'> & {
+ *   properties?: Array<RegisteredPropertyDef>;
+ *   propertiesByName?: Record<string, RegisteredPropertyDef>;
+ *   superClass?: Array<string>;
+ *   extends?: Array<string>;
+ *   meta?: Record<string, *>;
+ *   traits?: Array<string>;
+ *   ns?: Namespace;
+ *   readonly $pkg?: RegisteredPackage;
+ * }} RegisteredTypeDef
+ */
+
+/**
+ * Registered property definition
+ * @typedef {PropertyDefinition & { ns: Namespace }} RegisteredPropertyDef
+ */
+
+/**
+ * A registry of Moddle packages.
+ *
+ * @param {Array<PackageDefinition> | Record<string,PackageDefinition>} packages
+ * @param {Properties} properties
+ */
+function Registry(packages, properties) {
+
+  /**
+   * @private
+   * @type {Record<string, RegisteredPackage>} registered packages map
+   */
+  this.packageMap = {};
+
+  /**
+   * @type {Record<string,RegisteredTypeDef>}
+   */
+  this.typeMap = {};
+
+  /**
+   * @private
+   * @type {Array<RegisteredPackage>} all registered packages
+   */
+  this.packages = [];
+
+  /**
+   * @private
+   * @type {Properties}
+   */
+  this.properties = properties;
+
+  forEach$5(packages, bind$1(this.registerPackage, this));
+}
+
+/**
+ * @param {string} uriOrPrefix uri or prefix of package
+ * @return {RegisteredPackage} registered package
+ */
+Registry.prototype.getPackage = function(uriOrPrefix) {
+  return this.packageMap[uriOrPrefix];
+};
+
+/**
+ * @return {Array<RegisteredPackage>} all registered packages
+ */
+Registry.prototype.getPackages = function() {
+  return this.packages;
+};
+
+/**
+ * @private
+ * @param {PackageDefinition} pkg registering package
+ */
+Registry.prototype.registerPackage = function(pkg) {
+
+  // copy package
+  pkg = assign$8({}, pkg);
+
+  var pkgMap = this.packageMap;
+
+  ensureAvailable(pkgMap, pkg, 'prefix');
+  ensureAvailable(pkgMap, pkg, 'uri');
+
+  // register types
+  forEach$5(pkg.types, bind$1(function(descriptor) {
+    this.registerType(descriptor, pkg);
+  }, this));
+
+  pkgMap[pkg.uri] = pkgMap[pkg.prefix] = pkg;
+  this.packages.push(pkg);
+};
+
+/**
+ * @private
+ * Register a type from a specific package with us
+ * @param {TypeDefinition} type
+ * @param {RegisteredPackage} pkg
+ */
+Registry.prototype.registerType = function(type, pkg) {
+  type = assign$8({}, type, {
+    superClass: (type.superClass || []).slice(),
+    extends: (type.extends || []).slice(),
+    properties: (type.properties || []).slice(),
+    meta: assign$8((type.meta || {}))
+  });
+
+  var ns = parseName(type.name, pkg.prefix),
+      name = ns.name,
+      /** @type {Record<string, RegisteredPropertyDef>} */ propertiesByName = {};
+
+  // parse properties
+  forEach$5(type.properties, bind$1(function(p) {
+
+    // namespace property names
+    var propertyNs = parseName(p.name, ns.prefix),
+        propertyName = propertyNs.name;
+
+    // namespace property types
+    if (!isBuiltIn(p.type)) {
+      p.type = parseName(p.type, propertyNs.prefix).name;
+    }
+
+    assign$8(p, {
+      ns: propertyNs,
+      name: propertyName
+    });
+
+    propertiesByName[propertyName] = p;
+  }, this));
+
+  // update ns + name
+  assign$8(type, {
+    ns: ns,
+    name: name,
+    propertiesByName: propertiesByName
+  });
+
+  forEach$5(type.extends, bind$1(function(extendsName) {
+    var extendsNameNs = parseName(extendsName, ns.prefix);
+
+    var extended = this.typeMap[extendsNameNs.name];
+
+    extended.traits = extended.traits || [];
+    extended.traits.push(name);
+  }, this));
+
+  // link to package
+  this.definePackage(type, pkg);
+
+  // register
+  this.typeMap[name] = type;
+};
+
+/**
+ * @callback IteratorFn
+ * @param {RegisteredTypeDef} type
+ * @param {boolean} inherited
+ */
+
+/**
+ * Traverse the type hierarchy from bottom to top,
+ * calling iterator with (type, inherited) for all elements in
+ * the inheritance chain.
+ * @private
+ * @param {Namespace} nsName
+ * @param {IteratorFn} iterator
+ * @param {Boolean} [trait=false]
+ */
+Registry.prototype.mapTypes = function(nsName, iterator, trait) {
+
+  /** @type {RegisteredTypeDef} */
+  var type = isBuiltIn(nsName.name) ? { name: nsName.name } : this.typeMap[nsName.name];
+
+  var self = this;
+
+  /**
+   * Traverse the selected super type or trait
+   *
+   * @param {String} cls
+   * @param {Boolean} [trait=false]
+   */
+  function traverse(cls, trait) {
+    var parentNs = parseName(cls, isBuiltIn(cls) ? '' : nsName.prefix);
+    self.mapTypes(parentNs, iterator, trait);
+  }
+
+  /**
+   * Traverse the selected trait.
+   *
+   * @param {String} cls
+   */
+  function traverseTrait(cls) {
+    return traverse(cls, true);
+  }
+
+  /**
+   * Traverse the selected super type
+   *
+   * @param {String} cls
+   */
+  function traverseSuper(cls) {
+    return traverse(cls, false);
+  }
+
+  if (!type) {
+    throw new Error('unknown type <' + nsName.name + '>');
+  }
+
+  forEach$5(type.superClass, trait ? traverseTrait : traverseSuper);
+
+  // call iterator with (type, inherited=!trait)
+  iterator(type, !trait);
+
+  forEach$5(type.traits, traverseTrait);
+};
+
+/**
+ * Returns the effective descriptor for a type.
+ * @param  {Namespace['name']} name the namespaced name (ns:localName) of the type
+ * @return {EffectiveDescriptor} the resulting effective descriptor
+ */
+Registry.prototype.getEffectiveDescriptor = function(name) {
+
+  var nsName = parseName(name);
+
+  var builder = new DescriptorBuilder(nsName);
+
+  this.mapTypes(nsName, function(type, inherited) {
+    builder.addTrait(type, inherited);
+  });
+
+  var descriptor = builder.build();
+
+  // define package link
+  this.definePackage(descriptor, descriptor.allTypes[descriptor.allTypes.length - 1].$pkg);
+
+  return descriptor;
+};
+
+/**
+ * @private
+ * @param {RegisteredTypeDef | EffectiveDescriptor} target
+ * @param {RegisteredPackage} pkg
+ */
+Registry.prototype.definePackage = function(target, pkg) {
+  this.properties.define(target, '$pkg', { value: pkg });
+};
+
+// helpers ////////////////////////////
+
+/**
+ * Checking already defined packages
+ * @param {Record<string, RegisteredPackage>} packageMap
+ * @param {PackageDefinition} pkg
+ * @param {'prefix' | 'uri'} identifierKey
+ */
+function ensureAvailable(packageMap, pkg, identifierKey) {
+
+  var value = pkg[identifierKey];
+
+  if (value in packageMap) {
+    throw new Error('package with ' + identifierKey + ' <' + value + '> already defined');
+  }
+}
+
+/**
+ * @typedef {import('./moddle.js').default} Moddle
+ * @typedef {import('./descriptor-builder.js').PropertyDescriptor} PropertyDesc
+ * @typedef {import('./registry.js').EffectiveDescriptor} EffectiveDescriptor
+ * @typedef {import('./factory.js').ModdleElement} ModdleElement
+ * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
+ */
+
+/**
+ * A utility that gets and sets properties of model elements.
+ *
+ * @param {Moddle} model
+ */
+function Properties(model) {
+
+  /** @type {Moddle} */
+  this.model = model;
+}
+
+/**
+ * Sets a named property on the target element.
+ * If the value is undefined, the property gets deleted.
+ *
+ * @param {ModdleElement} target
+ * @param {String} name
+ * @param {Object} value
+ */
+Properties.prototype.set = function(target, name, value) {
+
+  if (!isString$2(name) || !name.length) {
+    throw new TypeError('property name must be a non-empty string');
+  }
+
+  var property = this.getProperty(target, name);
+
+  var propertyName = property && property.name;
+
+  if (isUndefined$6(value)) {
+
+    // unset the property, if the specified value is undefined;
+    // delete from $attrs (for extensions) or the target itself
+    if (property) {
+      delete target[propertyName];
+    } else {
+      delete target.$attrs[stripGlobal(name)];
+    }
+  } else {
+
+    // set the property, defining well defined properties on the fly
+    // or simply updating them in target.$attrs (for extensions)
+    if (property) {
+      if (propertyName in target) {
+        target[propertyName] = value;
+      } else {
+        defineProperty$2(target, property, value);
+      }
+    } else {
+      target.$attrs[stripGlobal(name)] = value;
+    }
+  }
+};
+
+/**
+ * Returns the named property of the given element
+ *
+ * @param  {ModdleElement} target
+ * @param  {String} name
+ *
+ * @return {Object}
+ */
+Properties.prototype.get = function(target, name) {
+
+  var property = this.getProperty(target, name);
+
+  if (!property) {
+    return target.$attrs[stripGlobal(name)];
+  }
+
+  var propertyName = property.name;
+
+  // check if access to collection property and lazily initialize it
+  if (!target[propertyName] && property.isMany) {
+    defineProperty$2(target, property, []);
+  }
+
+  return target[propertyName];
+};
+
+/**
+ * Define a property on the target element
+ * @template [T=any]
+ * @param  {NonNullable<T>} target
+ * @param  {String} name
+ * @param  {PropertyDescriptor} options
+ */
+Properties.prototype.define = function(target, name, options) {
+
+  if (!options.writable) {
+
+    var value = options.value;
+
+    // use getters for read-only variables to support ES6 proxies
+    // cf. https://github.com/bpmn-io/internal-docs/issues/386
+    options = assign$8({}, options, {
+      get: function() { return value; }
+    });
+
+    delete options.value;
+  }
+
+  Object.defineProperty(target, name, options);
+};
+
+/**
+ * Define the descriptor for an element
+ * @template [T=any]
+ * @param {NonNullable<T>} target
+ * @param {EffectiveDescriptor | AnyTypeDescriptor} descriptor
+ */
+Properties.prototype.defineDescriptor = function(target, descriptor) {
+  this.define(target, '$descriptor', { value: descriptor });
+};
+
+/**
+ * Define the model for an element
+ * @template [T=any]
+ * @param {NonNullable<T>} target
+ * @param {Moddle} model
+ */
+Properties.prototype.defineModel = function(target, model) {
+  this.define(target, '$model', { value: model });
+};
+
+/**
+ * Return property with the given name on the element.
+ *
+ * @param {ModdleElement} target
+ * @param {string} name
+ *
+ * @return {PropertyDesc | null} property
+ */
+Properties.prototype.getProperty = function(target, name) {
+
+  var model = this.model;
+
+  var property = model.getPropertyDescriptor(target, name);
+
+  if (property) {
+    return property;
+  }
+
+  if (name.includes(':')) {
+    return null;
+  }
+
+  const strict = model.config.strict;
+
+  if (typeof strict !== 'undefined') {
+    const error = new TypeError(`unknown property <${ name }> on <${ target.$type }>`);
+
+    if (strict) {
+      throw error;
+    } else {
+
+      typeof console !== 'undefined' && console.warn(error);
+    }
+  }
+
+  return null;
+};
+
+function isUndefined$6(val) {
+  return typeof val === 'undefined';
+}
+
+function defineProperty$2(target, property, value) {
+  Object.defineProperty(target, property.name, {
+    enumerable: !property.isReference,
+    writable: true,
+    value: value,
+    configurable: true
+  });
+}
+
+function stripGlobal(name) {
+  return name.replace(/^:/, '');
+}
+
+/**
+ * @typedef {import('./registry.js').RegisteredTypeDef} RegisteredTypeDef
+ * @typedef {import('./registry.js').RegisteredPackage} RegisteredPackage
+ * @typedef {import('./base.js').default} BaseElement
+ * @typedef {import('./descriptor-builder.js').EffectiveDescriptor} EffectiveDescriptor
+ * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
+ * @typedef {import('./descriptor-builder.js').PropertyDescriptor} PropertyDescriptor
+ */
+
+/**
+ * @template [T=Record<string,any>]
+ * @typedef {import('./factory.js').ModdleElement<T>} ModdleElement
+ * @typedef {import('./factory.js').ModdleElementType<T>} ModdleElementType
+ * @typedef {import('./factory.js').AnyModdleElement<T>} AnyModdleElement
+ */
+
+/**
+ * Package definition
+ * @typedef {{
+ *   $schema?: string;
+ *   name: string;
+ *   prefix: string;
+ *   types?: Array<TypeDefinition>;
+ *   [key: string]: any;
+ * } & PackageDefinitionXmlExtension} PackageDefinition
+ */
+
+/**
+ * Set of extended parameters for package definition used in moddle-xml.
+ * @typedef {{
+ *   uri?: string;
+ *   xml?: {
+ *     tagAlias?: 'lowerCase';
+ *     typePrefix?: string;
+ *   };
+ * }} PackageDefinitionXmlExtension
+ */
+
+/**
+ * Type definition in declaration in package
+ * @typedef {{
+ *   name: string;
+ *   isAbstract?: boolean;
+ *   properties?: Array<PropertyDefinition>;
+ *   superClass?: Array<string>;
+ *   extends?: Array<string>;
+ *   meta?: Record<string, *>;
+ *   [key: string]: any;
+ * }} TypeDefinition
+ */
+
+/**
+ * Set of extended parameters for property definition used in moddle-xml.
+ * @typedef {{
+ *   isBody?: boolean;
+ *   isAttr?: boolean;
+ *   xml?: {
+ *     serialize?: string;
+ *   };
+ * }} PropertyDefinitionXmlExtension
+ */
+
+/**
+ * Property definition of type definition
+ * @typedef {{
+ *   name: string;
+ *   type: 'String' | 'Boolean' | 'Integer' | 'Real' | string;
+ *   default?: string | boolean | number;
+ *   isMany?: boolean;
+ *   isReference?: boolean;
+ *   isId?: boolean;
+ *   redefines?: string;
+ *   replaces?: string;
+ *   [key: string]: any;
+ * } & PropertyDefinitionXmlExtension} PropertyDefinition
+ */
+
+// Moddle implementation /////////////////////////////////////////////////
+
+/**
+ * @class Moddle
+ *
+ * A model that can be used to create elements of a specific type.
+ *
+ * @example
+ *
+ * import Moddle from 'moddle';
+ *
+ * var pkg = {
+ *   name: 'mypackage',
+ *   prefix: 'my',
+ *   types: [
+ *     { name: 'Root' }
+ *   ]
+ * };
+ *
+ * var moddle = new Moddle([pkg]);
+ *
+ * @param {Array<PackageDefinition> | Record<string,PackageDefinition>} packages the packages to contain
+ * @param {{ strict?: boolean }} [config={}] moddle configuration
+ */
+function Moddle(packages, config = {}) {
+
+  /** @type Readonly<Properties> */
+  this.properties = new Properties(this);
+
+  /** @type Readonly<Factory> */
+  this.factory = new Factory(this, this.properties);
+
+  /** @type Readonly<Registry> */
+  this.registry = new Registry(packages, this.properties);
+
+  /**
+   * @type {Record<string,ModdleElementType>}
+   */
+  this.typeCache = {};
+
+  /**
+   * @type {Readonly<{readonly strict?: boolean}>}
+   */
+  this.config = config;
+}
+
+/**
+ * Create an instance of the specified type.
+ *
+ * @method Moddle#create
+ *
+ * @example
+ *
+ * var foo = moddle.create('my:Foo');
+ * var bar = moddle.create('my:Bar', { id: 'BAR_1' });
+ *
+ * @template [T=Record<string,any>]
+ * @param  {String|EffectiveDescriptor} descriptor the type descriptor or name know to the model
+ * @param  {Partial<T>} [attrs] a number of attributes to initialize the model instance with
+ * @return {ModdleElement<T>} model instance
+ */
+Moddle.prototype.create = function(descriptor, attrs) {
+  var Type = this.getType(descriptor);
+
+  if (!Type) {
+    throw new Error('unknown type <' + descriptor + '>');
+  }
+
+  return new Type(attrs);
+};
+
+/**
+ * Returns the type representing a given descriptor
+ *
+ * @method Moddle#getType
+ *
+ * @example
+ *
+ * var Foo = moddle.getType('my:Foo');
+ * var foo = new Foo({ 'id' : 'FOO_1' });
+ *
+ * @template [T=Record<string,any>]
+ * @param  {String|EffectiveDescriptor} descriptor the type descriptor or name know to the model
+ * @return {ModdleElementType<T>} the type representing the descriptor
+ */
+Moddle.prototype.getType = function(descriptor) {
+
+  var cache = this.typeCache;
+
+  var name = isString$2(descriptor) ? descriptor : descriptor.ns.name;
+
+  var type = cache[name];
+
+  if (!type) {
+    descriptor = this.registry.getEffectiveDescriptor(name);
+    type = cache[name] = this.factory.createType(descriptor);
+  }
+
+  return type;
+};
+
+/**
+ * Creates an any-element type to be used within model instances.
+ *
+ * This can be used to create custom elements that lie outside the meta-model.
+ * The created element contains all the meta-data required to serialize it
+ * as part of meta-model elements.
+ *
+ * @method Moddle#createAny
+ *
+ * @example
+ *
+ * var foo = moddle.createAny('vendor:Foo', 'http://vendor', {
+ *   value: 'bar'
+ * });
+ *
+ * var container = moddle.create('my:Container', 'http://my', {
+ *   any: [ foo ]
+ * });
+ *
+ * // go ahead and serialize the stuff
+ *
+ * @template [T=Record<string, any>]
+ * @param  {String} name  the name of the element
+ * @param  {String} nsUri the namespace uri of the element
+ * @param  {T} [properties] a map of properties to initialize the instance with
+ * @return {AnyModdleElement<T>} the any type instance
+ */
+Moddle.prototype.createAny = function(name, nsUri, properties) {
+
+  var nameNs = parseName(name);
+
+  /** @type AnyModdleElement */
+  var element = {
+    $type: name,
+    $instanceOf: function(type) {
+      return type === this.$type;
+    },
+    get: function(key) {
+      return this[key];
+    },
+    set: function(key, value) {
+      set(this, [ key ], value);
+    }
+  };
+
+  /** @type AnyTypeDescriptor */
+  var descriptor = {
+    name: name,
+    isGeneric: true,
+    ns: {
+      prefix: nameNs.prefix,
+      localName: nameNs.localName,
+      uri: nsUri
+    }
+  };
+
+  this.properties.defineDescriptor(element, descriptor);
+  this.properties.defineModel(element, this);
+  this.properties.define(element, 'get', { enumerable: false, writable: true });
+  this.properties.define(element, 'set', { enumerable: false, writable: true });
+  this.properties.define(element, '$parent', { enumerable: false, writable: true });
+  this.properties.define(element, '$instanceOf', { enumerable: false, writable: true });
+
+  forEach$5(properties, function(a, key) {
+    if (isObject$2(a) && a.value !== undefined) {
+      element[a.name] = a.value;
+    } else {
+      element[key] = a;
+    }
+  });
+
+  return element;
+};
+
+/**
+ * Returns a registered package by uri or prefix
+ * @param {string} uriOrPrefix
+ * @return {RegisteredPackage} the package
+ */
+Moddle.prototype.getPackage = function(uriOrPrefix) {
+  return this.registry.getPackage(uriOrPrefix);
+};
+
+/**
+ * Returns a snapshot of all known packages
+ *
+ * @return {Readonly<Array<RegisteredPackage>>} the package
+ */
+Moddle.prototype.getPackages = function() {
+  return this.registry.getPackages();
+};
+
+/**
+ * Returns the descriptor for an element
+ * @param {ModdleElement | ModdleElementType} element
+ * @return {EffectiveDescriptor}
+ */
+Moddle.prototype.getElementDescriptor = function(element) {
+  return element.$descriptor;
+};
+
+/**
+ * @overload
+ * Returns true if the given descriptor or instance
+ * represents the given type.
+ * @param {ModdleElement | ModdleElementType} element
+ * @param {string} type
+ * @return {boolean}
+ */
+/**
+ * @overload
+ * @param {string} type
+ * @return {boolean}
+ */
+Moddle.prototype.hasType = function(element, type) {
+  if (type === undefined) {
+    type = element;
+    element = this;
+  }
+
+  var descriptor = element.$model.getElementDescriptor(element);
+
+  return (type in descriptor.allTypesByName);
+};
+
+/**
+ * Returns the descriptor of an elements named property
+ * @param {ModdleElement | ModdleElementType} element
+ * @param {string} property
+ * @return {PropertyDescriptor}
+ */
+Moddle.prototype.getPropertyDescriptor = function(element, property) {
+  return this.getElementDescriptor(element).propertiesByName[property];
+};
+
+/**
+ * Return registered type definition
+ * @param {string} type
+ * @return {RegisteredTypeDef}
+ */
+Moddle.prototype.getTypeDescriptor = function(type) {
+  return this.registry.typeMap[type];
+};
+
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
+ */
+
+const nativeToString$5 = Object.prototype.toString;
+const nativeHasOwnProperty$4 = Object.prototype.hasOwnProperty;
+
+function isUndefined$5(obj) {
+  return obj === undefined;
+}
+
+function isNil$4(obj) {
+  return obj == null;
+}
+
+function isArray$6(obj) {
+  return nativeToString$5.call(obj) === '[object Array]';
 }
 
 /**
@@ -1921,8 +3671,8 @@ function isNumber$2(obj) {
  *
  * @return {boolean}
  */
-function isFunction$2(obj) {
-  const tag = nativeToString$2.call(obj);
+function isFunction$4(obj) {
+  const tag = nativeToString$5.call(obj);
 
   return (
     tag === '[object Function]' ||
@@ -1934,7 +3684,7 @@ function isFunction$2(obj) {
 }
 
 function isString$1(obj) {
-  return nativeToString$2.call(obj) === '[object String]';
+  return nativeToString$5.call(obj) === '[object String]';
 }
 
 /**
@@ -1945,8 +3695,8 @@ function isString$1(obj) {
  *
  * @return {Boolean}
  */
-function has$1(target, key) {
-  return !isNil$1(target) && nativeHasOwnProperty$1.call(target, key);
+function has$4(target, key) {
+  return !isNil$4(target) && nativeHasOwnProperty$4.call(target, key);
 }
 
 /**
@@ -2009,13 +3759,13 @@ function has$1(target, key) {
  *
  * @return {Object}
  */
-function find$1(collection, matcher) {
+function find$3(collection, matcher) {
 
-  const matchFn = toMatcher(matcher);
+  const matchFn = toMatcher$2(matcher);
 
   let match;
 
-  forEach$1(collection, function(val, key) {
+  forEach$4(collection, function(val, key) {
     if (matchFn(val, key)) {
       match = val;
 
@@ -2039,11 +3789,11 @@ function find$1(collection, matcher) {
  */
 function findIndex(collection, matcher) {
 
-  const matchFn = toMatcher(matcher);
+  const matchFn = toMatcher$2(matcher);
 
-  let idx = isArray$4(collection) ? -1 : undefined;
+  let idx = isArray$6(collection) ? -1 : undefined;
 
-  forEach$1(collection, function(val, key) {
+  forEach$4(collection, function(val, key) {
     if (matchFn(val, key)) {
       idx = key;
 
@@ -2066,11 +3816,11 @@ function findIndex(collection, matcher) {
  */
 function filter(collection, matcher) {
 
-  const matchFn = toMatcher(matcher);
+  const matchFn = toMatcher$2(matcher);
 
   let result = [];
 
-  forEach$1(collection, function(val, key) {
+  forEach$4(collection, function(val, key) {
     if (matchFn(val, key)) {
       result.push(val);
     }
@@ -2090,20 +3840,20 @@ function filter(collection, matcher) {
  *
  * @return {T} return result that stopped the iteration
  */
-function forEach$1(collection, iterator) {
+function forEach$4(collection, iterator) {
 
   let val,
       result;
 
-  if (isUndefined$3(collection)) {
+  if (isUndefined$5(collection)) {
     return;
   }
 
-  const convertKey = isArray$4(collection) ? toNum$1 : identity$1;
+  const convertKey = isArray$6(collection) ? toNum$4 : identity$4;
 
   for (let key in collection) {
 
-    if (has$1(collection, key)) {
+    if (has$4(collection, key)) {
       val = collection[key];
 
       result = iterator(val, convertKey(key));
@@ -2117,183 +3867,24 @@ function forEach$1(collection, iterator) {
 
 
 /**
- * Reduce collection, returning a single result.
- *
- * @template T
- * @template V
- *
- * @param {Collection<T>} collection
- * @param {(result: V, entry: T, index: any) => V} iterator
- * @param {V} result
- *
- * @return {V} result returned from last iterator
- */
-function reduce(collection, iterator, result) {
-
-  forEach$1(collection, function(value, idx) {
-    result = iterator(result, value, idx);
-  });
-
-  return result;
-}
-
-
-/**
- * Return true if every element in the collection
- * matches the criteria.
- *
- * @param  {Object|Array} collection
- * @param  {Function} matcher
- *
- * @return {Boolean}
- */
-function every(collection, matcher) {
-
-  return !!reduce(collection, function(matches, val, key) {
-    return matches && matcher(val, key);
-  }, true);
-}
-
-
-/**
- * Transform a collection into another collection
- * by piping each member through the given fn.
- *
- * @param  {Object|Array}   collection
- * @param  {Function} fn
- *
- * @return {Array} transformed collection
- */
-function map$5(collection, fn) {
-
-  let result = [];
-
-  forEach$1(collection, function(val, key) {
-    result.push(fn(val, key));
-  });
-
-  return result;
-}
-
-
-/**
  * @template T
  * @param {Matcher<T>} matcher
  *
  * @return {MatchFn<T>}
  */
-function toMatcher(matcher) {
-  return isFunction$2(matcher) ? matcher : (e) => {
+function toMatcher$2(matcher) {
+  return isFunction$4(matcher) ? matcher : (e) => {
     return e === matcher;
   };
 }
 
 
-function identity$1(arg) {
+function identity$4(arg) {
   return arg;
 }
 
-function toNum$1(arg) {
+function toNum$4(arg) {
   return Number(arg);
-}
-
-/* global setTimeout clearTimeout */
-
-/**
- * @typedef { {
- *   (...args: any[]): any;
- *   flush: () => void;
- *   cancel: () => void;
- * } } DebouncedFunction
- */
-
-/**
- * Debounce fn, calling it only once if the given time
- * elapsed between calls.
- *
- * Lodash-style the function exposes methods to `#clear`
- * and `#flush` to control internal behavior.
- *
- * @param  {Function} fn
- * @param  {Number} timeout
- *
- * @return {DebouncedFunction} debounced function
- */
-function debounce(fn, timeout) {
-
-  let timer;
-
-  let lastArgs;
-  let lastThis;
-
-  let lastNow;
-
-  function fire(force) {
-
-    let now = Date.now();
-
-    let scheduledDiff = force ? 0 : (lastNow + timeout) - now;
-
-    if (scheduledDiff > 0) {
-      return schedule(scheduledDiff);
-    }
-
-    fn.apply(lastThis, lastArgs);
-
-    clear();
-  }
-
-  function schedule(timeout) {
-    timer = setTimeout(fire, timeout);
-  }
-
-  function clear() {
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    timer = lastNow = lastArgs = lastThis = undefined;
-  }
-
-  function flush() {
-    if (timer) {
-      fire(true);
-    }
-
-    clear();
-  }
-
-  /**
-   * @type { DebouncedFunction }
-   */
-  function callback(...args) {
-    lastNow = Date.now();
-
-    lastArgs = args;
-    lastThis = this;
-
-    // ensure an execution is scheduled
-    if (!timer) {
-      schedule(timeout);
-    }
-  }
-
-  callback.flush = flush;
-  callback.cancel = clear;
-
-  return callback;
-}
-
-/**
- * Bind function against target <this>.
- *
- * @param  {Function} fn
- * @param  {Object}   target
- *
- * @return {Function} bound function
- */
-function bind$4(fn, target) {
-  return fn.bind(target);
 }
 
 /**
@@ -2304,1084 +3895,9 @@ function bind$4(fn, target) {
  *
  * @return {Object} the target
  */
-function assign$2(target, ...others) {
+function assign$7(target, ...others) {
   return Object.assign(target, ...others);
 }
-
-/**
- * Sets a nested property of a given object to the specified value.
- *
- * This mutates the object and returns it.
- *
- * @template T
- *
- * @param {T} target The target of the set operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} value The value to set.
- *
- * @return {T}
- */
-function set(target, path, value) {
-
-  let currentTarget = target;
-
-  forEach$1(path, function(key, idx) {
-
-    if (typeof key !== 'number' && typeof key !== 'string') {
-      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
-    }
-
-    if (key === 'constructor') {
-      throw new Error('illegal key: constructor');
-    }
-
-    if (key === '__proto__') {
-      throw new Error('illegal key: __proto__');
-    }
-
-    let nextKey = path[idx + 1];
-    let nextTarget = currentTarget[key];
-
-    if (isDefined(nextKey) && isNil$1(nextTarget)) {
-      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
-    }
-
-    if (isUndefined$3(nextKey)) {
-      if (isUndefined$3(value)) {
-        delete currentTarget[key];
-      } else {
-        currentTarget[key] = value;
-      }
-    } else {
-      currentTarget = nextTarget;
-    }
-  });
-
-  return target;
-}
-
-/**
- * Pick properties from the given target.
- *
- * @template T
- * @template {any[]} V
- *
- * @param {T} target
- * @param {V} properties
- *
- * @return Pick<T, V>
- */
-function pick$1(target, properties) {
-
-  let result = {};
-
-  let obj = Object(target);
-
-  forEach$1(properties, function(prop) {
-
-    if (prop in obj) {
-      result[prop] = target[prop];
-    }
-  });
-
-  return result;
-}
-
-/**
- * Moddle base element.
- */
-function Base$1() { }
-
-Base$1.prototype.get = function(name) {
-  return this.$model.properties.get(this, name);
-};
-
-Base$1.prototype.set = function(name, value) {
-  this.$model.properties.set(this, name, value);
-};
-
-/**
- * A model element factory.
- *
- * @param {Moddle} model
- * @param {Properties} properties
- */
-function Factory(model, properties) {
-  this.model = model;
-  this.properties = properties;
-}
-
-
-Factory.prototype.createType = function(descriptor) {
-
-  var model = this.model;
-
-  var props = this.properties,
-      prototype = Object.create(Base$1.prototype);
-
-  // initialize default values
-  forEach$1(descriptor.properties, function(p) {
-    if (!p.isMany && p.default !== undefined) {
-      prototype[p.name] = p.default;
-    }
-  });
-
-  props.defineModel(prototype, model);
-  props.defineDescriptor(prototype, descriptor);
-
-  var name = descriptor.ns.name;
-
-  /**
-   * The new type constructor
-   */
-  function ModdleElement(attrs) {
-    props.define(this, '$type', { value: name, enumerable: true });
-    props.define(this, '$attrs', { value: {} });
-    props.define(this, '$parent', { writable: true });
-
-    forEach$1(attrs, bind$4(function(val, key) {
-      this.set(key, val);
-    }, this));
-  }
-
-  ModdleElement.prototype = prototype;
-
-  ModdleElement.hasType = prototype.$instanceOf = this.model.hasType;
-
-  // static links
-  props.defineModel(ModdleElement, model);
-  props.defineDescriptor(ModdleElement, descriptor);
-
-  return ModdleElement;
-};
-
-/**
- * Built-in moddle types
- */
-var BUILTINS = {
-  String: true,
-  Boolean: true,
-  Integer: true,
-  Real: true,
-  Element: true
-};
-
-/**
- * Converters for built in types from string representations
- */
-var TYPE_CONVERTERS = {
-  String: function(s) { return s; },
-  Boolean: function(s) { return s === 'true'; },
-  Integer: function(s) { return parseInt(s, 10); },
-  Real: function(s) { return parseFloat(s); }
-};
-
-/**
- * Convert a type to its real representation
- */
-function coerceType(type, value) {
-
-  var converter = TYPE_CONVERTERS[type];
-
-  if (converter) {
-    return converter(value);
-  } else {
-    return value;
-  }
-}
-
-/**
- * Return whether the given type is built-in
- */
-function isBuiltIn(type) {
-  return !!BUILTINS[type];
-}
-
-/**
- * Return whether the given type is simple
- */
-function isSimple(type) {
-  return !!TYPE_CONVERTERS[type];
-}
-
-/**
- * Parses a namespaced attribute name of the form (ns:)localName to an object,
- * given a default prefix to assume in case no explicit namespace is given.
- *
- * @param {String} name
- * @param {String} [defaultPrefix] the default prefix to take, if none is present.
- *
- * @return {Object} the parsed name
- */
-function parseName(name, defaultPrefix) {
-  var parts = name.split(/:/),
-      localName, prefix;
-
-  // no prefix (i.e. only local name)
-  if (parts.length === 1) {
-    localName = name;
-    prefix = defaultPrefix;
-  }
-
-  // prefix + local name
-  else if (parts.length === 2) {
-    localName = parts[1];
-    prefix = parts[0];
-  }
-
-  else {
-    throw new Error('expected <prefix:localName> or <localName>, got ' + name);
-  }
-
-  name = (prefix ? prefix + ':' : '') + localName;
-
-  return {
-    name: name,
-    prefix: prefix,
-    localName: localName
-  };
-}
-
-/**
- * A utility to build element descriptors.
- */
-function DescriptorBuilder(nameNs) {
-  this.ns = nameNs;
-  this.name = nameNs.name;
-  this.allTypes = [];
-  this.allTypesByName = {};
-  this.properties = [];
-  this.propertiesByName = {};
-}
-
-
-DescriptorBuilder.prototype.build = function() {
-  return pick$1(this, [
-    'ns',
-    'name',
-    'allTypes',
-    'allTypesByName',
-    'properties',
-    'propertiesByName',
-    'bodyProperty',
-    'idProperty'
-  ]);
-};
-
-/**
- * Add property at given index.
- *
- * @param {Object} p
- * @param {Number} [idx]
- * @param {Boolean} [validate=true]
- */
-DescriptorBuilder.prototype.addProperty = function(p, idx, validate) {
-
-  if (typeof idx === 'boolean') {
-    validate = idx;
-    idx = undefined;
-  }
-
-  this.addNamedProperty(p, validate !== false);
-
-  var properties = this.properties;
-
-  if (idx !== undefined) {
-    properties.splice(idx, 0, p);
-  } else {
-    properties.push(p);
-  }
-};
-
-
-DescriptorBuilder.prototype.replaceProperty = function(oldProperty, newProperty, replace) {
-  var oldNameNs = oldProperty.ns;
-
-  var props = this.properties,
-      propertiesByName = this.propertiesByName,
-      rename = oldProperty.name !== newProperty.name;
-
-  if (oldProperty.isId) {
-    if (!newProperty.isId) {
-      throw new Error(
-        'property <' + newProperty.ns.name + '> must be id property ' +
-        'to refine <' + oldProperty.ns.name + '>');
-    }
-
-    this.setIdProperty(newProperty, false);
-  }
-
-  if (oldProperty.isBody) {
-
-    if (!newProperty.isBody) {
-      throw new Error(
-        'property <' + newProperty.ns.name + '> must be body property ' +
-        'to refine <' + oldProperty.ns.name + '>');
-    }
-
-    // TODO: Check compatibility
-    this.setBodyProperty(newProperty, false);
-  }
-
-  // validate existence and get location of old property
-  var idx = props.indexOf(oldProperty);
-  if (idx === -1) {
-    throw new Error('property <' + oldNameNs.name + '> not found in property list');
-  }
-
-  // remove old property
-  props.splice(idx, 1);
-
-  // replacing the named property is intentional
-  //
-  //  * validate only if this is a "rename" operation
-  //  * add at specific index unless we "replace"
-  //
-  this.addProperty(newProperty, replace ? undefined : idx, rename);
-
-  // make new property available under old name
-  propertiesByName[oldNameNs.name] = propertiesByName[oldNameNs.localName] = newProperty;
-};
-
-
-DescriptorBuilder.prototype.redefineProperty = function(p, targetPropertyName, replace) {
-
-  var nsPrefix = p.ns.prefix;
-  var parts = targetPropertyName.split('#');
-
-  var name = parseName(parts[0], nsPrefix);
-  var attrName = parseName(parts[1], name.prefix).name;
-
-  var redefinedProperty = this.propertiesByName[attrName];
-  if (!redefinedProperty) {
-    throw new Error('refined property <' + attrName + '> not found');
-  } else {
-    this.replaceProperty(redefinedProperty, p, replace);
-  }
-
-  delete p.redefines;
-};
-
-DescriptorBuilder.prototype.addNamedProperty = function(p, validate) {
-  var ns = p.ns,
-      propsByName = this.propertiesByName;
-
-  if (validate) {
-    this.assertNotDefined(p, ns.name);
-    this.assertNotDefined(p, ns.localName);
-  }
-
-  propsByName[ns.name] = propsByName[ns.localName] = p;
-};
-
-DescriptorBuilder.prototype.removeNamedProperty = function(p) {
-  var ns = p.ns,
-      propsByName = this.propertiesByName;
-
-  delete propsByName[ns.name];
-  delete propsByName[ns.localName];
-};
-
-DescriptorBuilder.prototype.setBodyProperty = function(p, validate) {
-
-  if (validate && this.bodyProperty) {
-    throw new Error(
-      'body property defined multiple times ' +
-      '(<' + this.bodyProperty.ns.name + '>, <' + p.ns.name + '>)');
-  }
-
-  this.bodyProperty = p;
-};
-
-DescriptorBuilder.prototype.setIdProperty = function(p, validate) {
-
-  if (validate && this.idProperty) {
-    throw new Error(
-      'id property defined multiple times ' +
-      '(<' + this.idProperty.ns.name + '>, <' + p.ns.name + '>)');
-  }
-
-  this.idProperty = p;
-};
-
-DescriptorBuilder.prototype.assertNotTrait = function(typeDescriptor) {
-
-  const _extends = typeDescriptor.extends || [];
-
-  if (_extends.length) {
-    throw new Error(
-      `cannot create <${ typeDescriptor.name }> extending <${ typeDescriptor.extends }>`
-    );
-  }
-};
-
-DescriptorBuilder.prototype.assertNotDefined = function(p, name) {
-  var propertyName = p.name,
-      definedProperty = this.propertiesByName[propertyName];
-
-  if (definedProperty) {
-    throw new Error(
-      'property <' + propertyName + '> already defined; ' +
-      'override of <' + definedProperty.definedBy.ns.name + '#' + definedProperty.ns.name + '> by ' +
-      '<' + p.definedBy.ns.name + '#' + p.ns.name + '> not allowed without redefines');
-  }
-};
-
-DescriptorBuilder.prototype.hasProperty = function(name) {
-  return this.propertiesByName[name];
-};
-
-DescriptorBuilder.prototype.addTrait = function(t, inherited) {
-
-  if (inherited) {
-    this.assertNotTrait(t);
-  }
-
-  var typesByName = this.allTypesByName,
-      types = this.allTypes;
-
-  var typeName = t.name;
-
-  if (typeName in typesByName) {
-    return;
-  }
-
-  forEach$1(t.properties, bind$4(function(p) {
-
-    // clone property to allow extensions
-    p = assign$2({}, p, {
-      name: p.ns.localName,
-      inherited: inherited
-    });
-
-    Object.defineProperty(p, 'definedBy', {
-      value: t
-    });
-
-    var replaces = p.replaces,
-        redefines = p.redefines;
-
-    // add replace/redefine support
-    if (replaces || redefines) {
-      this.redefineProperty(p, replaces || redefines, replaces);
-    } else {
-      if (p.isBody) {
-        this.setBodyProperty(p);
-      }
-      if (p.isId) {
-        this.setIdProperty(p);
-      }
-      this.addProperty(p);
-    }
-  }, this));
-
-  types.push(t);
-  typesByName[typeName] = t;
-};
-
-/**
- * A registry of Moddle packages.
- *
- * @param {Array<Package>} packages
- * @param {Properties} properties
- */
-function Registry(packages, properties) {
-  this.packageMap = {};
-  this.typeMap = {};
-
-  this.packages = [];
-
-  this.properties = properties;
-
-  forEach$1(packages, bind$4(this.registerPackage, this));
-}
-
-
-Registry.prototype.getPackage = function(uriOrPrefix) {
-  return this.packageMap[uriOrPrefix];
-};
-
-Registry.prototype.getPackages = function() {
-  return this.packages;
-};
-
-
-Registry.prototype.registerPackage = function(pkg) {
-
-  // copy package
-  pkg = assign$2({}, pkg);
-
-  var pkgMap = this.packageMap;
-
-  ensureAvailable(pkgMap, pkg, 'prefix');
-  ensureAvailable(pkgMap, pkg, 'uri');
-
-  // register types
-  forEach$1(pkg.types, bind$4(function(descriptor) {
-    this.registerType(descriptor, pkg);
-  }, this));
-
-  pkgMap[pkg.uri] = pkgMap[pkg.prefix] = pkg;
-  this.packages.push(pkg);
-};
-
-
-/**
- * Register a type from a specific package with us
- */
-Registry.prototype.registerType = function(type, pkg) {
-
-  type = assign$2({}, type, {
-    superClass: (type.superClass || []).slice(),
-    extends: (type.extends || []).slice(),
-    properties: (type.properties || []).slice(),
-    meta: assign$2((type.meta || {}))
-  });
-
-  var ns = parseName(type.name, pkg.prefix),
-      name = ns.name,
-      propertiesByName = {};
-
-  // parse properties
-  forEach$1(type.properties, bind$4(function(p) {
-
-    // namespace property names
-    var propertyNs = parseName(p.name, ns.prefix),
-        propertyName = propertyNs.name;
-
-    // namespace property types
-    if (!isBuiltIn(p.type)) {
-      p.type = parseName(p.type, propertyNs.prefix).name;
-    }
-
-    assign$2(p, {
-      ns: propertyNs,
-      name: propertyName
-    });
-
-    propertiesByName[propertyName] = p;
-  }, this));
-
-  // update ns + name
-  assign$2(type, {
-    ns: ns,
-    name: name,
-    propertiesByName: propertiesByName
-  });
-
-  forEach$1(type.extends, bind$4(function(extendsName) {
-    var extendsNameNs = parseName(extendsName, ns.prefix);
-
-    var extended = this.typeMap[extendsNameNs.name];
-
-    extended.traits = extended.traits || [];
-    extended.traits.push(name);
-  }, this));
-
-  // link to package
-  this.definePackage(type, pkg);
-
-  // register
-  this.typeMap[name] = type;
-};
-
-
-/**
- * Traverse the type hierarchy from bottom to top,
- * calling iterator with (type, inherited) for all elements in
- * the inheritance chain.
- *
- * @param {Object} nsName
- * @param {Function} iterator
- * @param {Boolean} [trait=false]
- */
-Registry.prototype.mapTypes = function(nsName, iterator, trait) {
-
-  var type = isBuiltIn(nsName.name) ? { name: nsName.name } : this.typeMap[nsName.name];
-
-  var self = this;
-
-  /**
-   * Traverse the selected super type or trait
-   *
-   * @param {String} cls
-   * @param {Boolean} [trait=false]
-   */
-  function traverse(cls, trait) {
-    var parentNs = parseName(cls, isBuiltIn(cls) ? '' : nsName.prefix);
-    self.mapTypes(parentNs, iterator, trait);
-  }
-
-  /**
-   * Traverse the selected trait.
-   *
-   * @param {String} cls
-   */
-  function traverseTrait(cls) {
-    return traverse(cls, true);
-  }
-
-  /**
-   * Traverse the selected super type
-   *
-   * @param {String} cls
-   */
-  function traverseSuper(cls) {
-    return traverse(cls, false);
-  }
-
-  if (!type) {
-    throw new Error('unknown type <' + nsName.name + '>');
-  }
-
-  forEach$1(type.superClass, trait ? traverseTrait : traverseSuper);
-
-  // call iterator with (type, inherited=!trait)
-  iterator(type, !trait);
-
-  forEach$1(type.traits, traverseTrait);
-};
-
-
-/**
- * Returns the effective descriptor for a type.
- *
- * @param  {String} type the namespaced name (ns:localName) of the type
- *
- * @return {Descriptor} the resulting effective descriptor
- */
-Registry.prototype.getEffectiveDescriptor = function(name) {
-
-  var nsName = parseName(name);
-
-  var builder = new DescriptorBuilder(nsName);
-
-  this.mapTypes(nsName, function(type, inherited) {
-    builder.addTrait(type, inherited);
-  });
-
-  var descriptor = builder.build();
-
-  // define package link
-  this.definePackage(descriptor, descriptor.allTypes[descriptor.allTypes.length - 1].$pkg);
-
-  return descriptor;
-};
-
-
-Registry.prototype.definePackage = function(target, pkg) {
-  this.properties.define(target, '$pkg', { value: pkg });
-};
-
-
-
-// helpers ////////////////////////////
-
-function ensureAvailable(packageMap, pkg, identifierKey) {
-
-  var value = pkg[identifierKey];
-
-  if (value in packageMap) {
-    throw new Error('package with ' + identifierKey + ' <' + value + '> already defined');
-  }
-}
-
-/**
- * A utility that gets and sets properties of model elements.
- *
- * @param {Model} model
- */
-function Properties(model) {
-  this.model = model;
-}
-
-
-/**
- * Sets a named property on the target element.
- * If the value is undefined, the property gets deleted.
- *
- * @param {Object} target
- * @param {String} name
- * @param {Object} value
- */
-Properties.prototype.set = function(target, name, value) {
-
-  if (!isString$1(name) || !name.length) {
-    throw new TypeError('property name must be a non-empty string');
-  }
-
-  var property = this.getProperty(target, name);
-
-  var propertyName = property && property.name;
-
-  if (isUndefined$2(value)) {
-
-    // unset the property, if the specified value is undefined;
-    // delete from $attrs (for extensions) or the target itself
-    if (property) {
-      delete target[propertyName];
-    } else {
-      delete target.$attrs[stripGlobal(name)];
-    }
-  } else {
-
-    // set the property, defining well defined properties on the fly
-    // or simply updating them in target.$attrs (for extensions)
-    if (property) {
-      if (propertyName in target) {
-        target[propertyName] = value;
-      } else {
-        defineProperty$2(target, property, value);
-      }
-    } else {
-      target.$attrs[stripGlobal(name)] = value;
-    }
-  }
-};
-
-/**
- * Returns the named property of the given element
- *
- * @param  {Object} target
- * @param  {String} name
- *
- * @return {Object}
- */
-Properties.prototype.get = function(target, name) {
-
-  var property = this.getProperty(target, name);
-
-  if (!property) {
-    return target.$attrs[stripGlobal(name)];
-  }
-
-  var propertyName = property.name;
-
-  // check if access to collection property and lazily initialize it
-  if (!target[propertyName] && property.isMany) {
-    defineProperty$2(target, property, []);
-  }
-
-  return target[propertyName];
-};
-
-
-/**
- * Define a property on the target element
- *
- * @param  {Object} target
- * @param  {String} name
- * @param  {Object} options
- */
-Properties.prototype.define = function(target, name, options) {
-
-  if (!options.writable) {
-
-    var value = options.value;
-
-    // use getters for read-only variables to support ES6 proxies
-    // cf. https://github.com/bpmn-io/internal-docs/issues/386
-    options = assign$2({}, options, {
-      get: function() { return value; }
-    });
-
-    delete options.value;
-  }
-
-  Object.defineProperty(target, name, options);
-};
-
-
-/**
- * Define the descriptor for an element
- */
-Properties.prototype.defineDescriptor = function(target, descriptor) {
-  this.define(target, '$descriptor', { value: descriptor });
-};
-
-/**
- * Define the model for an element
- */
-Properties.prototype.defineModel = function(target, model) {
-  this.define(target, '$model', { value: model });
-};
-
-/**
- * Return property with the given name on the element.
- *
- * @param {any} target
- * @param {string} name
- *
- * @return {object | null} property
- */
-Properties.prototype.getProperty = function(target, name) {
-
-  var model = this.model;
-
-  var property = model.getPropertyDescriptor(target, name);
-
-  if (property) {
-    return property;
-  }
-
-  if (name.includes(':')) {
-    return null;
-  }
-
-  const strict = model.config.strict;
-
-  if (typeof strict !== 'undefined') {
-    const error = new TypeError(`unknown property <${ name }> on <${ target.$type }>`);
-
-    if (strict) {
-      throw error;
-    } else {
-
-      // eslint-disable-next-line no-undef
-      typeof console !== 'undefined' && console.warn(error);
-    }
-  }
-
-  return null;
-};
-
-function isUndefined$2(val) {
-  return typeof val === 'undefined';
-}
-
-function defineProperty$2(target, property, value) {
-  Object.defineProperty(target, property.name, {
-    enumerable: !property.isReference,
-    writable: true,
-    value: value,
-    configurable: true
-  });
-}
-
-function stripGlobal(name) {
-  return name.replace(/^:/, '');
-}
-
-// Moddle implementation /////////////////////////////////////////////////
-
-/**
- * @class Moddle
- *
- * A model that can be used to create elements of a specific type.
- *
- * @example
- *
- * var Moddle = require('moddle');
- *
- * var pkg = {
- *   name: 'mypackage',
- *   prefix: 'my',
- *   types: [
- *     { name: 'Root' }
- *   ]
- * };
- *
- * var moddle = new Moddle([pkg]);
- *
- * @param {Array<Package>} packages the packages to contain
- *
- * @param { { strict?: boolean } } [config] moddle configuration
- */
-function Moddle(packages, config = {}) {
-
-  this.properties = new Properties(this);
-
-  this.factory = new Factory(this, this.properties);
-  this.registry = new Registry(packages, this.properties);
-
-  this.typeCache = {};
-
-  this.config = config;
-}
-
-
-/**
- * Create an instance of the specified type.
- *
- * @method Moddle#create
- *
- * @example
- *
- * var foo = moddle.create('my:Foo');
- * var bar = moddle.create('my:Bar', { id: 'BAR_1' });
- *
- * @param  {String|Object} descriptor the type descriptor or name know to the model
- * @param  {Object} attrs   a number of attributes to initialize the model instance with
- * @return {Object}         model instance
- */
-Moddle.prototype.create = function(descriptor, attrs) {
-  var Type = this.getType(descriptor);
-
-  if (!Type) {
-    throw new Error('unknown type <' + descriptor + '>');
-  }
-
-  return new Type(attrs);
-};
-
-
-/**
- * Returns the type representing a given descriptor
- *
- * @method Moddle#getType
- *
- * @example
- *
- * var Foo = moddle.getType('my:Foo');
- * var foo = new Foo({ 'id' : 'FOO_1' });
- *
- * @param  {String|Object} descriptor the type descriptor or name know to the model
- * @return {Object}         the type representing the descriptor
- */
-Moddle.prototype.getType = function(descriptor) {
-
-  var cache = this.typeCache;
-
-  var name = isString$1(descriptor) ? descriptor : descriptor.ns.name;
-
-  var type = cache[name];
-
-  if (!type) {
-    descriptor = this.registry.getEffectiveDescriptor(name);
-    type = cache[name] = this.factory.createType(descriptor);
-  }
-
-  return type;
-};
-
-
-/**
- * Creates an any-element type to be used within model instances.
- *
- * This can be used to create custom elements that lie outside the meta-model.
- * The created element contains all the meta-data required to serialize it
- * as part of meta-model elements.
- *
- * @method Moddle#createAny
- *
- * @example
- *
- * var foo = moddle.createAny('vendor:Foo', 'http://vendor', {
- *   value: 'bar'
- * });
- *
- * var container = moddle.create('my:Container', 'http://my', {
- *   any: [ foo ]
- * });
- *
- * // go ahead and serialize the stuff
- *
- *
- * @param  {String} name  the name of the element
- * @param  {String} nsUri the namespace uri of the element
- * @param  {Object} [properties] a map of properties to initialize the instance with
- * @return {Object} the any type instance
- */
-Moddle.prototype.createAny = function(name, nsUri, properties) {
-
-  var nameNs = parseName(name);
-
-  var element = {
-    $type: name,
-    $instanceOf: function(type) {
-      return type === this.$type;
-    },
-    get: function(key) {
-      return this[key];
-    },
-    set: function(key, value) {
-      set(this, [ key ], value);
-    }
-  };
-
-  var descriptor = {
-    name: name,
-    isGeneric: true,
-    ns: {
-      prefix: nameNs.prefix,
-      localName: nameNs.localName,
-      uri: nsUri
-    }
-  };
-
-  this.properties.defineDescriptor(element, descriptor);
-  this.properties.defineModel(element, this);
-  this.properties.define(element, 'get', { enumerable: false, writable: true });
-  this.properties.define(element, 'set', { enumerable: false, writable: true });
-  this.properties.define(element, '$parent', { enumerable: false, writable: true });
-  this.properties.define(element, '$instanceOf', { enumerable: false, writable: true });
-
-  forEach$1(properties, function(a, key) {
-    if (isObject(a) && a.value !== undefined) {
-      element[a.name] = a.value;
-    } else {
-      element[key] = a;
-    }
-  });
-
-  return element;
-};
-
-/**
- * Returns a registered package by uri or prefix
- *
- * @return {Object} the package
- */
-Moddle.prototype.getPackage = function(uriOrPrefix) {
-  return this.registry.getPackage(uriOrPrefix);
-};
-
-/**
- * Returns a snapshot of all known packages
- *
- * @return {Object} the package
- */
-Moddle.prototype.getPackages = function() {
-  return this.registry.getPackages();
-};
-
-/**
- * Returns the descriptor for an element
- */
-Moddle.prototype.getElementDescriptor = function(element) {
-  return element.$descriptor;
-};
-
-/**
- * Returns true if the given descriptor or instance
- * represents the given type.
- *
- * May be applied to this, if element is omitted.
- */
-Moddle.prototype.hasType = function(element, type) {
-  if (type === undefined) {
-    type = element;
-    element = this;
-  }
-
-  var descriptor = element.$model.getElementDescriptor(element);
-
-  return (type in descriptor.allTypesByName);
-};
-
-/**
- * Returns the descriptor of an elements named property
- */
-Moddle.prototype.getPropertyDescriptor = function(element, property) {
-  return this.getElementDescriptor(element).propertiesByName[property];
-};
-
-/**
- * Returns a mapped type's descriptor
- */
-Moddle.prototype.getTypeDescriptor = function(type) {
-  return this.registry.typeMap[type];
-};
 
 var fromCharCode = String.fromCharCode;
 
@@ -4058,16 +4574,16 @@ function Parser$1(options) {
         data = xml.substring(j);
       } else
 
-      // start errors
-      if (j === 0) {
-        data = xml.substring(j, i);
-      }
+        // start errors
+        if (j === 0) {
+          data = xml.substring(j, i);
+        }
 
-      // other errors
-      else {
-        column = i - startOfLine;
-        data = (j == -1 ? xml.substring(i) : xml.substring(i, j + 1));
-      }
+        // other errors
+        else {
+          column = i - startOfLine;
+          data = (j == -1 ? xml.substring(i) : xml.substring(i, j + 1));
+        }
 
       return {
         'data': data,
@@ -4529,7 +5045,7 @@ function Context(options) {
    * @property {Boolean} lax
    */
 
-  assign$2(this, options);
+  assign$7(this, options);
 
   this.elementsById = {};
   this.references = [];
@@ -4750,7 +5266,7 @@ ElementHandler.prototype.createElement = function(node) {
       model = this.model,
       propNameNs;
 
-  forEach$1(attributes, function(value, name) {
+  forEach$4(attributes, function(value, name) {
 
     var prop = descriptor.propertiesByName[name],
         values;
@@ -4768,7 +5284,7 @@ ElementHandler.prototype.createElement = function(node) {
         // IDREFS: parse references as whitespace-separated list
         values = value.split(' ');
 
-        forEach$1(values, function(v) {
+        forEach$4(values, function(v) {
           context.addReference({
             element: instance,
             property: prop.ns.name,
@@ -4837,7 +5353,7 @@ ElementHandler.prototype.getPropertyForNode = function(node) {
 
         const elementType = model.getType(normalizedTypeName);
 
-        return assign$2({}, property, {
+        return assign$7({}, property, {
           effectiveType: getModdleDescriptor(elementType).name
         });
       }
@@ -4854,19 +5370,19 @@ ElementHandler.prototype.getPropertyForNode = function(node) {
     const elementType = model.getType(elementTypeName);
 
     // search for collection members later
-    property = find$1(descriptor.properties, function(p) {
+    property = find$3(descriptor.properties, function(p) {
       return !p.isVirtual && !p.isReference && !p.isAttribute && elementType.hasType(p.type);
     });
 
     if (property) {
-      return assign$2({}, property, {
+      return assign$7({}, property, {
         effectiveType: getModdleDescriptor(elementType).name
       });
     }
   } else {
 
     // parse unknown element (maybe extension)
-    property = find$1(descriptor.properties, function(p) {
+    property = find$3(descriptor.properties, function(p) {
       return !p.isReference && !p.isAttribute && p.type === 'Element';
     });
 
@@ -4934,7 +5450,7 @@ ElementHandler.prototype.handleChild = function(node) {
     }
 
     if (propertyDesc.isReference) {
-      assign$2(newElement, {
+      assign$7(newElement, {
         element: element
       });
 
@@ -5043,7 +5559,7 @@ function Reader(options) {
     };
   }
 
-  assign$2(this, { lax: false }, options);
+  assign$7(this, { lax: false }, options);
 }
 
 /**
@@ -5098,7 +5614,7 @@ Reader.prototype.fromXML = function(xml, options, done) {
   var model = this.model,
       lax = this.lax;
 
-  var context = new Context(assign$2({}, options, { rootHandler: rootHandler })),
+  var context = new Context(assign$7({}, options, { rootHandler: rootHandler })),
       parser = new Parser$1({ proxy: true }),
       stack = createStack();
 
@@ -5503,14 +6019,14 @@ function getNsAttrs(namespaces) {
 
 function getElementNs(ns, descriptor) {
   if (descriptor.isGeneric) {
-    return assign$2({ localName: descriptor.ns.localName }, ns);
+    return assign$7({ localName: descriptor.ns.localName }, ns);
   } else {
-    return assign$2({ localName: nameToAlias(descriptor.ns.localName, descriptor.$pkg) }, ns);
+    return assign$7({ localName: nameToAlias(descriptor.ns.localName, descriptor.$pkg) }, ns);
   }
 }
 
 function getPropertyNs(ns, descriptor) {
-  return assign$2({ localName: descriptor.ns.localName }, ns);
+  return assign$7({ localName: descriptor.ns.localName }, ns);
 }
 
 function getSerializableProperties(element) {
@@ -5524,7 +6040,7 @@ function getSerializableProperties(element) {
     }
 
     // do not serialize defaults
-    if (!has$1(element, name)) {
+    if (!has$4(element, name)) {
       return false;
     }
 
@@ -5744,7 +6260,7 @@ ElementSerializer.prototype.nsAttributeName = function(element) {
   if (this.isLocalNs(effectiveNs)) {
     return { localName: ns.localName };
   } else {
-    return assign$2({ localName: ns.localName }, effectiveNs);
+    return assign$7({ localName: ns.localName }, effectiveNs);
   }
 };
 
@@ -5767,7 +6283,7 @@ ElementSerializer.prototype.parseGenericContainments = function(element) {
   var children = element.$children;
 
   if (children) {
-    forEach$1(children, child => {
+    forEach$4(children, child => {
       this.body.push(new ElementSerializer(this).build(child));
     });
   }
@@ -5827,7 +6343,7 @@ ElementSerializer.prototype.parseNsAttributes = function(element) {
   // parse namespace attributes first
   // and log them. push non namespace attributes to a list
   // and process them later
-  forEach$1(genericAttrs, function(value, name) {
+  forEach$4(genericAttrs, function(value, name) {
 
     var nonNsAttr = self.parseNsAttribute(element, name, value);
 
@@ -5843,7 +6359,7 @@ ElementSerializer.prototype.parseGenericAttributes = function(element, attribute
 
   var self = this;
 
-  forEach$1(attributes, function(attr) {
+  forEach$4(attributes, function(attr) {
 
     try {
       self.addAttribute(self.nsAttributeName(attr.name), attr.value);
@@ -5865,7 +6381,7 @@ ElementSerializer.prototype.parseContainments = function(properties) {
       body = this.body,
       element = this.element;
 
-  forEach$1(properties, function(p) {
+  forEach$4(properties, function(p) {
     var value = element.get(p.name),
         isReference = p.isReference,
         isMany = p.isMany;
@@ -5877,11 +6393,11 @@ ElementSerializer.prototype.parseContainments = function(properties) {
     if (p.isBody) {
       body.push(new BodySerializer().build(p, value[0]));
     } else if (isSimple(p.type)) {
-      forEach$1(value, function(v) {
+      forEach$4(value, function(v) {
         body.push(new ValueSerializer(self.addTagName(self.nsPropertyTagName(p))).build(p, v));
       });
     } else if (isReference) {
-      forEach$1(value, function(v) {
+      forEach$4(value, function(v) {
         body.push(new ReferenceSerializer(self.addTagName(self.nsPropertyTagName(p))).build(v));
       });
     } else {
@@ -5890,7 +6406,7 @@ ElementSerializer.prototype.parseContainments = function(properties) {
       // rather than element name
       var serialization = getSerialization(p);
 
-      forEach$1(value, function(v) {
+      forEach$4(value, function(v) {
         var serializer;
 
         if (serialization) {
@@ -6002,7 +6518,7 @@ ElementSerializer.prototype.parseAttributes = function(properties) {
   var self = this,
       element = this.element;
 
-  forEach$1(properties, function(p) {
+  forEach$4(properties, function(p) {
 
     var value = element.get(p.name);
 
@@ -6012,7 +6528,7 @@ ElementSerializer.prototype.parseAttributes = function(properties) {
         value = value.id;
       } else {
         var values = [];
-        forEach$1(value, function(v) {
+        forEach$4(value, function(v) {
           values.push(v.id);
         });
 
@@ -6068,7 +6584,7 @@ ElementSerializer.prototype.serializeAttributes = function(writer) {
     attrs = getNsAttrs(namespaces).concat(attrs);
   }
 
-  forEach$1(attrs, function(a) {
+  forEach$4(attrs, function(a) {
     writer
       .append(' ')
       .append(nsName(a.name)).append('="').append(a.value).append('"');
@@ -6095,7 +6611,7 @@ ElementSerializer.prototype.serializeTo = function(writer) {
         .indent();
     }
 
-    forEach$1(this.body, function(b) {
+    forEach$4(this.body, function(b) {
       b.serializeTo(writer);
     });
 
@@ -6210,7 +6726,7 @@ function FormatingWriter(out, format) {
  */
 function Writer(options) {
 
-  options = assign$2({ format: false, preamble: true }, options || {});
+  options = assign$7({ format: false, preamble: true }, options || {});
 
   function toXML(tree, writer) {
     var internalWriter = writer || new SavingWriter();
@@ -6316,12 +6832,12 @@ DmnModdle.prototype = Object.create(Moddle.prototype);
  */
 DmnModdle.prototype.fromXML = function(xmlStr, typeName, options) {
 
-  if (!isString$1(typeName)) {
+  if (!isString$3(typeName)) {
     options = typeName;
     typeName = 'dmn:Definitions';
   }
 
-  var reader = new Reader(assign$2({ model: this, lax: true }, options));
+  var reader = new Reader(assign$9({ model: this, lax: true }, options));
   var rootHandler = reader.handler(typeName);
 
   return reader.fromXML(xmlStr, rootHandler);
@@ -7757,7 +8273,7 @@ var DmnPackage = {
 };
 
 var name$1 = "DMNDI";
-var prefix$1$1 = "dmndi";
+var prefix$1 = "dmndi";
 var uri$1 = "https://www.omg.org/spec/DMN/20191111/DMNDI/";
 var types$1$1 = [
 	{
@@ -7989,7 +8505,7 @@ var enumerations = [
 ];
 var DmnDiPackage = {
 	name: name$1,
-	prefix: prefix$1$1,
+	prefix: prefix$1,
 	uri: uri$1,
 	types: types$1$1,
 	associations: associations,
@@ -7998,7 +8514,7 @@ var DmnDiPackage = {
 
 var name$5 = "bpmn.io DI for DMN";
 var uri = "http://bpmn.io/schema/dmn/biodi/2.0";
-var prefix$5 = "biodi";
+var prefix = "biodi";
 var xml = {
 	tagAlias: "lowerCase"
 };
@@ -8049,7 +8565,7 @@ var types$5 = [
 var BioDiPackage = {
 	name: name$5,
 	uri: uri,
-	prefix: prefix$5,
+	prefix: prefix,
 	xml: xml,
 	types: types$5
 };
@@ -8063,12 +8579,175 @@ var packages = {
 };
 
 function simple(additionalPackages, options) {
-  var pks = assign$2({}, packages, additionalPackages);
+  var pks = assign$9({}, packages, additionalPackages);
 
   return new DmnModdle(pks, options);
 }
 
-function _mergeNamespaces$3(n, m) {
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
+ */
+
+const nativeToString$4 = Object.prototype.toString;
+const nativeHasOwnProperty$3 = Object.prototype.hasOwnProperty;
+
+function isUndefined$4(obj) {
+  return obj === undefined;
+}
+
+function isNil$3(obj) {
+  return obj == null;
+}
+
+function isArray$5(obj) {
+  return nativeToString$4.call(obj) === '[object Array]';
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has$3(target, key) {
+  return !isNil$3(target) && nativeHasOwnProperty$3.call(target, key);
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
+ *
+ * @return {T} return result that stopped the iteration
+ */
+function forEach$3(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined$4(collection)) {
+    return;
+  }
+
+  const convertKey = isArray$5(collection) ? toNum$3 : identity$3;
+
+  for (let key in collection) {
+
+    if (has$3(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+
+function identity$3(arg) {
+  return arg;
+}
+
+function toNum$3(arg) {
+  return Number(arg);
+}
+
+/* eslint-disable no-multi-assign */
+
+const wrapMap = {
+	legend: [1, '<fieldset>', '</fieldset>'],
+	tr: [2, '<table><tbody>', '</tbody></table>'],
+	col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+	_default: [0, '', ''],
+};
+
+wrapMap.td
+= wrapMap.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
+
+wrapMap.option
+= wrapMap.optgroup = [1, '<select multiple="multiple">', '</select>'];
+
+wrapMap.thead
+= wrapMap.tbody
+= wrapMap.colgroup
+= wrapMap.caption
+= wrapMap.tfoot = [1, '<table>', '</table>'];
+
+wrapMap.polyline
+= wrapMap.ellipse
+= wrapMap.polygon
+= wrapMap.circle
+= wrapMap.text
+= wrapMap.line
+= wrapMap.path
+= wrapMap.rect
+= wrapMap.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">', '</svg>'];
+
+function domify(htmlString, document = globalThis.document) {
+	if (typeof htmlString !== 'string') {
+		throw new TypeError('String expected');
+	}
+
+	// Handle comment nodes
+	const commentMatch = /^<!--(.*?)-->$/s.exec(htmlString);
+	if (commentMatch) {
+		return document.createComment(commentMatch[1]);
+	}
+
+	const tagName = /<([\w:]+)/.exec(htmlString)?.[1];
+
+	if (!tagName) {
+		return document.createTextNode(htmlString);
+	}
+
+	htmlString = htmlString.trim();
+
+	// Body support
+	if (tagName === 'body') {
+		const element = document.createElement('html');
+		element.innerHTML = htmlString;
+		const {lastChild} = element;
+		lastChild.remove();
+		return lastChild;
+	}
+
+	// Wrap map
+	let [depth, prefix, suffix] = Object.hasOwn(wrapMap, tagName) ? wrapMap[tagName] : wrapMap._default;
+	let element = document.createElement('div');
+	element.innerHTML = prefix + htmlString + suffix;
+	while (depth--) {
+		element = element.lastChild;
+	}
+
+	// One element
+	if (element.firstChild === element.lastChild) {
+		const {firstChild} = element;
+		firstChild.remove();
+		return firstChild;
+	}
+
+	// Several elements
+	const fragment = document.createDocumentFragment();
+	fragment.append(...element.childNodes);
+
+	return fragment;
+}
+
+function _mergeNamespaces$1(n, m) {
   m.forEach(function (e) {
     e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
       if (k !== 'default' && !(k in n)) {
@@ -8084,72 +8763,292 @@ function _mergeNamespaces$3(n, m) {
 }
 
 /**
+ * Assigns style attributes in a style-src compliant way.
+ *
+ * @param {Element} element
+ * @param {...Object} styleSources
+ *
+ * @return {Element} the element
+ */
+function assign$6(element, ...styleSources) {
+  const target = element.style;
+
+  forEach$3(styleSources, function(style) {
+    if (!style) {
+      return;
+    }
+
+    forEach$3(style, function(value, key) {
+      target[key] = value;
+    });
+  });
+
+  return element;
+}
+
+/**
+ * Set attribute `name` to `val`, or get attr `name`.
+ *
+ * @param {Element} el
+ * @param {String} name
+ * @param {String} [val]
+ * @api public
+ */
+function attr$1(el, name, val) {
+
+  // get
+  if (arguments.length == 2) {
+    return el.getAttribute(name);
+  }
+
+  // remove
+  if (val === null) {
+    return el.removeAttribute(name);
+  }
+
+  // set
+  el.setAttribute(name, val);
+
+  return el;
+}
+
+/**
+ * Taken from https://github.com/component/classes
+ *
+ * Without the component bits.
+ */
+
+/**
+ * toString reference.
+ */
+
+const toString$1 = Object.prototype.toString;
+
+/**
+ * Wrap `el` in a `ClassList`.
+ *
+ * @param {Element} el
+ * @return {ClassList}
+ * @api public
+ */
+
+function classes$1(el) {
+  return new ClassList$1(el);
+}
+
+/**
+ * Initialize a new ClassList for `el`.
+ *
+ * @param {Element} el
+ * @api private
+ */
+
+function ClassList$1(el) {
+  if (!el || !el.nodeType) {
+    throw new Error('A DOM element reference is required');
+  }
+  this.el = el;
+  this.list = el.classList;
+}
+
+/**
+ * Add class `name` if not already present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList$1.prototype.add = function(name) {
+  this.list.add(name);
+  return this;
+};
+
+/**
+ * Remove class `name` when present, or
+ * pass a regular expression to remove
+ * any which match.
+ *
+ * @param {String|RegExp} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList$1.prototype.remove = function(name) {
+  if ('[object RegExp]' == toString$1.call(name)) {
+    return this.removeMatching(name);
+  }
+
+  this.list.remove(name);
+  return this;
+};
+
+/**
+ * Remove all classes matching `re`.
+ *
+ * @param {RegExp} re
+ * @return {ClassList}
+ * @api private
+ */
+
+ClassList$1.prototype.removeMatching = function(re) {
+  const arr = this.array();
+  for (let i = 0; i < arr.length; i++) {
+    if (re.test(arr[i])) {
+      this.remove(arr[i]);
+    }
+  }
+  return this;
+};
+
+/**
+ * Toggle class `name`, can force state via `force`.
+ *
+ * For browsers that support classList, but do not support `force` yet,
+ * the mistake will be detected and corrected.
+ *
+ * @param {String} name
+ * @param {Boolean} force
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList$1.prototype.toggle = function(name, force) {
+  if ('undefined' !== typeof force) {
+    if (force !== this.list.toggle(name, force)) {
+      this.list.toggle(name); // toggle again to correct
+    }
+  } else {
+    this.list.toggle(name);
+  }
+  return this;
+};
+
+/**
+ * Return an array of classes.
+ *
+ * @return {Array}
+ * @api public
+ */
+
+ClassList$1.prototype.array = function() {
+  return Array.from(this.list);
+};
+
+/**
+ * Check if class `name` is present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList$1.prototype.has =
+ClassList$1.prototype.contains = function(name) {
+  return this.list.contains(name);
+};
+
+/**
+ * Clear utility
+ */
+
+/**
+ * Removes all children from the given element
+ *
+ * @param {Element} element
+ *
+ * @return {Element} the element (for chaining)
+ */
+function clear(element) {
+  var child;
+
+  while ((child = element.firstChild)) {
+    element.removeChild(child);
+  }
+
+  return element;
+}
+
+/**
  * Closest
  *
  * @param {Element} el
  * @param {string} selector
  * @param {boolean} checkYourSelf (optional)
  */
-function closest$2(element, selector, checkYourSelf) {
+function closest(element, selector, checkYourSelf) {
   var actualElement = checkYourSelf ? element : element.parentNode;
 
   return actualElement && typeof actualElement.closest === 'function' && actualElement.closest(selector) || null;
 }
 
-var componentEvent$2 = {};
-
-var bind$1$1, unbind$1$1, prefix$1;
-
-function detect$1 () {
-  bind$1$1 = window.addEventListener ? 'addEventListener' : 'attachEvent';
-  unbind$1$1 = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
-  prefix$1 = bind$1$1 !== 'addEventListener' ? 'on' : '';
+function getDefaultExportFromCjs$1 (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
-/**
- * Bind `el` event `type` to `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
+var componentEvent = {};
 
-var bind_1$1 = componentEvent$2.bind = function(el, type, fn, capture){
-  if (!bind$1$1) detect$1();
-  el[bind$1$1](prefix$1 + type, fn, capture || false);
-  return fn;
-};
+var hasRequiredComponentEvent;
 
-/**
- * Unbind `el` event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
+function requireComponentEvent () {
+	if (hasRequiredComponentEvent) return componentEvent;
+	hasRequiredComponentEvent = 1;
+	var bind, unbind, prefix;
 
-var unbind_1$1 = componentEvent$2.unbind = function(el, type, fn, capture){
-  if (!unbind$1$1) detect$1();
-  el[unbind$1$1](prefix$1 + type, fn, capture || false);
-  return fn;
-};
+	function detect () {
+	  bind = window.addEventListener ? 'addEventListener' : 'attachEvent';
+	  unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
+	  prefix = bind !== 'addEventListener' ? 'on' : '';
+	}
 
-var event$2 = /*#__PURE__*/_mergeNamespaces$3({
+	/**
+	 * Bind `el` event `type` to `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	componentEvent.bind = function(el, type, fn, capture){
+	  if (!bind) detect();
+	  el[bind](prefix + type, fn, capture || false);
+	  return fn;
+	};
+
+	/**
+	 * Unbind `el` event `type`'s callback `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	componentEvent.unbind = function(el, type, fn, capture){
+	  if (!unbind) detect();
+	  el[unbind](prefix + type, fn, capture || false);
+	  return fn;
+	};
+	return componentEvent;
+}
+
+var componentEventExports = requireComponentEvent();
+var index = /*@__PURE__*/getDefaultExportFromCjs$1(componentEventExports);
+
+var event = /*#__PURE__*/_mergeNamespaces$1({
   __proto__: null,
-  bind: bind_1$1,
-  unbind: unbind_1$1,
-  'default': componentEvent$2
-}, [componentEvent$2]);
+  default: index
+}, [componentEventExports]);
 
 /**
  * Module dependencies.
  */
+
 
 /**
  * Delegate event `type` to `selector`
@@ -8167,16 +9066,16 @@ var event$2 = /*#__PURE__*/_mergeNamespaces$3({
 
 // Some events don't bubble, so we want to bind to the capture phase instead
 // when delegating.
-var forceCaptureEvents$2 = [ 'focus', 'blur' ];
+var forceCaptureEvents = [ 'focus', 'blur' ];
 
-function bind$3(el, selector, type, fn, capture) {
-  if (forceCaptureEvents$2.indexOf(type) !== -1) {
+function bind(el, selector, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) {
     capture = true;
   }
 
-  return event$2.bind(el, type, function(e) {
+  return event.bind(el, type, function(e) {
     var target = e.target || e.srcElement;
-    e.delegateTarget = closest$2(target, selector, true);
+    e.delegateTarget = closest(target, selector, true);
     if (e.delegateTarget) {
       fn.call(el, e);
     }
@@ -8192,141 +9091,371 @@ function bind$3(el, selector, type, fn, capture) {
  * @param {Boolean} capture
  * @api public
  */
-function unbind$3(el, type, fn, capture) {
-  if (forceCaptureEvents$2.indexOf(type) !== -1) {
+function unbind(el, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) {
     capture = true;
   }
 
-  return event$2.unbind(el, type, fn, capture);
+  return event.unbind(el, type, fn, capture);
 }
 
-var delegate$2 = {
-  bind: bind$3,
-  unbind: unbind$3
+var delegate = {
+  bind,
+  unbind
 };
 
-/**
- * Expose `parse`.
- */
-
-var domify$6 = parse$7;
-
-/**
- * Tests for browser support.
- */
-
-var innerHTMLBug$4 = false;
-var bugTestDiv$4;
-if (typeof document !== 'undefined') {
-  bugTestDiv$4 = document.createElement('div');
-  // Setup
-  bugTestDiv$4.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
-  // Make sure that link elements get serialized correctly by innerHTML
-  // This requires a wrapper element in IE
-  innerHTMLBug$4 = !bugTestDiv$4.getElementsByTagName('link').length;
-  bugTestDiv$4 = undefined;
-}
-
-/**
- * Wrap map from jquery.
- */
-
-var map$4 = {
-  legend: [1, '<fieldset>', '</fieldset>'],
-  tr: [2, '<table><tbody>', '</tbody></table>'],
-  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-  // for script/link/style tags to work in IE6-8, you have to wrap
-  // in a div with a non-whitespace character in front, ha!
-  _default: innerHTMLBug$4 ? [1, 'X<div>', '</div>'] : [0, '', '']
-};
-
-map$4.td =
-map$4.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-map$4.option =
-map$4.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-map$4.thead =
-map$4.tbody =
-map$4.colgroup =
-map$4.caption =
-map$4.tfoot = [1, '<table>', '</table>'];
-
-map$4.polyline =
-map$4.ellipse =
-map$4.polygon =
-map$4.circle =
-map$4.text =
-map$4.line =
-map$4.path =
-map$4.rect =
-map$4.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
-
-/**
- * Parse `html` and return a DOM Node instance, which could be a TextNode,
- * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
- * instance, depending on the contents of the `html` string.
- *
- * @param {String} html - HTML string to "domify"
- * @param {Document} doc - The `document` instance to create the Node for
- * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
- * @api private
- */
-
-function parse$7(html, doc) {
-  if ('string' != typeof html) throw new TypeError('String expected');
-
-  // default to the global `document` object
-  if (!doc) doc = document;
-
-  // tag name
-  var m = /<([\w:]+)/.exec(html);
-  if (!m) return doc.createTextNode(html);
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
-  var tag = m[1];
-
-  // body support
-  if (tag == 'body') {
-    var el = doc.createElement('html');
-    el.innerHTML = html;
-    return el.removeChild(el.lastChild);
-  }
-
-  // wrap map
-  var wrap = Object.prototype.hasOwnProperty.call(map$4, tag) ? map$4[tag] : map$4._default;
-  var depth = wrap[0];
-  var prefix = wrap[1];
-  var suffix = wrap[2];
-  var el = doc.createElement('div');
-  el.innerHTML = prefix + html + suffix;
-  while (depth--) el = el.lastChild;
-
-  // one element
-  if (el.firstChild == el.lastChild) {
-    return el.removeChild(el.firstChild);
-  }
-
-  // several elements
-  var fragment = doc.createDocumentFragment();
-  while (el.firstChild) {
-    fragment.appendChild(el.removeChild(el.firstChild));
-  }
-
-  return fragment;
-}
-
-var domify$1$4 = domify$6;
-
-function query$2(selector, el) {
+function query(selector, el) {
   el = el || document;
 
   return el.querySelector(selector);
 }
 
-function remove$9(el) {
+function all(selector, el) {
+  el = el || document;
+
+  return el.querySelectorAll(selector);
+}
+
+function remove$4(el) {
   el.parentNode && el.parentNode.removeChild(el);
+}
+
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
+ */
+
+const nativeToString$3 = Object.prototype.toString;
+const nativeHasOwnProperty$2 = Object.prototype.hasOwnProperty;
+
+function isUndefined$3(obj) {
+  return obj === undefined;
+}
+
+function isDefined(obj) {
+  return obj !== undefined;
+}
+
+function isNil$2(obj) {
+  return obj == null;
+}
+
+function isArray$4(obj) {
+  return nativeToString$3.call(obj) === '[object Array]';
+}
+
+function isObject$1(obj) {
+  return nativeToString$3.call(obj) === '[object Object]';
+}
+
+function isNumber$2(obj) {
+  return nativeToString$3.call(obj) === '[object Number]';
+}
+
+/**
+ * @param {any} obj
+ *
+ * @return {boolean}
+ */
+function isFunction$3(obj) {
+  const tag = nativeToString$3.call(obj);
+
+  return (
+    tag === '[object Function]' ||
+    tag === '[object AsyncFunction]' ||
+    tag === '[object GeneratorFunction]' ||
+    tag === '[object AsyncGeneratorFunction]' ||
+    tag === '[object Proxy]'
+  );
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has$2(target, key) {
+  return !isNil$2(target) && nativeHasOwnProperty$2.call(target, key);
+}
+
+/**
+ * @template T
+ * @typedef { (
+ *   ((e: T) => boolean) |
+ *   ((e: T, idx: number) => boolean) |
+ *   ((e: T, key: string) => boolean) |
+ *   string |
+ *   number
+ * ) } Matcher
+ */
+
+/**
+ * @template T
+ * @template U
+ *
+ * @typedef { (
+ *   ((e: T) => U) | string | number
+ * ) } Extractor
+ */
+
+
+/**
+ * @template T
+ * @typedef { (val: T, key: any) => boolean } MatchFn
+ */
+
+/**
+ * @template T
+ * @typedef { T[] } ArrayCollection
+ */
+
+/**
+ * @template T
+ * @typedef { { [key: string]: T } } StringKeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { { [key: number]: T } } NumberKeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { StringKeyValueCollection<T> | NumberKeyValueCollection<T> } KeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { KeyValueCollection<T> | ArrayCollection<T> } Collection
+ */
+
+/**
+ * Find element in collection.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param {Matcher<T>} matcher
+ *
+ * @return {Object}
+ */
+function find$2(collection, matcher) {
+
+  const matchFn = toMatcher$1(matcher);
+
+  let match;
+
+  forEach$2(collection, function(val, key) {
+    if (matchFn(val, key)) {
+      match = val;
+
+      return false;
+    }
+  });
+
+  return match;
+
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
+ *
+ * @return {T} return result that stopped the iteration
+ */
+function forEach$2(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined$3(collection)) {
+    return;
+  }
+
+  const convertKey = isArray$4(collection) ? toNum$2 : identity$2;
+
+  for (let key in collection) {
+
+    if (has$2(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+
+/**
+ * Reduce collection, returning a single result.
+ *
+ * @template T
+ * @template V
+ *
+ * @param {Collection<T>} collection
+ * @param {(result: V, entry: T, index: any) => V} iterator
+ * @param {V} result
+ *
+ * @return {V} result returned from last iterator
+ */
+function reduce(collection, iterator, result) {
+
+  forEach$2(collection, function(value, idx) {
+    result = iterator(result, value, idx);
+  });
+
+  return result;
+}
+
+
+/**
+ * Return true if every element in the collection
+ * matches the criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} matcher
+ *
+ * @return {Boolean}
+ */
+function every(collection, matcher) {
+
+  return !!reduce(collection, function(matches, val, key) {
+    return matches && matcher(val, key);
+  }, true);
+}
+
+
+/**
+ * @template T
+ * @param {Matcher<T>} matcher
+ *
+ * @return {MatchFn<T>}
+ */
+function toMatcher$1(matcher) {
+  return isFunction$3(matcher) ? matcher : (e) => {
+    return e === matcher;
+  };
+}
+
+
+function identity$2(arg) {
+  return arg;
+}
+
+function toNum$2(arg) {
+  return Number(arg);
+}
+
+/**
+ * @typedef { {
+ *   (...args: any[]): any;
+ *   flush: () => void;
+ *   cancel: () => void;
+ * } } DebouncedFunction
+ */
+
+/**
+ * Debounce fn, calling it only once if the given time
+ * elapsed between calls.
+ *
+ * Lodash-style the function exposes methods to `#clear`
+ * and `#flush` to control internal behavior.
+ *
+ * @param  {Function} fn
+ * @param  {Number} timeout
+ *
+ * @return {DebouncedFunction} debounced function
+ */
+function debounce(fn, timeout) {
+
+  let timer;
+
+  let lastArgs;
+  let lastThis;
+
+  let lastNow;
+
+  function fire(force) {
+
+    let now = Date.now();
+
+    let scheduledDiff = force ? 0 : (lastNow + timeout) - now;
+
+    if (scheduledDiff > 0) {
+      return schedule(scheduledDiff);
+    }
+
+    fn.apply(lastThis, lastArgs);
+
+    clear();
+  }
+
+  function schedule(timeout) {
+    timer = setTimeout(fire, timeout);
+  }
+
+  function clear() {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = lastNow = lastArgs = lastThis = undefined;
+  }
+
+  function flush() {
+    if (timer) {
+      fire(true);
+    }
+
+    clear();
+  }
+
+  /**
+   * @type { DebouncedFunction }
+   */
+  function callback(...args) {
+    lastNow = Date.now();
+
+    lastArgs = args;
+    lastThis = this;
+
+    // ensure an execution is scheduled
+    if (!timer) {
+      schedule(timeout);
+    }
+  }
+
+  callback.flush = flush;
+  callback.cancel = clear;
+
+  return callback;
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign$5(target, ...others) {
+  return Object.assign(target, ...others);
 }
 
 // TODO: remove with future dmn-js version
@@ -8345,7 +9474,7 @@ function wrapForCompatibility(api) {
       throw new Error('Promises is not supported in this environment.' + ' Please polyfill Promise.');
     }
     var argLen = arguments.length;
-    if (argLen >= 1 && isFunction$2(arguments[argLen - 1])) {
+    if (argLen >= 1 && isFunction$3(arguments[argLen - 1])) {
       var callback = arguments[argLen - 1];
       console.warn(new Error('Passing callbacks to ' + replaceBoundPrefix(api.name) + ' is deprecated and will be removed in a future major release. ' + 'Please switch to promises: https://bpmn.io/l/moving-to-promises.html'));
       var argsWithoutCallback = Array.prototype.slice.call(arguments, 0, -1);
@@ -8714,30 +9843,30 @@ class Manager {
       parentNode = parentNode.get(0);
     }
     if (typeof parentNode === 'string') {
-      parentNode = query$2(parentNode);
+      parentNode = query(parentNode);
     }
     parentNode.appendChild(this._container);
     this._emit('attach', {});
   }
   detach() {
     this._emit('detach', {});
-    remove$9(this._container);
+    remove$4(this._container);
   }
   destroy() {
     Object.keys(this._viewers).forEach(viewerId => {
       var viewer = this._viewers[viewerId];
       safeExecute(viewer, 'destroy');
     });
-    remove$9(this._container);
+    remove$4(this._container);
   }
   _init(options) {
     this._options = options;
     this._moddle = this._createModdle(options);
     this._viewers = {};
     this._views = [];
-    const container = domify$1$4('<div class="dmn-js-parent"></div>');
-    const containerOptions = assign$2({}, DEFAULT_CONTAINER_OPTIONS, options);
-    assign$2(container.style, {
+    const container = domify('<div class="dmn-js-parent"></div>');
+    const containerOptions = assign$5({}, DEFAULT_CONTAINER_OPTIONS, options);
+    assign$5(container.style, {
       width: ensureUnit(containerOptions.width),
       height: ensureUnit(containerOptions.height),
       position: containerOptions.position
@@ -8790,7 +9919,7 @@ class Manager {
     var views = this._views,
       newViews = [];
     for (var element of displayableElements) {
-      var provider = find$1(viewProviders, function (provider) {
+      var provider = find$2(viewProviders, function (provider) {
         if (typeof provider.opens === 'string') {
           return provider.opens === element.$type;
         } else {
@@ -8812,7 +9941,7 @@ class Manager {
       newActiveView;
     if (activeView) {
       // check the new active view
-      newActiveView = find$1(newViews, function (view) {
+      newActiveView = find$2(newViews, function (view) {
         return viewsEqual(activeView, view);
       }) || this._getInitialView(newViews);
       if (!newActiveView) {
@@ -8827,7 +9956,7 @@ class Manager {
     // not all views equal
     var activeViewChanged = !viewsEqual(activeView, newActiveView) || viewNameChanged(activeView, newActiveView);
     var viewsChanged = views.length !== newViews.length || !every(newViews, function (newView) {
-      return find$1(views, function (view) {
+      return find$2(views, function (view) {
         return viewsEqual(view, newView) && !viewNameChanged(view, newView);
       });
     });
@@ -8840,9 +9969,9 @@ class Manager {
   _getInitialView(views, preferredView) {
     var initialView;
     if (preferredView) {
-      initialView = find$1(views, function (view) {
+      initialView = find$2(views, function (view) {
         return viewsEqual(view, preferredView);
-      }) || find$1(views, function (view) {
+      }) || find$2(views, function (view) {
         return view.type === preferredView;
       });
     }
@@ -8922,7 +10051,7 @@ class Manager {
     return viewer;
   }
   _createViewer(id) {
-    var provider = find$1(this._getViewProviders(), function (provider) {
+    var provider = find$2(this._getViewProviders(), function (provider) {
       return provider.id === id;
     });
     if (!provider) {
@@ -9016,430 +10145,12 @@ function viewNameChanged(a, b) {
   return !a || !b || a.name !== b.name;
 }
 function safeExecute(viewer, method) {
-  if (isFunction$2(viewer[method])) {
+  if (isFunction$3(viewer[method])) {
     viewer[method]();
   }
 }
 
-function _mergeNamespaces$2(n, m) {
-  m.forEach(function (e) {
-    e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
-      if (k !== 'default' && !(k in n)) {
-        var d = Object.getOwnPropertyDescriptor(e, k);
-        Object.defineProperty(n, k, d.get ? d : {
-          enumerable: true,
-          get: function () { return e[k]; }
-        });
-      }
-    });
-  });
-  return Object.freeze(n);
-}
-
-/**
- * Set attribute `name` to `val`, or get attr `name`.
- *
- * @param {Element} el
- * @param {String} name
- * @param {String} [val]
- * @api public
- */
-function attr$3(el, name, val) {
-
-  // get
-  if (arguments.length == 2) {
-    return el.getAttribute(name);
-  }
-
-  // set
-  el.setAttribute(name, val);
-
-  return el;
-}
-
-/**
- * Taken from https://github.com/component/classes
- *
- * Without the component bits.
- */
-
-/**
- * toString reference.
- */
-
-const toString$2 = Object.prototype.toString;
-
-/**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
- */
-
-function classes$2(el) {
-  return new ClassList$2(el);
-}
-
-/**
- * Initialize a new ClassList for `el`.
- *
- * @param {Element} el
- * @api private
- */
-
-function ClassList$2(el) {
-  if (!el || !el.nodeType) {
-    throw new Error('A DOM element reference is required');
-  }
-  this.el = el;
-  this.list = el.classList;
-}
-
-/**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList$2.prototype.add = function(name) {
-  this.list.add(name);
-  return this;
-};
-
-/**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList$2.prototype.remove = function(name) {
-  if ('[object RegExp]' == toString$2.call(name)) {
-    return this.removeMatching(name);
-  }
-
-  this.list.remove(name);
-  return this;
-};
-
-/**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
-
-ClassList$2.prototype.removeMatching = function(re) {
-  const arr = this.array();
-  for (let i = 0; i < arr.length; i++) {
-    if (re.test(arr[i])) {
-      this.remove(arr[i]);
-    }
-  }
-  return this;
-};
-
-/**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
-
-ClassList$2.prototype.toggle = function(name, force) {
-  if ('undefined' !== typeof force) {
-    if (force !== this.list.toggle(name, force)) {
-      this.list.toggle(name); // toggle again to correct
-    }
-  } else {
-    this.list.toggle(name);
-  }
-  return this;
-};
-
-/**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
-
-ClassList$2.prototype.array = function() {
-  return Array.from(this.list);
-};
-
-/**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList$2.prototype.has =
-ClassList$2.prototype.contains = function(name) {
-  return this.list.contains(name);
-};
-
-/**
- * Closest
- *
- * @param {Element} el
- * @param {string} selector
- * @param {boolean} checkYourSelf (optional)
- */
-function closest$1(element, selector, checkYourSelf) {
-  var actualElement = checkYourSelf ? element : element.parentNode;
-
-  return actualElement && typeof actualElement.closest === 'function' && actualElement.closest(selector) || null;
-}
-
-var componentEvent$1 = {};
-
-var bind$1, unbind$1, prefix;
-
-function detect () {
-  bind$1 = window.addEventListener ? 'addEventListener' : 'attachEvent';
-  unbind$1 = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
-  prefix = bind$1 !== 'addEventListener' ? 'on' : '';
-}
-
-/**
- * Bind `el` event `type` to `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-var bind_1 = componentEvent$1.bind = function(el, type, fn, capture){
-  if (!bind$1) detect();
-  el[bind$1](prefix + type, fn, capture || false);
-  return fn;
-};
-
-/**
- * Unbind `el` event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-var unbind_1 = componentEvent$1.unbind = function(el, type, fn, capture){
-  if (!unbind$1) detect();
-  el[unbind$1](prefix + type, fn, capture || false);
-  return fn;
-};
-
-var event$1 = /*#__PURE__*/_mergeNamespaces$2({
-  __proto__: null,
-  bind: bind_1,
-  unbind: unbind_1,
-  'default': componentEvent$1
-}, [componentEvent$1]);
-
-/**
- * Module dependencies.
- */
-
-/**
- * Delegate event `type` to `selector`
- * and invoke `fn(e)`. A callback function
- * is returned which may be passed to `.unbind()`.
- *
- * @param {Element} el
- * @param {String} selector
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-// Some events don't bubble, so we want to bind to the capture phase instead
-// when delegating.
-var forceCaptureEvents$1 = [ 'focus', 'blur' ];
-
-function bind$2(el, selector, type, fn, capture) {
-  if (forceCaptureEvents$1.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event$1.bind(el, type, function(e) {
-    var target = e.target || e.srcElement;
-    e.delegateTarget = closest$1(target, selector, true);
-    if (e.delegateTarget) {
-      fn.call(el, e);
-    }
-  }, capture);
-}
-
-/**
- * Unbind event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @api public
- */
-function unbind$2(el, type, fn, capture) {
-  if (forceCaptureEvents$1.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event$1.unbind(el, type, fn, capture);
-}
-
-var delegate$1 = {
-  bind: bind$2,
-  unbind: unbind$2
-};
-
-/**
- * Expose `parse`.
- */
-
-var domify$5 = parse$6;
-
-/**
- * Tests for browser support.
- */
-
-var innerHTMLBug$3 = false;
-var bugTestDiv$3;
-if (typeof document !== 'undefined') {
-  bugTestDiv$3 = document.createElement('div');
-  // Setup
-  bugTestDiv$3.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
-  // Make sure that link elements get serialized correctly by innerHTML
-  // This requires a wrapper element in IE
-  innerHTMLBug$3 = !bugTestDiv$3.getElementsByTagName('link').length;
-  bugTestDiv$3 = undefined;
-}
-
-/**
- * Wrap map from jquery.
- */
-
-var map$3 = {
-  legend: [1, '<fieldset>', '</fieldset>'],
-  tr: [2, '<table><tbody>', '</tbody></table>'],
-  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-  // for script/link/style tags to work in IE6-8, you have to wrap
-  // in a div with a non-whitespace character in front, ha!
-  _default: innerHTMLBug$3 ? [1, 'X<div>', '</div>'] : [0, '', '']
-};
-
-map$3.td =
-map$3.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-map$3.option =
-map$3.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-map$3.thead =
-map$3.tbody =
-map$3.colgroup =
-map$3.caption =
-map$3.tfoot = [1, '<table>', '</table>'];
-
-map$3.polyline =
-map$3.ellipse =
-map$3.polygon =
-map$3.circle =
-map$3.text =
-map$3.line =
-map$3.path =
-map$3.rect =
-map$3.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
-
-/**
- * Parse `html` and return a DOM Node instance, which could be a TextNode,
- * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
- * instance, depending on the contents of the `html` string.
- *
- * @param {String} html - HTML string to "domify"
- * @param {Document} doc - The `document` instance to create the Node for
- * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
- * @api private
- */
-
-function parse$6(html, doc) {
-  if ('string' != typeof html) throw new TypeError('String expected');
-
-  // default to the global `document` object
-  if (!doc) doc = document;
-
-  // tag name
-  var m = /<([\w:]+)/.exec(html);
-  if (!m) return doc.createTextNode(html);
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
-  var tag = m[1];
-
-  // body support
-  if (tag == 'body') {
-    var el = doc.createElement('html');
-    el.innerHTML = html;
-    return el.removeChild(el.lastChild);
-  }
-
-  // wrap map
-  var wrap = Object.prototype.hasOwnProperty.call(map$3, tag) ? map$3[tag] : map$3._default;
-  var depth = wrap[0];
-  var prefix = wrap[1];
-  var suffix = wrap[2];
-  var el = doc.createElement('div');
-  el.innerHTML = prefix + html + suffix;
-  while (depth--) el = el.lastChild;
-
-  // one element
-  if (el.firstChild == el.lastChild) {
-    return el.removeChild(el.firstChild);
-  }
-
-  // several elements
-  var fragment = doc.createDocumentFragment();
-  while (el.firstChild) {
-    fragment.appendChild(el.removeChild(el.firstChild));
-  }
-
-  return fragment;
-}
-
-var domify$1$3 = domify$5;
-
-function query$1(selector, el) {
-  el = el || document;
-
-  return el.querySelector(selector);
-}
-
-function remove$8(el) {
-  el.parentNode && el.parentNode.removeChild(el);
-}
-
-const CLASS_PATTERN$1 = /^class[ {]/;
+const CLASS_PATTERN = /^class[ {]/;
 
 
 /**
@@ -9447,8 +10158,8 @@ const CLASS_PATTERN$1 = /^class[ {]/;
  *
  * @return {boolean}
  */
-function isClass$1(fn) {
-  return CLASS_PATTERN$1.test(fn.toString());
+function isClass(fn) {
+  return CLASS_PATTERN.test(fn.toString());
 }
 
 /**
@@ -9466,7 +10177,7 @@ function isArray$3(obj) {
  *
  * @return {boolean}
  */
-function hasOwnProp$1(obj, prop) {
+function hasOwnProp(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
@@ -9481,7 +10192,7 @@ function hasOwnProp$1(obj, prop) {
  *
  * @return {T & InjectAnnotated}
  */
-function annotate$1(...args) {
+function annotate(...args) {
 
   if (args.length === 1 && isArray$3(args[0])) {
     args = args[0];
@@ -9510,22 +10221,22 @@ function annotate$1(...args) {
 // first constructor(...) pattern found which may be the one
 // of a nested class, too.
 
-const CONSTRUCTOR_ARGS$1 = /constructor\s*[^(]*\(\s*([^)]*)\)/m;
-const FN_ARGS$1 = /^(?:async\s+)?(?:function\s*[^(]*)?(?:\(\s*([^)]*)\)|(\w+))/m;
-const FN_ARG$1 = /\/\*([^*]*)\*\//m;
+const CONSTRUCTOR_ARGS = /constructor\s*[^(]*\(\s*([^)]*)\)/m;
+const FN_ARGS = /^(?:async\s+)?(?:function\s*[^(]*)?(?:\(\s*([^)]*)\)|(\w+))/m;
+const FN_ARG = /\/\*([^*]*)\*\//m;
 
 /**
  * @param {unknown} fn
  *
  * @return {string[]}
  */
-function parseAnnotations$1(fn) {
+function parseAnnotations(fn) {
 
   if (typeof fn !== 'function') {
     throw new Error(`Cannot annotate "${fn}". Expected a function!`);
   }
 
-  const match = fn.toString().match(isClass$1(fn) ? CONSTRUCTOR_ARGS$1 : FN_ARGS$1);
+  const match = fn.toString().match(isClass(fn) ? CONSTRUCTOR_ARGS : FN_ARGS);
 
   // may parse class without constructor
   if (!match) {
@@ -9535,7 +10246,7 @@ function parseAnnotations$1(fn) {
   const args = match[1] || match[2];
 
   return args && args.split(',').map(arg => {
-    const argMatch = arg.match(FN_ARG$1);
+    const argMatch = arg.match(FN_ARG);
     return (argMatch && argMatch[1] || arg).trim();
   }) || [];
 }
@@ -9554,7 +10265,7 @@ function parseAnnotations$1(fn) {
  * @param {ModuleDefinition[]} modules
  * @param {InjectorContext} [_parent]
  */
-function Injector$1(modules, _parent) {
+function Injector(modules, _parent) {
 
   const parent = _parent || /** @type InjectorContext */ ({
     get: function(name, strict) {
@@ -9601,11 +10312,11 @@ function Injector$1(modules, _parent) {
       return pivot;
     }
 
-    if (hasOwnProp$1(instances, name)) {
+    if (hasOwnProp(instances, name)) {
       return instances[name];
     }
 
-    if (hasOwnProp$1(providers, name)) {
+    if (hasOwnProp(providers, name)) {
       if (currentlyResolving.indexOf(name) !== -1) {
         currentlyResolving.push(name);
         throw error('Cannot resolve circular dependency!');
@@ -9629,7 +10340,7 @@ function Injector$1(modules, _parent) {
 
     if (typeof fn !== 'function') {
       if (isArray$3(fn)) {
-        fn = annotate$1(fn.slice());
+        fn = annotate(fn.slice());
       } else {
         throw error(`Cannot invoke "${ fn }". Expected a function!`);
       }
@@ -9638,9 +10349,9 @@ function Injector$1(modules, _parent) {
     /**
      * @type {string[]}
      */
-    const inject = fn.$inject || parseAnnotations$1(fn);
+    const inject = fn.$inject || parseAnnotations(fn);
     const dependencies = inject.map(dep => {
-      if (hasOwnProp$1(locals, dep)) {
+      if (hasOwnProp(locals, dep)) {
         return locals[dep];
       } else {
         return get(dep);
@@ -9700,7 +10411,7 @@ function Injector$1(modules, _parent) {
    * @return {Function}
    */
   function createPrivateInjectorFactory(childInjector) {
-    return annotate$1(key => childInjector.get(key));
+    return annotate(key => childInjector.get(key));
   }
 
   /**
@@ -9765,7 +10476,7 @@ function Injector$1(modules, _parent) {
       modules.unshift(fromParentModule);
     }
 
-    return new Injector$1(modules, self);
+    return new Injector(modules, self);
   }
 
   const factoryMap = {
@@ -9820,7 +10531,7 @@ function Injector$1(modules, _parent) {
       const childModules = (nestedModules || []).concat(clonedModule);
 
       const privateInjector = createChild(childModules);
-      const getFromPrivateInjector = annotate$1(function(key) {
+      const getFromPrivateInjector = annotate(function(key) {
         return privateInjector.get(key);
       });
 
@@ -9861,7 +10572,7 @@ function Injector$1(modules, _parent) {
       const type = typeDeclaration[0];
       const value = typeDeclaration[1];
 
-      providers[key] = [ factoryMap[type], arrayUnwrap$1(type, value), type ];
+      providers[key] = [ factoryMap[type], arrayUnwrap(type, value), type ];
     });
 
     return createInitializer(moduleDefinition, self);
@@ -9926,9 +10637,9 @@ function Injector$1(modules, _parent) {
 
 // helpers ///////////////
 
-function arrayUnwrap$1(type, value) {
+function arrayUnwrap(type, value) {
   if (type !== 'value' && isArray$3(value)) {
-    value = annotate$1(value.slice());
+    value = annotate(value.slice());
   }
 
   return value;
@@ -10030,7 +10741,7 @@ BaseRenderer.prototype.getShapePath = function(shape) {};
  */
 BaseRenderer.prototype.getConnectionPath = function(connection) {};
 
-function ensureImported$1(element, target) {
+function ensureImported(element, target) {
 
   if (element.ownerDocument !== target.ownerDocument) {
     try {
@@ -10059,8 +10770,8 @@ function ensureImported$1(element, target) {
  *
  * @return {SVGElement} the appended node
  */
-function appendTo$1(element, target) {
-  return target.appendChild(ensureImported$1(element, target));
+function appendTo(element, target) {
+  return target.appendChild(ensureImported(element, target));
 }
 
 /**
@@ -10076,8 +10787,8 @@ function appendTo$1(element, target) {
  *
  * @return {SVGElement} the element
  */
-function append$1(target, node) {
-  appendTo$1(node, target);
+function append(target, node) {
+  appendTo(node, target);
   return target;
 }
 
@@ -10085,9 +10796,9 @@ function append$1(target, node) {
  * attribute accessor utility
  */
 
-var LENGTH_ATTR$1 = 2;
+var LENGTH_ATTR = 2;
 
-var CSS_PROPERTIES$1 = {
+var CSS_PROPERTIES = {
   'alignment-baseline': 1,
   'baseline-shift': 1,
   'clip': 1,
@@ -10111,7 +10822,7 @@ var CSS_PROPERTIES$1 = {
   'flood-opacity': 1,
   'font': 1,
   'font-family': 1,
-  'font-size': LENGTH_ATTR$1,
+  'font-size': LENGTH_ATTR,
   'font-size-adjust': 1,
   'font-stretch': 1,
   'font-style': 1,
@@ -10141,7 +10852,7 @@ var CSS_PROPERTIES$1 = {
   'stroke-linejoin': 1,
   'stroke-miterlimit': 1,
   'stroke-opacity': 1,
-  'stroke-width': LENGTH_ATTR$1,
+  'stroke-width': LENGTH_ATTR,
   'text-anchor': 1,
   'text-decoration': 1,
   'text-rendering': 1,
@@ -10152,23 +10863,23 @@ var CSS_PROPERTIES$1 = {
 };
 
 
-function getAttribute$1(node, name) {
-  if (CSS_PROPERTIES$1[name]) {
+function getAttribute(node, name) {
+  if (CSS_PROPERTIES[name]) {
     return node.style[name];
   } else {
     return node.getAttributeNS(null, name);
   }
 }
 
-function setAttribute$1(node, name, value) {
+function setAttribute(node, name, value) {
   var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 
-  var type = CSS_PROPERTIES$1[hyphenated];
+  var type = CSS_PROPERTIES[hyphenated];
 
   if (type) {
 
     // append pixel unit, unless present
-    if (type === LENGTH_ATTR$1 && typeof value === 'number') {
+    if (type === LENGTH_ATTR && typeof value === 'number') {
       value = String(value) + 'px';
     }
 
@@ -10178,12 +10889,12 @@ function setAttribute$1(node, name, value) {
   }
 }
 
-function setAttributes$1(node, attrs) {
+function setAttributes(node, attrs) {
 
   var names = Object.keys(attrs), i, name;
 
   for (i = 0, name; (name = names[i]); i++) {
-    setAttribute$1(node, name, attrs[name]);
+    setAttribute(node, name, attrs[name]);
   }
 }
 
@@ -10197,15 +10908,15 @@ function setAttributes$1(node, attrs) {
  *
  * @return {String}
  */
-function attr$2(node, name, value) {
+function attr(node, name, value) {
   if (typeof name === 'string') {
     if (value !== undefined) {
-      setAttribute$1(node, name, value);
+      setAttribute(node, name, value);
     } else {
-      return getAttribute$1(node, name);
+      return getAttribute(node, name);
     }
   } else {
-    setAttributes$1(node, name);
+    setAttributes(node, name);
   }
 
   return node;
@@ -10221,7 +10932,7 @@ function attr$2(node, name, value) {
  * toString reference.
  */
 
-const toString$1 = Object.prototype.toString;
+const toString = Object.prototype.toString;
 
 /**
   * Wrap `el` in a `ClassList`.
@@ -10231,11 +10942,11 @@ const toString$1 = Object.prototype.toString;
   * @api public
   */
 
-function classes$1(el) {
-  return new ClassList$1(el);
+function classes(el) {
+  return new ClassList(el);
 }
 
-function ClassList$1(el) {
+function ClassList(el) {
   if (!el || !el.nodeType) {
     throw new Error('A DOM element reference is required');
   }
@@ -10251,7 +10962,7 @@ function ClassList$1(el) {
   * @api public
   */
 
-ClassList$1.prototype.add = function(name) {
+ClassList.prototype.add = function(name) {
   this.list.add(name);
   return this;
 };
@@ -10266,8 +10977,8 @@ ClassList$1.prototype.add = function(name) {
   * @api public
   */
 
-ClassList$1.prototype.remove = function(name) {
-  if ('[object RegExp]' == toString$1.call(name)) {
+ClassList.prototype.remove = function(name) {
+  if ('[object RegExp]' == toString.call(name)) {
     return this.removeMatching(name);
   }
 
@@ -10283,7 +10994,7 @@ ClassList$1.prototype.remove = function(name) {
   * @api private
   */
 
-ClassList$1.prototype.removeMatching = function(re) {
+ClassList.prototype.removeMatching = function(re) {
   const arr = this.array();
   for (let i = 0; i < arr.length; i++) {
     if (re.test(arr[i])) {
@@ -10305,7 +11016,7 @@ ClassList$1.prototype.removeMatching = function(re) {
   * @api public
   */
 
-ClassList$1.prototype.toggle = function(name, force) {
+ClassList.prototype.toggle = function(name, force) {
   if ('undefined' !== typeof force) {
     if (force !== this.list.toggle(name, force)) {
       this.list.toggle(name); // toggle again to correct
@@ -10323,7 +11034,7 @@ ClassList$1.prototype.toggle = function(name, force) {
   * @api public
   */
 
-ClassList$1.prototype.array = function() {
+ClassList.prototype.array = function() {
   return Array.from(this.list);
 };
 
@@ -10335,12 +11046,12 @@ ClassList$1.prototype.array = function() {
   * @api public
   */
 
-ClassList$1.prototype.has =
- ClassList$1.prototype.contains = function(name) {
+ClassList.prototype.has =
+ ClassList.prototype.contains = function(name) {
    return this.list.contains(name);
  };
 
-var ns$1 = {
+var ns = {
   svg: 'http://www.w3.org/2000/svg'
 };
 
@@ -10349,25 +11060,25 @@ var ns$1 = {
  */
 
 
-var SVG_START$1 = '<svg xmlns="' + ns$1.svg + '"';
+var SVG_START = '<svg xmlns="' + ns.svg + '"';
 
-function parse$5(svg) {
+function parse$1(svg) {
 
   var unwrap = false;
 
   // ensure we import a valid svg document
   if (svg.substring(0, 4) === '<svg') {
-    if (svg.indexOf(ns$1.svg) === -1) {
-      svg = SVG_START$1 + svg.substring(4);
+    if (svg.indexOf(ns.svg) === -1) {
+      svg = SVG_START + svg.substring(4);
     }
   } else {
 
     // namespace svg
-    svg = SVG_START$1 + '>' + svg + '</svg>';
+    svg = SVG_START + '>' + svg + '</svg>';
     unwrap = true;
   }
 
-  var parsed = parseDocument$1(svg);
+  var parsed = parseDocument(svg);
 
   if (!unwrap) {
     return parsed;
@@ -10384,7 +11095,7 @@ function parse$5(svg) {
   return fragment;
 }
 
-function parseDocument$1(svg) {
+function parseDocument(svg) {
 
   var parser;
 
@@ -10409,20 +11120,20 @@ function parseDocument$1(svg) {
  *
  * @returns {SVGElement}
  */
-function create$3(name, attrs) {
+function create$2(name, attrs) {
   var element;
 
   name = name.trim();
 
   if (name.charAt(0) === '<') {
-    element = parse$5(name).firstChild;
+    element = parse$1(name).firstChild;
     element = document.importNode(element, true);
   } else {
-    element = document.createElementNS(ns$1.svg, name);
+    element = document.createElementNS(ns.svg, name);
   }
 
   if (attrs) {
-    attr$2(element, attrs);
+    attr(element, attrs);
   }
 
   return element;
@@ -10438,7 +11149,7 @@ var node = null;
 
 function getNode() {
   if (node === null) {
-    node = create$3('svg');
+    node = create$2('svg');
   }
 
   return node;
@@ -10491,7 +11202,103 @@ function createTransform(matrix) {
   }
 }
 
-function remove$7(element) {
+/**
+ * Serialization util
+ */
+
+var TEXT_ENTITIES = /([&<>]{1})/g;
+var ATTR_ENTITIES = /([&<>\n\r"]{1})/g;
+
+var ENTITY_REPLACEMENT = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '\''
+};
+
+function escape(str, pattern) {
+
+  function replaceFn(match, entity) {
+    return ENTITY_REPLACEMENT[entity] || entity;
+  }
+
+  return str.replace(pattern, replaceFn);
+}
+
+function serialize(node, output) {
+
+  var i, len, attrMap, attrNode, childNodes;
+
+  switch (node.nodeType) {
+
+  // TEXT
+  case 3:
+
+    // replace special XML characters
+    output.push(escape(node.textContent, TEXT_ENTITIES));
+    break;
+
+  // ELEMENT
+  case 1:
+    output.push('<', node.tagName);
+
+    if (node.hasAttributes()) {
+      attrMap = node.attributes;
+      for (i = 0, len = attrMap.length; i < len; ++i) {
+        attrNode = attrMap.item(i);
+        output.push(' ', attrNode.name, '="', escape(attrNode.value, ATTR_ENTITIES), '"');
+      }
+    }
+
+    if (node.hasChildNodes()) {
+      output.push('>');
+      childNodes = node.childNodes;
+      for (i = 0, len = childNodes.length; i < len; ++i) {
+        serialize(childNodes.item(i), output);
+      }
+      output.push('</', node.tagName, '>');
+    } else {
+      output.push('/>');
+    }
+    break;
+
+  // COMMENT
+  case 8:
+    output.push('<!--', escape(node.nodeValue, TEXT_ENTITIES), '-->');
+    break;
+
+  // CDATA
+  case 4:
+    output.push('<![CDATA[', node.nodeValue, ']]>');
+    break;
+
+  default:
+    throw new Error('unable to handle node ' + node.nodeType);
+  }
+
+  return output;
+}
+
+function get$1(element) {
+  var child = element.firstChild,
+      output = [];
+
+  while (child) {
+    serialize(child, output);
+    child = child.nextSibling;
+  }
+
+  return output.join('');
+}
+
+function innerSVG(element, svg) {
+
+  {
+    return get$1(element);
+  }
+}
+
+function remove$3(element) {
   var parent = element.parentNode;
 
   if (parent) {
@@ -10675,7 +11482,7 @@ function createLine(points, attrs, radius) {
     attrs = {};
   }
 
-  const line = create$3('path', attrs);
+  const line = create$2('path', attrs);
 
   if (isNumber$3(radius)) {
     line.dataset.cornerRadius = String(radius);
@@ -10694,7 +11501,7 @@ function updateLine(gfx, points) {
 
   const cornerRadius = parseInt(gfx.dataset.cornerRadius, 10) || 0;
 
-  attr$2(gfx, {
+  attr(gfx, {
     d: componentsToPath(drawPath(points, cornerRadius))
   });
 
@@ -10713,7 +11520,7 @@ function updateLine(gfx, points) {
 function getBBox(elements, stopRecursion) {
 
   stopRecursion = !!stopRecursion;
-  if (!isArray$5(elements)) {
+  if (!isArray$8(elements)) {
     elements = [ elements ];
   }
 
@@ -10722,7 +11529,7 @@ function getBBox(elements, stopRecursion) {
       maxX,
       maxY;
 
-  forEach$2(elements, function(element) {
+  forEach$6(elements, function(element) {
 
     // If element is a connection the bbox must be computed first
     var bbox = element;
@@ -10825,9 +11632,9 @@ DefaultRenderer.prototype.canRender = function() {
  * @private
  */
 DefaultRenderer.prototype.drawShape = function drawShape(visuals, element, attrs) {
-  var rect = create$3('rect');
+  var rect = create$2('rect');
 
-  attr$2(rect, {
+  attr(rect, {
     x: 0,
     y: 0,
     width: element.width || 0,
@@ -10835,12 +11642,12 @@ DefaultRenderer.prototype.drawShape = function drawShape(visuals, element, attrs
   });
 
   if (isFrameElement(element)) {
-    attr$2(rect, assign$3({}, this.FRAME_STYLE, attrs || {}));
+    attr(rect, assign$a({}, this.FRAME_STYLE, attrs || {}));
   } else {
-    attr$2(rect, assign$3({}, this.SHAPE_STYLE, attrs || {}));
+    attr(rect, assign$a({}, this.SHAPE_STYLE, attrs || {}));
   }
 
-  append$1(visuals, rect);
+  append(visuals, rect);
 
   return rect;
 };
@@ -10850,8 +11657,8 @@ DefaultRenderer.prototype.drawShape = function drawShape(visuals, element, attrs
  */
 DefaultRenderer.prototype.drawConnection = function drawConnection(visuals, connection, attrs) {
 
-  var line = createLine(connection.waypoints, assign$3({}, this.CONNECTION_STYLE, attrs || {}));
-  append$1(visuals, line);
+  var line = createLine(connection.waypoints, assign$a({}, this.CONNECTION_STYLE, attrs || {}));
+  append(visuals, line);
 
   return line;
 };
@@ -10932,7 +11739,7 @@ function Styles() {
   this.cls = function(className, traits, additionalAttrs) {
     var attrs = this.style(traits, additionalAttrs);
 
-    return assign$3(attrs, { 'class': className });
+    return assign$a(attrs, { 'class': className });
   };
 
   /**
@@ -10946,16 +11753,16 @@ function Styles() {
    */
   this.style = function(traits, additionalAttrs) {
 
-    if (!isArray$5(traits) && !additionalAttrs) {
+    if (!isArray$8(traits) && !additionalAttrs) {
       additionalAttrs = traits;
       traits = [];
     }
 
     var attrs = reduce$1(traits, function(attrs, t) {
-      return assign$3(attrs, defaultTraits[t] || {});
+      return assign$a(attrs, defaultTraits[t] || {});
     }, {});
 
-    return additionalAttrs ? assign$3(attrs, additionalAttrs) : attrs;
+    return additionalAttrs ? assign$a(attrs, additionalAttrs) : attrs;
   };
 
 
@@ -10970,12 +11777,12 @@ function Styles() {
    * @return {Object} the style definition
    */
   this.computeStyle = function(custom, traits, defaultStyles) {
-    if (!isArray$5(traits)) {
+    if (!isArray$8(traits)) {
       defaultStyles = traits;
       traits = [];
     }
 
-    return self.style(traits || [], assign$3({}, defaultStyles, custom || {}));
+    return self.style(traits || [], assign$a({}, defaultStyles, custom || {}));
   };
 }
 
@@ -10989,553 +11796,6 @@ var DrawModule$1 = {
 };
 
 /**
- * Flatten array, one level deep.
- *
- * @template T
- *
- * @param {T[][] | T[] | null} [arr]
- *
- * @return {T[]}
- */
-
-const nativeToString$1 = Object.prototype.toString;
-const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
-
-function isUndefined$1(obj) {
-  return obj === undefined;
-}
-
-function isNil(obj) {
-  return obj == null;
-}
-
-function isArray$2(obj) {
-  return nativeToString$1.call(obj) === '[object Array]';
-}
-
-/**
- * Return true, if target owns a property with the given key.
- *
- * @param {Object} target
- * @param {String} key
- *
- * @return {Boolean}
- */
-function has(target, key) {
-  return !isNil(target) && nativeHasOwnProperty.call(target, key);
-}
-
-
-/**
- * Iterate over collection; returning something
- * (non-undefined) will stop iteration.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
- *
- * @return {T} return result that stopped the iteration
- */
-function forEach(collection, iterator) {
-
-  let val,
-      result;
-
-  if (isUndefined$1(collection)) {
-    return;
-  }
-
-  const convertKey = isArray$2(collection) ? toNum : identity;
-
-  for (let key in collection) {
-
-    if (has(collection, key)) {
-      val = collection[key];
-
-      result = iterator(val, convertKey(key));
-
-      if (result === false) {
-        return val;
-      }
-    }
-  }
-}
-
-
-function identity(arg) {
-  return arg;
-}
-
-function toNum(arg) {
-  return Number(arg);
-}
-
-var domify_1;
-var hasRequiredDomify;
-
-function requireDomify () {
-	if (hasRequiredDomify) return domify_1;
-	hasRequiredDomify = 1;
-	const wrapMap = {
-		legend: [1, '<fieldset>', '</fieldset>'],
-		tr: [2, '<table><tbody>', '</tbody></table>'],
-		col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-		_default: [0, '', ''],
-	};
-
-	wrapMap.td
-	= wrapMap.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-	wrapMap.option
-	= wrapMap.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-	wrapMap.thead
-	= wrapMap.tbody
-	= wrapMap.colgroup
-	= wrapMap.caption
-	= wrapMap.tfoot = [1, '<table>', '</table>'];
-
-	wrapMap.polyline
-	= wrapMap.ellipse
-	= wrapMap.polygon
-	= wrapMap.circle
-	= wrapMap.text
-	= wrapMap.line
-	= wrapMap.path
-	= wrapMap.rect
-	= wrapMap.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">', '</svg>'];
-
-	function domify(htmlString, document = globalThis.document) {
-		if (typeof htmlString !== 'string') {
-			throw new TypeError('String expected');
-		}
-
-		// Handle comment nodes
-		const commentMatch = /^<!--(.*?)-->$/s.exec(htmlString);
-		if (commentMatch) {
-			return document.createComment(commentMatch[1]);
-		}
-
-		const tagName = /<([\w:]+)/.exec(htmlString)?.[1];
-
-		if (!tagName) {
-			return document.createTextNode(htmlString);
-		}
-
-		htmlString = htmlString.trim();
-
-		// Body support
-		if (tagName === 'body') {
-			const element = document.createElement('html');
-			element.innerHTML = htmlString;
-			const {lastChild} = element;
-			lastChild.remove();
-			return lastChild;
-		}
-
-		// Wrap map
-		let [depth, prefix, suffix] = Object.hasOwn(wrapMap, tagName) ? wrapMap[tagName] : wrapMap._default;
-		let element = document.createElement('div');
-		element.innerHTML = prefix + htmlString + suffix;
-		while (depth--) {
-			element = element.lastChild;
-		}
-
-		// One element
-		if (element.firstChild === element.lastChild) {
-			const {firstChild} = element;
-			firstChild.remove();
-			return firstChild;
-		}
-
-		// Several elements
-		const fragment = document.createDocumentFragment();
-		fragment.append(...element.childNodes);
-
-		return fragment;
-	}
-
-	domify_1 = domify;
-	return domify_1;
-}
-
-var domifyExports = /*@__PURE__*/ requireDomify();
-var domify$4 = /*@__PURE__*/getDefaultExportFromCjs$1(domifyExports);
-
-function _mergeNamespaces$1(n, m) {
-  m.forEach(function (e) {
-    e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
-      if (k !== 'default' && !(k in n)) {
-        var d = Object.getOwnPropertyDescriptor(e, k);
-        Object.defineProperty(n, k, d.get ? d : {
-          enumerable: true,
-          get: function () { return e[k]; }
-        });
-      }
-    });
-  });
-  return Object.freeze(n);
-}
-
-/**
- * Assigns style attributes in a style-src compliant way.
- *
- * @param {Element} element
- * @param {...Object} styleSources
- *
- * @return {Element} the element
- */
-function assign$1(element, ...styleSources) {
-  const target = element.style;
-
-  forEach(styleSources, function(style) {
-    if (!style) {
-      return;
-    }
-
-    forEach(style, function(value, key) {
-      target[key] = value;
-    });
-  });
-
-  return element;
-}
-
-/**
- * Set attribute `name` to `val`, or get attr `name`.
- *
- * @param {Element} el
- * @param {String} name
- * @param {String} [val]
- * @api public
- */
-function attr$1(el, name, val) {
-
-  // get
-  if (arguments.length == 2) {
-    return el.getAttribute(name);
-  }
-
-  // remove
-  if (val === null) {
-    return el.removeAttribute(name);
-  }
-
-  // set
-  el.setAttribute(name, val);
-
-  return el;
-}
-
-/**
- * Taken from https://github.com/component/classes
- *
- * Without the component bits.
- */
-
-/**
- * toString reference.
- */
-
-const toString = Object.prototype.toString;
-
-/**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
- */
-
-function classes(el) {
-  return new ClassList(el);
-}
-
-/**
- * Initialize a new ClassList for `el`.
- *
- * @param {Element} el
- * @api private
- */
-
-function ClassList(el) {
-  if (!el || !el.nodeType) {
-    throw new Error('A DOM element reference is required');
-  }
-  this.el = el;
-  this.list = el.classList;
-}
-
-/**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.add = function(name) {
-  this.list.add(name);
-  return this;
-};
-
-/**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.remove = function(name) {
-  if ('[object RegExp]' == toString.call(name)) {
-    return this.removeMatching(name);
-  }
-
-  this.list.remove(name);
-  return this;
-};
-
-/**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
-
-ClassList.prototype.removeMatching = function(re) {
-  const arr = this.array();
-  for (let i = 0; i < arr.length; i++) {
-    if (re.test(arr[i])) {
-      this.remove(arr[i]);
-    }
-  }
-  return this;
-};
-
-/**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.toggle = function(name, force) {
-  if ('undefined' !== typeof force) {
-    if (force !== this.list.toggle(name, force)) {
-      this.list.toggle(name); // toggle again to correct
-    }
-  } else {
-    this.list.toggle(name);
-  }
-  return this;
-};
-
-/**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
-
-ClassList.prototype.array = function() {
-  return Array.from(this.list);
-};
-
-/**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.has =
-ClassList.prototype.contains = function(name) {
-  return this.list.contains(name);
-};
-
-/**
- * Clear utility
- */
-
-/**
- * Removes all children from the given element
- *
- * @param {Element} element
- *
- * @return {Element} the element (for chaining)
- */
-function clear(element) {
-  var child;
-
-  while ((child = element.firstChild)) {
-    element.removeChild(child);
-  }
-
-  return element;
-}
-
-/**
- * Closest
- *
- * @param {Element} el
- * @param {string} selector
- * @param {boolean} checkYourSelf (optional)
- */
-function closest(element, selector, checkYourSelf) {
-  var actualElement = checkYourSelf ? element : element.parentNode;
-
-  return actualElement && typeof actualElement.closest === 'function' && actualElement.closest(selector) || null;
-}
-
-function getDefaultExportFromCjs (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-var componentEvent = {};
-
-var hasRequiredComponentEvent;
-
-function requireComponentEvent () {
-	if (hasRequiredComponentEvent) return componentEvent;
-	hasRequiredComponentEvent = 1;
-	var bind, unbind, prefix;
-
-	function detect () {
-	  bind = window.addEventListener ? 'addEventListener' : 'attachEvent';
-	  unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
-	  prefix = bind !== 'addEventListener' ? 'on' : '';
-	}
-
-	/**
-	 * Bind `el` event `type` to `fn`.
-	 *
-	 * @param {Element} el
-	 * @param {String} type
-	 * @param {Function} fn
-	 * @param {Boolean} capture
-	 * @return {Function}
-	 * @api public
-	 */
-
-	componentEvent.bind = function(el, type, fn, capture){
-	  if (!bind) detect();
-	  el[bind](prefix + type, fn, capture || false);
-	  return fn;
-	};
-
-	/**
-	 * Unbind `el` event `type`'s callback `fn`.
-	 *
-	 * @param {Element} el
-	 * @param {String} type
-	 * @param {Function} fn
-	 * @param {Boolean} capture
-	 * @return {Function}
-	 * @api public
-	 */
-
-	componentEvent.unbind = function(el, type, fn, capture){
-	  if (!unbind) detect();
-	  el[unbind](prefix + type, fn, capture || false);
-	  return fn;
-	};
-	return componentEvent;
-}
-
-var componentEventExports = requireComponentEvent();
-var index = /*@__PURE__*/getDefaultExportFromCjs(componentEventExports);
-
-var event = /*#__PURE__*/_mergeNamespaces$1({
-  __proto__: null,
-  default: index
-}, [componentEventExports]);
-
-/**
- * Module dependencies.
- */
-
-
-/**
- * Delegate event `type` to `selector`
- * and invoke `fn(e)`. A callback function
- * is returned which may be passed to `.unbind()`.
- *
- * @param {Element} el
- * @param {String} selector
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-// Some events don't bubble, so we want to bind to the capture phase instead
-// when delegating.
-var forceCaptureEvents = [ 'focus', 'blur' ];
-
-function bind(el, selector, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event.bind(el, type, function(e) {
-    var target = e.target || e.srcElement;
-    e.delegateTarget = closest(target, selector, true);
-    if (e.delegateTarget) {
-      fn.call(el, e);
-    }
-  }, capture);
-}
-
-/**
- * Unbind event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @api public
- */
-function unbind(el, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event.unbind(el, type, fn, capture);
-}
-
-var delegate = {
-  bind,
-  unbind
-};
-
-function query(selector, el) {
-  el = el || document;
-
-  return el.querySelector(selector);
-}
-
-function all(selector, el) {
-  el = el || document;
-
-  return el.querySelectorAll(selector);
-}
-
-function remove$6(el) {
-  el.parentNode && el.parentNode.removeChild(el);
-}
-
-/**
  * Failsafe remove an element from a collection
  *
  * @param {Array<Object>} [collection]
@@ -11543,7 +11803,7 @@ function remove$6(el) {
  *
  * @return {number} the previous index of the element
  */
-function remove$5(collection, element) {
+function remove$2(collection, element) {
 
   if (!collection || !element) {
     return -1;
@@ -11693,7 +11953,7 @@ function findRoot(element) {
  */
 function createContainer(options) {
 
-  options = assign$3({}, { width: '100%', height: '100%' }, options);
+  options = assign$a({}, { width: '100%', height: '100%' }, options);
 
   const container = options.container || document.body;
 
@@ -11703,7 +11963,7 @@ function createContainer(options) {
   const parent = document.createElement('div');
   parent.setAttribute('class', 'djs-container djs-parent');
 
-  assign$1(parent, {
+  assign$6(parent, {
     position: 'relative',
     overflow: 'hidden',
     width: ensurePx(options.width),
@@ -11716,8 +11976,8 @@ function createContainer(options) {
 }
 
 function createGroup(parent, cls, childIndex) {
-  const group = create$3('g');
-  classes$1(group).add(cls);
+  const group = create$2('g');
+  classes(group).add(cls);
 
   const index = childIndex !== undefined ? childIndex : parent.childNodes.length - 1;
 
@@ -11814,9 +12074,9 @@ Canvas.prototype._init = function(config) {
   // html container
   const container = this._container = createContainer(config);
 
-  const svg = this._svg = create$3('svg');
+  const svg = this._svg = create$2('svg');
 
-  attr$2(svg, {
+  attr(svg, {
     width: '100%',
     height: '100%'
   });
@@ -11839,14 +12099,22 @@ Canvas.prototype._init = function(config) {
     this._setFocused(false);
   });
 
-  append$1(container, svg);
+  svg.addEventListener('mouseover', () => {
+    this._eventBus.fire('canvas.mouseover');
+  });
+
+  svg.addEventListener('mouseout', () => {
+    this._eventBus.fire('canvas.mouseout');
+  });
+
+  append(container, svg);
 
   const viewport = this._viewport = createGroup(svg, 'viewport');
 
   // debounce canvas.viewbox.changed events when deferUpdate is set
   // to help with potential performance issues
   if (config.deferUpdate) {
-    this._viewboxChanged = debounce$1(bind$5(this._viewboxChanged, this), 300);
+    this._viewboxChanged = debounce$1(bind$2(this._viewboxChanged, this), 300);
   }
 
   eventBus.on('diagram.init', () => {
@@ -12118,7 +12386,7 @@ Canvas.prototype.hideLayer = function(name) {
     return group;
   }
 
-  remove$7(group);
+  remove$3(group);
 
   layer.visible = false;
 
@@ -12133,7 +12401,7 @@ Canvas.prototype._removeLayer = function(name) {
   if (layer) {
     delete this._layers[name];
 
-    remove$7(layer.group);
+    remove$3(layer.group);
   }
 };
 
@@ -12188,7 +12456,7 @@ Canvas.prototype.getRootElements = function() {
 };
 
 Canvas.prototype._findPlaneForRoot = function(rootElement) {
-  return find$2(this._planes, function(plane) {
+  return find$4(this._planes, function(plane) {
     return plane.rootElement === rootElement;
   });
 };
@@ -12223,16 +12491,16 @@ Canvas.prototype._updateMarker = function(element, marker, add) {
     return;
   }
 
-  forEach$2([ container.gfx, container.secondaryGfx ], function(gfx) {
+  forEach$6([ container.gfx, container.secondaryGfx ], function(gfx) {
     if (gfx) {
 
       // invoke either addClass or removeClass based on mode
       if (add) {
         element.markers.add(marker);
-        classes$1(gfx).add(marker);
+        classes(gfx).add(marker);
       } else {
         element.markers.delete(marker);
-        classes$1(gfx).remove(marker);
+        classes(gfx).remove(marker);
       }
     }
   });
@@ -12634,7 +12902,7 @@ Canvas.prototype._removeElement = function(element, type) {
   graphicsFactory.remove(element);
 
   // unset parent <-> child relationship
-  remove$5(element.parent && element.parent.children, element);
+  remove$2(element.parent && element.parent.children, element);
   element.parent = null;
 
   eventBus.fire(type + '.removed', { element: element });
@@ -12881,7 +13149,7 @@ Canvas.prototype.scroll = function(delta) {
 
   if (delta) {
     this._changeViewbox(function() {
-      delta = assign$3({ dx: 0, dy: 0 }, delta || {});
+      delta = assign$a({ dx: 0, dy: 0 }, delta || {});
 
       matrix = this._svg.createSVGMatrix().translate(delta.dx, delta.dy).multiply(matrix);
 
@@ -13080,7 +13348,7 @@ Canvas.prototype._setZoom = function(scale, center) {
   const currentScale = currentMatrix.a;
 
   if (center) {
-    centerPoint = assign$3(point, center);
+    centerPoint = assign$a(point, center);
 
     // revert applied viewport transformations
     originalPoint = centerPoint.matrixTransform(currentMatrix.inverse());
@@ -13219,10 +13487,10 @@ ElementRegistry$2.prototype.add = function(element, gfx, secondaryGfx) {
   this._validateId(id);
 
   // associate dom node with element
-  attr$2(gfx, ELEMENT_ID, id);
+  attr(gfx, ELEMENT_ID, id);
 
   if (secondaryGfx) {
-    attr$2(secondaryGfx, ELEMENT_ID, id);
+    attr(secondaryGfx, ELEMENT_ID, id);
   }
 
   this._elements[id] = { element: element, gfx: gfx, secondaryGfx: secondaryGfx };
@@ -13241,10 +13509,10 @@ ElementRegistry$2.prototype.remove = function(element) {
   if (container) {
 
     // unset element id on gfx
-    attr$2(container.gfx, ELEMENT_ID, '');
+    attr(container.gfx, ELEMENT_ID, '');
 
     if (container.secondaryGfx) {
-      attr$2(container.secondaryGfx, ELEMENT_ID, '');
+      attr(container.secondaryGfx, ELEMENT_ID, '');
     }
 
     delete elements[id];
@@ -13299,7 +13567,7 @@ ElementRegistry$2.prototype.updateGraphics = function(filter, gfx, secondary) {
   }
 
   if (gfx) {
-    attr$2(gfx, ELEMENT_ID, id);
+    attr(gfx, ELEMENT_ID, id);
   }
 
   return gfx;
@@ -13326,7 +13594,7 @@ ElementRegistry$2.prototype.get = function(filter) {
   if (typeof filter === 'string') {
     id = filter;
   } else {
-    id = filter && attr$2(filter, ELEMENT_ID);
+    id = filter && attr(filter, ELEMENT_ID);
   }
 
   var container = this._elements[id];
@@ -14015,12 +14283,12 @@ var types$1 = {
  *
  * @return {Label}
  */
-function create$2(type, attrs) {
+function create$1(type, attrs) {
   var Type = types$1[type];
   if (!Type) {
     throw new Error('unknown type: <' + type + '>');
   }
-  return assign$3(new Type(), attrs);
+  return assign$a(new Type(), attrs);
 }
 
 /**
@@ -14120,13 +14388,13 @@ ElementFactory$1.prototype.createConnection = function(attrs) {
  */
 ElementFactory$1.prototype.create = function(type, attrs) {
 
-  attrs = assign$3({}, attrs || {});
+  attrs = assign$a({}, attrs || {});
 
   if (!attrs.id) {
     attrs.id = type + '_' + (this._uid++);
   }
 
-  return create$2(type, attrs);
+  return create$1(type, attrs);
 };
 
 /**
@@ -14207,10 +14475,10 @@ GraphicsFactory.prototype._getChildrenContainer = function(element) {
   } else {
     childrenGfx = getChildren$1(gfx);
     if (!childrenGfx) {
-      childrenGfx = create$3('g');
-      classes$1(childrenGfx).add('djs-children');
+      childrenGfx = create$2('g');
+      classes(childrenGfx).add('djs-children');
 
-      append$1(gfx.parentNode, childrenGfx);
+      append(gfx.parentNode, childrenGfx);
     }
   }
 
@@ -14259,31 +14527,31 @@ GraphicsFactory.prototype._clear = function(gfx) {
 GraphicsFactory.prototype._createContainer = function(
     type, childrenGfx, parentIndex, isFrame
 ) {
-  var outerGfx = create$3('g');
-  classes$1(outerGfx).add('djs-group');
+  var outerGfx = create$2('g');
+  classes(outerGfx).add('djs-group');
 
   // insert node at position
   if (typeof parentIndex !== 'undefined') {
     prependTo(outerGfx, childrenGfx, childrenGfx.childNodes[parentIndex]);
   } else {
-    append$1(childrenGfx, outerGfx);
+    append(childrenGfx, outerGfx);
   }
 
-  var gfx = create$3('g');
-  classes$1(gfx).add('djs-element');
-  classes$1(gfx).add('djs-' + type);
+  var gfx = create$2('g');
+  classes(gfx).add('djs-element');
+  classes(gfx).add('djs-' + type);
 
   if (isFrame) {
-    classes$1(gfx).add('djs-frame');
+    classes(gfx).add('djs-frame');
   }
 
-  append$1(outerGfx, gfx);
+  append(outerGfx, gfx);
 
   // create visual
-  var visual = create$3('g');
-  classes$1(visual).add('djs-visual');
+  var visual = create$2('g');
+  classes(visual).add('djs-visual');
 
-  append$1(gfx, visual);
+  append(gfx, visual);
 
   return gfx;
 };
@@ -14324,7 +14592,7 @@ GraphicsFactory.prototype.updateContainments = function(elements) {
 
   // update all parents of changed and reorganized their children
   // in the correct order (as indicated in our model)
-  forEach$2(parents, function(parent) {
+  forEach$6(parents, function(parent) {
 
     var children = parent.children;
 
@@ -14334,7 +14602,7 @@ GraphicsFactory.prototype.updateContainments = function(elements) {
 
     var childrenGfx = self._getChildrenContainer(parent);
 
-    forEach$2(children.slice().reverse(), function(child) {
+    forEach$6(children.slice().reverse(), function(child) {
       var childGfx = elementRegistry.getGraphics(child);
 
       prependTo(childGfx.parentNode, childrenGfx);
@@ -14427,9 +14695,9 @@ GraphicsFactory.prototype.update = function(type, element, gfx) {
   }
 
   if (element.hidden) {
-    attr$2(gfx, 'display', 'none');
+    attr(gfx, 'display', 'none');
   } else {
-    attr$2(gfx, 'display', 'block');
+    attr(gfx, 'display', 'block');
   }
 };
 
@@ -14442,7 +14710,7 @@ GraphicsFactory.prototype.remove = function(element) {
   var gfx = this._elementRegistry.getGraphics(element);
 
   // remove
-  remove$7(gfx.parentNode);
+  remove$3(gfx.parentNode);
 };
 
 
@@ -14501,7 +14769,7 @@ var CoreModule$2 = {
  * @return {Injector} a injector to use to access the components
  */
 function bootstrap(modules) {
-  var injector = new Injector$1(modules);
+  var injector = new Injector(modules);
 
   injector.init();
 
@@ -14703,6 +14971,125 @@ Diagram.prototype.destroy = function() {
 Diagram.prototype.clear = function() {
   this.get('eventBus').fire('diagram.clear');
 };
+
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
+ */
+
+const nativeToString$2 = Object.prototype.toString;
+const nativeHasOwnProperty$1 = Object.prototype.hasOwnProperty;
+
+function isUndefined$2(obj) {
+  return obj === undefined;
+}
+
+function isNil$1(obj) {
+  return obj == null;
+}
+
+function isArray$2(obj) {
+  return nativeToString$2.call(obj) === '[object Array]';
+}
+
+function isObject(obj) {
+  return nativeToString$2.call(obj) === '[object Object]';
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has$1(target, key) {
+  return !isNil$1(target) && nativeHasOwnProperty$1.call(target, key);
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
+ *
+ * @return {T} return result that stopped the iteration
+ */
+function forEach$1(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined$2(collection)) {
+    return;
+  }
+
+  const convertKey = isArray$2(collection) ? toNum$1 : identity$1;
+
+  for (let key in collection) {
+
+    if (has$1(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+
+/**
+ * Transform a collection into another collection
+ * by piping each member through the given fn.
+ *
+ * @param  {Object|Array}   collection
+ * @param  {Function} fn
+ *
+ * @return {Array} transformed collection
+ */
+function map(collection, fn) {
+
+  let result = [];
+
+  forEach$1(collection, function(val, key) {
+    result.push(fn(val, key));
+  });
+
+  return result;
+}
+
+
+function identity$1(arg) {
+  return arg;
+}
+
+function toNum$1(arg) {
+  return Number(arg);
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign$4(target, ...others) {
+  return Object.assign(target, ...others);
+}
 
 /**
  * Is an element of the given DMN type?
@@ -14958,365 +15345,6 @@ function importDRD(drd, definitions, done) {
   done(error, warnings);
 }
 
-function ensureImported(element, target) {
-
-  if (element.ownerDocument !== target.ownerDocument) {
-    try {
-
-      // may fail on webkit
-      return target.ownerDocument.importNode(element, true);
-    } catch (e) {
-
-      // ignore
-    }
-  }
-
-  return element;
-}
-
-/**
- * appendTo utility
- */
-
-
-/**
- * Append a node to a target element and return the appended node.
- *
- * @param  {SVGElement} element
- * @param  {SVGElement} target
- *
- * @return {SVGElement} the appended node
- */
-function appendTo(element, target) {
-  return target.appendChild(ensureImported(element, target));
-}
-
-/**
- * append utility
- */
-
-
-/**
- * Append a node to an element
- *
- * @param  {SVGElement} element
- * @param  {SVGElement} node
- *
- * @return {SVGElement} the element
- */
-function append(target, node) {
-  appendTo(node, target);
-  return target;
-}
-
-/**
- * attribute accessor utility
- */
-
-var LENGTH_ATTR = 2;
-
-var CSS_PROPERTIES = {
-  'alignment-baseline': 1,
-  'baseline-shift': 1,
-  'clip': 1,
-  'clip-path': 1,
-  'clip-rule': 1,
-  'color': 1,
-  'color-interpolation': 1,
-  'color-interpolation-filters': 1,
-  'color-profile': 1,
-  'color-rendering': 1,
-  'cursor': 1,
-  'direction': 1,
-  'display': 1,
-  'dominant-baseline': 1,
-  'enable-background': 1,
-  'fill': 1,
-  'fill-opacity': 1,
-  'fill-rule': 1,
-  'filter': 1,
-  'flood-color': 1,
-  'flood-opacity': 1,
-  'font': 1,
-  'font-family': 1,
-  'font-size': LENGTH_ATTR,
-  'font-size-adjust': 1,
-  'font-stretch': 1,
-  'font-style': 1,
-  'font-variant': 1,
-  'font-weight': 1,
-  'glyph-orientation-horizontal': 1,
-  'glyph-orientation-vertical': 1,
-  'image-rendering': 1,
-  'kerning': 1,
-  'letter-spacing': 1,
-  'lighting-color': 1,
-  'marker': 1,
-  'marker-end': 1,
-  'marker-mid': 1,
-  'marker-start': 1,
-  'mask': 1,
-  'opacity': 1,
-  'overflow': 1,
-  'pointer-events': 1,
-  'shape-rendering': 1,
-  'stop-color': 1,
-  'stop-opacity': 1,
-  'stroke': 1,
-  'stroke-dasharray': 1,
-  'stroke-dashoffset': 1,
-  'stroke-linecap': 1,
-  'stroke-linejoin': 1,
-  'stroke-miterlimit': 1,
-  'stroke-opacity': 1,
-  'stroke-width': LENGTH_ATTR,
-  'text-anchor': 1,
-  'text-decoration': 1,
-  'text-rendering': 1,
-  'unicode-bidi': 1,
-  'visibility': 1,
-  'word-spacing': 1,
-  'writing-mode': 1
-};
-
-
-function getAttribute(node, name) {
-  if (CSS_PROPERTIES[name]) {
-    return node.style[name];
-  } else {
-    return node.getAttributeNS(null, name);
-  }
-}
-
-function setAttribute(node, name, value) {
-  var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-
-  var type = CSS_PROPERTIES[hyphenated];
-
-  if (type) {
-
-    // append pixel unit, unless present
-    if (type === LENGTH_ATTR && typeof value === 'number') {
-      value = String(value) + 'px';
-    }
-
-    node.style[hyphenated] = value;
-  } else {
-    node.setAttributeNS(null, name, value);
-  }
-}
-
-function setAttributes(node, attrs) {
-
-  var names = Object.keys(attrs), i, name;
-
-  for (i = 0, name; (name = names[i]); i++) {
-    setAttribute(node, name, attrs[name]);
-  }
-}
-
-/**
- * Gets or sets raw attributes on a node.
- *
- * @param  {SVGElement} node
- * @param  {Object} [attrs]
- * @param  {String} [name]
- * @param  {String} [value]
- *
- * @return {String}
- */
-function attr(node, name, value) {
-  if (typeof name === 'string') {
-    {
-      return getAttribute(node, name);
-    }
-  } else {
-    setAttributes(node, name);
-  }
-
-  return node;
-}
-
-var ns = {
-  svg: 'http://www.w3.org/2000/svg'
-};
-
-/**
- * DOM parsing utility
- */
-
-
-var SVG_START = '<svg xmlns="' + ns.svg + '"';
-
-function parse$4(svg) {
-
-  var unwrap = false;
-
-  // ensure we import a valid svg document
-  if (svg.substring(0, 4) === '<svg') {
-    if (svg.indexOf(ns.svg) === -1) {
-      svg = SVG_START + svg.substring(4);
-    }
-  } else {
-
-    // namespace svg
-    svg = SVG_START + '>' + svg + '</svg>';
-    unwrap = true;
-  }
-
-  var parsed = parseDocument(svg);
-
-  if (!unwrap) {
-    return parsed;
-  }
-
-  var fragment = document.createDocumentFragment();
-
-  var parent = parsed.firstChild;
-
-  while (parent.firstChild) {
-    fragment.appendChild(parent.firstChild);
-  }
-
-  return fragment;
-}
-
-function parseDocument(svg) {
-
-  var parser;
-
-  // parse
-  parser = new DOMParser();
-  parser.async = false;
-
-  return parser.parseFromString(svg, 'text/xml');
-}
-
-/**
- * Create utility for SVG elements
- */
-
-
-
-/**
- * Create a specific type from name or SVG markup.
- *
- * @param {String} name the name or markup of the element
- * @param {Object} [attrs] attributes to set on the element
- *
- * @returns {SVGElement}
- */
-function create$1(name, attrs) {
-  var element;
-
-  name = name.trim();
-
-  if (name.charAt(0) === '<') {
-    element = parse$4(name).firstChild;
-    element = document.importNode(element, true);
-  } else {
-    element = document.createElementNS(ns.svg, name);
-  }
-
-  return element;
-}
-
-/**
- * Serialization util
- */
-
-var TEXT_ENTITIES = /([&<>]{1})/g;
-var ATTR_ENTITIES = /([&<>\n\r"]{1})/g;
-
-var ENTITY_REPLACEMENT = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '\''
-};
-
-function escape(str, pattern) {
-
-  function replaceFn(match, entity) {
-    return ENTITY_REPLACEMENT[entity] || entity;
-  }
-
-  return str.replace(pattern, replaceFn);
-}
-
-function serialize(node, output) {
-
-  var i, len, attrMap, attrNode, childNodes;
-
-  switch (node.nodeType) {
-
-  // TEXT
-  case 3:
-
-    // replace special XML characters
-    output.push(escape(node.textContent, TEXT_ENTITIES));
-    break;
-
-  // ELEMENT
-  case 1:
-    output.push('<', node.tagName);
-
-    if (node.hasAttributes()) {
-      attrMap = node.attributes;
-      for (i = 0, len = attrMap.length; i < len; ++i) {
-        attrNode = attrMap.item(i);
-        output.push(' ', attrNode.name, '="', escape(attrNode.value, ATTR_ENTITIES), '"');
-      }
-    }
-
-    if (node.hasChildNodes()) {
-      output.push('>');
-      childNodes = node.childNodes;
-      for (i = 0, len = childNodes.length; i < len; ++i) {
-        serialize(childNodes.item(i), output);
-      }
-      output.push('</', node.tagName, '>');
-    } else {
-      output.push('/>');
-    }
-    break;
-
-  // COMMENT
-  case 8:
-    output.push('<!--', escape(node.nodeValue, TEXT_ENTITIES), '-->');
-    break;
-
-  // CDATA
-  case 4:
-    output.push('<![CDATA[', node.nodeValue, ']]>');
-    break;
-
-  default:
-    throw new Error('unable to handle node ' + node.nodeType);
-  }
-
-  return output;
-}
-
-function get$1(element) {
-  var child = element.firstChild,
-      output = [];
-
-  while (child) {
-    serialize(child, output);
-    child = child.nextSibling;
-  }
-
-  return output.join('');
-}
-
-function innerSVG(element, svg) {
-
-  {
-    return get$1(element);
-  }
-}
-
 var NO_OP = '$NO_OP';
 var ERROR_MSG = 'a runtime error occured! Use Inferno in development environment to find the error.';
 var isArray$1 = Array.isArray;
@@ -15325,12 +15353,12 @@ function isStringOrNumber(o) {
   return type === 'string' || type === 'number';
 }
 function isNullOrUndef(o) {
-  return isUndefined(o) || isNull(o);
+  return isUndefined$1(o) || isNull(o);
 }
 function isInvalid(o) {
-  return isNull(o) || o === false || isTrue(o) || isUndefined(o);
+  return isNull(o) || o === false || isTrue(o) || isUndefined$1(o);
 }
-function isFunction$1(o) {
+function isFunction$2(o) {
   return typeof o === 'function';
 }
 function isString(o) {
@@ -15345,7 +15373,7 @@ function isNull(o) {
 function isTrue(o) {
   return o === true;
 }
-function isUndefined(o) {
+function isUndefined$1(o) {
   return o === void 0;
 }
 function throwError(message) {
@@ -15394,7 +15422,7 @@ function createVNode(flags, type, className, children, childFlags, props, key, r
 }
 function createComponentVNode(flags, type, props, key, ref) {
   if ((flags & 2 /* VNodeFlags.ComponentUnknown */) > 0) {
-    flags = type.prototype && isFunction$1(type.prototype.render) ? 4 /* VNodeFlags.ComponentClass */ : 8 /* VNodeFlags.ComponentFunction */;
+    flags = type.prototype && isFunction$2(type.prototype.render) ? 4 /* VNodeFlags.ComponentClass */ : 8 /* VNodeFlags.ComponentFunction */;
   }
   // set default props
   var defaultProps = type.defaultProps;
@@ -15403,7 +15431,7 @@ function createComponentVNode(flags, type, props, key, ref) {
       props = {}; // Props can be referenced and modified at application level so always create new object
     }
     for (var prop in defaultProps) {
-      if (isUndefined(props[prop])) {
+      if (isUndefined$1(props[prop])) {
         props[prop] = defaultProps[prop];
       }
     }
@@ -15416,7 +15444,7 @@ function createComponentVNode(flags, type, props, key, ref) {
         ref = defaultHooks;
       } else {
         for (var _prop in defaultHooks) {
-          if (isUndefined(ref[_prop])) {
+          if (isUndefined$1(ref[_prop])) {
             ref[_prop] = defaultHooks[_prop];
           }
         }
@@ -15425,7 +15453,7 @@ function createComponentVNode(flags, type, props, key, ref) {
   }
   var vNode = getVNode(1 /* ChildFlags.HasInvalidChildren */, null, null, flags, key, props, ref, type);
   var optsVNode = options.createVNode;
-  if (isFunction$1(optsVNode)) {
+  if (isFunction$2(optsVNode)) {
     optsVNode(vNode);
   }
   return vNode;
@@ -15665,7 +15693,7 @@ function handleEvent(name, nextEvent, dom) {
 }
 // When browsers fully support event.composedPath we could loop it through instead of using parentNode property
 function getTargetNode(event) {
-  return isFunction$1(event.composedPath) ? event.composedPath()[0] : event.target;
+  return isFunction$2(event.composedPath) ? event.composedPath()[0] : event.target;
 }
 function dispatchEvents(event, isClick, name, eventData) {
   var dom = getTargetNode(event);
@@ -15774,7 +15802,7 @@ function createWrappedFunction(methodName, applyValue) {
         triggerEventListener(props, methodName[i], e);
       }
     }
-    if (isFunction$1(applyValue)) {
+    if (isFunction$2(applyValue)) {
       var newVNode = this.$V;
       var newProps = newVNode.props || EMPTY_OBJ;
       applyValue(newProps, dom, false, newVNode);
@@ -15949,7 +15977,7 @@ function isControlledFormElement(nextPropsOrEmpty) {
   return nextPropsOrEmpty.type && isCheckedType(nextPropsOrEmpty.type) ? !isNullOrUndef(nextPropsOrEmpty.checked) : !isNullOrUndef(nextPropsOrEmpty.value);
 }
 
-function remove$4(vNode, parentDom) {
+function remove$1(vNode, parentDom) {
   unmount(vNode);
   if (parentDom && vNode.dom) {
     removeChild(parentDom, vNode.dom);
@@ -15962,7 +15990,7 @@ function unmount(vNode) {
   if (flags & 481 /* VNodeFlags.Element */) {
     var ref = vNode.ref;
     var props = vNode.props;
-    if (isFunction$1(ref)) {
+    if (isFunction$2(ref)) {
       ref(null);
     }
     var children = vNode.children;
@@ -16001,10 +16029,10 @@ function unmount(vNode) {
       if (flags & 14 /* VNodeFlags.Component */) {
         var _ref = vNode.ref;
         if (flags & 4 /* VNodeFlags.ComponentClass */) {
-          if (isFunction$1(_children.componentWillUnmount)) {
+          if (isFunction$2(_children.componentWillUnmount)) {
             _children.componentWillUnmount();
           }
-          if (isFunction$1(_ref)) {
+          if (isFunction$2(_ref)) {
             _ref(null);
           }
           _children.$UN = true;
@@ -16012,13 +16040,13 @@ function unmount(vNode) {
             unmount(_children.$LI);
           }
         } else {
-          if (!isNullOrUndef(_ref) && isFunction$1(_ref.onComponentWillUnmount)) {
+          if (!isNullOrUndef(_ref) && isFunction$2(_ref.onComponentWillUnmount)) {
             _ref.onComponentWillUnmount(vNode.dom, vNode.props || EMPTY_OBJ);
           }
           unmount(_children);
         }
       } else if (flags & 1024 /* VNodeFlags.Portal */) {
-        remove$4(_children, vNode.type);
+        remove$1(_children, vNode.type);
       }
     }
   }
@@ -16040,9 +16068,9 @@ function createLinkEvent(linkEvent, nextValue) {
 }
 function patchEvent(name, nextValue, dom) {
   var nameLowerCase = name.toLowerCase();
-  if (!isFunction$1(nextValue) && !isNullOrUndef(nextValue)) {
+  if (!isFunction$2(nextValue) && !isNullOrUndef(nextValue)) {
     var linkEvent = nextValue.event;
-    if (linkEvent && isFunction$1(linkEvent)) {
+    if (linkEvent && isFunction$2(linkEvent)) {
       dom[nameLowerCase] = createLinkEvent(linkEvent, nextValue);
     }
   } else {
@@ -16248,7 +16276,7 @@ function createClassComponentInstance(vNode, Component, props, context) {
     instance.props = props;
   }
   instance.$UN = false;
-  if (isFunction$1(instance.componentWillMount)) {
+  if (isFunction$2(instance.componentWillMount)) {
     instance.$BR = true;
     instance.componentWillMount();
     if (instance.$PSS) {
@@ -16266,12 +16294,12 @@ function createClassComponentInstance(vNode, Component, props, context) {
     }
     instance.$BR = false;
   }
-  if (isFunction$1(options.beforeRender)) {
+  if (isFunction$2(options.beforeRender)) {
     options.beforeRender(instance);
   }
   var input = handleComponentInput(instance.render(props, instance.state, context), vNode);
   var childContext;
-  if (isFunction$1(instance.getChildContext)) {
+  if (isFunction$2(instance.getChildContext)) {
     childContext = instance.getChildContext();
   }
   if (isNullOrUndef(childContext)) {
@@ -16279,7 +16307,7 @@ function createClassComponentInstance(vNode, Component, props, context) {
   } else {
     instance.$CX = combineFrom(context, childContext);
   }
-  if (isFunction$1(options.afterRender)) {
+  if (isFunction$2(options.afterRender)) {
     options.afterRender(instance);
   }
   instance.$LI = input;
@@ -16358,7 +16386,7 @@ function mountElement(vNode, parentDom, context, isSVG) {
   if (!isNull(props)) {
     mountProps(vNode, flags, props, dom, isSVG);
   }
-  if (isFunction$1(ref)) {
+  if (isFunction$2(ref)) {
     mountRef(dom, ref);
   }
   return dom;
@@ -16401,10 +16429,10 @@ function createClassMountCallback(instance) {
   };
 }
 function mountClassComponentCallbacks(vNode, ref, instance) {
-  if (isFunction$1(ref)) {
+  if (isFunction$2(ref)) {
     ref(instance);
   }
-  if (isFunction$1(instance.componentDidMount)) {
+  if (isFunction$2(instance.componentDidMount)) {
     LIFECYCLE.push(createClassMountCallback(instance));
   }
 }
@@ -16415,10 +16443,10 @@ function createOnMountCallback(ref, dom, props) {
 }
 function mountFunctionalComponentCallbacks(props, ref, dom) {
   if (!isNullOrUndef(ref)) {
-    if (isFunction$1(ref.onComponentWillMount)) {
+    if (isFunction$2(ref.onComponentWillMount)) {
       ref.onComponentWillMount(props);
     }
-    if (isFunction$1(ref.onComponentDidMount)) {
+    if (isFunction$2(ref.onComponentDidMount)) {
       LIFECYCLE.push(createOnMountCallback(ref, dom, props));
     }
   }
@@ -16522,7 +16550,7 @@ function hydrateElement(vNode, dom, context, isSVG) {
     } else {
       dom.className = className;
     }
-    if (isFunction$1(ref)) {
+    if (isFunction$2(ref)) {
       mountRef(dom, ref);
     }
   }
@@ -16570,7 +16598,7 @@ function hydrate(input, parentDom, callback) {
     callAll(LIFECYCLE);
   }
   parentDom.$V = input;
-  if (isFunction$1(callback)) {
+  if (isFunction$2(callback)) {
     callback();
   }
 }
@@ -16673,7 +16701,7 @@ function patchElement(lastVNode, nextVNode, parentDom, context, isSVG, nextFlags
         dom.className = nextClassName;
       }
     }
-    if (isFunction$1(nextRef) && lastVNode.ref !== nextRef) {
+    if (isFunction$2(nextRef) && lastVNode.ref !== nextRef) {
       mountRef(dom, nextRef);
     }
   }
@@ -16686,10 +16714,10 @@ function patchChildren(lastChildFlags, nextChildFlags, lastChildren, nextChildre
           patch(lastChildren, nextChildren, parentDOM, context, isSVG);
           break;
         case 1 /* ChildFlags.HasInvalidChildren */:
-          remove$4(lastChildren, parentDOM);
+          remove$1(lastChildren, parentDOM);
           break;
         default:
-          remove$4(lastChildren, parentDOM);
+          remove$1(lastChildren, parentDOM);
           mountArrayChildren(nextChildren, parentDOM, context, isSVG);
           break;
       }
@@ -16740,7 +16768,7 @@ function updateClassComponent(instance, nextState, nextVNode, nextProps, parentD
     return;
   }
   if (lastProps !== nextProps || nextProps === EMPTY_OBJ) {
-    if (!fromSetState && isFunction$1(instance.componentWillReceiveProps)) {
+    if (!fromSetState && isFunction$2(instance.componentWillReceiveProps)) {
       instance.$BR = true;
       instance.componentWillReceiveProps(nextProps, context);
       // If instance component was removed during its own update do nothing.
@@ -16758,7 +16786,7 @@ function updateClassComponent(instance, nextState, nextVNode, nextProps, parentD
   /* Update if scu is not defined, or it returns truthy value or force */
   var hasSCU = Boolean(instance.shouldComponentUpdate);
   if (force || !hasSCU || hasSCU && instance.shouldComponentUpdate(nextProps, nextState, context)) {
-    if (isFunction$1(instance.componentWillUpdate)) {
+    if (isFunction$2(instance.componentWillUpdate)) {
       instance.$BS = true;
       instance.componentWillUpdate(nextProps, nextState, context);
       instance.$BS = false;
@@ -16766,16 +16794,16 @@ function updateClassComponent(instance, nextState, nextVNode, nextProps, parentD
     instance.props = nextProps;
     instance.state = nextState;
     instance.context = context;
-    if (isFunction$1(options.beforeRender)) {
+    if (isFunction$2(options.beforeRender)) {
       options.beforeRender(instance);
     }
     renderOutput = instance.render(nextProps, nextState, context);
-    if (isFunction$1(options.afterRender)) {
+    if (isFunction$2(options.afterRender)) {
       options.afterRender(instance);
     }
     var didUpdate = renderOutput !== NO_OP;
     var childContext;
-    if (isFunction$1(instance.getChildContext)) {
+    if (isFunction$2(instance.getChildContext)) {
       childContext = instance.getChildContext();
     }
     if (isNullOrUndef(childContext)) {
@@ -16789,7 +16817,7 @@ function updateClassComponent(instance, nextState, nextVNode, nextProps, parentD
       var nextInput = handleComponentInput(renderOutput, nextVNode);
       patch(lastInput, nextInput, parentDom, childContext, isSVG);
       instance.$LI = nextInput;
-      if (isFunction$1(instance.componentDidUpdate)) {
+      if (isFunction$2(instance.componentDidUpdate)) {
         instance.componentDidUpdate(lastProps, lastState);
       }
     }
@@ -16822,11 +16850,11 @@ function patchComponent(lastVNode, nextVNode, parentDom, context, isSVG, isClass
       var lastInput = lastVNode.children;
       nextVNode.dom = lastVNode.dom;
       nextVNode.children = lastInput;
-      if (nextHooksDefined && isFunction$1(nextHooks.onComponentShouldUpdate)) {
+      if (nextHooksDefined && isFunction$2(nextHooks.onComponentShouldUpdate)) {
         shouldUpdate = nextHooks.onComponentShouldUpdate(lastProps, nextProps);
       }
       if (shouldUpdate !== false) {
-        if (nextHooksDefined && isFunction$1(nextHooks.onComponentWillUpdate)) {
+        if (nextHooksDefined && isFunction$2(nextHooks.onComponentWillUpdate)) {
           nextHooks.onComponentWillUpdate(lastProps, nextProps);
         }
         var nextInput = nextType(nextProps, context);
@@ -16835,7 +16863,7 @@ function patchComponent(lastVNode, nextVNode, parentDom, context, isSVG, isClass
           patch(lastInput, nextInput, parentDom, context, isSVG);
           nextVNode.children = nextInput;
           nextVNode.dom = nextInput.dom;
-          if (nextHooksDefined && isFunction$1(nextHooks.onComponentDidUpdate)) {
+          if (nextHooksDefined && isFunction$2(nextHooks.onComponentDidUpdate)) {
             nextHooks.onComponentDidUpdate(lastProps, nextProps);
           }
         }
@@ -16877,7 +16905,7 @@ function patchNonKeyedChildren(lastChildren, nextChildren, dom, context, isSVG, 
     }
   } else if (lastChildrenLength > nextChildrenLength) {
     for (i = commonLength; i < lastChildrenLength; i++) {
-      remove$4(lastChildren[i], dom);
+      remove$1(lastChildren[i], dom);
     }
   }
 }
@@ -16939,7 +16967,7 @@ function patchKeyedChildren(a, b, dom, context, isSVG, aLength, bLength) {
     }
   } else if (j > bEnd) {
     while (j <= aEnd) {
-      remove$4(a[j++], dom);
+      remove$1(a[j++], dom);
     }
   } else {
     var aStart = j;
@@ -16967,7 +16995,7 @@ function patchKeyedChildren(a, b, dom, context, isSVG, aLength, bLength) {
               if (canRemoveWholeContent) {
                 canRemoveWholeContent = false;
                 while (i > aStart) {
-                  remove$4(a[aStart++], dom);
+                  remove$1(a[aStart++], dom);
                 }
               }
               if (pos > j) {
@@ -16984,10 +17012,10 @@ function patchKeyedChildren(a, b, dom, context, isSVG, aLength, bLength) {
             }
           }
           if (!canRemoveWholeContent && j > bEnd) {
-            remove$4(aNode, dom);
+            remove$1(aNode, dom);
           }
         } else if (!canRemoveWholeContent) {
-          remove$4(aNode, dom);
+          remove$1(aNode, dom);
         }
       }
     } else {
@@ -17005,7 +17033,7 @@ function patchKeyedChildren(a, b, dom, context, isSVG, aLength, bLength) {
             if (canRemoveWholeContent) {
               canRemoveWholeContent = false;
               while (i > aStart) {
-                remove$4(a[aStart++], dom);
+                remove$1(a[aStart++], dom);
               }
             }
             bNode = b[j];
@@ -17021,10 +17049,10 @@ function patchKeyedChildren(a, b, dom, context, isSVG, aLength, bLength) {
             patch(aNode, bNode, dom, context, isSVG);
             patched++;
           } else if (!canRemoveWholeContent) {
-            remove$4(aNode, dom);
+            remove$1(aNode, dom);
           }
         } else if (!canRemoveWholeContent) {
-          remove$4(aNode, dom);
+          remove$1(aNode, dom);
         }
       }
     }
@@ -17138,7 +17166,7 @@ function render(input, parentDom, callback) {
     }
   } else {
     if (isNullOrUndef(input)) {
-      remove$4(rootInput, parentDom);
+      remove$1(rootInput, parentDom);
       parentDom.$V = null;
     } else {
       if (input.dom) {
@@ -17151,10 +17179,10 @@ function render(input, parentDom, callback) {
   if (LIFECYCLE.length > 0) {
     callAll(LIFECYCLE);
   }
-  if (isFunction$1(callback)) {
+  if (isFunction$2(callback)) {
     callback();
   }
-  if (isFunction$1(options.renderComplete)) {
+  if (isFunction$2(options.renderComplete)) {
     options.renderComplete(rootInput);
   }
   if (rootInput && rootInput.flags & 14 /* VNodeFlags.Component */) {
@@ -17175,7 +17203,7 @@ function nextTick(fn) {
   return fallbackMethod(fn);
 }
 function queueStateChanges(component, newState, callback, force) {
-  if (isFunction$1(newState)) {
+  if (isFunction$2(newState)) {
     newState = newState(component.state, component.props, component.context);
   }
   var pending = component.$PS;
@@ -17199,13 +17227,13 @@ function queueStateChanges(component, newState, callback, force) {
         queue = component.$QU = [];
         nextTick(promiseCallback(component, queue));
       }
-      if (isFunction$1(callback)) {
+      if (isFunction$2(callback)) {
         queue.push(callback);
       }
     }
   } else {
     component.$PSS = true;
-    if (component.$BR && isFunction$1(callback)) {
+    if (component.$BR && isFunction$2(callback)) {
       LIFECYCLE.push(callback.bind(component));
     }
   }
@@ -17256,7 +17284,7 @@ function applyState(component, force, callback) {
     component.state = component.$PS;
     component.$PS = null;
   }
-  if (isFunction$1(callback)) {
+  if (isFunction$2(callback)) {
     callback.call(component);
   }
 }
@@ -17331,9 +17359,9 @@ var BPMNIO_IMG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14.02 5.5
  */
 function addProjectLogo(container) {
   var linkMarkup = '<a href="http://bpmn.io" ' + 'target="_blank" ' + 'class="bjs-powered-by" ' + 'title="Powered by bpmn.io" ' + 'style="position: absolute; bottom: 15px; right: 15px; z-index: 100;">' + BPMNIO_IMG + '</a>';
-  var linkElement = domify$1$4(linkMarkup);
+  var linkElement = domify(linkMarkup);
   container.appendChild(linkElement);
-  event$2.bind(linkElement, 'click', function (event) {
+  event.bind(linkElement, 'click', function (event) {
     open();
     event.preventDefault();
   });
@@ -17360,96 +17388,112 @@ var LIGHTBOX_MARKUP = '<div class="bjs-powered-by-lightbox" style="' + LIGHTBOX_
 var lightbox;
 function open() {
   if (!lightbox) {
-    lightbox = domify$1$4(LIGHTBOX_MARKUP);
-    delegate$2.bind(lightbox, '.backdrop', 'click', function (event) {
+    lightbox = domify(LIGHTBOX_MARKUP);
+    delegate.bind(lightbox, '.backdrop', 'click', function (event) {
       document.body.removeChild(lightbox);
     });
   }
   document.body.appendChild(lightbox);
 }
 
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
-var hat_1 = createCommonjsModule(function (module) {
-var hat = module.exports = function (bits, base) {
-    if (!base) base = 16;
-    if (bits === undefined) bits = 128;
-    if (bits <= 0) return '0';
-    
-    var digits = Math.log(Math.pow(2, bits)) / Math.log(base);
-    for (var i = 2; digits === Infinity; i *= 2) {
-        digits = Math.log(Math.pow(2, bits / i)) / Math.log(base) * i;
-    }
-    
-    var rem = digits - Math.floor(digits);
-    
-    var res = '';
-    
-    for (var i = 0; i < Math.floor(digits); i++) {
-        var x = Math.floor(Math.random() * base).toString(base);
-        res = x + res;
-    }
-    
-    if (rem) {
-        var b = Math.pow(base, rem);
-        var x = Math.floor(Math.random() * b).toString(base);
-        res = x + res;
-    }
-    
-    var parsed = parseInt(res, base);
-    if (parsed !== Infinity && parsed >= Math.pow(2, bits)) {
-        return hat(bits, base)
-    }
-    else return res;
-};
+var hat$1 = {exports: {}};
 
-hat.rack = function (bits, base, expandBy) {
-    var fn = function (data) {
-        var iters = 0;
-        do {
-            if (iters ++ > 10) {
-                if (expandBy) bits += expandBy;
-                else throw new Error('too many ID collisions, use more bits')
-            }
-            
-            var id = hat(bits, base);
-        } while (Object.hasOwnProperty.call(hats, id));
-        
-        hats[id] = data;
-        return id;
-    };
-    var hats = fn.hats = {};
-    
-    fn.get = function (id) {
-        return fn.hats[id];
-    };
-    
-    fn.set = function (id, value) {
-        fn.hats[id] = value;
-        return fn;
-    };
-    
-    fn.bits = bits || 128;
-    fn.base = base || 16;
-    return fn;
-};
-});
+var hasRequiredHat;
+
+function requireHat () {
+	if (hasRequiredHat) return hat$1.exports;
+	hasRequiredHat = 1;
+	var hat = hat$1.exports = function (bits, base) {
+	    if (!base) base = 16;
+	    if (bits === undefined) bits = 128;
+	    if (bits <= 0) return '0';
+	    
+	    var digits = Math.log(Math.pow(2, bits)) / Math.log(base);
+	    for (var i = 2; digits === Infinity; i *= 2) {
+	        digits = Math.log(Math.pow(2, bits / i)) / Math.log(base) * i;
+	    }
+	    
+	    var rem = digits - Math.floor(digits);
+	    
+	    var res = '';
+	    
+	    for (var i = 0; i < Math.floor(digits); i++) {
+	        var x = Math.floor(Math.random() * base).toString(base);
+	        res = x + res;
+	    }
+	    
+	    if (rem) {
+	        var b = Math.pow(base, rem);
+	        var x = Math.floor(Math.random() * b).toString(base);
+	        res = x + res;
+	    }
+	    
+	    var parsed = parseInt(res, base);
+	    if (parsed !== Infinity && parsed >= Math.pow(2, bits)) {
+	        return hat(bits, base)
+	    }
+	    else return res;
+	};
+
+	hat.rack = function (bits, base, expandBy) {
+	    var fn = function (data) {
+	        var iters = 0;
+	        do {
+	            if (iters ++ > 10) {
+	                if (expandBy) bits += expandBy;
+	                else throw new Error('too many ID collisions, use more bits')
+	            }
+	            
+	            var id = hat(bits, base);
+	        } while (Object.hasOwnProperty.call(hats, id));
+	        
+	        hats[id] = data;
+	        return id;
+	    };
+	    var hats = fn.hats = {};
+	    
+	    fn.get = function (id) {
+	        return fn.hats[id];
+	    };
+	    
+	    fn.set = function (id, value) {
+	        fn.hats[id] = value;
+	        return fn;
+	    };
+	    
+	    fn.bits = bits || 128;
+	    fn.base = base || 16;
+	    return fn;
+	};
+	return hat$1.exports;
+}
+
+var hatExports = requireHat();
+var hat = /*@__PURE__*/getDefaultExportFromCjs(hatExports);
+
+/**
+ * @typedef { [ number, number ] | [ number, number, number ] } Seed
+ */
 
 /**
  * Create a new id generator / cache instance.
  *
  * You may optionally provide a seed that is used internally.
  *
- * @param {Seed} seed
+ * @param {Seed} [seed]
  */
 function Ids(seed) {
+
   if (!(this instanceof Ids)) {
     return new Ids(seed);
   }
-  seed = seed || [128, 36, 1];
-  this._seed = seed.length ? hat_1.rack(seed[0], seed[1], seed[2]) : seed;
+
+  seed = seed || [ 128, 36, 1 ];
+  this._seed = seed.length ? hat.rack(seed[0], seed[1], seed[2]) : seed;
 }
 
 /**
@@ -17457,9 +17501,9 @@ function Ids(seed) {
  *
  * @param {Object} [element] element to bind the id to
  *
- * @return {String} id
+ * @return {string} id
  */
-Ids.prototype.next = function (element) {
+Ids.prototype.next = function(element) {
   return this._seed(element || true);
 };
 
@@ -17468,10 +17512,11 @@ Ids.prototype.next = function (element) {
  *
  * @param {Object} [element] element to bind the id to
  *
- * @return {String} id
+ * @return {string} id
  */
-Ids.prototype.nextPrefixed = function (prefix, element) {
+Ids.prototype.nextPrefixed = function(prefix, element) {
   var id;
+
   do {
     id = prefix + this.next(true);
   } while (this.assigned(id));
@@ -17486,38 +17531,41 @@ Ids.prototype.nextPrefixed = function (prefix, element) {
 /**
  * Manually claim an existing id.
  *
- * @param {String} id
- * @param {String} [element] element the id is claimed by
+ * @param {string} id
+ * @param {any} [element] element the id is claimed by
  */
-Ids.prototype.claim = function (id, element) {
+Ids.prototype.claim = function(id, element) {
   this._seed.set(id, element || true);
 };
 
 /**
  * Returns true if the given id has already been assigned.
  *
- * @param  {String} id
- * @return {Boolean}
+ * @param  {string} id
+ * @return {boolean}
  */
-Ids.prototype.assigned = function (id) {
+Ids.prototype.assigned = function(id) {
   return this._seed.get(id) || false;
 };
 
 /**
  * Unclaim an id.
  *
- * @param  {String} id the id to unclaim
+ * @param  {string} id the id to unclaim
  */
-Ids.prototype.unclaim = function (id) {
+Ids.prototype.unclaim = function(id) {
   delete this._seed.hats[id];
 };
+
 
 /**
  * Clear all claimed ids.
  */
-Ids.prototype.clear = function () {
+Ids.prototype.clear = function() {
+
   var hats = this._seed.hats,
-    id;
+      id;
+
   for (id in hats) {
     this.unclaim(id);
   }
@@ -17570,7 +17618,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
     return 'url(#' + id + ')';
   }
   function addMarker(id, options) {
-    var attrs = assign$2({
+    var attrs = assign$4({
       strokeWidth: 1,
       strokeLinecap: 'round',
       strokeDasharray: 'none'
@@ -17586,7 +17634,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
     if (attrs.strokeDasharray === 'none') {
       attrs.strokeDasharray = [10000, 1];
     }
-    var marker = create$1('marker');
+    var marker = create$2('marker');
     attr(options.element, attrs);
     append(marker, options.element);
     attr(marker, {
@@ -17598,9 +17646,9 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
       markerHeight: 20 * scale,
       orient: 'auto'
     });
-    var defs = query$1('defs', canvas._svg);
+    var defs = query('defs', canvas._svg);
     if (!defs) {
-      defs = create$1('defs');
+      defs = create$2('defs');
       append(canvas._svg, defs);
     }
     append(defs, marker);
@@ -17608,7 +17656,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
   }
   function createMarker(id, type, fill, stroke) {
     if (type === 'association-start') {
-      var associationStart = create$1('path');
+      var associationStart = create$2('path');
       attr(associationStart, {
         d: 'M 11 5 L 1 10 L 11 15'
       });
@@ -17626,7 +17674,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
         scale: 0.5
       });
     } else if (type === 'association-end') {
-      var associationEnd = create$1('path');
+      var associationEnd = create$2('path');
       attr(associationEnd, {
         d: 'M 1 5 L 11 10 L 1 15'
       });
@@ -17644,7 +17692,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
         scale: 0.5
       });
     } else if (type === 'information-requirement-end') {
-      var informationRequirementEnd = create$1('path');
+      var informationRequirementEnd = create$2('path');
       attr(informationRequirementEnd, {
         d: 'M 1 5 L 11 10 L 1 15 Z'
       });
@@ -17661,7 +17709,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
         scale: 1
       });
     } else if (type === 'knowledge-requirement-end') {
-      var knowledgeRequirementEnd = create$1('path');
+      var knowledgeRequirementEnd = create$2('path');
       attr(knowledgeRequirementEnd, {
         d: 'M 1 3 L 11 10 L 1 17'
       });
@@ -17679,7 +17727,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
         scale: 0.8
       });
     } else if (type === 'authority-requirement-end') {
-      var authorityRequirementEnd = create$1('circle');
+      var authorityRequirementEnd = create$2('circle');
       attr(authorityRequirementEnd, {
         cx: 3,
         cy: 3,
@@ -17710,7 +17758,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
       strokeWidth: 2,
       fill: 'white'
     });
-    var rect = create$1('rect');
+    var rect = create$2('rect');
     attr(rect, {
       x: offset,
       y: offset,
@@ -17725,13 +17773,13 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
   }
   function renderLabel(p, label, options) {
     var text = textRenderer.createText(label || '', options);
-    attr$3(text, 'class', 'djs-label');
+    attr$1(text, 'class', 'djs-label');
     append(p, text);
     return text;
   }
   function renderEmbeddedLabel(p, element, align, options) {
     var name = getName(element);
-    options = assign$2({
+    options = assign$4({
       box: element,
       align: align,
       padding: 5,
@@ -17746,7 +17794,7 @@ function DrdRenderer(config, eventBus, pathMap, styles, textRenderer, canvas) {
       strokeWidth: 2,
       stroke: black
     });
-    var path = create$1('path');
+    var path = create$2('path');
     attr(path, {
       d: d
     });
@@ -18023,8 +18071,8 @@ function parseAlign(align) {
  */
 function parsePadding(padding) {
 
-  if (isObject$1(padding)) {
-    return assign$3({ top: 0, left: 0, right: 0, bottom: 0 }, padding);
+  if (isObject$3(padding)) {
+    return assign$a({ top: 0, left: 0, right: 0, bottom: 0 }, padding);
   } else {
     return {
       top: padding,
@@ -18035,47 +18083,105 @@ function parsePadding(padding) {
   }
 }
 
+/** @type {CanvasRenderingContext2D | null} */
+var _canvasContext = null;
+
+/**
+ * @return {CanvasRenderingContext2D | null}
+ */
+function getCanvasContext() {
+  if (!_canvasContext) {
+    _canvasContext = document.createElement('canvas').getContext('2d');
+  }
+
+  return _canvasContext;
+}
+
+/**
+ * Build a CSS font string from a style object for use with the canvas
+ * measureText API.
+ *
+ * @param {Record<string, number | string>} style
+ *
+ * @return {string}
+ */
+function buildFont(style) {
+  var parts = [];
+
+  if (style.fontStyle) {
+    parts.push(style.fontStyle);
+  }
+
+  if (style.fontVariant) {
+    parts.push(style.fontVariant);
+  }
+
+  if (style.fontWeight) {
+    parts.push(style.fontWeight);
+  }
+
+  if (style.fontStretch) {
+    parts.push(style.fontStretch);
+  }
+
+  parts.push(buildLength(style.fontSize) || '12px');
+  parts.push(style.fontFamily || 'sans-serif');
+
+  return parts.join(' ');
+}
+
+/**
+ * Coerce a CSS length to a string with units, since canvas APIs
+ * silently reject unitless lengths and keep the previous value.
+ *
+ * @param {number | string | undefined} value
+ *
+ * @return {string | undefined}
+ */
+function buildLength(value) {
+  if (value == null) {
+    return undefined;
+  }
+
+  if (typeof value === 'number' || /^-?\d+(\.\d+)?$/.test(value)) {
+    return value + 'px';
+  }
+
+  return value;
+}
+
 /**
  * @param {string} text
- * @param {SVGTextElement} fakeText
+ * @param {Record<string, number | string>} style
  *
  * @return {import('../util/Types').Dimensions}
  */
-function getTextBBox(text, fakeText) {
+function getTextBBox(text, style) {
+  var ctx = getCanvasContext();
 
-  fakeText.textContent = text;
-
-  var textBBox;
-
-  try {
-    var bbox,
-        emptyLine = text === '';
-
-    // add dummy text, when line is empty to
-    // determine correct height
-    fakeText.textContent = emptyLine ? 'dummy' : text;
-
-    textBBox = fakeText.getBBox();
-
-    // take text rendering related horizontal
-    // padding into account
-    bbox = {
-      width: textBBox.width + textBBox.x * 2,
-      height: textBBox.height
-    };
-
-    if (emptyLine) {
-
-      // correct width
-      bbox.width = 0;
-    }
-
-    return bbox;
-  } catch (e) {
-    console.log(e);
-
+  if (!ctx) {
     return { width: 0, height: 0 };
   }
+
+  ctx.font = buildFont(style);
+
+  if ('letterSpacing' in ctx) {
+    ctx.letterSpacing = buildLength(style.letterSpacing) || '0px';
+  }
+
+  var emptyLine = text === '';
+
+  // strip trailing whitespace so measurement matches the browser's
+  // native rendering used by direct editing
+  var measurable = emptyLine ? 'dummy' : text.replace(/\s+$/, '');
+  var metrics = ctx.measureText(measurable);
+
+  return {
+    width: emptyLine ? 0 : metrics.width,
+    height: 'fontBoundingBoxAscent' in metrics
+      ? metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent
+      : metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+  };
 }
 
 
@@ -18086,11 +18192,11 @@ function getTextBBox(text, fakeText) {
  *
  * @param {string[]} lines
  * @param {number} maxWidth
- * @param {SVGTextElement} fakeText
+ * @param {Record<string, number | string>} style
  *
  * @return {LineDescriptor} the line descriptor
  */
-function layoutNext(lines, maxWidth, fakeText) {
+function layoutNext(lines, maxWidth, style) {
 
   var originalLine = lines.shift(),
       fitLine = originalLine;
@@ -18098,7 +18204,7 @@ function layoutNext(lines, maxWidth, fakeText) {
   var textBBox;
 
   for (;;) {
-    textBBox = getTextBBox(fitLine, fakeText);
+    textBBox = getTextBBox(fitLine, style);
 
     textBBox.width = fitLine ? textBBox.width : 0;
 
@@ -18206,40 +18312,13 @@ function shortenLine(line, width, maxWidth) {
 
 
 /**
- * @return {SVGSVGElement}
- */
-function getHelperSvg() {
-  var helperSvg = document.getElementById('helper-svg');
-
-  if (!helperSvg) {
-    helperSvg = create$3('svg');
-
-    attr$2(helperSvg, {
-      id: 'helper-svg'
-    });
-
-    assign$1(helperSvg, {
-      visibility: 'hidden',
-      position: 'fixed',
-      width: 0,
-      height: 0
-    });
-
-    document.body.appendChild(helperSvg);
-  }
-
-  return helperSvg;
-}
-
-
-/**
  * Creates a new label utility
  *
  * @param {TextConfig} [config]
  */
 function Text$1(config) {
 
-  this._config = assign$3({}, {
+  this._config = assign$a({}, {
     size: DEFAULT_LABEL_SIZE,
     padding: DEFAULT_BOX_PADDING,
     style: {},
@@ -18283,8 +18362,8 @@ Text$1.prototype.getDimensions = function(text, options) {
  * } }
  */
 Text$1.prototype.layoutText = function(text, options) {
-  var box = assign$3({}, this._config.size, options.box),
-      style = assign$3({}, this._config.style, options.style),
+  var box = assign$a({}, this._config.size, options.box),
+      style = assign$a({}, this._config.style, options.style),
       align = parseAlign(options.align || this._config.align),
       padding = parsePadding(options.padding !== undefined ? options.padding : this._config.padding),
       fitBox = options.fitBox || false;
@@ -18298,17 +18377,8 @@ Text$1.prototype.layoutText = function(text, options) {
 
   var maxWidth = box.width - padding.left - padding.right;
 
-  // ensure correct rendering by attaching helper text node to invisible SVG
-  var helperText = create$3('text');
-  attr$2(helperText, { x: 0, y: 0 });
-  attr$2(helperText, style);
-
-  var helperSvg = getHelperSvg();
-
-  append$1(helperSvg, helperText);
-
   while (lines.length) {
-    layouted.push(layoutNext(lines, maxWidth, helperText));
+    layouted.push(layoutNext(lines, maxWidth, style));
   }
 
   if (align.vertical === 'middle') {
@@ -18334,13 +18404,13 @@ Text$1.prototype.layoutText = function(text, options) {
   y -= (lineHeight || layouted[0].height) / 4;
 
 
-  var textElement = create$3('text');
+  var textElement = create$2('text');
 
-  attr$2(textElement, style);
+  attr(textElement, style);
 
   // layout each line taking into account that parent
   // shape might resize to fit text size
-  forEach$2(layouted, function(line) {
+  forEach$6(layouted, function(line) {
 
     var x;
 
@@ -18363,15 +18433,13 @@ Text$1.prototype.layoutText = function(text, options) {
         - line.width) / 2 + padding.left), 0);
     }
 
-    var tspan = create$3('tspan');
-    attr$2(tspan, { x: x, y: y });
+    var tspan = create$2('tspan');
+    attr(tspan, { x: x, y: y });
 
     tspan.textContent = line.text;
 
-    append$1(textElement, tspan);
+    append(textElement, tspan);
   });
-
-  remove$7(helperText);
 
   var dimensions = {
     width: maxLineWidth,
@@ -18395,14 +18463,14 @@ var DEFAULT_FONT_SIZE = 12;
 var LINE_HEIGHT_RATIO = 1.2;
 var MIN_TEXT_ANNOTATION_HEIGHT = 30;
 function TextRenderer(config) {
-  var defaultStyle = assign$2({
+  var defaultStyle = assign$4({
     fontFamily: 'Arial, sans-serif',
     fontSize: DEFAULT_FONT_SIZE,
     fontWeight: 'normal',
     lineHeight: LINE_HEIGHT_RATIO
   }, config && config.defaultStyle || {});
   var fontSize = parseInt(defaultStyle.fontSize, 10) - 1;
-  var externalStyle = assign$2({}, defaultStyle, {
+  var externalStyle = assign$4({}, defaultStyle, {
     fontSize: fontSize
   }, config && config.externalStyle || {});
   var textUtil = new Text$1({
@@ -18769,7 +18837,7 @@ DrdImporter.prototype._getShape = function (id) {
 
 // helper /////
 function elementData$1(semantic, attrs) {
-  return assign$2({
+  return assign$4({
     id: semantic.id,
     type: semantic.$type,
     businessObject: semantic
@@ -18778,12 +18846,12 @@ function elementData$1(semantic, attrs) {
 function collectWaypoints(edge) {
   var waypoints = edge.waypoint;
   if (waypoints) {
-    return map$5(waypoints, function (waypoint) {
+    return map(waypoints, function (waypoint) {
       var position = {
         x: waypoint.x,
         y: waypoint.y
       };
-      return assign$2({
+      return assign$4({
         original: position
       }, position);
     });
@@ -19078,13 +19146,13 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
   }
 
   function registerEvents(svg) {
-    forEach$2(bindings, function(val, key) {
+    forEach$6(bindings, function(val, key) {
       registerEvent(svg, key, val);
     });
   }
 
   function unregisterEvents(svg) {
-    forEach$2(bindings, function(val, key) {
+    forEach$6(bindings, function(val, key) {
       unregisterEvent(svg, key, val);
     });
   }
@@ -19155,7 +19223,7 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
 
   function createHitStyle(classNames, attrs) {
 
-    attrs = assign$3({
+    attrs = assign$a({
       stroke: 'white',
       strokeWidth: 15
     }, attrs || {});
@@ -19174,13 +19242,13 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
       throw new Error('invalid hit type <' + type + '>');
     }
 
-    attr$2(hit, attrs);
+    attr(hit, attrs);
 
     return hit;
   }
 
   function appendHit(gfx, hit) {
-    append$1(gfx, hit);
+    append(gfx, hit);
   }
 
 
@@ -19194,7 +19262,7 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
   this.removeHits = function(gfx) {
     var hits = all('.djs-hit', gfx);
 
-    forEach$2(hits, remove$7);
+    forEach$6(hits, remove$3);
   };
 
   /**
@@ -19253,16 +19321,16 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
    */
   this.createBoxHit = function(gfx, type, attrs) {
 
-    attrs = assign$3({
+    attrs = assign$a({
       x: 0,
       y: 0
     }, attrs);
 
-    var hit = create$3('rect');
+    var hit = create$2('rect');
 
     applyStyle(hit, type);
 
-    attr$2(hit, attrs);
+    attr(hit, attrs);
 
     appendHit(gfx, hit);
 
@@ -19288,7 +19356,7 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
     if (element.waypoints) {
       updateLine(hit, element.waypoints);
     } else {
-      attr$2(hit, {
+      attr(hit, {
         width: element.width,
         height: element.height
       });
@@ -19488,7 +19556,7 @@ Selection.prototype.select = function(elements, add) {
   var selectedElements = this._selectedElements,
       oldSelection = selectedElements.slice();
 
-  if (!isArray$5(elements)) {
+  if (!isArray$8(elements)) {
     elements = elements ? [ elements ] : [];
   }
 
@@ -19505,7 +19573,7 @@ Selection.prototype.select = function(elements, add) {
   // selection may be cleared by passing an empty array or null
   // to the method
   if (add) {
-    forEach$2(elements, function(element) {
+    forEach$6(elements, function(element) {
       if (selectedElements.indexOf(element) !== -1) {
 
         // already selected
@@ -19572,13 +19640,13 @@ function SelectionVisuals(canvas, eventBus) {
     var oldSelection = event.oldSelection,
         newSelection = event.newSelection;
 
-    forEach$2(oldSelection, function(e) {
+    forEach$6(oldSelection, function(e) {
       if (newSelection.indexOf(e) === -1) {
         deselect(e);
       }
     });
 
-    forEach$2(newSelection, function(e) {
+    forEach$6(newSelection, function(e) {
       if (oldSelection.indexOf(e) === -1) {
         select(e);
       }
@@ -19621,7 +19689,7 @@ function SelectionBehavior(eventBus, selection, canvas, elementRegistry) {
         return;
       }
 
-      if (isArray$5(autoSelect)) {
+      if (isArray$8(autoSelect)) {
         selection.select(autoSelect);
       } else {
 
@@ -19648,7 +19716,7 @@ function SelectionBehavior(eventBus, selection, canvas, elementRegistry) {
     var shape = elementRegistry.get(event.context.shape.id);
 
     // Always select main shape on move
-    var isSelected = find$2(previousSelection, function(selectedShape) {
+    var isSelected = find$4(previousSelection, function(selectedShape) {
       return shape.id === selectedShape.id;
     });
 
@@ -19886,7 +19954,7 @@ function Overlays(config, eventBus, canvas, elementRegistry) {
   /**
    * @type {OverlaysConfigDefault}
    */
-  this._overlayDefaults = assign$3({
+  this._overlayDefaults = assign$a({
 
     // no show constraints
     show: null,
@@ -19948,11 +20016,11 @@ Overlays.$inject = [
  */
 Overlays.prototype.get = function(search) {
 
-  if (isString$2(search)) {
+  if (isString$4(search)) {
     search = { id: search };
   }
 
-  if (isString$2(search.element)) {
+  if (isString$4(search.element)) {
     search.element = this._elementRegistry.get(search.element);
   }
 
@@ -19985,7 +20053,7 @@ Overlays.prototype.get = function(search) {
  */
 Overlays.prototype.add = function(element, type, overlay) {
 
-  if (isObject$1(type)) {
+  if (isObject$3(type)) {
     overlay = type;
     type = null;
   }
@@ -20008,7 +20076,7 @@ Overlays.prototype.add = function(element, type, overlay) {
 
   var id = this._ids.next();
 
-  overlay = assign$3({}, this._overlayDefaults, overlay, {
+  overlay = assign$a({}, this._overlayDefaults, overlay, {
     id: id,
     type: type,
     element: element,
@@ -20032,19 +20100,19 @@ Overlays.prototype.remove = function(filter) {
 
   var overlays = this.get(filter) || [];
 
-  if (!isArray$5(overlays)) {
+  if (!isArray$8(overlays)) {
     overlays = [ overlays ];
   }
 
   var self = this;
 
-  forEach$2(overlays, function(overlay) {
+  forEach$6(overlays, function(overlay) {
 
     var container = self._getOverlayContainer(overlay.element, true);
 
     if (overlay) {
-      remove$6(overlay.html);
-      remove$6(overlay.htmlContainer);
+      remove$4(overlay.html);
+      remove$4(overlay.htmlContainer);
 
       delete overlay.htmlContainer;
       delete overlay.element;
@@ -20163,8 +20231,8 @@ Overlays.prototype._updateOverlay = function(overlay) {
 
 
 Overlays.prototype._createOverlayContainer = function(element) {
-  var html = domify$4('<div class="djs-overlays" />');
-  assign$1(html, { position: 'absolute' });
+  var html = domify('<div class="djs-overlays" />');
+  assign$6(html, { position: 'absolute' });
 
   this._overlayRoot.appendChild(html);
 
@@ -20201,7 +20269,7 @@ Overlays.prototype._updateRoot = function(viewbox) {
 
 
 Overlays.prototype._getOverlayContainer = function(element, raw) {
-  var container = find$2(this._overlayContainers, function(c) {
+  var container = find$4(this._overlayContainers, function(c) {
     return c.element === element;
   });
 
@@ -20229,19 +20297,19 @@ Overlays.prototype._addOverlay = function(overlay) {
 
   // create proper html elements from
   // overlay HTML strings
-  if (isString$2(html)) {
-    html = domify$4(html);
+  if (isString$4(html)) {
+    html = domify(html);
   }
 
   overlayContainer = this._getOverlayContainer(element);
 
-  htmlContainer = domify$4('<div class="djs-overlay" data-overlay-id="' + id + '">');
-  assign$1(htmlContainer, { position: 'absolute' });
+  htmlContainer = domify('<div class="djs-overlay" data-overlay-id="' + id + '">');
+  assign$6(htmlContainer, { position: 'absolute' });
 
   htmlContainer.appendChild(html);
 
   if (overlay.type) {
-    classes(htmlContainer).add('djs-overlay-' + overlay.type);
+    classes$1(htmlContainer).add('djs-overlay-' + overlay.type);
   }
 
   var elementRoot = this._canvas.findRoot(element);
@@ -20274,8 +20342,8 @@ Overlays.prototype._updateOverlayVisibilty = function(overlay, viewbox) {
     visible = false;
   } else if (show) {
     if (
-      (isDefined$1(minZoom) && minZoom > viewbox.scale) ||
-      (isDefined$1(maxZoom) && maxZoom < viewbox.scale)
+      (isDefined$2(minZoom) && minZoom > viewbox.scale) ||
+      (isDefined$2(maxZoom) && maxZoom < viewbox.scale)
     ) {
       visible = false;
     }
@@ -20305,16 +20373,16 @@ Overlays.prototype._updateOverlayScale = function(overlay, viewbox) {
       maxScale = shouldScale.max;
     }
 
-    if (isDefined$1(minScale) && viewbox.scale < minScale) {
+    if (isDefined$2(minScale) && viewbox.scale < minScale) {
       scale = (1 / viewbox.scale || 1) * minScale;
     }
 
-    if (isDefined$1(maxScale) && viewbox.scale > maxScale) {
+    if (isDefined$2(maxScale) && viewbox.scale > maxScale) {
       scale = (1 / viewbox.scale || 1) * maxScale;
     }
   }
 
-  if (isDefined$1(scale)) {
+  if (isDefined$2(scale)) {
     transform = 'scale(' + scale + ',' + scale + ')';
   }
 
@@ -20326,7 +20394,7 @@ Overlays.prototype._updateOverlaysVisibilty = function(viewbox) {
 
   var self = this;
 
-  forEach$2(this._overlays, function(overlay) {
+  forEach$6(this._overlays, function(overlay) {
     self._updateOverlayVisibilty(overlay, viewbox);
   });
 };
@@ -20363,14 +20431,14 @@ Overlays.prototype._init = function() {
     var element = e.element;
     var overlays = self.get({ element: element });
 
-    forEach$2(overlays, function(o) {
+    forEach$6(overlays, function(o) {
       self.remove(o.id);
     });
 
     var container = self._getOverlayContainer(element);
 
     if (container) {
-      remove$6(container.html);
+      remove$4(container.html);
       var i = self._overlayContainers.indexOf(container);
       if (i !== -1) {
         self._overlayContainers.splice(i, 1);
@@ -20387,7 +20455,7 @@ Overlays.prototype._init = function() {
     var container = self._getOverlayContainer(element, true);
 
     if (container) {
-      forEach$2(container.overlays, function(overlay) {
+      forEach$6(container.overlays, function(overlay) {
         self._updateOverlay(overlay);
       });
 
@@ -20401,7 +20469,7 @@ Overlays.prototype._init = function() {
   eventBus.on('element.marker.update', function(e) {
     var container = self._getOverlayContainer(e.element, true);
     if (container) {
-      classes(container.html)[e.add ? 'add' : 'remove'](e.marker);
+      classes$1(container.html)[e.add ? 'add' : 'remove'](e.marker);
     }
   });
 
@@ -20420,11 +20488,11 @@ Overlays.prototype._init = function() {
 // helpers /////////////////////////////
 
 function createRoot(parentNode) {
-  var root = domify$4(
+  var root = domify(
     '<div class="djs-overlay-container" />'
   );
 
-  assign$1(root, {
+  assign$6(root, {
     position: 'absolute',
     width: 0,
     height: 0
@@ -20436,7 +20504,7 @@ function createRoot(parentNode) {
 }
 
 function setPosition(el, x, y) {
-  assign$1(el, { left: x + 'px', top: y + 'px' });
+  assign$6(el, { left: x + 'px', top: y + 'px' });
 }
 
 /**
@@ -20492,11 +20560,11 @@ DefinitionPropertiesView.prototype._init = function () {
   var canvas = this._canvas,
     eventBus = this._eventBus;
   var parent = canvas.getContainer(),
-    container = this._container = domify$1$3(this.HTML_MARKUP);
+    container = this._container = domify(this.HTML_MARKUP);
   parent.appendChild(container);
-  this.nameElement = query$1('.dmn-definitions-name', this._container);
-  this.idElement = query$1('.dmn-definitions-id', this._container);
-  delegate$1.bind(container, '.dmn-definitions-name, .dmn-definitions-id', 'mousedown', function (event) {
+  this.nameElement = query('.dmn-definitions-name', this._container);
+  this.idElement = query('.dmn-definitions-id', this._container);
+  delegate.bind(container, '.dmn-definitions-name, .dmn-definitions-id', 'mousedown', function (event) {
     event.stopPropagation();
   });
   eventBus.fire('definitionIdView.create', {
@@ -20512,7 +20580,7 @@ DefinitionPropertiesView.prototype.update = function () {
 function PaletteAdapter(eventBus, canvas) {
   function toggleMarker(cls, on) {
     var container = canvas.getContainer();
-    classes$2(container).toggle(cls, on);
+    classes$1(container).toggle(cls, on);
   }
   eventBus.on('palette.create', function () {
     toggleMarker('with-palette', true);
@@ -20597,7 +20665,7 @@ class DrillDown {
 
     // TODO(nikku): can we remove renamed to drillDown.enabled
     if (enabled) {
-      classes$2(node).add('interactive');
+      classes$1(node).add('interactive');
       this.bindEventListener(element, node, overlayId);
     }
   }
@@ -20627,7 +20695,7 @@ class DrillDown {
     const overlays = this._overlays,
       eventBus = this._eventBus;
     const overlaysRoot = overlays._overlayRoot;
-    delegate$1.bind(overlaysRoot, '[data-overlay-id="' + id + '"]', 'click', () => {
+    delegate.bind(overlaysRoot, '[data-overlay-id="' + id + '"]', 'click', () => {
       const triggerDefault = eventBus.fire('drillDown.click', {
         element
       });
@@ -20767,7 +20835,7 @@ Viewer$5.prototype.saveSVG = wrapForCompatibility(function (options) {
   return new Promise(function (resolve) {
     var canvas = self.get('canvas');
     var contentNode = canvas.getActiveLayer(),
-      defsNode = query$1('defs', canvas._svg);
+      defsNode = query('defs', canvas._svg);
     var contents = innerSVG(contentNode),
       defs = defsNode && defsNode.outerHTML || '';
     var bbox = contentNode.getBBox();
@@ -20790,7 +20858,7 @@ Viewer$5.prototype.destroy = function () {
   Diagram.prototype.destroy.call(this);
 
   // dom detach
-  remove$8(this._container);
+  remove$4(this._container);
 };
 
 /**
@@ -20855,7 +20923,7 @@ Viewer$5.prototype._emit = function (type, event) {
   return this.get('eventBus').fire(type, event);
 };
 Viewer$5.prototype._createContainer = function () {
-  return domify$1$3('<div class="dmn-drd-container"></div>');
+  return domify('<div class="dmn-drd-container"></div>');
 };
 
 /**
@@ -20949,10 +21017,10 @@ Viewer$5.prototype._modules = [CoreModule$1, TranslateModule, SelectionModule, O
  * @return {T[]}
  */
 
-const nativeToString = Object.prototype.toString;
+const nativeToString$1 = Object.prototype.toString;
 
 function isNumber(obj) {
-  return nativeToString.call(obj) === '[object Number]';
+  return nativeToString$1.call(obj) === '[object Number]';
 }
 
 /**
@@ -20960,8 +21028,8 @@ function isNumber(obj) {
  *
  * @return {boolean}
  */
-function isFunction(obj) {
-  const tag = nativeToString.call(obj);
+function isFunction$1(obj) {
+  const tag = nativeToString$1.call(obj);
 
   return (
     tag === '[object Function]' ||
@@ -21007,13 +21075,13 @@ function throttle(fn, interval) {
  *
  * @return {Object} the target
  */
-function assign(target, ...others) {
+function assign$3(target, ...others) {
   return Object.assign(target, ...others);
 }
 
 class Base {
   constructor(attrs) {
-    assign(this, attrs);
+    assign$3(this, attrs);
 
     /**
      * The object that backs up the shape
@@ -21357,7 +21425,7 @@ let Components$1 = class Components {
     return components;
   }
   onGetComponent(type, priority, callback) {
-    if (isFunction(priority)) {
+    if (isFunction$1(priority)) {
       callback = priority;
       priority = DEFAULT_PRIORITY$1;
     }
@@ -21759,9 +21827,211 @@ function createInjector$1(config, modules) {
   const bootstrapModules = [{
     config: ['value', config]
   }, core$1].concat(modules || []);
-  const injector = new Injector$1(bootstrapModules);
+  const injector = new Injector(bootstrapModules);
   injector.init();
   return injector;
+}
+
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
+ */
+
+const nativeToString = Object.prototype.toString;
+const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
+
+function isUndefined(obj) {
+  return obj === undefined;
+}
+
+function isNil(obj) {
+  return obj == null;
+}
+
+function isArray(obj) {
+  return nativeToString.call(obj) === '[object Array]';
+}
+
+/**
+ * @param {any} obj
+ *
+ * @return {boolean}
+ */
+function isFunction(obj) {
+  const tag = nativeToString.call(obj);
+
+  return (
+    tag === '[object Function]' ||
+    tag === '[object AsyncFunction]' ||
+    tag === '[object GeneratorFunction]' ||
+    tag === '[object AsyncGeneratorFunction]' ||
+    tag === '[object Proxy]'
+  );
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has(target, key) {
+  return !isNil(target) && nativeHasOwnProperty.call(target, key);
+}
+
+/**
+ * @template T
+ * @typedef { (
+ *   ((e: T) => boolean) |
+ *   ((e: T, idx: number) => boolean) |
+ *   ((e: T, key: string) => boolean) |
+ *   string |
+ *   number
+ * ) } Matcher
+ */
+
+/**
+ * @template T
+ * @template U
+ *
+ * @typedef { (
+ *   ((e: T) => U) | string | number
+ * ) } Extractor
+ */
+
+
+/**
+ * @template T
+ * @typedef { (val: T, key: any) => boolean } MatchFn
+ */
+
+/**
+ * @template T
+ * @typedef { T[] } ArrayCollection
+ */
+
+/**
+ * @template T
+ * @typedef { { [key: string]: T } } StringKeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { { [key: number]: T } } NumberKeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { StringKeyValueCollection<T> | NumberKeyValueCollection<T> } KeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { KeyValueCollection<T> | ArrayCollection<T> } Collection
+ */
+
+/**
+ * Find element in collection.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param {Matcher<T>} matcher
+ *
+ * @return {Object}
+ */
+function find$1(collection, matcher) {
+
+  const matchFn = toMatcher(matcher);
+
+  let match;
+
+  forEach(collection, function(val, key) {
+    if (matchFn(val, key)) {
+      match = val;
+
+      return false;
+    }
+  });
+
+  return match;
+
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
+ *
+ * @return {T} return result that stopped the iteration
+ */
+function forEach(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined(collection)) {
+    return;
+  }
+
+  const convertKey = isArray(collection) ? toNum : identity;
+
+  for (let key in collection) {
+
+    if (has(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+
+/**
+ * @template T
+ * @param {Matcher<T>} matcher
+ *
+ * @return {MatchFn<T>}
+ */
+function toMatcher(matcher) {
+  return isFunction(matcher) ? matcher : (e) => {
+    return e === matcher;
+  };
+}
+
+
+function identity(arg) {
+  return arg;
+}
+
+function toNum(arg) {
+  return Number(arg);
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign$2(target, ...others) {
+  return Object.assign(target, ...others);
 }
 
 function elementToString(element) {
@@ -21813,19 +22083,19 @@ function TableTreeWalker(handler, options) {
     }
   }
   function handleClauses(clauses, context, definitions) {
-    forEach$1(clauses, function (e) {
+    forEach(clauses, function (e) {
       visit(e, context, definitions);
     });
   }
   function handleRules(rules, context, definitions) {
-    forEach$1(rules, function (e) {
+    forEach(rules, function (e) {
       visit(e, context, definitions);
       handleEntry(e.inputEntry, e);
       handleEntry(e.outputEntry, e);
     });
   }
   function handleEntry(entry, context, definitions) {
-    forEach$1(entry, function (e) {
+    forEach(entry, function (e) {
       visit(e, context, definitions);
     });
   }
@@ -21893,124 +22163,6 @@ function importDecision(decisionTable, decision, done) {
     elements: [sheet.getRoot()]
   });
   done(error, warnings);
-}
-
-/**
- * Expose `parse`.
- */
-
-var domify$3 = parse$3;
-
-/**
- * Tests for browser support.
- */
-
-var innerHTMLBug$2 = false;
-var bugTestDiv$2;
-if (typeof document !== 'undefined') {
-  bugTestDiv$2 = document.createElement('div');
-  // Setup
-  bugTestDiv$2.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
-  // Make sure that link elements get serialized correctly by innerHTML
-  // This requires a wrapper element in IE
-  innerHTMLBug$2 = !bugTestDiv$2.getElementsByTagName('link').length;
-  bugTestDiv$2 = undefined;
-}
-
-/**
- * Wrap map from jquery.
- */
-
-var map$2 = {
-  legend: [1, '<fieldset>', '</fieldset>'],
-  tr: [2, '<table><tbody>', '</tbody></table>'],
-  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-  // for script/link/style tags to work in IE6-8, you have to wrap
-  // in a div with a non-whitespace character in front, ha!
-  _default: innerHTMLBug$2 ? [1, 'X<div>', '</div>'] : [0, '', '']
-};
-
-map$2.td =
-map$2.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-map$2.option =
-map$2.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-map$2.thead =
-map$2.tbody =
-map$2.colgroup =
-map$2.caption =
-map$2.tfoot = [1, '<table>', '</table>'];
-
-map$2.polyline =
-map$2.ellipse =
-map$2.polygon =
-map$2.circle =
-map$2.text =
-map$2.line =
-map$2.path =
-map$2.rect =
-map$2.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
-
-/**
- * Parse `html` and return a DOM Node instance, which could be a TextNode,
- * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
- * instance, depending on the contents of the `html` string.
- *
- * @param {String} html - HTML string to "domify"
- * @param {Document} doc - The `document` instance to create the Node for
- * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
- * @api private
- */
-
-function parse$3(html, doc) {
-  if ('string' != typeof html) throw new TypeError('String expected');
-
-  // default to the global `document` object
-  if (!doc) doc = document;
-
-  // tag name
-  var m = /<([\w:]+)/.exec(html);
-  if (!m) return doc.createTextNode(html);
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
-  var tag = m[1];
-
-  // body support
-  if (tag == 'body') {
-    var el = doc.createElement('html');
-    el.innerHTML = html;
-    return el.removeChild(el.lastChild);
-  }
-
-  // wrap map
-  var wrap = Object.prototype.hasOwnProperty.call(map$2, tag) ? map$2[tag] : map$2._default;
-  var depth = wrap[0];
-  var prefix = wrap[1];
-  var suffix = wrap[2];
-  var el = doc.createElement('div');
-  el.innerHTML = prefix + html + suffix;
-  while (depth--) el = el.lastChild;
-
-  // one element
-  if (el.firstChild == el.lastChild) {
-    return el.removeChild(el.firstChild);
-  }
-
-  // several elements
-  var fragment = doc.createDocumentFragment();
-  while (el.firstChild) {
-    fragment.appendChild(el.removeChild(el.firstChild));
-  }
-
-  return fragment;
-}
-
-var domify$1$2 = domify$3;
-
-function remove$3(el) {
-  el.parentNode && el.parentNode.removeChild(el);
 }
 
 function newSet() {
@@ -22666,7 +22818,7 @@ class ExpressionLanguages {
       this._config.options = config.options;
     }
     const legacyDefaults = this._getLegacyDefaults();
-    assign$2(this._config.defaults, legacyDefaults, config.defaults);
+    assign$5(this._config.defaults, legacyDefaults, config.defaults);
   }
 
   /**
@@ -22717,7 +22869,7 @@ class ExpressionLanguages {
     return defaults;
   }
   _getLanguageByValue(value) {
-    return find$1(this.getAll(), language => value === language.value);
+    return find$2(this.getAll(), language => value === language.value);
   }
 }
 ExpressionLanguages.$inject = ['injector'];
@@ -23246,7 +23398,7 @@ let Viewer$4 = class Viewer extends Table {
       return;
     }
     this._emit('detach', {});
-    remove$3(container);
+    remove$4(container);
   }
   destroy() {
     super.destroy();
@@ -23259,504 +23411,9 @@ let Viewer$4 = class Viewer extends Table {
     return [annotationsModule, coreModule, TranslateModule, decisionTableHeadModule, decisionTablePropertiesModule, decisionRuleIndicesModule, decisionRulesModule, hitPolicyModule, viewDrdModule];
   }
   static _createContainer() {
-    return domify$1$2('<div class="dmn-decision-table-container"></div>');
+    return domify('<div class="dmn-decision-table-container"></div>');
   }
 };
-
-const CLASS_PATTERN = /^class[ {]/;
-
-
-/**
- * @param {function} fn
- *
- * @return {boolean}
- */
-function isClass(fn) {
-  return CLASS_PATTERN.test(fn.toString());
-}
-
-/**
- * @param {any} obj
- *
- * @return {boolean}
- */
-function isArray(obj) {
-  return Array.isArray(obj);
-}
-
-/**
- * @param {any} obj
- * @param {string} prop
- *
- * @return {boolean}
- */
-function hasOwnProp(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-/**
- * @typedef {import('./index.js').InjectAnnotated } InjectAnnotated
- */
-
-/**
- * @template T
- *
- * @params {[...string[], T] | ...string[], T} args
- *
- * @return {T & InjectAnnotated}
- */
-function annotate(...args) {
-
-  if (args.length === 1 && isArray(args[0])) {
-    args = args[0];
-  }
-
-  args = [ ...args ];
-
-  const fn = args.pop();
-
-  fn.$inject = args;
-
-  return fn;
-}
-
-
-// Current limitations:
-// - can't put into "function arg" comments
-// function /* (no parenthesis like this) */ (){}
-// function abc( /* xx (no parenthesis like this) */ a, b) {}
-//
-// Just put the comment before function or inside:
-// /* (((this is fine))) */ function(a, b) {}
-// function abc(a) { /* (((this is fine))) */}
-//
-// - can't reliably auto-annotate constructor; we'll match the
-// first constructor(...) pattern found which may be the one
-// of a nested class, too.
-
-const CONSTRUCTOR_ARGS = /constructor\s*[^(]*\(\s*([^)]*)\)/m;
-const FN_ARGS = /^(?:async\s+)?(?:function\s*[^(]*)?(?:\(\s*([^)]*)\)|(\w+))/m;
-const FN_ARG = /\/\*([^*]*)\*\//m;
-
-/**
- * @param {unknown} fn
- *
- * @return {string[]}
- */
-function parseAnnotations(fn) {
-
-  if (typeof fn !== 'function') {
-    throw new Error(`Cannot annotate "${fn}". Expected a function!`);
-  }
-
-  const match = fn.toString().match(isClass(fn) ? CONSTRUCTOR_ARGS : FN_ARGS);
-
-  // may parse class without constructor
-  if (!match) {
-    return [];
-  }
-
-  const args = match[1] || match[2];
-
-  return args && args.split(',').map(arg => {
-    const argMatch = arg.match(FN_ARG);
-    return (argMatch && argMatch[1] || arg).trim();
-  }) || [];
-}
-
-/**
- * @typedef { import('./index.js').ModuleDeclaration } ModuleDeclaration
- * @typedef { import('./index.js').ModuleDefinition } ModuleDefinition
- * @typedef { import('./index.js').InjectorContext } InjectorContext
- *
- * @typedef { import('./index.js').TypedDeclaration<any, any> } TypedDeclaration
- */
-
-/**
- * Create a new injector with the given modules.
- *
- * @param {ModuleDefinition[]} modules
- * @param {InjectorContext} [_parent]
- */
-function Injector(modules, _parent) {
-
-  const parent = _parent || /** @type InjectorContext */ ({
-    get: function(name, strict) {
-      currentlyResolving.push(name);
-
-      if (strict === false) {
-        return null;
-      } else {
-        throw error(`No provider for "${ name }"!`);
-      }
-    }
-  });
-
-  const currentlyResolving = [];
-  const providers = this._providers = Object.create(parent._providers || null);
-  const instances = this._instances = Object.create(null);
-
-  const self = instances.injector = this;
-
-  const error = function(msg) {
-    const stack = currentlyResolving.join(' -> ');
-    currentlyResolving.length = 0;
-    return new Error(stack ? `${ msg } (Resolving: ${ stack })` : msg);
-  };
-
-  /**
-   * Return a named service.
-   *
-   * @param {string} name
-   * @param {boolean} [strict=true] if false, resolve missing services to null
-   *
-   * @return {any}
-   */
-  function get(name, strict) {
-    if (!providers[name] && name.includes('.')) {
-
-      const parts = name.split('.');
-      let pivot = get(/** @type { string } */ (parts.shift()));
-
-      while (parts.length) {
-        pivot = pivot[/** @type { string } */ (parts.shift())];
-      }
-
-      return pivot;
-    }
-
-    if (hasOwnProp(instances, name)) {
-      return instances[name];
-    }
-
-    if (hasOwnProp(providers, name)) {
-      if (currentlyResolving.indexOf(name) !== -1) {
-        currentlyResolving.push(name);
-        throw error('Cannot resolve circular dependency!');
-      }
-
-      currentlyResolving.push(name);
-      instances[name] = providers[name][0](providers[name][1]);
-      currentlyResolving.pop();
-
-      return instances[name];
-    }
-
-    return parent.get(name, strict);
-  }
-
-  function fnDef(fn, locals) {
-
-    if (typeof locals === 'undefined') {
-      locals = {};
-    }
-
-    if (typeof fn !== 'function') {
-      if (isArray(fn)) {
-        fn = annotate(fn.slice());
-      } else {
-        throw error(`Cannot invoke "${ fn }". Expected a function!`);
-      }
-    }
-
-    /**
-     * @type {string[]}
-     */
-    const inject = fn.$inject || parseAnnotations(fn);
-    const dependencies = inject.map(dep => {
-      if (hasOwnProp(locals, dep)) {
-        return locals[dep];
-      } else {
-        return get(dep);
-      }
-    });
-
-    return {
-      fn: fn,
-      dependencies
-    };
-  }
-
-  /**
-   * Instantiate the given type, injecting dependencies.
-   *
-   * @template T
-   *
-   * @param { Function | [...string[], Function ]} type
-   *
-   * @return T
-   */
-  function instantiate(type) {
-    const {
-      fn,
-      dependencies
-    } = fnDef(type);
-
-    // instantiate var args constructor
-    const Constructor = Function.prototype.bind.call(fn, null, ...dependencies);
-
-    return new Constructor();
-  }
-
-  /**
-   * Invoke the given function, injecting dependencies. Return the result.
-   *
-   * @template T
-   *
-   * @param { Function | [...string[], Function ]} func
-   * @param { Object } [context]
-   * @param { Object } [locals]
-   *
-   * @return {T} invocation result
-   */
-  function invoke(func, context, locals) {
-    const {
-      fn,
-      dependencies
-    } = fnDef(func, locals);
-
-    return fn.apply(context, dependencies);
-  }
-
-  /**
-   * @param {Injector} childInjector
-   *
-   * @return {Function}
-   */
-  function createPrivateInjectorFactory(childInjector) {
-    return annotate(key => childInjector.get(key));
-  }
-
-  /**
-   * @param {ModuleDefinition[]} modules
-   * @param {string[]} [forceNewInstances]
-   *
-   * @return {Injector}
-   */
-  function createChild(modules, forceNewInstances) {
-    if (forceNewInstances && forceNewInstances.length) {
-      const fromParentModule = Object.create(null);
-      const matchedScopes = Object.create(null);
-
-      const privateInjectorsCache = [];
-      const privateChildInjectors = [];
-      const privateChildFactories = [];
-
-      let provider;
-      let cacheIdx;
-      let privateChildInjector;
-      let privateChildInjectorFactory;
-
-      for (let name in providers) {
-        provider = providers[name];
-
-        if (forceNewInstances.indexOf(name) !== -1) {
-          if (provider[2] === 'private') {
-            cacheIdx = privateInjectorsCache.indexOf(provider[3]);
-            if (cacheIdx === -1) {
-              privateChildInjector = provider[3].createChild([], forceNewInstances);
-              privateChildInjectorFactory = createPrivateInjectorFactory(privateChildInjector);
-              privateInjectorsCache.push(provider[3]);
-              privateChildInjectors.push(privateChildInjector);
-              privateChildFactories.push(privateChildInjectorFactory);
-              fromParentModule[name] = [ privateChildInjectorFactory, name, 'private', privateChildInjector ];
-            } else {
-              fromParentModule[name] = [ privateChildFactories[cacheIdx], name, 'private', privateChildInjectors[cacheIdx] ];
-            }
-          } else {
-            fromParentModule[name] = [ provider[2], provider[1] ];
-          }
-          matchedScopes[name] = true;
-        }
-
-        if ((provider[2] === 'factory' || provider[2] === 'type') && provider[1].$scope) {
-          /* jshint -W083 */
-          forceNewInstances.forEach(scope => {
-            if (provider[1].$scope.indexOf(scope) !== -1) {
-              fromParentModule[name] = [ provider[2], provider[1] ];
-              matchedScopes[scope] = true;
-            }
-          });
-        }
-      }
-
-      forceNewInstances.forEach(scope => {
-        if (!matchedScopes[scope]) {
-          throw new Error('No provider for "' + scope + '". Cannot use provider from the parent!');
-        }
-      });
-
-      modules.unshift(fromParentModule);
-    }
-
-    return new Injector(modules, self);
-  }
-
-  const factoryMap = {
-    factory: invoke,
-    type: instantiate,
-    value: function(value) {
-      return value;
-    }
-  };
-
-  /**
-   * @param {ModuleDefinition} moduleDefinition
-   * @param {Injector} injector
-   */
-  function createInitializer(moduleDefinition, injector) {
-
-    const initializers = moduleDefinition.__init__ || [];
-
-    return function() {
-      initializers.forEach(initializer => {
-
-        // eagerly resolve component (fn or string)
-        if (typeof initializer === 'string') {
-          injector.get(initializer);
-        } else {
-          injector.invoke(initializer);
-        }
-      });
-    };
-  }
-
-  /**
-   * @param {ModuleDefinition} moduleDefinition
-   */
-  function loadModule(moduleDefinition) {
-
-    const moduleExports = moduleDefinition.__exports__;
-
-    // private module
-    if (moduleExports) {
-      const nestedModules = moduleDefinition.__modules__;
-
-      const clonedModule = Object.keys(moduleDefinition).reduce((clonedModule, key) => {
-
-        if (key !== '__exports__' && key !== '__modules__' && key !== '__init__' && key !== '__depends__') {
-          clonedModule[key] = moduleDefinition[key];
-        }
-
-        return clonedModule;
-      }, Object.create(null));
-
-      const childModules = (nestedModules || []).concat(clonedModule);
-
-      const privateInjector = createChild(childModules);
-      const getFromPrivateInjector = annotate(function(key) {
-        return privateInjector.get(key);
-      });
-
-      moduleExports.forEach(function(key) {
-        providers[key] = [ getFromPrivateInjector, key, 'private', privateInjector ];
-      });
-
-      // ensure child injector initializes
-      const initializers = (moduleDefinition.__init__ || []).slice();
-
-      initializers.unshift(function() {
-        privateInjector.init();
-      });
-
-      moduleDefinition = Object.assign({}, moduleDefinition, {
-        __init__: initializers
-      });
-
-      return createInitializer(moduleDefinition, privateInjector);
-    }
-
-    // normal module
-    Object.keys(moduleDefinition).forEach(function(key) {
-
-      if (key === '__init__' || key === '__depends__') {
-        return;
-      }
-
-      const typeDeclaration = /** @type { TypedDeclaration } */ (
-        moduleDefinition[key]
-      );
-
-      if (typeDeclaration[2] === 'private') {
-        providers[key] = typeDeclaration;
-        return;
-      }
-
-      const type = typeDeclaration[0];
-      const value = typeDeclaration[1];
-
-      providers[key] = [ factoryMap[type], arrayUnwrap(type, value), type ];
-    });
-
-    return createInitializer(moduleDefinition, self);
-  }
-
-  /**
-   * @param {ModuleDefinition[]} moduleDefinitions
-   * @param {ModuleDefinition} moduleDefinition
-   *
-   * @return {ModuleDefinition[]}
-   */
-  function resolveDependencies(moduleDefinitions, moduleDefinition) {
-
-    if (moduleDefinitions.indexOf(moduleDefinition) !== -1) {
-      return moduleDefinitions;
-    }
-
-    moduleDefinitions = (moduleDefinition.__depends__ || []).reduce(resolveDependencies, moduleDefinitions);
-
-    if (moduleDefinitions.indexOf(moduleDefinition) !== -1) {
-      return moduleDefinitions;
-    }
-
-    return moduleDefinitions.concat(moduleDefinition);
-  }
-
-  /**
-   * @param {ModuleDefinition[]} moduleDefinitions
-   *
-   * @return { () => void } initializerFn
-   */
-  function bootstrap(moduleDefinitions) {
-
-    const initializers = moduleDefinitions
-      .reduce(resolveDependencies, [])
-      .map(loadModule);
-
-    let initialized = false;
-
-    return function() {
-
-      if (initialized) {
-        return;
-      }
-
-      initialized = true;
-
-      initializers.forEach(initializer => initializer());
-    };
-  }
-
-  // public API
-  this.get = get;
-  this.invoke = invoke;
-  this.instantiate = instantiate;
-  this.createChild = createChild;
-
-  // setup
-  this.init = bootstrap(modules);
-}
-
-
-// helpers ///////////////
-
-function arrayUnwrap(type, value) {
-  if (type !== 'value' && isArray(value)) {
-    value = annotate(value.slice());
-  }
-
-  return value;
-}
 
 class ChangeSupport {
   constructor(eventBus) {
@@ -23860,7 +23517,7 @@ class Components {
     return components;
   }
   onGetComponent(type, priority, callback) {
-    if (isFunction$2(priority)) {
+    if (isFunction$3(priority)) {
       callback = priority;
       priority = DEFAULT_PRIORITY;
     }
@@ -24026,121 +23683,25 @@ function createInjector(config, modules) {
 }
 
 /**
- * Expose `parse`.
- */
-
-var domify$2 = parse$2;
-
-/**
- * Tests for browser support.
- */
-
-var innerHTMLBug$1 = false;
-var bugTestDiv$1;
-if (typeof document !== 'undefined') {
-  bugTestDiv$1 = document.createElement('div');
-  // Setup
-  bugTestDiv$1.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
-  // Make sure that link elements get serialized correctly by innerHTML
-  // This requires a wrapper element in IE
-  innerHTMLBug$1 = !bugTestDiv$1.getElementsByTagName('link').length;
-  bugTestDiv$1 = undefined;
-}
-
-/**
- * Wrap map from jquery.
- */
-
-var map$1 = {
-  legend: [1, '<fieldset>', '</fieldset>'],
-  tr: [2, '<table><tbody>', '</tbody></table>'],
-  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-  // for script/link/style tags to work in IE6-8, you have to wrap
-  // in a div with a non-whitespace character in front, ha!
-  _default: innerHTMLBug$1 ? [1, 'X<div>', '</div>'] : [0, '', '']
-};
-
-map$1.td =
-map$1.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-map$1.option =
-map$1.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-map$1.thead =
-map$1.tbody =
-map$1.colgroup =
-map$1.caption =
-map$1.tfoot = [1, '<table>', '</table>'];
-
-map$1.polyline =
-map$1.ellipse =
-map$1.polygon =
-map$1.circle =
-map$1.text =
-map$1.line =
-map$1.path =
-map$1.rect =
-map$1.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
-
-/**
- * Parse `html` and return a DOM Node instance, which could be a TextNode,
- * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
- * instance, depending on the contents of the `html` string.
+ * Flatten array, one level deep.
  *
- * @param {String} html - HTML string to "domify"
- * @param {Document} doc - The `document` instance to create the Node for
- * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
- * @api private
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
  */
 
-function parse$2(html, doc) {
-  if ('string' != typeof html) throw new TypeError('String expected');
-
-  // default to the global `document` object
-  if (!doc) doc = document;
-
-  // tag name
-  var m = /<([\w:]+)/.exec(html);
-  if (!m) return doc.createTextNode(html);
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
-  var tag = m[1];
-
-  // body support
-  if (tag == 'body') {
-    var el = doc.createElement('html');
-    el.innerHTML = html;
-    return el.removeChild(el.lastChild);
-  }
-
-  // wrap map
-  var wrap = Object.prototype.hasOwnProperty.call(map$1, tag) ? map$1[tag] : map$1._default;
-  var depth = wrap[0];
-  var prefix = wrap[1];
-  var suffix = wrap[2];
-  var el = doc.createElement('div');
-  el.innerHTML = prefix + html + suffix;
-  while (depth--) el = el.lastChild;
-
-  // one element
-  if (el.firstChild == el.lastChild) {
-    return el.removeChild(el.firstChild);
-  }
-
-  // several elements
-  var fragment = doc.createDocumentFragment();
-  while (el.firstChild) {
-    fragment.appendChild(el.removeChild(el.firstChild));
-  }
-
-  return fragment;
-}
-
-var domify$1$1 = domify$2;
-
-function remove$2(el) {
-  el.parentNode && el.parentNode.removeChild(el);
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign$1(target, ...others) {
+  return Object.assign(target, ...others);
 }
 
 /**
@@ -24355,7 +23916,7 @@ var ViewDrdModule$1 = {
 let Viewer$2 = class Viewer extends Viewer$3 {
   constructor(options = {}) {
     const container = Viewer._createContainer();
-    super(assign$2(options, {
+    super(assign$1(options, {
       renderer: {
         container
       }
@@ -24505,7 +24066,7 @@ let Viewer$2 = class Viewer extends Viewer$3 {
       return;
     }
     this._emit('detach', {});
-    remove$2(container);
+    remove$4(container);
   }
   destroy() {
     super.destroy();
@@ -24518,126 +24079,30 @@ let Viewer$2 = class Viewer extends Viewer$3 {
     return [CoreModule, TranslateModule, DecisionPropertiesModule, LiteralExpressionPropertiesModule, PoweredByModule$1, TextareaModule, ViewDrdModule$1];
   }
   static _createContainer() {
-    return domify$1$1('<div class="dmn-literal-expression-container"></div>');
+    return domify('<div class="dmn-literal-expression-container"></div>');
   }
 };
 
 /**
- * Expose `parse`.
- */
-
-var domify = parse$1;
-
-/**
- * Tests for browser support.
- */
-
-var innerHTMLBug = false;
-var bugTestDiv;
-if (typeof document !== 'undefined') {
-  bugTestDiv = document.createElement('div');
-  // Setup
-  bugTestDiv.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
-  // Make sure that link elements get serialized correctly by innerHTML
-  // This requires a wrapper element in IE
-  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;
-  bugTestDiv = undefined;
-}
-
-/**
- * Wrap map from jquery.
- */
-
-var map = {
-  legend: [1, '<fieldset>', '</fieldset>'],
-  tr: [2, '<table><tbody>', '</tbody></table>'],
-  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-  // for script/link/style tags to work in IE6-8, you have to wrap
-  // in a div with a non-whitespace character in front, ha!
-  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']
-};
-
-map.td =
-map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-map.option =
-map.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-map.thead =
-map.tbody =
-map.colgroup =
-map.caption =
-map.tfoot = [1, '<table>', '</table>'];
-
-map.polyline =
-map.ellipse =
-map.polygon =
-map.circle =
-map.text =
-map.line =
-map.path =
-map.rect =
-map.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
-
-/**
- * Parse `html` and return a DOM Node instance, which could be a TextNode,
- * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
- * instance, depending on the contents of the `html` string.
+ * Flatten array, one level deep.
  *
- * @param {String} html - HTML string to "domify"
- * @param {Document} doc - The `document` instance to create the Node for
- * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
- * @api private
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
  */
 
-function parse$1(html, doc) {
-  if ('string' != typeof html) throw new TypeError('String expected');
-
-  // default to the global `document` object
-  if (!doc) doc = document;
-
-  // tag name
-  var m = /<([\w:]+)/.exec(html);
-  if (!m) return doc.createTextNode(html);
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
-  var tag = m[1];
-
-  // body support
-  if (tag == 'body') {
-    var el = doc.createElement('html');
-    el.innerHTML = html;
-    return el.removeChild(el.lastChild);
-  }
-
-  // wrap map
-  var wrap = Object.prototype.hasOwnProperty.call(map, tag) ? map[tag] : map._default;
-  var depth = wrap[0];
-  var prefix = wrap[1];
-  var suffix = wrap[2];
-  var el = doc.createElement('div');
-  el.innerHTML = prefix + html + suffix;
-  while (depth--) el = el.lastChild;
-
-  // one element
-  if (el.firstChild == el.lastChild) {
-    return el.removeChild(el.firstChild);
-  }
-
-  // several elements
-  var fragment = doc.createDocumentFragment();
-  while (el.firstChild) {
-    fragment.appendChild(el.removeChild(el.firstChild));
-  }
-
-  return fragment;
-}
-
-var domify$1 = domify;
-
-function remove$1(el) {
-  el.parentNode && el.parentNode.removeChild(el);
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign(target, ...others) {
+  return Object.assign(target, ...others);
 }
 
 class ViewRenderer {
@@ -25022,7 +24487,7 @@ var ElementVariableModule = {
 let Viewer$1 = class Viewer extends Viewer$3 {
   constructor(options = {}) {
     const container = Viewer._createContainer();
-    super(assign$2(options, {
+    super(assign(options, {
       renderer: {
         container
       }
@@ -25176,7 +24641,7 @@ let Viewer$1 = class Viewer extends Viewer$3 {
       return;
     }
     this._emit('detach', {});
-    remove$1(container);
+    remove$4(container);
   }
   destroy() {
     super.destroy();
@@ -25186,7 +24651,7 @@ let Viewer$1 = class Viewer extends Viewer$3 {
     return [RenderModule, TranslateModule, PoweredByModule, ViewDrdModule, ElementPropertiesModule, ElementLogicModule, FunctionDefinitionEditorModule, LiteralExpressionModule, ElementVariableModule];
   }
   static _createContainer() {
-    return domify$1('<div class="dmn-boxed-expression-container"></div>');
+    return domify('<div class="dmn-boxed-expression-container"></div>');
   }
 };
 
@@ -25249,9 +24714,10 @@ class EditPropertiesHandler {
     return reduce(newProps, (result, value, key) => {
       const propertyValue = bo.get(key);
 
-      // handle nested update
+      // handle nested update (plain object), but treat moddle elements
+      // as values to be set directly rather than merged
       if (isContainer(value)) {
-        if (!isContainer(propertyValue)) {
+        if (!isModdleElement(propertyValue) && !isContainer(propertyValue)) {
           throw new Error(`non-existing property <${key}>: cannot update values`);
         }
         let {
@@ -25297,168 +24763,460 @@ function isIdChange(element, newId) {
   return element[ID] !== newId;
 }
 function isContainer(o) {
-  return isDefined(o) && isObject(o);
+  return isDefined(o) && isObject$1(o) && !isModdleElement(o);
+}
+function isModdleElement(o) {
+  return !!o?.$type;
 }
 
 /**
  * Expose `xor`
  */
 
+var componentXor;
+var hasRequiredComponentXor;
 
-window.getSelection();
-
-var selectionUpdate = {exports: {}};
-
-var hasRequiredSelectionUpdate;
-
-function requireSelectionUpdate () {
-	if (hasRequiredSelectionUpdate) return selectionUpdate.exports;
-	hasRequiredSelectionUpdate = 1;
+function requireComponentXor () {
+	if (hasRequiredComponentXor) return componentXor;
+	hasRequiredComponentXor = 1;
+	componentXor = xor;
 
 	/**
-	 * Calculate the selection update for the given
-	 * current and new input values.
+	 * XOR utility
 	 *
-	 * @param {Object} currentSelection as {start, end}
-	 * @param {String} currentValue
-	 * @param {String} newValue
+	 * T T F
+	 * T F T
+	 * F T T
+	 * F F F
 	 *
-	 * @return {Object} newSelection as {start, end}
+	 * @param {Boolean} a
+	 * @param {Boolean} b
+	 * @return {Boolean}
 	 */
-	function calculateUpdate(currentSelection, currentValue, newValue) {
 
-	  var currentCursor = currentSelection.start,
-	      newCursor = currentCursor,
-	      diff = newValue.length - currentValue.length;
-
-	  newValue.length - currentValue.length;
-
-	  var currentTail = currentValue.substring(currentCursor);
-
-	  // check if we can remove common ending from the equation
-	  // to be able to properly detect a selection change for
-	  // the following scenarios:
-	  //
-	  //  * (AAATTT|TF) => (AAAT|TF)
-	  //  * (AAAT|TF) =>  (AAATTT|TF)
-	  //
-	  if (newValue.lastIndexOf(currentTail) === newValue.length - currentTail.length) {
-	    currentValue = currentValue.substring(0, currentValue.length - currentTail.length);
-	    newValue = newValue.substring(0, newValue.length - currentTail.length);
-	  }
-
-	  // diff
-	  var diff = createDiff(currentValue, newValue);
-
-	  if (diff) {
-	    if (diff.type === 'remove') {
-	      newCursor = diff.newStart;
-	    } else {
-	      newCursor = diff.newEnd;
-	    }
-	  }
-
-	  return range(newCursor);
+	function xor(a, b) {
+	  return a ^ b;
 	}
+	return componentXor;
+}
 
-	selectionUpdate.exports = calculateUpdate;
+/**
+ * Global Names
+ */
 
+var componentProps;
+var hasRequiredComponentProps;
 
-	function createDiff(currentValue, newValue) {
+function requireComponentProps () {
+	if (hasRequiredComponentProps) return componentProps;
+	hasRequiredComponentProps = 1;
+	var globals = /\b(Array|Date|Object|Math|JSON)\b/g;
 
-	  var insert;
+	/**
+	 * Return immediate identifiers parsed from `str`.
+	 *
+	 * @param {String} str
+	 * @param {String|Function} map function or prefix
+	 * @return {Array}
+	 * @api public
+	 */
 
-	  var l_str, l_char, l_idx = 0,
-	      s_str, s_char, s_idx = 0;
+	componentProps = function(str, fn){
+	  var p = unique(props(str));
+	  if (fn && 'string' == typeof fn) fn = prefixed(fn);
+	  if (fn) return map(str, p, fn);
+	  return p;
+	};
 
-	  if (newValue.length > currentValue.length) {
-	    l_str = newValue;
-	    s_str = currentValue;
-	  } else {
-	    l_str = currentValue;
-	    s_str = newValue;
-	  }
+	/**
+	 * Return immediate identifiers in `str`.
+	 *
+	 * @param {String} str
+	 * @return {Array}
+	 * @api private
+	 */
 
-	  // assume there will be only one insert / remove and
-	  // detect that _first_ edit operation only
-	  while (l_idx < l_str.length) {
-
-	    l_char = l_str.charAt(l_idx);
-	    s_char = s_str.charAt(s_idx);
-
-	    // chars no not equal
-	    if (l_char !== s_char) {
-
-	      if (!insert) {
-	        insert = {
-	          l_start: l_idx,
-	          s_start: s_idx
-	        };
-	      }
-
-	      l_idx++;
-	    }
-
-	    // chars equal (again?)
-	    else {
-
-	      if (insert && !insert.complete) {
-	        insert.l_end = l_idx;
-	        insert.s_end = s_idx;
-	        insert.complete = true;
-	      }
-
-	      s_idx++;
-	      l_idx++;
-	    }
-	  }
-
-	  if (insert && !insert.complete) {
-	    insert.complete = true;
-	    insert.s_end = s_str.length;
-	    insert.l_end = l_str.length;
-	  }
-
-	  // no diff
-	  if (!insert) {
-	    return;
-	  }
-
-	  if (newValue.length > currentValue.length) {
-	    return {
-	      newStart: insert.l_start,
-	      newEnd: insert.l_end,
-	      type: 'add'
-	    };
-	  } else {
-	    return {
-	      newStart: insert.s_start,
-	      newEnd: insert.s_end,
-	      type: newValue.length < currentValue.length ? 'remove' : 'replace'
-	    };
-	  }
+	function props(str) {
+	  return str
+	    .replace(/\.\w+|\w+ *\(|"[^"]*"|'[^']*'|\/([^/]+)\//g, '')
+	    .replace(globals, '')
+	    .match(/[a-zA-Z_]\w*/g)
+	    || [];
 	}
 
 	/**
-	 * Utility method for creating a new selection range {start, end} object.
+	 * Return `str` with `props` mapped with `fn`.
 	 *
-	 * @param {Number} start
-	 * @param {Number} [end]
-	 *
-	 * @return {Object} selection range as {start, end}
+	 * @param {String} str
+	 * @param {Array} props
+	 * @param {Function} fn
+	 * @return {String}
+	 * @api private
 	 */
-	function range(start, end) {
-	  return {
-	    start: start,
-	    end: end === undefined ? start : end
+
+	function map(str, props, fn) {
+	  var re = /\.\w+|\w+ *\(|"[^"]*"|'[^']*'|\/([^/]+)\/|[a-zA-Z_]\w*/g;
+	  return str.replace(re, function(_){
+	    if ('(' == _[_.length - 1]) return fn(_);
+	    if (!~props.indexOf(_)) return _;
+	    return fn(_);
+	  });
+	}
+
+	/**
+	 * Return unique array.
+	 *
+	 * @param {Array} arr
+	 * @return {Array}
+	 * @api private
+	 */
+
+	function unique(arr) {
+	  var ret = [];
+
+	  for (var i = 0; i < arr.length; i++) {
+	    if (~ret.indexOf(arr[i])) continue;
+	    ret.push(arr[i]);
+	  }
+
+	  return ret;
+	}
+
+	/**
+	 * Map with prefix `str`.
+	 */
+
+	function prefixed(str) {
+	  return function(_){
+	    return str + _;
+	  };
+	}
+	return componentProps;
+}
+
+/**
+ * Module Dependencies
+ */
+
+var domIterator;
+var hasRequiredDomIterator;
+
+function requireDomIterator () {
+	if (hasRequiredDomIterator) return domIterator;
+	hasRequiredDomIterator = 1;
+	var xor = requireComponentXor();
+	var props = requireComponentProps();
+
+
+	/**
+	 * Export `Iterator`
+	 */
+
+	domIterator = Iterator;
+
+	/**
+	 * Initialize `Iterator`
+	 *
+	 * @param {Node} node
+	 * @param {Node} root
+	 * @return {Iterator} self
+	 * @api public
+	 */
+
+	function Iterator(node, root) {
+	  if (!(this instanceof Iterator)) return new Iterator(node, root);
+	  this.node = this.start = this.peeked = node;
+	  this.root = root;
+	  this.closingTag = false;
+	  this._revisit = true;
+	  this._selects = [];
+	  this._rejects = [];
+
+	  if (node && this.higher(node)) {
+	    throw new Error('root must be a parent or ancestor to node');
+	  }
+	}
+
+	/**
+	 * Reset the Iterator
+	 *
+	 * @param {Node} node (optional)
+	 * @return {Iterator} self
+	 * @api public
+	 */
+
+	Iterator.prototype.reset = function(node) {
+	  this.node = node || this.start;
+	  return this;
+	};
+
+	/**
+	 * Revisit element nodes. Defaults to `true`
+	 */
+
+	Iterator.prototype.revisit = function(revisit) {
+	  this._revisit = undefined == revisit ? true : revisit;
+	  return this;
+	};
+
+	/**
+	 * Jump to the opening tag
+	 */
+
+	Iterator.prototype.opening = function() {
+	  if (1 == this.node.nodeType) this.closingTag = false;
+	  return this;
+	};
+
+	/**
+	 * Jump to the closing tag
+	 */
+
+	Iterator.prototype.atOpening = function() {
+	  return !this.closingTag;
+	};
+
+
+	/**
+	 * Jump to the closing tag
+	 */
+
+	Iterator.prototype.closing = function() {
+	  if (1 == this.node.nodeType) this.closingTag = true;
+	  return this;
+	};
+
+	/**
+	 * Jump to the closing tag
+	 */
+
+	Iterator.prototype.atClosing = function() {
+	  return this.closingTag;
+	};
+
+	/**
+	 * Next node
+	 *
+	 * @param {Number} type
+	 * @return {Node|null}
+	 * @api public
+	 */
+
+	Iterator.prototype.next = traverse('nextSibling', 'firstChild');
+
+	/**
+	 * Previous node
+	 *
+	 * @param {Number} type
+	 * @return {Node|null}
+	 * @api public
+	 */
+
+	Iterator.prototype.previous =
+	Iterator.prototype.prev = traverse('previousSibling', 'lastChild');
+
+	/**
+	 * Make traverse function
+	 *
+	 * @param {String} dir
+	 * @param {String} child
+	 * @return {Function}
+	 * @api private
+	 */
+
+	function traverse(dir, child) {
+	  var next = dir == 'nextSibling';
+	  return function walk(expr, n, peek) {
+	    expr = this.compile(expr);
+	    n = n && n > 0 ? n : 1;
+	    var node = this.node;
+	    var closing = this.closingTag;
+	    var revisit = this._revisit;
+
+	    while (node) {
+	      if (xor(next, closing) && node[child]) {
+	        // element with children: <em>...</em>
+	        node = node[child];
+	        closing = !next;
+	      } else if (1 == node.nodeType && !node[child] && xor(next, closing)) {
+	        // empty element tag: <em></em>
+	        closing = next;
+	        if (!revisit) continue;
+	      } else if (node[dir]) {
+	        // element has a neighbor: ...<em></em>...
+	        node = node[dir];
+	        closing = !next;
+	      } else {
+	        // done with current layer, move up.
+	        node = node.parentNode;
+	        closing = next;
+	        if (!revisit) continue;
+	      }
+
+	      if (!node || this.higher(node, this.root)) break;
+
+	      if (expr(node) && this.selects(node, peek) && this.rejects(node, peek)) {
+	        if (--n) continue;
+	        if (!peek) this.node = node;
+	        this.closingTag = closing;
+	        return node;
+	      }
+	    }
+
+	    return null;
 	  };
 	}
 
-	selectionUpdate.exports.range = range;
-	return selectionUpdate.exports;
+	/**
+	 * Select nodes that cause `expr(node)`
+	 * to be truthy
+	 *
+	 * @param {Number|String|Function} expr
+	 * @return {Iterator} self
+	 * @api public
+	 */
+
+	Iterator.prototype.select = function(expr) {
+	  expr = this.compile(expr);
+	  this._selects.push(expr);
+	  return this;
+	};
+
+	/**
+	 * Run through the selects ORing each
+	 *
+	 * @param {Node} node
+	 * @param {Boolean} peek
+	 * @return {Boolean}
+	 * @api private
+	 */
+
+	Iterator.prototype.selects = function(node, peek) {
+	  var exprs = this._selects;
+	  var len = exprs.length;
+	  if (!len) return true;
+
+	  for (var i = 0; i < len; i++) {
+	    if (exprs[i].call(this, node, peek)) return true;
+	  }
+	  return false;
+	};
+
+	/**
+	 * Select nodes that cause `expr(node)`
+	 * to be falsy
+	 *
+	 * @param {Number|String|Function} expr
+	 * @return {Iterator} self
+	 * @api public
+	 */
+
+	Iterator.prototype.reject = function(expr) {
+	  expr = this.compile(expr);
+	  this._rejects.push(expr);
+	  return this;
+	};
+
+	/**
+	 * Run through the reject expressions ANDing each
+	 *
+	 * @param {Node} node
+	 * @param {Boolean} peek
+	 * @return {Boolean}
+	 * @api private
+	 */
+
+	Iterator.prototype.rejects = function(node, peek) {
+	  var exprs = this._rejects;
+	  var len = exprs.length;
+	  if (!len) return true;
+
+	  for (var i = 0; i < len; i++) {
+	    if (exprs[i].call(this, node, peek)) return false;
+	  }
+	  return true;
+	};
+
+	/**
+	 * Check if node is higher
+	 * than root.
+	 *
+	 * @param {Node} node
+	 * @param {Node} root
+	 * @return {Boolean}
+	 * @api private
+	 */
+
+	Iterator.prototype.higher = function(node) {
+	  var root = this.root;
+	  if (!root) return false;
+	  node = node.parentNode;
+	  while (node && node != root) node = node.parentNode;
+	  return node != root;
+	};
+
+	/**
+	 * Compile an expression
+	 *
+	 * @param {String|Function|Number} expr
+	 * @return {Function}
+	 */
+
+	Iterator.prototype.compile = function(expr) {
+	  switch (typeof expr) {
+	    case 'number':
+	      return function(node) { return expr == node.nodeType; };
+	    case 'string':
+	      return new Function('node', 'Object.freeze(node); return ' + props(expr, 'node.'));
+	    case 'function':
+	      return expr;
+	    default:
+	      return function() { return true; };
+	  }
+	};
+
+	/**
+	 * Peek in either direction
+	 * `n` nodes. Peek backwards
+	 * using negative numbers.
+	 *
+	 * @param {Number} n (optional)
+	 * @return {Node|null}
+	 * @api public
+	 */
+
+	Iterator.prototype.peak =
+	Iterator.prototype.peek = function(expr, n) {
+	  if (arguments.length == 1) n = expr, expr = true;
+	  n = undefined == n ? 1 : n;
+	  if (!n) return this.node;
+	  else if (n > 0) return this.next(expr, n, true);
+	  else return this.prev(expr, Math.abs(n), true);
+	};
+
+	/**
+	 * Add a plugin
+	 *
+	 * @param {Function} fn
+	 * @return {Iterator}
+	 * @api public
+	 */
+
+	Iterator.prototype.use = function(fn) {
+	  fn(this);
+	  return this;
+	};
+	return domIterator;
 }
 
-requireSelectionUpdate();
+requireDomIterator();
+
+/**
+ * Module Dependencies
+ */
+
+
+window.getSelection();
 
 // These are filled with ranges (rangeFrom[i] up to but not including
 // rangeTo[i]) of code points that count as extending characters.
@@ -26834,11 +26592,11 @@ class SelectionRange {
     /**
     Extend this range to cover at least `from` to `to`.
     */
-    extend(from, to = from) {
+    extend(from, to = from, assoc = 0) {
         if (from <= this.anchor && to >= this.anchor)
-            return EditorSelection.range(from, to);
+            return EditorSelection.range(from, to, undefined, undefined, assoc);
         let head = Math.abs(from - this.anchor) > Math.abs(to - this.anchor) ? from : to;
-        return EditorSelection.range(this.anchor, head);
+        return EditorSelection.range(this.anchor, head, undefined, undefined, assoc);
     }
     /**
     Compare this range to another range.
@@ -26985,11 +26743,13 @@ class EditorSelection {
     /**
     Create a selection range.
     */
-    static range(anchor, head, goalColumn, bidiLevel) {
+    static range(anchor, head, goalColumn, bidiLevel, assoc) {
         let flags = ((goalColumn !== null && goalColumn !== void 0 ? goalColumn : 16777215 /* RangeFlag.NoGoalColumn */) << 6 /* RangeFlag.GoalColumnOffset */) |
             (bidiLevel == null ? 7 : Math.min(6, bidiLevel));
+        if (!assoc && anchor != head)
+            assoc = head < anchor ? 1 : -1;
         return head < anchor ? SelectionRange.create(head, anchor, 32 /* RangeFlag.Inverted */ | 16 /* RangeFlag.AssocAfter */ | flags)
-            : SelectionRange.create(anchor, head, (head > anchor ? 8 /* RangeFlag.AssocBefore */ : 0) | flags);
+            : SelectionRange.create(anchor, head, (!assoc ? 0 : assoc < 0 ? 8 /* RangeFlag.AssocBefore */ : 16 /* RangeFlag.AssocAfter */) | flags);
     }
     /**
     @internal
@@ -29802,7 +29562,7 @@ class WidgetType {
     couldn't (in which case the widget will be redrawn). The default
     implementation just returns false.
     */
-    updateDOM(dom, view) { return false; }
+    updateDOM(dom, view, from) { return false; }
     /**
     @internal
     */
@@ -30062,10 +29822,23 @@ widget that starts inside its range, including blocks starting
 directly at `from` but not including `to`.
 */
 class BlockWrapper extends RangeValue {
-    constructor(tagName, attributes) {
+    constructor(
+    /**
+    @internal
+    */
+    tagName, 
+    /**
+    @internal
+    */
+    attributes, 
+    /**
+    @internal
+    */
+    rank) {
         super();
         this.tagName = tagName;
         this.attributes = attributes;
+        this.rank = rank;
     }
     eq(other) {
         return other == this ||
@@ -30076,7 +29849,7 @@ class BlockWrapper extends RangeValue {
     attributes.
     */
     static create(spec) {
-        return new BlockWrapper(spec.tagName, spec.attributes || noAttrs);
+        return new BlockWrapper(spec.tagName, spec.attributes || noAttrs, spec.rank == null ? 50 : Math.max(0, Math.min(spec.rank, 100)));
     }
     /**
     Create a range set from the given block wrapper ranges.
@@ -30215,12 +29988,12 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
             }
             let moveX = 0, moveY = 0;
             if (y == "nearest") {
-                if (rect.top < bounding.top) {
+                if (rect.top < bounding.top + yMargin) {
                     moveY = rect.top - (bounding.top + yMargin);
                     if (side > 0 && rect.bottom > bounding.bottom + moveY)
                         moveY = rect.bottom - bounding.bottom + yMargin;
                 }
-                else if (rect.bottom > bounding.bottom) {
+                else if (rect.bottom > bounding.bottom - yMargin) {
                     moveY = rect.bottom - bounding.bottom + yMargin;
                     if (side < 0 && (rect.top - moveY) < bounding.top)
                         moveY = rect.top - (bounding.top + yMargin);
@@ -30234,12 +30007,12 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
                 moveY = targetTop - bounding.top;
             }
             if (x == "nearest") {
-                if (rect.left < bounding.left) {
+                if (rect.left < bounding.left + xMargin) {
                     moveX = rect.left - (bounding.left + xMargin);
                     if (side > 0 && rect.right > bounding.right + moveX)
                         moveX = rect.right - bounding.right + xMargin;
                 }
-                else if (rect.right > bounding.right) {
+                else if (rect.right > bounding.right - xMargin) {
                     moveX = rect.right - bounding.right + xMargin;
                     if (side < 0 && rect.left < bounding.left + moveX)
                         moveX = rect.left - (bounding.left + xMargin);
@@ -30291,16 +30064,16 @@ function scrollRectIntoView(dom, rect, side, x, y, xMargin, yMargin, ltr) {
         }
     }
 }
-function scrollableParents(dom) {
-    let doc = dom.ownerDocument, x, y;
+function scrollableParents(dom, getX = true) {
+    let doc = dom.ownerDocument, x = null, y = null;
     for (let cur = dom.parentNode; cur;) {
-        if (cur == doc.body || (x && y)) {
+        if (cur == doc.body || ((!getX || x) && y)) {
             break;
         }
         else if (cur.nodeType == 1) {
             if (!y && cur.scrollHeight > cur.clientHeight)
                 y = cur;
-            if (!x && cur.scrollWidth > cur.clientWidth)
+            if (getX && !x && cur.scrollWidth > cur.clientWidth)
                 x = cur;
             cur = cur.assignedSlot || cur.parentNode;
         }
@@ -30425,6 +30198,8 @@ function atElementStart(doc, selection) {
     }
 }
 function isScrolledToBottom(elt) {
+    if (elt instanceof Window)
+        return elt.pageYOffset > Math.max(0, elt.document.documentElement.scrollHeight - elt.innerHeight - 4);
     return elt.scrollTop > Math.max(1, elt.scrollHeight - elt.clientHeight - 4);
 }
 function textNodeBefore(startNode, startOffset) {
@@ -30977,7 +30752,7 @@ const nativeSelectionHidden = /*@__PURE__*/Facet.define({
 });
 const scrollHandler = /*@__PURE__*/Facet.define();
 class ScrollTarget {
-    constructor(range, y = "nearest", x = "nearest", yMargin = 5, xMargin = 5, 
+    constructor(range, y, x, yMargin, xMargin, 
     // This data structure is abused to also store precise scroll
     // snapshots, instead of a `scrollIntoView` request. When this
     // flag is `true`, `range` points at a position in the reference
@@ -31975,6 +31750,7 @@ class TileBuilder {
             this.cache.reused.set(oldTile, 2 /* Reused.DOM */);
         let text = new TextTile(composition.text, composition.text.nodeValue);
         text.flags |= 8 /* TileFlag.Composition */;
+        this.pos = composition.range.toB;
         head.append(text);
     }
     addInlineWidget(widget, marks, openStart) {
@@ -32073,7 +31849,8 @@ class TileBuilder {
                 this.wrappers.splice(i, 1);
         for (let cur = this.blockWrappers; cur.value && cur.from <= this.pos; cur.next())
             if (cur.to >= this.pos) {
-                let wrap = new OpenWrapper(cur.from, cur.to, cur.value, cur.rank), i = this.wrappers.length;
+                let rank = (cur.rank * 102) + cur.value.rank;
+                let wrap = new OpenWrapper(cur.from, cur.to, cur.value, rank), i = this.wrappers.length;
                 while (i > 0 && (this.wrappers[i - 1].rank - wrap.rank || this.wrappers[i - 1].to - wrap.to) < 0)
                     i--;
                 this.wrappers.splice(i, 0, wrap);
@@ -32203,7 +31980,7 @@ class TileCache {
                 let tile = widgets[i];
                 if (!this.reused.has(tile) &&
                     (pass == 0 ? tile.widget.compare(widget)
-                        : tile.widget.constructor == widget.constructor && widget.updateDOM(tile.dom, this.view))) {
+                        : tile.widget.constructor == widget.constructor && widget.updateDOM(tile.dom, this.view, tile.widget))) {
                     widgets.splice(i, 1);
                     if (i < this.index[0])
                         this.index[0]--;
@@ -32322,7 +32099,7 @@ class TileUpdate {
                 }
                 else if (tile.isText()) {
                     this.builder.ensureLine(null);
-                    if (!from && to == tile.length) {
+                    if (!from && to == tile.length && !this.cache.reused.has(tile)) {
                         this.builder.addText(tile.text, activeMarks, openMarks, this.cache.reuse(tile));
                     }
                     else {
@@ -32457,9 +32234,10 @@ class TileUpdate {
                 marks.push(tile);
             else if (tile === null || tile === void 0 ? void 0 : tile.isLine())
                 line = tile;
+            else if (tile instanceof BlockWrapperTile) ; // Ignore
             else if (parent.nodeName == "DIV" && !line && parent != this.view.contentDOM)
                 line = new LineTile(parent, lineBaseAttrs);
-            else
+            else if (!line)
                 marks.push(MarkTile.of(new MarkDecoration({ tagName: parent.nodeName.toLowerCase(), attributes: getAttrs(parent) }), parent));
         }
         return { line: line, marks };
@@ -32625,6 +32403,8 @@ class DocView {
             if (composition || changes.length) {
                 let oldTile = this.tile;
                 let builder = new TileUpdate(this.view, oldTile, this.blockWrappers, this.decorations, this.dynamicDecorationMap);
+                if (composition && Tile.get(composition.text))
+                    builder.cache.reused.set(Tile.get(composition.text), 2 /* Reused.DOM */);
                 this.tile = builder.run(changes, composition);
                 destroyDropped(oldTile, builder.cache.reused);
             }
@@ -33056,6 +32836,7 @@ class DocView {
         this.blockWrappers = this.view.state.facet(blockWrappers).map(v => typeof v == "function" ? v(this.view) : v);
     }
     scrollIntoView(target) {
+        var _a;
         if (target.isSnapshot) {
             let ref = this.view.viewState.lineBlockAt(target.range.head);
             this.view.scrollDOM.scrollTop = ref.top - target.yMargin;
@@ -33072,7 +32853,7 @@ class DocView {
             }
         }
         let { range } = target;
-        let rect = this.coordsAt(range.head, range.empty ? range.assoc : range.head > range.anchor ? -1 : 1), other;
+        let rect = this.coordsAt(range.head, (_a = range.assoc) !== null && _a !== void 0 ? _a : (range.empty ? 0 : range.head > range.anchor ? -1 : 1)), other;
         if (!rect)
             return;
         if (!range.empty && (other = this.coordsAt(range.anchor, range.anchor > range.head ? -1 : 1)))
@@ -33085,6 +32866,19 @@ class DocView {
         };
         let { offsetWidth, offsetHeight } = this.view.scrollDOM;
         scrollRectIntoView(this.view.scrollDOM, targetRect, range.head < range.anchor ? -1 : 1, target.x, target.y, Math.max(Math.min(target.xMargin, offsetWidth), -offsetWidth), Math.max(Math.min(target.yMargin, offsetHeight), -offsetHeight), this.view.textDirection == Direction.LTR);
+        // On mobile browsers, the visual viewport may be smaller than the
+        // actual reported viewport, causing scrollRectIntoView to fail to
+        // scroll properly. Unfortunately, this visual viewport cannot be
+        // updated directly, and scrollIntoView is the only way a script
+        // can affect it. So this tries to kludge around the problem by
+        // calling scrollIntoView on the scroll target's line.
+        if (window.visualViewport && window.innerHeight - window.visualViewport.height > 1 &&
+            (rect.top > window.pageYOffset + window.visualViewport.offsetTop + window.visualViewport.height ||
+                rect.bottom < window.pageYOffset + window.visualViewport.offsetTop)) {
+            let line = this.view.docView.lineAt(range.head, 1);
+            if (line)
+                line.dom.scrollIntoView({ block: "nearest" });
+        }
     }
     lineHasWidget(pos) {
         let scan = (child) => child.isWidget() || child.children.some(scan);
@@ -33326,7 +33120,8 @@ function moveVertically(view, start, forward, distance) {
         return EditorSelection.cursor(startPos, start.assoc);
     let goal = start.goalColumn, startY;
     let rect = view.contentDOM.getBoundingClientRect();
-    let startCoords = view.coordsAtPos(startPos, start.assoc || -1), docTop = view.documentTop;
+    let startCoords = view.coordsAtPos(startPos, start.assoc || ((start.empty ? forward : start.head == start.from) ? 1 : -1));
+    let docTop = view.documentTop;
     if (startCoords) {
         if (goal == null)
             goal = startCoords.left - rect.left;
@@ -33339,9 +33134,16 @@ function moveVertically(view, start, forward, distance) {
         startY = (dir < 0 ? line.top : line.bottom) + docTop;
     }
     let resolvedGoal = rect.left + goal;
-    let dist = distance !== null && distance !== void 0 ? distance : (view.viewState.heightOracle.textHeight >> 1);
-    let pos = posAtCoords(view, { x: resolvedGoal, y: startY + dist * dir }, false, dir);
-    return EditorSelection.cursor(pos.pos, pos.assoc, undefined, goal);
+    let halfText = view.viewState.heightOracle.textHeight >> 1, dist = distance !== null && distance !== void 0 ? distance : halfText;
+    for (let scan = 0;; scan += halfText) {
+        let y = startY + (dist + scan) * dir;
+        let pos = posAtCoords(view, { x: resolvedGoal, y }, false, dir);
+        if (forward ? y > rect.bottom : y < rect.top)
+            return EditorSelection.cursor(pos.pos, pos.assoc);
+        let posCoords = view.coordsAtPos(pos.pos, pos.assoc), mid = posCoords ? (posCoords.top + posCoords.bottom) / 2 : 0;
+        if (!posCoords || (forward ? mid > startY : mid < startY))
+            return EditorSelection.cursor(pos.pos, pos.assoc, undefined, goal);
+    }
 }
 function skipAtomicRanges(atoms, pos, bias) {
     for (;;) {
@@ -33410,7 +33212,7 @@ function posAtCoords(view, coords, precise, scanY) {
             if (scanY < 0 ? block.to < view.viewport.from : block.from > view.viewport.to)
                 break;
             // Check whether we aren't landing on the top/bottom padding of the line
-            let rect = view.docView.coordsAt(scanY < 0 ? block.from : block.to, scanY);
+            let rect = view.docView.coordsAt(scanY < 0 ? block.from : block.to, scanY > 0 ? -1 : 1);
             if (rect && (scanY < 0 ? rect.top <= yOffset + docTop : rect.bottom >= yOffset + docTop))
                 break;
         }
@@ -33433,85 +33235,179 @@ function posAtCoords(view, coords, precise, scanY) {
     let line = view.docView.lineAt(block.from, 2);
     if (!line || line.length != block.length)
         line = view.docView.lineAt(block.from, -2);
-    return posAtCoordsInline(view, line, block.from, x, y);
+    return new InlineCoordsScan(view, x, y, view.textDirectionAt(block.from)).scanTile(line, block.from);
 }
-// Scan through the rectangles for the content of a tile, finding the
-// one closest to the given coordinates, prefering closeness in Y over
-// closeness in X.
-//
-// If this is a text tile, go character-by-character. For line or mark
-// tiles, check each non-point-widget child, and descend text or mark
-// tiles with a recursive call.
-//
-// For non-wrapped, purely left-to-right text, this could use a binary
-// search. But because this seems to be fast enough, for how often it
-// is called, there's not currently a specialized implementation for
-// that.
-function posAtCoordsInline(view, tile, offset, x, y) {
-    let closest = -1, closestRect = null;
-    let dxClosest = 1e9, dyClosest = 1e9;
-    let rowTop = y, rowBot = y;
-    let checkRects = (rects, index) => {
-        for (let i = 0; i < rects.length; i++) {
-            let rect = rects[i];
-            if (rect.top == rect.bottom)
-                continue;
-            let dx = rect.left > x ? rect.left - x : rect.right < x ? x - rect.right : 0;
-            let dy = rect.top > y ? rect.top - y : rect.bottom < y ? y - rect.bottom : 0;
-            if (rect.top <= rowBot && rect.bottom >= rowTop) {
-                // Rectangle is in the current row
-                rowTop = Math.min(rect.top, rowTop);
-                rowBot = Math.max(rect.bottom, rowBot);
-                dy = 0;
-            }
-            if (closest < 0 || (dy - dyClosest || dx - dxClosest) < 0) {
-                if (closest >= 0 && dyClosest && dxClosest < dx &&
-                    closestRect.top <= rowBot - 2 && closestRect.bottom >= rowTop + 2) {
-                    // Retroactively set dy to 0 if the current match is in this row.
-                    dyClosest = 0;
-                }
-                else {
-                    closest = index;
-                    dxClosest = dx;
-                    dyClosest = dy;
-                    closestRect = rect;
-                }
-            }
-        }
-    };
-    if (tile.isText()) {
-        for (let i = 0; i < tile.length;) {
-            let next = findClusterBreak(tile.text, i);
-            checkRects(textRange(tile.dom, i, next).getClientRects(), i);
-            if (!dxClosest && !dyClosest)
-                break;
-            i = next;
-        }
-        let after = (x > (closestRect.left + closestRect.right) / 2) == (dirAt(view, closest + offset) == Direction.LTR);
-        return after ? new PosAssoc(offset + findClusterBreak(tile.text, closest), -1) : new PosAssoc(offset + closest, 1);
+class InlineCoordsScan {
+    constructor(view, x, y, baseDir) {
+        this.view = view;
+        this.x = x;
+        this.y = y;
+        this.baseDir = baseDir;
+        // Cached bidi info
+        this.line = null;
+        this.spans = null;
     }
-    else {
+    bidiSpansAt(pos) {
+        if (!this.line || this.line.from > pos || this.line.to < pos) {
+            this.line = this.view.state.doc.lineAt(pos);
+            this.spans = this.view.bidiSpans(this.line);
+        }
+        return this;
+    }
+    baseDirAt(pos, side) {
+        let { line, spans } = this.bidiSpansAt(pos);
+        let level = spans[BidiSpan.find(spans, pos - line.from, -1, side)].level;
+        return level == this.baseDir;
+    }
+    dirAt(pos, side) {
+        let { line, spans } = this.bidiSpansAt(pos);
+        return spans[BidiSpan.find(spans, pos - line.from, -1, side)].dir;
+    }
+    // Used to short-circuit bidi tests for content with a uniform direction
+    bidiIn(from, to) {
+        let { spans, line } = this.bidiSpansAt(from);
+        return spans.length > 1 || spans.length && (spans[0].level != this.baseDir || spans[0].to + line.from < to);
+    }
+    // Scan through the rectangles for the content of a tile with inline
+    // content, looking for one that overlaps the queried position
+    // vertically andis
+    // closest horizontally. The caller is responsible for dividing its
+    // content into N pieces, and pass an array with N+1 positions
+    // (including the position after the last piece). For a text tile,
+    // these will be character clusters, for a composite tile, these
+    // will be child tiles.
+    scan(positions, getRects, recursed = false) {
+        let lo = 0, hi = positions.length - 1, seen = new Set();
+        let bidi = this.bidiIn(positions[0], positions[hi]);
+        let above, below;
+        let closestI = -1, closestDx = 1e9, closestRect;
+        // Because, when the content is bidirectional, a regular binary
+        // search is hard to perform (the content order does not
+        // correspond to visual order), this loop does something between a
+        // regular binary search and a full scan, depending on what it can
+        // get away with. The outer hi/lo bounds are only adjusted for
+        // elements that are part of the base order.
+        //
+        // To make sure all elements inside those bounds are visited,
+        // eventually, we keep a set of seen indices, and if the midpoint
+        // has already been handled, we start in a random index within the
+        // current bounds and scan forward until we find an index that
+        // hasn't been seen yet.
+        search: while (lo < hi) {
+            let dist = hi - lo, mid = (lo + hi) >> 1;
+            adjust: if (seen.has(mid)) {
+                let scan = lo + Math.floor(Math.random() * dist);
+                for (let i = 0; i < dist; i++) {
+                    if (!seen.has(scan)) {
+                        mid = scan;
+                        break adjust;
+                    }
+                    scan++;
+                    if (scan == hi)
+                        scan = lo; // Wrap around
+                }
+                break search; // No index found, we're done
+            }
+            seen.add(mid);
+            let rects = getRects(mid);
+            if (rects)
+                for (let i = 0; i < rects.length; i++) {
+                    let rect = rects[i], side = 0;
+                    // Ignore empty rectangles when there are other rectangles
+                    if (rect.width == 0 && rects.length > 1)
+                        continue;
+                    if (rect.bottom < this.y) {
+                        if (!above || above.bottom < rect.bottom)
+                            above = rect;
+                        side = 1;
+                    }
+                    else if (rect.top > this.y) {
+                        if (!below || below.top > rect.top)
+                            below = rect;
+                        side = -1;
+                    }
+                    else {
+                        let off = rect.left > this.x ? this.x - rect.left : rect.right < this.x ? this.x - rect.right : 0;
+                        let dx = Math.abs(off);
+                        if (dx < closestDx) {
+                            closestI = mid;
+                            closestDx = dx;
+                            closestRect = rect;
+                        }
+                        if (off)
+                            side = (off < 0) == (this.baseDir == Direction.LTR) ? -1 : 1;
+                    }
+                    // Narrow binary search when it is safe to do so
+                    if (side == -1 && (!bidi || this.baseDirAt(positions[mid], 1)))
+                        hi = mid;
+                    else if (side == 1 && (!bidi || this.baseDirAt(positions[mid + 1], -1)))
+                        lo = mid + 1;
+                }
+        }
+        // If no element with y overlap is found, find the nearest element
+        // on the y axis, move this.y into it, and retry the scan.
+        if (!closestRect) {
+            let side = above && (!below || (this.y - above.bottom < below.top - this.y)) ? above : below;
+            this.y = (side.top + side.bottom) / 2;
+            return this.scan(positions, getRects, true);
+        }
+        // Handle the case where closest matched a higher element on the
+        // same line as an element below/above the coords
+        if (closestDx && !recursed) {
+            let { top, bottom } = closestRect;
+            if (above && above.bottom > (top + top + bottom) / 3) {
+                this.y = above.bottom - 1;
+                return this.scan(positions, getRects, true);
+            }
+            if (below && below.top < (top + bottom + bottom) / 3) {
+                this.y = below.top + 1;
+                return this.scan(positions, getRects, true);
+            }
+        }
+        let ltr = (bidi ? this.dirAt(positions[closestI], 1) : this.baseDir) == Direction.LTR;
+        return {
+            i: closestI,
+            // Test whether x is closes to the start or end of this element
+            after: (this.x > (closestRect.left + closestRect.right) / 2) == ltr
+        };
+    }
+    scanText(tile, offset) {
+        let positions = [];
+        for (let i = 0; i < tile.length; i = findClusterBreak(tile.text, i))
+            positions.push(offset + i);
+        positions.push(offset + tile.length);
+        let scan = this.scan(positions, i => {
+            let off = positions[i] - offset, end = positions[i + 1] - offset;
+            return textRange(tile.dom, off, end).getClientRects();
+        });
+        return scan.after ? new PosAssoc(positions[scan.i + 1], -1) : new PosAssoc(positions[scan.i], 1);
+    }
+    scanTile(tile, offset) {
         if (!tile.length)
             return new PosAssoc(offset, 1);
-        for (let i = 0; i < tile.children.length; i++) {
+        if (tile.children.length == 1) { // Short-circuit single-child tiles
+            let child = tile.children[0];
+            if (child.isText())
+                return this.scanText(child, offset);
+            else if (child.isComposite())
+                return this.scanTile(child, offset);
+        }
+        let positions = [offset];
+        for (let i = 0, pos = offset; i < tile.children.length; i++)
+            positions.push(pos += tile.children[i].length);
+        let scan = this.scan(positions, i => {
             let child = tile.children[i];
             if (child.flags & 48 /* TileFlag.PointWidget */)
-                continue;
-            let rects = (child.dom.nodeType == 1 ? child.dom : textRange(child.dom, 0, child.length)).getClientRects();
-            checkRects(rects, i);
-            if (!dxClosest && !dyClosest)
-                break;
-        }
-        let inner = tile.children[closest], innerOff = tile.posBefore(inner, offset);
-        if (inner.isComposite() || inner.isText())
-            return posAtCoordsInline(view, inner, innerOff, Math.max(closestRect.left, Math.min(closestRect.right, x)), y);
-        let after = (x > (closestRect.left + closestRect.right) / 2) == (dirAt(view, closest + offset) == Direction.LTR);
-        return after ? new PosAssoc(innerOff + inner.length, -1) : new PosAssoc(innerOff, 1);
+                return null;
+            return (child.dom.nodeType == 1 ? child.dom : textRange(child.dom, 0, child.length)).getClientRects();
+        });
+        let child = tile.children[scan.i], pos = positions[scan.i];
+        if (child.isText())
+            return this.scanText(child, pos);
+        if (child.isComposite())
+            return this.scanTile(child, pos);
+        return scan.after ? new PosAssoc(positions[scan.i + 1], -1) : new PosAssoc(pos, 1);
     }
-}
-function dirAt(view, pos) {
-    let line = view.state.doc.lineAt(pos), spans = view.bidiSpans(line);
-    return spans[BidiSpan.find(view.bidiSpans(line), pos - line.from, -1, 1)].dir;
 }
 
 const LineBreakPlaceholder = "\uffff";
@@ -33656,7 +33552,7 @@ class DOMChange {
         this.bounds = null;
         this.text = "";
         this.domChanged = start > -1;
-        let { impreciseHead: iHead, impreciseAnchor: iAnchor } = view.docView;
+        let { impreciseHead: iHead, impreciseAnchor: iAnchor } = view.docView, curSel = view.state.selection;
         if (view.state.readOnly && start > -1) {
             // Ignore changes when the editor is read-only
             this.newSel = null;
@@ -33672,18 +33568,18 @@ class DOMChange {
             let domSel = view.observer.selectionRange;
             let head = iHead && iHead.node == domSel.focusNode && iHead.offset == domSel.focusOffset ||
                 !contains(view.contentDOM, domSel.focusNode)
-                ? view.state.selection.main.head
+                ? curSel.main.head
                 : view.docView.posFromDOM(domSel.focusNode, domSel.focusOffset);
             let anchor = iAnchor && iAnchor.node == domSel.anchorNode && iAnchor.offset == domSel.anchorOffset ||
                 !contains(view.contentDOM, domSel.anchorNode)
-                ? view.state.selection.main.anchor
+                ? curSel.main.anchor
                 : view.docView.posFromDOM(domSel.anchorNode, domSel.anchorOffset);
             // iOS will refuse to select the block gaps when doing
             // select-all.
             // Chrome will put the selection *inside* them, confusing
             // posFromDOM
             let vp = view.viewport;
-            if ((browser.ios || browser.chrome) && view.state.selection.main.empty && head != anchor &&
+            if ((browser.ios || browser.chrome) && curSel.main.empty && head != anchor &&
                 (vp.from > 0 || vp.to < view.state.doc.length)) {
                 let from = Math.min(head, anchor), to = Math.max(head, anchor);
                 let offFrom = vp.from - from, offTo = vp.to - to;
@@ -33692,10 +33588,22 @@ class DOMChange {
                     anchor = view.state.doc.length;
                 }
             }
-            if (view.inputState.composing > -1 && view.state.selection.ranges.length > 1)
-                this.newSel = view.state.selection.replaceRange(EditorSelection.range(anchor, head));
-            else
+            if (view.inputState.composing > -1 && curSel.ranges.length > 1) {
+                this.newSel = curSel.replaceRange(EditorSelection.range(anchor, head));
+            }
+            else if (view.lineWrapping && anchor == head && !(curSel.main.empty && curSel.main.head == head) &&
+                view.inputState.lastTouchTime > Date.now() - 100) {
+                // If this is a cursor selection change in a line-wrapping
+                // editor that may have been a touch, use the last touch
+                // position to assign a side to the cursor.
+                let before = view.coordsAtPos(head, -1), assoc = 0;
+                if (before)
+                    assoc = view.inputState.lastTouchY <= before.bottom ? -1 : 1;
+                this.newSel = EditorSelection.create([EditorSelection.cursor(head, assoc)]);
+            }
+            else {
                 this.newSel = EditorSelection.single(anchor, head);
+            }
         }
     }
 }
@@ -33731,7 +33639,7 @@ function domBoundsAround(tile, from, to, offset) {
 }
 function applyDOMChange(view, domChange) {
     let change;
-    let { newSel } = domChange, sel = view.state.selection.main;
+    let { newSel } = domChange, { state } = view, sel = state.selection.main;
     let lastKey = view.inputState.lastKeyTime > Date.now() - 100 ? view.inputState.lastKeyCode : -1;
     if (domChange.bounds) {
         let { from, to } = domChange.bounds;
@@ -33742,8 +33650,15 @@ function applyDOMChange(view, domChange) {
             preferredPos = sel.to;
             preferredSide = "end";
         }
-        let diff = findDiff(view.state.doc.sliceString(from, to, LineBreakPlaceholder), domChange.text, preferredPos - from, preferredSide);
-        if (diff) {
+        let cmp = state.doc.sliceString(from, to, LineBreakPlaceholder), selEnd, diff;
+        if (!sel.empty && sel.from >= from && sel.to <= to && (domChange.typeOver || cmp != domChange.text) &&
+            cmp.slice(0, sel.from - from) == domChange.text.slice(0, sel.from - from) &&
+            cmp.slice(sel.to - from) == domChange.text.slice(selEnd = domChange.text.length - (cmp.length - (sel.to - from)))) {
+            // This looks like a selection replacement
+            change = { from: sel.from, to: sel.to,
+                insert: Text.of(domChange.text.slice(sel.from - from, selEnd).split(LineBreakPlaceholder)) };
+        }
+        else if (diff = findDiff(cmp, domChange.text, preferredPos - from, preferredSide)) {
             // Chrome inserts two newlines when pressing shift-enter at the
             // end of a line. DomChange drops one of those.
             if (browser.chrome && lastKey == 13 &&
@@ -33753,16 +33668,12 @@ function applyDOMChange(view, domChange) {
                 insert: Text.of(domChange.text.slice(diff.from, diff.toB).split(LineBreakPlaceholder)) };
         }
     }
-    else if (newSel && (!view.hasFocus && view.state.facet(editable) || sameSelPos(newSel, sel))) {
+    else if (newSel && (!view.hasFocus && state.facet(editable) || sameSelPos(newSel, sel))) {
         newSel = null;
     }
     if (!change && !newSel)
         return false;
-    if (!change && domChange.typeOver && !sel.empty && newSel && newSel.main.empty) {
-        // Heuristic to notice typing over a selected character
-        change = { from: sel.from, to: sel.to, insert: view.state.doc.slice(sel.from, sel.to) };
-    }
-    else if ((browser.mac || browser.android) && change && change.from == change.to && change.from == sel.head - 1 &&
+    if ((browser.mac || browser.android) && change && change.from == change.to && change.from == sel.head - 1 &&
         /^\. ?$/.test(change.insert.toString()) && view.contentDOM.getAttribute("autocorrect") == "off") {
         // Detect insert-period-on-double-space Mac and Android behavior,
         // and transform it into a regular space insert.
@@ -33770,18 +33681,7 @@ function applyDOMChange(view, domChange) {
             newSel = EditorSelection.single(newSel.main.anchor - 1, newSel.main.head - 1);
         change = { from: change.from, to: change.to, insert: Text.of([change.insert.toString().replace(".", " ")]) };
     }
-    else if (change && change.from >= sel.from && change.to <= sel.to &&
-        (change.from != sel.from || change.to != sel.to) &&
-        (sel.to - sel.from) - (change.to - change.from) <= 4) {
-        // If the change is inside the selection and covers most of it,
-        // assume it is a selection replace (with identical characters at
-        // the start/end not included in the diff)
-        change = {
-            from: sel.from, to: sel.to,
-            insert: view.state.doc.slice(sel.from, change.from).append(change.insert).append(view.state.doc.slice(change.to, sel.to))
-        };
-    }
-    else if (view.state.doc.lineAt(sel.from).to < sel.to && view.docView.lineHasWidget(sel.to) &&
+    else if (state.doc.lineAt(sel.from).to < sel.to && view.docView.lineHasWidget(sel.to) &&
         view.inputState.insertingTextAt > Date.now() - 50) {
         // For a cross-line insertion, Chrome and Safari will crudely take
         // the text of the line after the selection, flattening any
@@ -33790,7 +33690,7 @@ function applyDOMChange(view, domChange) {
         // replace of the text provided by the beforeinput event.
         change = {
             from: sel.from, to: sel.to,
-            insert: view.state.toText(view.inputState.insertingText)
+            insert: state.toText(view.inputState.insertingText)
         };
     }
     else if (browser.chrome && change && change.from == change.to && change.from == sel.head &&
@@ -33812,7 +33712,7 @@ function applyDOMChange(view, domChange) {
                 scrollIntoView = true;
             userEvent = view.inputState.lastSelectionOrigin;
             if (userEvent == "select.pointer")
-                newSel = skipAtomsForSelection(view.state.facet(atomicRanges).map(f => f(view)), newSel);
+                newSel = skipAtomsForSelection(state.facet(atomicRanges).map(f => f(view)), newSel);
         }
         view.dispatch({ selection: newSel, scrollIntoView, userEvent });
         return true;
@@ -33990,9 +33890,12 @@ class InputState {
         this.lastKeyCode = 0;
         this.lastKeyTime = 0;
         this.lastTouchTime = 0;
+        this.lastTouchX = 0;
+        this.lastTouchY = 0;
         this.lastFocusTime = 0;
         this.lastScrollTop = 0;
         this.lastScrollLeft = 0;
+        this.lastWheelEvent = 0;
         // On iOS, some keys need to have their default behavior happen
         // (after which we retroactively handle them and reset the DOM) to
         // avoid messing up the virtual keyboard state.
@@ -34112,9 +34015,9 @@ class InputState {
         // applyDOMChange, notify key handlers of it and reset to
         // the state they produce.
         let pending;
-        if (browser.ios && !event.synthetic && !event.altKey && !event.metaKey &&
+        if (browser.ios && !event.synthetic && !event.altKey && !event.metaKey && !event.shiftKey &&
             ((pending = PendingKeys.find(key => key.keyCode == event.keyCode)) && !event.ctrlKey ||
-                EmacsyPendingKeys.indexOf(event.key) > -1 && event.ctrlKey && !event.shiftKey)) {
+                EmacsyPendingKeys.indexOf(event.key) > -1 && event.ctrlKey)) {
             this.pendingIOSKey = pending || event;
             setTimeout(() => this.flushIOSKey(), 250);
             return true;
@@ -34422,6 +34325,9 @@ observers.scroll = view => {
     view.inputState.lastScrollTop = view.scrollDOM.scrollTop;
     view.inputState.lastScrollLeft = view.scrollDOM.scrollLeft;
 };
+observers.wheel = observers.mousewheel = view => {
+    view.inputState.lastWheelEvent = Date.now();
+};
 handlers.keydown = (view, event) => {
     view.inputState.setSelectionOrigin("select");
     if (event.keyCode == 27 && view.inputState.tabFocusMode != 0)
@@ -34429,8 +34335,13 @@ handlers.keydown = (view, event) => {
     return false;
 };
 observers.touchstart = (view, e) => {
-    view.inputState.lastTouchTime = Date.now();
-    view.inputState.setSelectionOrigin("select.pointer");
+    let iState = view.inputState, touch = e.targetTouches[0];
+    iState.lastTouchTime = Date.now();
+    if (touch) {
+        iState.lastTouchX = touch.clientX;
+        iState.lastTouchY = touch.clientY;
+    }
+    iState.setSelectionOrigin("select.pointer");
 };
 observers.touchmove = view => {
     view.inputState.setSelectionOrigin("select.pointer");
@@ -34510,10 +34421,10 @@ function basicMouseSelection(view, event) {
             if (start.pos != cur.pos && !extend) {
                 let startRange = rangeForClick(view, start.pos, start.assoc, type);
                 let from = Math.min(startRange.from, range.from), to = Math.max(startRange.to, range.to);
-                range = from < range.from ? EditorSelection.range(from, to) : EditorSelection.range(to, from);
+                range = from < range.from ? EditorSelection.range(from, to, range.assoc) : EditorSelection.range(to, from, range.assoc);
             }
             if (extend)
-                return startSel.replaceRange(startSel.main.extend(range.from, range.to));
+                return startSel.replaceRange(startSel.main.extend(range.from, range.to, range.assoc));
             else if (multiple && type == 1 && startSel.ranges.length > 1 && (removed = removeRangeAround(startSel, cur.pos)))
                 return removed;
             else if (multiple)
@@ -34666,8 +34577,7 @@ handlers.copy = handlers.cut = (view, event) => {
     // spans multiple elements including this CodeMirror. The copy event may
     // bubble through CodeMirror (e.g. when CodeMirror is the first or the last
     // element in the selection), but we should let the parent handle it.
-    let domSel = getSelection(view.root);
-    if (domSel && !hasSelection(view.contentDOM, domSel))
+    if (!hasSelection(view.contentDOM, view.observer.selectionRange))
         return false;
     let { text, ranges, linewise } = copiedRange(view.state);
     if (!text && !linewise)
@@ -34745,7 +34655,7 @@ observers.compositionend = view => {
     view.inputState.compositionFirstChange = null;
     if (browser.chrome && browser.android) {
         // Delay flushing for a bit on Android because it'll often fire a
-        // bunch of contradictory changes in a row at end of compositon
+        // bunch of contradictory changes in a row at end of composition
         view.observer.flushSoon();
     }
     else if (view.inputState.compositionPendingChange) {
@@ -34820,8 +34730,8 @@ handlers.beforeinput = (view, event) => {
 const appliedFirefoxHack = /*@__PURE__*/new Set;
 // In Firefox, when cut/copy handlers are added to the document, that
 // somehow avoids a bug where those events aren't fired when the
-// selection is empty. See https://github.com/codemirror/dev/issues/1082
-// and https://bugzilla.mozilla.org/show_bug.cgi?id=995961
+// selection is empty. See issue #1082 and
+// https://bugzilla.mozilla.org/show_bug.cgi?id=995961
 function firefoxCopyCutHack(doc) {
     if (!appliedFirefoxHack.has(doc)) {
         appliedFirefoxHack.add(doc);
@@ -34876,8 +34786,7 @@ class HeightOracle {
     }
     refresh(whiteSpace, lineHeight, charWidth, textHeight, lineLength, knownHeights) {
         let lineWrapping = wrappingWhiteSpace.indexOf(whiteSpace) > -1;
-        let changed = Math.abs(lineHeight - this.lineHeight) > 0.3 || this.lineWrapping != lineWrapping ||
-            Math.abs(charWidth - this.charWidth) > 0.1;
+        let changed = Math.abs(lineHeight - this.lineHeight) > 0.3 || this.lineWrapping != lineWrapping;
         this.lineWrapping = lineWrapping;
         this.lineHeight = lineHeight;
         this.charWidth = charWidth;
@@ -35666,7 +35575,8 @@ class LineGapWidget extends WidgetType {
     get estimatedHeight() { return this.vertical ? this.size : -1; }
 }
 class ViewState {
-    constructor(state) {
+    constructor(view, state) {
+        this.view = view;
         this.state = state;
         // These are contentDOM-local coordinates
         this.pixelViewport = { left: 0, right: window.innerWidth, top: 0, bottom: 0 };
@@ -35677,12 +35587,14 @@ class ViewState {
         this.contentDOMHeight = 0; // contentDOM.getBoundingClientRect().height
         this.editorHeight = 0; // scrollDOM.clientHeight, unscaled
         this.editorWidth = 0; // scrollDOM.clientWidth, unscaled
-        this.scrollTop = 0; // Last seen scrollDOM.scrollTop, scaled
-        this.scrolledToBottom = false;
         // The CSS-transformation scale of the editor (transformed size /
         // concrete size)
         this.scaleX = 1;
         this.scaleY = 1;
+        // Last seen vertical offset of the element at the top of the scroll
+        // container, or top of the window if there's no wrapping scroller
+        this.scrollOffset = 0;
+        this.scrolledToBottom = false;
         // The vertical position (document-relative) to which to anchor the
         // scroll position. -1 means anchor to the end of the document.
         this.scrollAnchorPos = 0;
@@ -35720,6 +35632,7 @@ class ViewState {
         this.updateViewportLines();
         this.lineGaps = this.ensureLineGaps([]);
         this.lineGapDeco = Decoration.set(this.lineGaps.map(gap => gap.draw(this, false)));
+        this.scrollParent = view.scrollDOM;
         this.computeVisibleRanges();
     }
     updateForViewport() {
@@ -35753,7 +35666,7 @@ class ViewState {
         let contentChanges = update.changedRanges;
         let heightChanges = ChangedRange.extendWithRanges(contentChanges, heightRelevantDecoChanges(prevDeco, this.stateDeco, update ? update.changes : ChangeSet.empty(this.state.doc.length)));
         let prevHeight = this.heightMap.height;
-        let scrollAnchor = this.scrolledToBottom ? null : this.scrollAnchorAt(this.scrollTop);
+        let scrollAnchor = this.scrolledToBottom ? null : this.scrollAnchorAt(this.scrollOffset);
         clearHeightChangeFlag();
         this.heightMap = this.heightMap.applyChanges(this.stateDeco, update.startState.doc, this.heightOracle.setDoc(this.state.doc), heightChanges);
         if (this.heightMap.height != prevHeight || heightChangeFlag)
@@ -35785,12 +35698,12 @@ class ViewState {
             !update.state.facet(nativeSelectionHidden))
             this.mustEnforceCursorAssoc = true;
     }
-    measure(view) {
-        let dom = view.contentDOM, style = window.getComputedStyle(dom);
+    measure() {
+        let { view } = this, dom = view.contentDOM, style = window.getComputedStyle(dom);
         let oracle = this.heightOracle;
         let whiteSpace = style.whiteSpace;
         this.defaultTextDirection = style.direction == "rtl" ? Direction.RTL : Direction.LTR;
-        let refresh = this.heightOracle.mustRefreshForWrapping(whiteSpace) || this.mustMeasureContent;
+        let refresh = this.heightOracle.mustRefreshForWrapping(whiteSpace) || this.mustMeasureContent === "refresh";
         let domRect = dom.getBoundingClientRect();
         let measureContent = refresh || this.mustMeasureContent || this.contentDOMHeight != domRect.height;
         this.contentDOMHeight = domRect.height;
@@ -35820,12 +35733,18 @@ class ViewState {
             this.editorWidth = view.scrollDOM.clientWidth;
             result |= 16 /* UpdateFlag.Geometry */;
         }
-        let scrollTop = view.scrollDOM.scrollTop * this.scaleY;
-        if (this.scrollTop != scrollTop) {
+        let scrollParent = scrollableParents(this.view.contentDOM, false).y;
+        if (scrollParent != this.scrollParent) {
+            this.scrollParent = scrollParent;
             this.scrollAnchorHeight = -1;
-            this.scrollTop = scrollTop;
+            this.scrollOffset = 0;
         }
-        this.scrolledToBottom = isScrolledToBottom(view.scrollDOM);
+        let scrollOffset = this.getScrollOffset();
+        if (this.scrollOffset != scrollOffset) {
+            this.scrollAnchorHeight = -1;
+            this.scrollOffset = scrollOffset;
+        }
+        this.scrolledToBottom = isScrolledToBottom(this.scrollParent || view.win);
         // Pixel viewport
         let pixelViewport = (this.printing ? fullPixelRange : visiblePixelRange)(dom, this.paddingTop);
         let dTop = pixelViewport.top - this.pixelViewport.top, dBottom = pixelViewport.bottom - this.pixelViewport.bottom;
@@ -36102,9 +36021,14 @@ class ViewState {
             this.viewportLines.find(l => l.top <= height && l.bottom >= height)) ||
             scaleBlock(this.heightMap.lineAt(this.scaler.fromDOM(height), QueryType.ByHeight, this.heightOracle, 0, 0), this.scaler);
     }
-    scrollAnchorAt(scrollTop) {
-        let block = this.lineBlockAtHeight(scrollTop + 8);
-        return block.from >= this.viewport.from || this.viewportLines[0].top - scrollTop > 200 ? block : this.viewportLines[0];
+    getScrollOffset() {
+        let base = this.scrollParent == this.view.scrollDOM ? this.scrollParent.scrollTop
+            : (this.scrollParent ? this.scrollParent.getBoundingClientRect().top : 0) - this.view.contentDOM.getBoundingClientRect().top;
+        return base * this.scaleY;
+    }
+    scrollAnchorAt(scrollOffset) {
+        let block = this.lineBlockAtHeight(scrollOffset + 8);
+        return block.from >= this.viewport.from || this.viewportLines[0].top - scrollOffset > 200 ? block : this.viewportLines[0];
     }
     elementAtHeight(height) {
         return scaleBlock(this.heightMap.blockAt(this.scaler.fromDOM(height), this.heightOracle, 0, 0), this.scaler);
@@ -36292,7 +36216,7 @@ const baseTheme$1 = /*@__PURE__*/buildTheme("." + baseThemeID, {
         flexShrink: 0,
         display: "block",
         whiteSpace: "pre",
-        wordWrap: "normal", // https://github.com/codemirror/dev/issues/456
+        wordWrap: "normal", // Issue #456
         boxSizing: "border-box",
         minHeight: "100%",
         padding: "4px 0",
@@ -36357,6 +36281,21 @@ const baseTheme$1 = /*@__PURE__*/buildTheme("." + baseThemeID, {
     "&dark .cm-cursor": {
         borderLeftColor: "#ddd"
     },
+    ".cm-selectionHandle": {
+        backgroundColor: "currentColor",
+        width: "1.5px"
+    },
+    ".cm-selectionHandle-start::before, .cm-selectionHandle-end::before": {
+        content: '""',
+        backgroundColor: "inherit",
+        borderRadius: "50%",
+        width: "8px",
+        height: "8px",
+        position: "absolute",
+        left: "-3.25px"
+    },
+    ".cm-selectionHandle-start::before": { top: "-8px" },
+    ".cm-selectionHandle-end::before": { bottom: "-8px" },
     ".cm-dropCursor": {
         position: "absolute"
     },
@@ -36696,7 +36635,7 @@ class DOMObserver {
     readSelectionRange() {
         let { view } = this;
         // The Selection object is broken in shadow roots in Safari. See
-        // https://github.com/codemirror/dev/issues/414
+        // issue #414
         let selection = getSelection(view.root);
         if (!selection)
             return false;
@@ -37351,7 +37290,7 @@ class EditorView {
             ((trs) => this.update(trs));
         this.dispatch = this.dispatch.bind(this);
         this._root = (config.root || getRoot(config.parent) || document);
-        this.viewState = new ViewState(config.state || EditorState.create(config));
+        this.viewState = new ViewState(this, config.state || EditorState.create(config));
         if (config.scrollTo && config.scrollTo.is(scrollIntoView))
             this.viewState.scrollTarget = config.scrollTo.value.clip(this.viewState.state);
         this.plugins = this.state.facet(viewPlugin).map(spec => new PluginInstance(spec));
@@ -37367,7 +37306,7 @@ class EditorView {
         this.requestMeasure();
         if ((_a = document.fonts) === null || _a === void 0 ? void 0 : _a.ready)
             document.fonts.ready.then(() => {
-                this.viewState.mustMeasureContent = true;
+                this.viewState.mustMeasureContent = "refresh";
                 this.requestMeasure();
             });
     }
@@ -37440,7 +37379,8 @@ class EditorView {
                     scrollTarget = scrollTarget.map(tr.changes);
                 if (tr.scrollIntoView) {
                     let { main } = tr.state.selection;
-                    scrollTarget = new ScrollTarget(main.empty ? main : EditorSelection.cursor(main.head, main.head > main.anchor ? -1 : 1));
+                    let { x, y } = this.state.facet(EditorView.cursorScrollMargin);
+                    scrollTarget = new ScrollTarget(main.empty ? main : EditorSelection.cursor(main.head, main.head > main.anchor ? -1 : 1), "nearest", "nearest", y, x);
                 }
                 for (let e of tr.effects)
                     if (e.is(scrollIntoView))
@@ -37506,7 +37446,7 @@ class EditorView {
         try {
             for (let plugin of this.plugins)
                 plugin.destroy(this);
-            this.viewState = new ViewState(newState);
+            this.viewState = new ViewState(this, newState);
             this.plugins = newState.facet(viewPlugin).map(spec => new PluginInstance(spec));
             this.pluginMap.clear();
             for (let plugin of this.plugins)
@@ -37585,26 +37525,26 @@ class EditorView {
         if (flush)
             this.observer.forceFlush();
         let updated = null;
-        let sDOM = this.scrollDOM, scrollTop = sDOM.scrollTop * this.scaleY;
+        let scroll = this.viewState.scrollParent, scrollOffset = this.viewState.getScrollOffset();
         let { scrollAnchorPos, scrollAnchorHeight } = this.viewState;
-        if (Math.abs(scrollTop - this.viewState.scrollTop) > 1)
+        if (Math.abs(scrollOffset - this.viewState.scrollOffset) > 1)
             scrollAnchorHeight = -1;
         this.viewState.scrollAnchorHeight = -1;
         try {
             for (let i = 0;; i++) {
                 if (scrollAnchorHeight < 0) {
-                    if (isScrolledToBottom(sDOM)) {
+                    if (isScrolledToBottom(scroll || this.win)) {
                         scrollAnchorPos = -1;
                         scrollAnchorHeight = this.viewState.heightMap.height;
                     }
                     else {
-                        let block = this.viewState.scrollAnchorAt(scrollTop);
+                        let block = this.viewState.scrollAnchorAt(scrollOffset);
                         scrollAnchorPos = block.from;
                         scrollAnchorHeight = block.top;
                     }
                 }
                 this.updateState = 1 /* UpdateState.Measuring */;
-                let changed = this.viewState.measure(this);
+                let changed = this.viewState.measure();
                 if (!changed && !this.measureRequests.length && this.viewState.scrollTarget == null)
                     break;
                 if (i > 5) {
@@ -37665,10 +37605,15 @@ class EditorView {
                         else {
                             let newAnchorHeight = scrollAnchorPos < 0 ? this.viewState.heightMap.height :
                                 this.viewState.lineBlockAt(scrollAnchorPos).top;
-                            let diff = newAnchorHeight - scrollAnchorHeight;
-                            if (diff > 1 || diff < -1) {
-                                scrollTop = scrollTop + diff;
-                                sDOM.scrollTop = scrollTop / this.scaleY;
+                            let diff = (newAnchorHeight - scrollAnchorHeight) / this.scaleY;
+                            if ((diff > 1 || diff < -1) &&
+                                (scroll == this.scrollDOM || this.hasFocus ||
+                                    Math.max(this.inputState.lastWheelEvent, this.inputState.lastTouchTime) > Date.now() - 100)) {
+                                scrollOffset = scrollOffset + diff;
+                                if (scroll)
+                                    scroll.scrollTop += diff;
+                                else
+                                    this.win.scrollBy(0, diff);
                                 scrollAnchorHeight = -1;
                                 continue;
                             }
@@ -38092,7 +38037,8 @@ class EditorView {
     cause it to scroll the given position or range into view.
     */
     static scrollIntoView(pos, options = {}) {
-        return scrollIntoView.of(new ScrollTarget(typeof pos == "number" ? EditorSelection.cursor(pos) : pos, options.y, options.x, options.yMargin, options.xMargin));
+        var _a, _b, _c, _d;
+        return scrollIntoView.of(new ScrollTarget(typeof pos == "number" ? EditorSelection.cursor(pos) : pos, (_a = options.y) !== null && _a !== void 0 ? _a : "nearest", (_b = options.x) !== null && _b !== void 0 ? _b : "nearest", (_c = options.yMargin) !== null && _c !== void 0 ? _c : 5, (_d = options.xMargin) !== null && _d !== void 0 ? _d : 5));
     }
     /**
     Return an effect that resets the editor to its current (at the
@@ -38158,7 +38104,7 @@ class EditorView {
     }
     /**
     Create a theme extension. The first argument can be a
-    [`style-mod`](https://github.com/marijnh/style-mod#documentation)
+    [`style-mod`](https://code.haverbeke.berlin/marijn/style-mod#documentation)
     style spec providing the styles for the theme. These will be
     prefixed with a generated class for the style.
     
@@ -38204,7 +38150,7 @@ class EditorView {
 }
 /**
 Facet to add a [style
-module](https://github.com/marijnh/style-mod#documentation) to
+module](https://code.haverbeke.berlin/marijn/style-mod#documentation) to
 an editor view. The view will ensure that the module is
 mounted in its [document
 root](https://codemirror.net/6/docs/ref/#view.EditorView.constructor^config.root).
@@ -38351,11 +38297,30 @@ supported.)
 */
 EditorView.bidiIsolatedRanges = bidiIsolatedRanges;
 /**
+Can be used to specify the distance that scrolling cursor into
+view keeps it away from the sides of the editor, either as a
+single pixel number or two different values for the different
+axes. Defaults to 5 pixels on both axes.
+*/
+EditorView.cursorScrollMargin = /*@__PURE__*/Facet.define({
+    combine: inputs => {
+        let x = 5, y = 5;
+        for (let i of inputs) {
+            if (typeof i == "number")
+                x = y = i;
+            else
+                ({ x, y } = i);
+        }
+        return { x, y };
+    }
+});
+/**
 Facet that allows extensions to provide additional scroll
 margins (space around the sides of the scrolling element that
 should be considered invisible). This can be useful when the
 plugin introduces elements that cover part of that element (for
-example a horizontally fixed gutter).
+example a horizontally fixed gutter). Not to be confused with
+[`cursorScrollMargin`](https://codemirror.net/6/docs/ref/#view.EditorView^cursorScrollMargin).
 */
 EditorView.scrollMargins = scrollMargins;
 /**
@@ -38901,11 +38866,13 @@ const showHoverTooltipHost = /*@__PURE__*/showTooltip.compute([showHoverTooltip]
         arrow: tooltips.some(t => t.arrow),
     };
 });
+const hoverPlugin = /*@__PURE__*/Facet.define();
 class HoverPlugin {
-    constructor(view, source, field, setHover, hoverTime) {
+    constructor(view, source, field, locked, setHover, hoverTime) {
         this.view = view;
         this.source = source;
         this.field = field;
+        this.locked = locked;
         this.setHover = setHover;
         this.hoverTime = hoverTime;
         this.hoverTimeout = -1;
@@ -38916,7 +38883,7 @@ class HoverPlugin {
         view.dom.addEventListener("mouseleave", this.mouseleave = this.mouseleave.bind(this));
         view.dom.addEventListener("mousemove", this.mousemove = this.mousemove.bind(this));
     }
-    update() {
+    update(update) {
         if (this.pending) {
             this.pending = null;
             clearTimeout(this.restartTimeout);
@@ -38960,19 +38927,29 @@ class HoverPlugin {
             let rtl = bidi && bidi.dir == Direction.RTL ? -1 : 1;
             side = (lastMove.x < posCoords.left ? -rtl : rtl);
         }
+        this.activateHover(view, pos, side);
+    }
+    activateHover(view, pos, side, locked) {
         let open = this.source(view, pos, side);
-        if (open === null || open === void 0 ? void 0 : open.then) {
+        let done = (value) => {
+            if (value && !(Array.isArray(value) && !value.length)) {
+                let tooltips = Array.isArray(value) ? value : [value];
+                if (locked)
+                    this.locked.set(tooltips, locked);
+                view.dispatch({ effects: this.setHover.of(tooltips) });
+            }
+        };
+        if (open && "then" in open) {
             let pending = this.pending = { pos };
             open.then(result => {
                 if (this.pending == pending) {
                     this.pending = null;
-                    if (result && !(Array.isArray(result) && !result.length))
-                        view.dispatch({ effects: this.setHover.of(Array.isArray(result) ? result : [result]) });
+                    done(result);
                 }
             }, e => logException(view.state, e, "hover tooltip"));
         }
-        else if (open && !(Array.isArray(open) && !open.length)) {
-            view.dispatch({ effects: this.setHover.of(Array.isArray(open) ? open : [open]) });
+        else {
+            done(open);
         }
     }
     get tooltip() {
@@ -38986,7 +38963,7 @@ class HoverPlugin {
         if (this.hoverTimeout < 0)
             this.hoverTimeout = setTimeout(this.checkHover, this.hoverTime);
         let { active, tooltip } = this;
-        if (active.length && tooltip && !isInTooltip(tooltip.dom, event) || this.pending) {
+        if (active.length && !this.locked.has(active) && tooltip && !isInTooltip(tooltip.dom, event) || this.pending) {
             let { pos } = active[0] || this.pending, end = (_b = (_a = active[0]) === null || _a === void 0 ? void 0 : _a.end) !== null && _b !== void 0 ? _b : pos;
             if ((pos == end ? this.view.posAtCoords(this.lastMove) != pos
                 : !isOverRange(this.view, pos, end, event.clientX, event.clientY))) {
@@ -38999,7 +38976,7 @@ class HoverPlugin {
         clearTimeout(this.hoverTimeout);
         this.hoverTimeout = -1;
         let { active } = this;
-        if (active.length) {
+        if (active.length && !this.locked.has(active)) {
             let { tooltip } = this;
             let inTooltip = tooltip && tooltip.dom.contains(event.relatedTarget);
             if (!inTooltip)
@@ -39011,7 +38988,8 @@ class HoverPlugin {
     watchTooltipLeave(tooltip) {
         let watch = (event) => {
             tooltip.removeEventListener("mouseleave", watch);
-            if (this.active.length && !this.view.dom.contains(event.relatedTarget))
+            let { active } = this;
+            if (active.length && !this.locked.has(active) && !this.view.dom.contains(event.relatedTarget))
                 this.view.dispatch({ effects: this.setHover.of([]) });
         };
         tooltip.addEventListener("mouseleave", watch);
@@ -39062,44 +39040,57 @@ extension.
 */
 function hoverTooltip(source, options = {}) {
     let setHover = StateEffect.define();
+    // This would be better stored in the state field, but we've set
+    // down the type of the field in our interface, so it's indirectly
+    // stored by array identity.
+    let locked = new WeakMap();
     let hoverState = StateField.define({
         create() { return []; },
         update(value, tr) {
+            let lock = locked.get(value);
             if (value.length) {
                 if (options.hideOnChange && (tr.docChanged || tr.selection))
                     value = [];
+                else if (lock && lock(tr))
+                    value = [];
                 else if (options.hideOn)
                     value = value.filter(v => !options.hideOn(tr, v));
-                if (tr.docChanged) {
-                    let mapped = [];
-                    for (let tooltip of value) {
-                        let newPos = tr.changes.mapPos(tooltip.pos, -1, MapMode.TrackDel);
-                        if (newPos != null) {
-                            let copy = Object.assign(Object.create(null), tooltip);
-                            copy.pos = newPos;
-                            if (copy.end != null)
-                                copy.end = tr.changes.mapPos(copy.end);
-                            mapped.push(copy);
-                        }
+            }
+            if (tr.docChanged && value.length) {
+                let mapped = [];
+                for (let tooltip of value) {
+                    let newPos = tr.changes.mapPos(tooltip.pos, -1, MapMode.TrackDel);
+                    if (newPos != null) {
+                        let copy = Object.assign(Object.create(null), tooltip);
+                        copy.pos = newPos;
+                        if (copy.end != null)
+                            copy.end = tr.changes.mapPos(copy.end);
+                        mapped.push(copy);
                     }
-                    value = mapped;
                 }
+                value = mapped;
             }
             for (let effect of tr.effects) {
-                if (effect.is(setHover))
+                if (effect.is(setHover)) {
                     value = effect.value;
-                if (effect.is(closeHoverTooltipEffect))
+                    lock = undefined;
+                }
+                if (effect.is(closeHoverTooltipEffect) && !effect.value || effect.value == hoverState)
                     value = [];
             }
+            if (value.length && lock)
+                locked.set(value, lock);
             return value;
         },
         provide: f => showHoverTooltip.from(f)
     });
+    const plugin = ViewPlugin.define(view => new HoverPlugin(view, source, hoverState, locked, setHover, options.hoverTime || 300 /* Hover.Time */));
     return {
         active: hoverState,
         extension: [
             hoverState,
-            ViewPlugin.define(view => new HoverPlugin(view, source, hoverState, setHover, options.hoverTime || 300 /* Hover.Time */)),
+            plugin,
+            hoverPlugin.of(plugin),
             showHoverTooltipHost
         ]
     };
@@ -39989,12 +39980,12 @@ class TreeNode extends BaseNode {
     get name() { return this._tree.type.name; }
     get to() { return this.from + this._tree.length; }
     nextChild(i, dir, pos, side, mode = 0) {
-        var _a;
         for (let parent = this;;) {
             for (let { children, positions } = parent._tree, e = dir > 0 ? children.length : -1; i != e; i += dir) {
-                let next = children[i], start = positions[i] + parent.from;
+                let next = children[i], start = positions[i] + parent.from, mounted;
                 if (!((mode & IterMode.EnterBracketed) && next instanceof Tree &&
-                    ((_a = MountedTree.get(next)) === null || _a === void 0 ? void 0 : _a.overlay) === null && (start >= pos || start + next.length <= pos)) &&
+                    (mounted = MountedTree.get(next)) && !mounted.overlay && mounted.bracketed &&
+                    pos >= start && pos <= start + next.length) &&
                     !checkSide(side, pos, start, start + next.length))
                     continue;
                 if (next instanceof TreeBuffer) {
@@ -43197,7 +43188,7 @@ const baseTheme = /*@__PURE__*/EditorView.baseTheme({
         backgroundRepeat: "repeat-x",
         paddingBottom: "0.7px",
     },
-    ".cm-lintRange-error": { backgroundImage: /*@__PURE__*/underline("#d11") },
+    ".cm-lintRange-error": { backgroundImage: /*@__PURE__*/underline("#f11") },
     ".cm-lintRange-warning": { backgroundImage: /*@__PURE__*/underline("orange") },
     ".cm-lintRange-info": { backgroundImage: /*@__PURE__*/underline("#999") },
     ".cm-lintRange-hint": { backgroundImage: /*@__PURE__*/underline("#66d") },
@@ -43256,6 +43247,12 @@ const baseTheme = /*@__PURE__*/EditorView.baseTheme({
             padding: 0,
             margin: 0
         }
+    },
+    "&dark .cm-lintRange-active": { backgroundColor: "#86714a80" },
+    "&dark .cm-panel.cm-panel-lint ul": {
+        "& [aria-selected]": {
+            backgroundColor: "#2e343e",
+        },
     }
 });
 function severityWeight(sev) {
@@ -43272,6 +43269,7 @@ function maxSeverity(diagnostics) {
     }
     return sev;
 }
+const lintHover = /*@__PURE__*/hoverTooltip(lintTooltip, { hideOn: hideTooltip });
 const lintExtensions = [
     lintState,
     /*@__PURE__*/EditorView.decorations.compute([lintState], state => {
@@ -43280,7 +43278,7 @@ const lintExtensions = [
             activeMark.range(selected.from, selected.to)
         ]);
     }),
-    /*@__PURE__*/hoverTooltip(lintTooltip, { hideOn: hideTooltip }),
+    lintHover,
     baseTheme
 ];
 
@@ -43514,16 +43512,17 @@ const cmFeelLinter = () => editorView => {
  *   type?: 'function',
  *   params?: Array<{
  *     name: string;
- *   }>
+ *   }>,
+ *   engines?: Record<string, string>
  * } } Builtin
  */
 
 /**
- * FEEL built-ins available with Camunda / feel-scala.
+ * List of standard FEEL built-in functions (excluding Camunda-specific extensions).
  *
  * @type { Builtin[] }
  */
-const camundaBuiltins = [
+const feelBuiltins = [
   {
     "name": "not",
     "type": "function",
@@ -43533,58 +43532,6 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Returns the logical negation of the given value.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">not(negand: boolean): boolean\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">not(true)\n// false\n\nnot(null)\n// null\n</code></pre>\n"
-  },
-  {
-    "name": "is defined",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Checks if a given value is not <code>null</code>. If the value is <code>null</code> then the function returns <code>false</code>.\nOtherwise, the function returns <code>true</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">is defined(value: Any): boolean\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">is defined(1)\n// true\n\nis defined(null)\n// false\n\nis defined(x)\n// false - if no variable &quot;x&quot; exists\n\nis defined(x.y)\n// false - if no variable &quot;x&quot; exists or it doesn&#39;t have a property &quot;y&quot;\n</code></pre>\n<p>:::caution Breaking change</p>\n<p>This function worked differently in previous versions. It returned <code>true</code> if the value was <code>null</code>.\nSince this version, the function returns <code>false</code> if the value is <code>null</code>.</p>\n<p>:::</p>\n"
-  },
-  {
-    "name": "get or else",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      },
-      {
-        "name": "default"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Return the provided value parameter if not <code>null</code>, otherwise return the default parameter</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">get or else(value: Any, default: Any): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">get or else(&quot;this&quot;, &quot;default&quot;)\n// &quot;this&quot;\n\nget or else(null, &quot;default&quot;)\n// &quot;default&quot;\n\nget or else(null, null)\n// null\n</code></pre>\n"
-  },
-  {
-    "name": "assert",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      },
-      {
-        "name": "condition"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Verify that the given condition is met. If the condition is <code>true</code>, the function returns the value.\nOtherwise, the evaluation fails with an error.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">assert(value: Any, condition: Any)\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">assert(x, x != null)\n// &quot;value&quot; - if x is &quot;value&quot;\n// error - if x is null or doesn&#39;t exist\n\nassert(x, x &gt;= 0)\n// 4 - if x is 4\n// error - if x is less than zero\n</code></pre>\n"
-  },
-  {
-    "name": "assert",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      },
-      {
-        "name": "condition"
-      },
-      {
-        "name": "cause"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Verify that the given condition is met. If the condition is <code>true</code>, the function returns the value.\nOtherwise, the evaluation fails with an error containing the given message.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">assert(value: Any, condition: Any, cause: String)\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">assert(x, x != null, &quot;&#39;x&#39; should not be null&quot;)\n// &quot;value&quot; - if x is &quot;value&quot;\n// error(&#39;x&#39; should not be null) - if x is null or doesn&#39;t exist\n\nassert(x, x &gt;= 0, &quot;&#39;x&#39; should be positive&quot;)\n// 4 - if x is 4\n// error(&#39;x&#39; should be positive) - if x is less than zero\n</code></pre>\n"
   },
   {
     "name": "get value",
@@ -43598,19 +43545,6 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Returns the value of the context entry with the given key.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">get value(context: context, key: string): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">get value({foo: 123}, &quot;foo&quot;)\n// 123\n\nget value({a: 1}, &quot;b&quot;)\n// null\n</code></pre>\n"
-  },
-  {
-    "name": "get value",
-    "type": "function",
-    "params": [
-      {
-        "name": "context"
-      },
-      {
-        "name": "keys"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the value of the context entry for a context path defined by the given keys.</p>\n<p>If <code>keys</code> contains the keys <code>[k1, k2]</code> then it returns the value at the nested entry <code>k1.k2</code> of the context.</p>\n<p>If <code>keys</code> are empty or the nested entry defined by the keys doesn&#39;t exist in the context, it returns <code>null</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">get value(context: context, keys: list&lt;string&gt;): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">get value({x:1, y: {z:0}}, [&quot;y&quot;, &quot;z&quot;])\n// 0\n\nget value({x: {y: {z:0}}}, [&quot;x&quot;, &quot;y&quot;])\n// {z:0}\n\nget value({a: {b: 3}}, [&quot;b&quot;])\n// null\n</code></pre>\n"
   },
   {
     "name": "get entries",
@@ -43630,22 +43564,6 @@ const camundaBuiltins = [
         "name": "context"
       },
       {
-        "name": "key"
-      },
-      {
-        "name": "value"
-      }
-    ],
-    "info": "<p>Adds a new entry with the given key and value to the context. Returns a new context that includes the entry.</p>\n<p>If an entry for the same key already exists in the context, it overrides the value.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">context put(context: context, key: string, value: Any): context\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">context put({x:1}, &quot;y&quot;, 2)\n// {x:1, y:2}\n</code></pre>\n<p>:::info\nThe function <code>context put()</code> replaced the previous function <code>put()</code> (Camunda Extension). The\nprevious function is deprecated and should not be used anymore.\n:::</p>\n"
-  },
-  {
-    "name": "context put",
-    "type": "function",
-    "params": [
-      {
-        "name": "context"
-      },
-      {
         "name": "keys"
       },
       {
@@ -43653,16 +43571,6 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Adds a new entry with the given value to the context. The path of the entry is defined by the keys. Returns a new context that includes the entry.</p>\n<p>If <code>keys</code> contains the keys <code>[k1, k2]</code> then it adds the nested entry <code>k1.k2 = value</code> to the context.</p>\n<p>If an entry for the same keys already exists in the context, it overrides the value.</p>\n<p>If <code>keys</code> are empty, it returns <code>null</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">context put(context: context, keys: list&lt;string&gt;, value: Any): context\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">context put({x:1}, [&quot;y&quot;], 2)\n// {x:1, y:2}\n\ncontext put({x:1, y: {z:0}}, [&quot;y&quot;, &quot;z&quot;], 2)\n// {x:1, y: {z:2}}\n\ncontext put({x:1}, [&quot;y&quot;, &quot;z&quot;], 2)\n// {x:1, y: {z:2}}\n</code></pre>\n"
-  },
-  {
-    "name": "context merge",
-    "type": "function",
-    "params": [
-      {
-        "name": "contexts"
-      }
-    ],
-    "info": "<p>Union the given contexts. Returns a new context that includes all entries of the given contexts.</p>\n<p>If an entry for the same key already exists in a context, it overrides the value. The entries are overridden in the same order as in the list of contexts.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">context merge(contexts: list&lt;context&gt;): context\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">context merge([{x:1}, {y:2}])\n// {x:1, y:2}\n\ncontext merge([{x:1, y: 0}, {y:2}])\n// {x:1, y:2}\n</code></pre>\n<p>:::info\nThe function <code>context merge()</code> replaced the previous function <code>put all()</code> (Camunda Extension). The\nprevious function is deprecated and should not be used anymore.\n:::</p>\n"
   },
   {
     "name": "string",
@@ -43683,6 +43591,35 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Parses the given string to a number.</p>\n<p>Returns <code>null</code> if the string is not a number.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">number(from: string): number\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">number(&quot;1500.5&quot;)\n// 1500.5\n</code></pre>\n"
+  },
+  {
+    "name": "number",
+    "type": "function",
+    "params": [
+      {
+        "name": "from"
+      },
+      {
+        "name": "grouping separator"
+      }
+    ],
+    "info": "<p>Parses the given string to a number using the specified grouping separator.</p>\n<p>Returns <code>null</code> if the string is not a number.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">number(from: string, grouping separator: string): number\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">number(&quot;1,500&quot;, &quot;,&quot;)\n// 1500\n</code></pre>\n"
+  },
+  {
+    "name": "number",
+    "type": "function",
+    "params": [
+      {
+        "name": "from"
+      },
+      {
+        "name": "grouping separator"
+      },
+      {
+        "name": "decimal separator"
+      }
+    ],
+    "info": "<p>Parses the given string to a number using the specified grouping and decimal separators.</p>\n<p>Returns <code>null</code> if the string is not a number.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">number(from: string, grouping separator: string, decimal separator: string): number\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">number(&quot;1 500.5&quot;, &quot; &quot;, &quot;.&quot;)\n// 1500.5\n</code></pre>\n"
   },
   {
     "name": "context",
@@ -43773,7 +43710,7 @@ const camundaBuiltins = [
         "name": "from"
       }
     ],
-    "info": "<p>Parses the given string into a date and time.</p>\n<p>Returns <code>null</code> if the string is not a valid calendar date. For example, <code>&quot;2024-06-31T10:00:00&quot;</code> is invalid because\nJune has only 30 days.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">date and time(from: string): date and time\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">date and time(&quot;2018-04-29T09:30:00&quot;)\n// date and time(&quot;2018-04-29T09:30:00&quot;)\n</code></pre>\n"
+    "info": "<p>Parses the given string into a date and time. The function supports strings in the format <code>YYYY-MM-DDThh:mm:ss</code> with\noptional timezone information either as offset (e.g., <code>+01:00</code> or <code>Z</code>), as IANA timezone ID (e.g., <code>@Europe/Berlin</code>), or\nas a combination of both (e.g., <code>+01:00[Europe/Berlin]</code>).</p>\n<p>Returns <code>null</code> if the string is not a valid calendar date. For example, <code>&quot;2024-06-31T10:00:00&quot;</code> is invalid because\nJune has only 30 days.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">date and time(from: string): date and time\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">date and time(&quot;2018-04-29T09:30:00&quot;)\n// date and time(&quot;2018-04-29T09:30:00&quot;)\n\ndate and time(&quot;2018-04-29T09:30:00+02:00&quot;)\n// date and time(&quot;2018-04-29T09:30:00+02:00&quot;)\n\ndate and time(&quot;2018-04-29T09:30:00@Europe/Berlin&quot;)\n// date and time(&quot;2018-04-29T09:30:00@Europe/Berlin&quot;)\n\ndate and time(&quot;2018-04-29T09:30:00+02:00[Europe/Berlin]&quot;)\n// date and time(&quot;2018-04-29T09:30:00@Europe/Berlin&quot;)\n</code></pre>\n"
   },
   {
     "name": "date and time",
@@ -43787,19 +43724,6 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Returns a date and time from the given components.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">date and time(date: date, time: time): date and time\n</code></pre>\n<pre><code class=\"language-feel\">date and time(date: date and time, time: time): date and time\n</code></pre>\n<p>Returns a date and time value that consists of the date component of <code>date</code> combined with <code>time</code>.</p>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">date and time(date(&quot;2012-12-24&quot;),time(&quot;T23:59:00&quot;))\n// date and time(&quot;2012-12-24T23:59:00&quot;)\n\ndate and time(date and time(&quot;2012-12-25T11:00:00&quot;),time(&quot;T23:59:00&quot;))\n// date and time(&quot;2012-12-25T23:59:00&quot;)\n</code></pre>\n"
-  },
-  {
-    "name": "date and time",
-    "type": "function",
-    "params": [
-      {
-        "name": "date"
-      },
-      {
-        "name": "timezone"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the given date and time value at the given timezone.</p>\n<p>If <code>date</code> has a different timezone than <code>timezone</code> then it adjusts the time to match the local time of <code>timezone</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">date and time(date: date and time, timezone: string): date and time\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">date and time(@&quot;2020-07-31T14:27:30@Europe/Berlin&quot;, &quot;America/Los_Angeles&quot;)\n// date and time(&quot;2020-07-31T05:27:30@America/Los_Angeles&quot;)\n\ndate and time(@&quot;2020-07-31T14:27:30&quot;, &quot;Z&quot;)\n// date and time(&quot;2020-07-31T12:27:30Z&quot;)\n</code></pre>\n"
   },
   {
     "name": "duration",
@@ -43823,6 +43747,32 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Returns the years and months duration between <code>from</code> and <code>to</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">years and months duration(from: date, to: date): years and months duration\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">years and months duration(date(&quot;2011-12-22&quot;), date(&quot;2013-08-24&quot;))\n// duration(&quot;P1Y8M&quot;)\n</code></pre>\n"
+  },
+  {
+    "name": "from json",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      }
+    ],
+    "info": "<p>Parses a JSON string into a FEEL value. The function converts JSON primitives, objects, and arrays into their corresponding FEEL types.</p>\n<p>Returns <code>null</code> if the string is not a valid JSON value.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">from json(value: string): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">from json(&quot;{\\&quot;a\\&quot;: 1, \\&quot;b\\&quot;: 2}&quot;)\n// {a: 1, b: 2}\n\nfrom json(&quot;true&quot;)\n// true\n\nfrom json(&quot;\\&quot;2023-06-14\\&quot;&quot;)\n// &quot;2023-06-14&quot;\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.9"
+    }
+  },
+  {
+    "name": "to json",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      }
+    ],
+    "info": "<p>Converts a FEEL value into a JSON string. The function converts FEEL primitives, contexts, and lists into their\ncorresponding JSON types. Temporal values are converted to their ISO 8601 string representation, including timezone\ninformation for date and time values (format: <code>2025-11-24T10:00:00+01:00[Europe/Berlin]</code>).</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">to json(value: Any): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">to json({a: 1, b: 2})\n// &quot;{\\&quot;a\\&quot;:1,\\&quot;b\\&quot;:2}&quot;\n\nto json(true)\n// &quot;true&quot;\n\nto json(@&quot;2023-06-14&quot;)\n// &quot;\\&quot;2023-06-14\\&quot;&quot;\n\nto json(@&quot;2025-11-24T10:00:00@Europe/Berlin&quot;)\n// &quot;\\&quot;2025-11-24T10:00:00+01:00[Europe/Berlin]\\&quot;&quot;\n\nto json(@&quot;P3Y&quot;)\n// &quot;\\&quot;P3Y\\&quot;&quot;\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.9"
+    }
   },
   {
     "name": "list contains",
@@ -44072,16 +44022,6 @@ const camundaBuiltins = [
     "info": "<p>Returns the given list without duplicates.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">distinct values(list: list): list\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">distinct values([1,2,3,2,1])\n// [1,2,3]\n</code></pre>\n"
   },
   {
-    "name": "duplicate values",
-    "type": "function",
-    "params": [
-      {
-        "name": "list"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns all duplicate values of the given list.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">duplicate values(list: list): list\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">duplicate values([1,2,3,2,1])\n// [1,2]\n</code></pre>\n"
-  },
-  {
     "name": "flatten",
     "type": "function",
     "params": [
@@ -44126,128 +44066,6 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Joins a list of strings into a single string. This is similar to\nJava&#39;s <a href=\"https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/stream/Collectors.html#joining(java.lang.CharSequence,java.lang.CharSequence,java.lang.CharSequence)\">joining</a>\nfunction.</p>\n<p>If an item of the list is <code>null</code>, the item is ignored for the result string. If an item is\nneither a string nor <code>null</code>, the function returns <code>null</code> instead of a string.</p>\n<p>The resulting string contains a <code>delimiter</code> between each element.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">string join(list: list&lt;string&gt;, delimiter: string): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">string join([&quot;a&quot;], &quot;X&quot;)\n// &quot;a&quot;\n\nstring join([&quot;a&quot;,&quot;b&quot;,&quot;c&quot;], &quot;, &quot;)\n// &quot;a, b, c&quot;\n</code></pre>\n"
-  },
-  {
-    "name": "string join",
-    "type": "function",
-    "params": [
-      {
-        "name": "list"
-      },
-      {
-        "name": "delimiter"
-      },
-      {
-        "name": "prefix"
-      },
-      {
-        "name": "suffix"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Joins a list of strings into a single string. This is similar to\nJava&#39;s <a href=\"https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/stream/Collectors.html#joining(java.lang.CharSequence,java.lang.CharSequence,java.lang.CharSequence)\">joining</a>\nfunction.</p>\n<p>If an item of the list is <code>null</code>, the item is ignored for the result string. If an item is\nneither a string nor <code>null</code>, the function returns <code>null</code> instead of a string.</p>\n<p>The resulting string starts with <code>prefix</code>, contains a <code>delimiter</code> between each element, and ends\nwith <code>suffix</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">string join(list: list&lt;string&gt;, delimiter: string, prefix: string, suffix: string): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">string join([&quot;a&quot;,&quot;b&quot;,&quot;c&quot;], &quot;, &quot;, &quot;[&quot;, &quot;]&quot;)\n// &quot;[a, b, c]&quot;\n</code></pre>\n"
-  },
-  {
-    "name": "is empty",
-    "type": "function",
-    "params": [
-      {
-        "name": "list"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns <code>true</code> if the given list is empty. Otherwise, returns <code>false</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">is empty(list: list): boolean\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">is empty([])\n// true\n\nis empty([1,2,3])\n// false\n</code></pre>\n"
-  },
-  {
-    "name": "partition",
-    "type": "function",
-    "params": [
-      {
-        "name": "list"
-      },
-      {
-        "name": "size"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns consecutive sublists of a list, each of the same size (the final list may be smaller).</p>\n<p>If <code>size</code> is less than <code>0</code>, it returns <code>null</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">partition(list: list, size: number): list\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">partition([1,2,3,4,5], 2)\n// [[1,2], [3,4], [5]]\n\npartition([], 2)\n// []\n\npartition([1,2], 0)\n// null\n</code></pre>\n"
-  },
-  {
-    "name": "fromAi",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<ul>\n<li>The purpose of this function is solely to tag the value as being generated by an AI integration.</li>\n<li>The actual handling is not performed by the FEEL engine, but by a custom integration such as a connector or a job worker.</li>\n</ul>\n<p>The main use case of this function is to be used in combination with\nthe <a href=\"../../../connectors/out-of-the-box-connectors/agentic-ai-aiagent.md\">AI Agent connector</a>.</p>\n<p>See the following function overloads for additional function parameters.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.searchQuery)\n// toolCall.searchQuery contents\n\nfromAi(toolCall.userId)\n// toolCall.userId contents\n\nfromAi(&quot;A&quot;)\n// &quot;A&quot; - does not make much sense and might be flagged as an error by the integration consuming the definition\n</code></pre>\n"
-  },
-  {
-    "name": "fromAi",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      },
-      {
-        "name": "description"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<p>In addition to the previous overload, it also accepts an optional <code>description</code> parameter to provide a textual description of the value.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any, description: string): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.searchQuery, &quot;The search query used to find the best match.&quot;)\n// toolCall.searchQuery contents\n\nfromAi(toolCall.searchQuery, null)\n// toolCall.searchQuery contents\n</code></pre>\n"
-  },
-  {
-    "name": "fromAi",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      },
-      {
-        "name": "description"
-      },
-      {
-        "name": "type"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<p>In addition to the previous overload, it also accepts an optional <code>type</code> parameter to provide type information about the value.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any, description: string, type: string): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.searchQuery, &quot;The search query used to find the best match.&quot;, &quot;string&quot;)\n// toolCall.searchQuery contents\n\nfromAi(toolCall.userId, &quot;The user&#39;s ID&quot;, &quot;number&quot;)\n// toolCall.userId contents\n\nfromAi(toolCall.userId, null, &quot;number&quot;)\n// toolCall.userId contents\n\nfromAi(value: toolCall.userId, type: &quot;number&quot;)\n// toolCall.userId contents\n</code></pre>\n"
-  },
-  {
-    "name": "fromAi",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      },
-      {
-        "name": "description"
-      },
-      {
-        "name": "type"
-      },
-      {
-        "name": "schema"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<p>In addition to the previous overload, it also accepts an optional <code>schema</code> parameter to provide a (partial) <a href=\"https://json-schema.org/\">JSON schema</a> for the value.</p>\n<ul>\n<li>The schema is not validated by the FEEL engine but might be by a custom integration consuming the information.</li>\n<li>From the engine side it is possible to specify both a <code>type</code> and a <code>schema</code>, and it depends on the integration as to which value takes precedence.</li>\n</ul>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any, description: string, type: string, schema: context): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.documentType, &quot;The document type to provide&quot;, &quot;string&quot;, {\n  enum: [&quot;invoice&quot;, &quot;receipt&quot;, &quot;contract&quot;]\n})\n// toolCall.documentType contents\n\nfromAi(value: toolCall.documentType, description: &quot;The document type to provide&quot;, schema: {\n  type: &quot;string&quot;,\n  enum: [&quot;invoice&quot;, &quot;receipt&quot;, &quot;contract&quot;]\n})\n// toolCall.documentType contents\n\nfromAi(toolCall.tags, &quot;Tags to apply to the blog post&quot;, &quot;array&quot;, {\n  items: {\n    type: &quot;string&quot;\n  }\n})\n// toolCall.tags contents\n</code></pre>\n"
-  },
-  {
-    "name": "fromAi",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      },
-      {
-        "name": "description"
-      },
-      {
-        "name": "type"
-      },
-      {
-        "name": "schema"
-      },
-      {
-        "name": "options"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<p>In addition to the previous overload, it also accepts an optional <code>options</code> parameter to provide additional options for the integration handling the value definition.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any, description: string, type: string, schema: context, options: context): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.documentType, &quot;The document type to provide&quot;, &quot;string&quot;, null, {\n  strict: true,\n  required: false\n})\n// toolCall.documentType contents\n\nfromAi(value: toolCall.documentType, options: {\n  strict: true,\n  required: false\n})\n// toolCall.documentType contents\n</code></pre>\n"
   },
   {
     "name": "decimal",
@@ -44432,12 +44250,6 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Returns <code>true</code> if the given is even. Otherwise, returns <code>false</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">even(number: number): boolean\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">even(5)\n// false\n\neven(2)\n// true\n</code></pre>\n"
-  },
-  {
-    "name": "random number",
-    "type": "function",
-    "params": [],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns a random number between <code>0</code> and <code>1</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">random number(): number\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">random number()\n// 0.9701618132579795\n</code></pre>\n"
   },
   {
     "name": "before",
@@ -44992,55 +44804,6 @@ const camundaBuiltins = [
     "info": "<p>Splits the given value into a list of substrings, breaking at each occurrence of the <code>delimiter</code> pattern.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">split(string: string, delimiter: string): list&lt;string&gt;\n</code></pre>\n<p>The <code>delimiter</code> is a string that contains a regular expression.</p>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">split(&quot;John Doe&quot;, &quot;\\s&quot; )\n// [&quot;John&quot;, &quot;Doe&quot;]\n\nsplit(&quot;a;b;c;;&quot;, &quot;;&quot;)\n// [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;&quot;, &quot;&quot;]\n</code></pre>\n"
   },
   {
-    "name": "extract",
-    "type": "function",
-    "params": [
-      {
-        "name": "string"
-      },
-      {
-        "name": "pattern"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns all matches of the pattern in the given string. Returns an empty list if the pattern doesn&#39;t\nmatch.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">extract(string: string, pattern: string): list&lt;string&gt;\n</code></pre>\n<p>The <code>pattern</code> is a string that contains a regular expression.</p>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">extract(&quot;references are 1234, 1256, 1378&quot;, &quot;12[0-9]*&quot;)\n// [&quot;1234&quot;,&quot;1256&quot;]\n</code></pre>\n"
-  },
-  {
-    "name": "trim",
-    "type": "function",
-    "params": [
-      {
-        "name": "string"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the given string without leading and trailing spaces.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">trim(string: string): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">trim(&quot;  hello world  &quot;)\n// &quot;hello world&quot;\n\ntrim(&quot;hello   world &quot;)\n// &quot;hello   world&quot;\n</code></pre>\n"
-  },
-  {
-    "name": "uuid",
-    "type": "function",
-    "params": [],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns a UUID (Universally Unique Identifier) with 36 characters.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">uuid(): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">uuid()\n// &quot;7793aab1-d761-4d38-916b-b7270e309894&quot;\n</code></pre>\n"
-  },
-  {
-    "name": "to base64",
-    "type": "function",
-    "params": [
-      {
-        "name": "value"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the given string encoded in Base64 format.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">to base64(value: string): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">to base64(&quot;FEEL&quot;)\n// &quot;RkVFTA==&quot;\n</code></pre>\n"
-  },
-  {
-    "name": "is blank",
-    "type": "function",
-    "params": [
-      {
-        "name": "string"
-      }
-    ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns <code>true</code> if the given string is blank (empty or contains only whitespaces).</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">is blank(string: string): boolean\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">is blank(&quot;&quot;)\n// true\n\nis blank(&quot; &quot;)\n// true\n\nis blank(&quot;hello world&quot;)\n// false\n</code></pre>\n"
-  },
-  {
     "name": "now",
     "type": "function",
     "params": [],
@@ -45101,6 +44864,356 @@ const camundaBuiltins = [
       }
     ],
     "info": "<p>Returns the absolute value of a given duration.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">abs(n: days and time duration): days and time duration\n</code></pre>\n<pre><code class=\"language-feel\">abs(n: years and months duration): years and months duration\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">abs(duration(&quot;-PT5H&quot;))\n// &quot;duration(&quot;PT5H&quot;)&quot;\n\nabs(duration(&quot;PT5H&quot;))\n// &quot;duration(&quot;PT5H&quot;)&quot;\n\nabs(duration(&quot;-P2M&quot;))\n// duration(&quot;P2M&quot;)\n</code></pre>\n"
+  }
+];
+
+/**
+ * List of FEEL camunda extensions.
+ *
+ * @type { Builtin[] }
+ */
+const camundaExtensions = [
+  {
+    "name": "is defined",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Checks if a given value is not <code>null</code>. If the value is <code>null</code> then the function returns <code>false</code>.\nOtherwise, the function returns <code>true</code>.</p>\n<p>The function requires one argument. Calling <code>is defined()</code> without an argument is invalid.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">is defined(value: Any): boolean\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">is defined(1)\n// true\n\nis defined(null)\n// false\n\nis defined(x)\n// false - if no variable &quot;x&quot; exists\n\nis defined(x.y)\n// false - if no variable &quot;x&quot; exists or it doesn&#39;t have a property &quot;y&quot;\n\nis defined()\n// error - expected one argument\n</code></pre>\n<p>:::caution Breaking change</p>\n<p>This function worked differently in previous versions. It returned <code>true</code> if the value was <code>null</code>.\nSince this version, the function returns <code>false</code> if the value is <code>null</code>.</p>\n<p>:::</p>\n"
+  },
+  {
+    "name": "get or else",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      },
+      {
+        "name": "default"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Return the provided value parameter if not <code>null</code>, otherwise return the default parameter</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">get or else(value: Any, default: Any): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">get or else(&quot;this&quot;, &quot;default&quot;)\n// &quot;this&quot;\n\nget or else(null, &quot;default&quot;)\n// &quot;default&quot;\n\nget or else(null, null)\n// null\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.3"
+    }
+  },
+  {
+    "name": "assert",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      },
+      {
+        "name": "condition"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Verify that the given condition is met. If the condition is <code>true</code>, the function returns the value.\nOtherwise, the evaluation fails with an error.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">assert(value: Any, condition: Any)\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">assert(x, x != null)\n// &quot;value&quot; - if x is &quot;value&quot;\n// error - if x is null or doesn&#39;t exist\n\nassert(x, x &gt;= 0)\n// 4 - if x is 4\n// error - if x is less than zero\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.3"
+    }
+  },
+  {
+    "name": "assert",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      },
+      {
+        "name": "condition"
+      },
+      {
+        "name": "cause"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Verify that the given condition is met. If the condition is <code>true</code>, the function returns the value.\nOtherwise, the evaluation fails with an error containing the given message.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">assert(value: Any, condition: Any, cause: String)\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">assert(x, x != null, &quot;&#39;x&#39; should not be null&quot;)\n// &quot;value&quot; - if x is &quot;value&quot;\n// error(&#39;x&#39; should not be null) - if x is null or doesn&#39;t exist\n\nassert(x, x &gt;= 0, &quot;&#39;x&#39; should be positive&quot;)\n// 4 - if x is 4\n// error(&#39;x&#39; should be positive) - if x is less than zero\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.3"
+    }
+  },
+  {
+    "name": "get value",
+    "type": "function",
+    "params": [
+      {
+        "name": "context"
+      },
+      {
+        "name": "keys"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the value of the context entry for a context path defined by the given keys.</p>\n<p>If <code>keys</code> contains the keys <code>[k1, k2]</code> then it returns the value at the nested entry <code>k1.k2</code> of the context.</p>\n<p>If <code>keys</code> are empty or the nested entry defined by the keys doesn&#39;t exist in the context, it returns <code>null</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">get value(context: context, keys: list&lt;string&gt;): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">get value({x:1, y: {z:0}}, [&quot;y&quot;, &quot;z&quot;])\n// 0\n\nget value({x: {y: {z:0}}}, [&quot;x&quot;, &quot;y&quot;])\n// {z:0}\n\nget value({a: {b: 3}}, [&quot;b&quot;])\n// null\n</code></pre>\n"
+  },
+  {
+    "name": "context put",
+    "type": "function",
+    "params": [
+      {
+        "name": "context"
+      },
+      {
+        "name": "key"
+      },
+      {
+        "name": "value"
+      }
+    ],
+    "info": "<p>Adds a new entry with the given key and value to the context. Returns a new context that includes the entry.</p>\n<p>If an entry for the same key already exists in the context, it overrides the value.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">context put(context: context, key: string, value: Any): context\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">context put({x:1}, &quot;y&quot;, 2)\n// {x:1, y:2}\n</code></pre>\n<p>:::info\nThe function <code>context put()</code> replaced the previous function <code>put()</code> (Camunda Extension). The\nprevious function is deprecated and should not be used anymore.\n:::</p>\n"
+  },
+  {
+    "name": "context merge",
+    "type": "function",
+    "params": [
+      {
+        "name": "contexts"
+      }
+    ],
+    "info": "<p>Union the given contexts. Returns a new context that includes all entries of the given contexts.</p>\n<p>If an entry for the same key already exists in a context, it overrides the value. The entries are overridden in the same order as in the list of contexts.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">context merge(contexts: list&lt;context&gt;): context\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">context merge([{x:1}, {y:2}])\n// {x:1, y:2}\n\ncontext merge([{x:1, y: 0}, {y:2}])\n// {x:1, y:2}\n</code></pre>\n<p>:::info\nThe function <code>context merge()</code> replaced the previous function <code>put all()</code> (Camunda Extension). The\nprevious function is deprecated and should not be used anymore.\n:::</p>\n",
+    "engines": {
+      "camunda": ">=8.2"
+    }
+  },
+  {
+    "name": "date and time",
+    "type": "function",
+    "params": [
+      {
+        "name": "date"
+      },
+      {
+        "name": "timezone"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the given date and time value at the given timezone.</p>\n<p>If <code>date</code> has a different timezone than <code>timezone</code> then it adjusts the time to match the local time of <code>timezone</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">date and time(date: date and time, timezone: string): date and time\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">date and time(@&quot;2020-07-31T14:27:30@Europe/Berlin&quot;, &quot;America/Los_Angeles&quot;)\n// date and time(&quot;2020-07-31T05:27:30@America/Los_Angeles&quot;)\n\ndate and time(@&quot;2020-07-31T14:27:30&quot;, &quot;Z&quot;)\n// date and time(&quot;2020-07-31T12:27:30Z&quot;)\n</code></pre>\n"
+  },
+  {
+    "name": "duplicate values",
+    "type": "function",
+    "params": [
+      {
+        "name": "list"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns all duplicate values of the given list.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">duplicate values(list: list): list\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">duplicate values([1,2,3,2,1])\n// [1,2]\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.3"
+    }
+  },
+  {
+    "name": "string join",
+    "type": "function",
+    "params": [
+      {
+        "name": "list"
+      },
+      {
+        "name": "delimiter"
+      },
+      {
+        "name": "prefix"
+      },
+      {
+        "name": "suffix"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Joins a list of strings into a single string. This is similar to\nJava&#39;s <a href=\"https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/stream/Collectors.html#joining(java.lang.CharSequence,java.lang.CharSequence,java.lang.CharSequence)\">joining</a>\nfunction.</p>\n<p>If an item of the list is <code>null</code>, the item is ignored for the result string. If an item is\nneither a string nor <code>null</code>, the function returns <code>null</code> instead of a string.</p>\n<p>The resulting string starts with <code>prefix</code>, contains a <code>delimiter</code> between each element, and ends\nwith <code>suffix</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">string join(list: list&lt;string&gt;, delimiter: string, prefix: string, suffix: string): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">string join([&quot;a&quot;,&quot;b&quot;,&quot;c&quot;], &quot;, &quot;, &quot;[&quot;, &quot;]&quot;)\n// &quot;[a, b, c]&quot;\n</code></pre>\n"
+  },
+  {
+    "name": "is empty",
+    "type": "function",
+    "params": [
+      {
+        "name": "list"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns <code>true</code> if the given list is empty. Otherwise, returns <code>false</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">is empty(list: list): boolean\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">is empty([])\n// true\n\nis empty([1,2,3])\n// false\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.6"
+    }
+  },
+  {
+    "name": "partition",
+    "type": "function",
+    "params": [
+      {
+        "name": "list"
+      },
+      {
+        "name": "size"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns consecutive sublists of a list, each of the same size (the final list may be smaller).</p>\n<p>If <code>size</code> is less than <code>0</code>, it returns <code>null</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">partition(list: list, size: number): list\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">partition([1,2,3,4,5], 2)\n// [[1,2], [3,4], [5]]\n\npartition([], 2)\n// []\n\npartition([1,2], 0)\n// null\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.7"
+    }
+  },
+  {
+    "name": "fromAi",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<ul>\n<li>The purpose of this function is solely to tag the value as being generated by an AI integration.</li>\n<li>The actual handling is not performed by the FEEL engine, but by a custom integration such as a connector or a job worker.</li>\n</ul>\n<p>The main use case of this function is for <a href=\"../../../connectors/out-of-the-box-connectors/agentic-ai-aiagent-tool-definitions.md\">tool definitions</a> used by the <a href=\"../../../connectors/out-of-the-box-connectors/agentic-ai-aiagent.md\">AI Agent connector</a>.</p>\n<p>See the following function overloads for additional function parameters.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.searchQuery)\n// toolCall.searchQuery contents\n\nfromAi(toolCall.userId)\n// toolCall.userId contents\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.8"
+    }
+  },
+  {
+    "name": "fromAi",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      },
+      {
+        "name": "description"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<p>In addition to the previous overload, it also accepts an optional <code>description</code> parameter to provide a textual description of the value. The description must be <code>null</code> or a string constant.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any, description: string): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.searchQuery, &quot;The search query used to find the best match.&quot;)\n// toolCall.searchQuery contents\n\nfromAi(toolCall.searchQuery, null)\n// toolCall.searchQuery contents\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.8"
+    }
+  },
+  {
+    "name": "fromAi",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      },
+      {
+        "name": "description"
+      },
+      {
+        "name": "type"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<p>In addition to the previous overload, it also accepts an optional <code>type</code> parameter to provide type information about the value. The type must be <code>null</code> or a string constant.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any, description: string, type: string): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.searchQuery, &quot;The search query used to find the best match.&quot;, &quot;string&quot;)\n// toolCall.searchQuery contents\n\nfromAi(toolCall.userId, &quot;The user&#39;s ID&quot;, &quot;number&quot;)\n// toolCall.userId contents\n\nfromAi(toolCall.userId, null, &quot;number&quot;)\n// toolCall.userId contents\n\nfromAi(value: toolCall.userId, type: &quot;number&quot;)\n// toolCall.userId contents\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.8"
+    }
+  },
+  {
+    "name": "fromAi",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      },
+      {
+        "name": "description"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "schema"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<p>In addition to the previous overload, it also accepts an optional <code>schema</code> parameter to provide a (partial) <a href=\"https://json-schema.org/\">JSON schema</a> for the value.</p>\n<ul>\n<li>The schema must be <code>null</code> or a context (map) containing only constant values. For example, function calls within the schema are not supported.</li>\n<li>The schema is not validated by the FEEL engine but might be by a custom integration consuming the information.</li>\n<li>From the engine side it is possible to specify both a <code>type</code> and a <code>schema</code>, and it depends on the integration as to which value takes precedence. The <a href=\"../../../connectors/out-of-the-box-connectors/agentic-ai-aiagent.md\">AI Agent connector</a> will override any type specified in the schema if the <code>type</code> parameter is also provided.</li>\n</ul>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any, description: string, type: string, schema: context): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.documentType, &quot;The document type to provide&quot;, &quot;string&quot;, {\n  enum: [&quot;invoice&quot;, &quot;receipt&quot;, &quot;contract&quot;]\n})\n// toolCall.documentType contents\n\nfromAi(value: toolCall.documentType, description: &quot;The document type to provide&quot;, schema: {\n  type: &quot;string&quot;,\n  enum: [&quot;invoice&quot;, &quot;receipt&quot;, &quot;contract&quot;]\n})\n// toolCall.documentType contents\n\nfromAi(toolCall.tags, &quot;Tags to apply to the blog post&quot;, &quot;array&quot;, {\n  items: {\n    type: &quot;string&quot;\n  }\n})\n// toolCall.tags contents\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.8"
+    }
+  },
+  {
+    "name": "fromAi",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      },
+      {
+        "name": "description"
+      },
+      {
+        "name": "type"
+      },
+      {
+        "name": "schema"
+      },
+      {
+        "name": "options"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the unmodified <code>value</code> parameter.</p>\n<p>In addition to the previous overload, it also accepts an optional <code>options</code> parameter to provide additional options for the integration handling the value definition.</p>\n<ul>\n<li>The options parameter must be <code>null</code> or a context (map) containing only constant values. For example, function calls within options are not supported.</li>\n</ul>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">fromAi(value: Any, description: string, type: string, schema: context, options: context): Any\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">fromAi(toolCall.documentType, &quot;The document type to provide&quot;, &quot;string&quot;, null, {\n  required: false\n})\n// toolCall.documentType contents\n\nfromAi(value: toolCall.documentType, options: {\n  required: false\n})\n// toolCall.documentType contents\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.8"
+    }
+  },
+  {
+    "name": "random number",
+    "type": "function",
+    "params": [],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns a random number between <code>0</code> and <code>1</code>.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">random number(): number\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">random number()\n// 0.9701618132579795\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.2"
+    }
+  },
+  {
+    "name": "extract",
+    "type": "function",
+    "params": [
+      {
+        "name": "string"
+      },
+      {
+        "name": "pattern"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns all matches of the pattern in the given string. Returns an empty list if the pattern doesn&#39;t\nmatch.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">extract(string: string, pattern: string): list&lt;string&gt;\n</code></pre>\n<p>The <code>pattern</code> is a string that contains a regular expression.</p>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">extract(&quot;references are 1234, 1256, 1378&quot;, &quot;12[0-9]*&quot;)\n// [&quot;1234&quot;,&quot;1256&quot;]\n</code></pre>\n"
+  },
+  {
+    "name": "trim",
+    "type": "function",
+    "params": [
+      {
+        "name": "string"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the given string without leading and trailing spaces.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">trim(string: string): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">trim(&quot;  hello world  &quot;)\n// &quot;hello world&quot;\n\ntrim(&quot;hello   world &quot;)\n// &quot;hello   world&quot;\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.6"
+    }
+  },
+  {
+    "name": "uuid",
+    "type": "function",
+    "params": [],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns a UUID (Universally Unique Identifier) with 36 characters.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">uuid(): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">uuid()\n// &quot;7793aab1-d761-4d38-916b-b7270e309894&quot;\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.6"
+    }
+  },
+  {
+    "name": "to base64",
+    "type": "function",
+    "params": [
+      {
+        "name": "value"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns the given string encoded in Base64 format.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">to base64(value: string): string\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">to base64(&quot;FEEL&quot;)\n// &quot;RkVFTA==&quot;\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.6"
+    }
+  },
+  {
+    "name": "is blank",
+    "type": "function",
+    "params": [
+      {
+        "name": "string"
+      }
+    ],
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Returns <code>true</code> if the given string is blank (empty or contains only whitespaces).</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">is blank(string: string): boolean\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">is blank(&quot;&quot;)\n// true\n\nis blank(&quot; &quot;)\n// true\n\nis blank(&quot;hello world&quot;)\n// false\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.8"
+    }
   },
   {
     "name": "last day of month",
@@ -45110,9 +45223,19 @@ const camundaBuiltins = [
         "name": "date"
       }
     ],
-    "info": "<p><em>Camunda Extension</em></p>\n<p>Takes the month of the given date or date-time value and returns the last day of this month.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">last day of month(date: date): date\n</code></pre>\n<pre><code class=\"language-feel\">last day of month(date: date and time): date\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">last day of month(date(&quot;2022-10-01&quot;))\n// date(&quot;2022-10-31&quot;))\n\nlast day of month(date and time(&quot;2022-10-16T12:00:00&quot;))\n// date(&quot;2022-10-31&quot;))\n</code></pre>\n"
+    "info": "<p><em>Camunda Extension</em></p>\n<p>Takes the month of the given date or date-time value and returns the last day of this month.</p>\n<p><strong>Function signature</strong></p>\n<pre><code class=\"language-feel\">last day of month(date: date): date\n</code></pre>\n<pre><code class=\"language-feel\">last day of month(date: date and time): date\n</code></pre>\n<p><strong>Examples</strong></p>\n<pre><code class=\"language-feel\">last day of month(date(&quot;2022-10-01&quot;))\n// date(&quot;2022-10-31&quot;))\n\nlast day of month(date and time(&quot;2022-10-16T12:00:00&quot;))\n// date(&quot;2022-10-31&quot;))\n</code></pre>\n",
+    "engines": {
+      "camunda": ">=8.2"
+    }
   }
 ];
+
+/**
+ * Collection of builtins of camunda scala FEEL.
+ *
+ * @type { Builtin[] }
+ */
+const camundaBuiltins = [ ...feelBuiltins, ...camundaExtensions ];
 
 [ linter(cmFeelLinter()) ];
 
@@ -45219,7 +45342,7 @@ Facet.define();
 
 camundaBuiltins.map(builtin => ({
   ...builtin,
-  info: () => domify$4(builtin.info),
+  info: () => domify(builtin.info),
 }));
 
 class LiteralExpressionEditor extends LiteralExpression {
@@ -45289,7 +45412,7 @@ class InputSelect extends Component {
       return;
     }
     const optionsBounds = this.getOptionsBounds();
-    assign$2(this._portalEl.style, optionsBounds);
+    assign$5(this._portalEl.style, optionsBounds);
   }
   getOptionsBounds() {
     const container = this.renderer.getContainer();
@@ -45324,7 +45447,7 @@ class InputSelect extends Component {
     return bounds;
   }
   addPortalEl() {
-    this._portalEl = domify$1$4('<div class="dms-select-options"></div>');
+    this._portalEl = domify('<div class="dms-select-options"></div>');
     const container = this.renderer.getContainer();
     container.appendChild(this._portalEl);
 
@@ -45334,7 +45457,7 @@ class InputSelect extends Component {
   removePortalEl() {
     if (this._portalEl) {
       this._portalEl.removeEventListener('mousedown', stopPropagation);
-      remove$9(this._portalEl);
+      remove$4(this._portalEl);
       this._portalEl = null;
     }
   }
@@ -45614,6 +45737,11 @@ var SuccessMessage = function (_a) {
     return (React.createElement("div", { className: className, role: "status", "aria-live": "polite" }, message));
 };
 
+// THIS FILE IS AUTO GENERATED
+function TbRefresh (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 24 24","fill":"none","stroke":"currentColor","strokeWidth":"2","strokeLinecap":"round","strokeLinejoin":"round"},"child":[{"tag":"path","attr":{"d":"M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"},"child":[]},{"tag":"path","attr":{"d":"M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"},"child":[]}]})(props);
+}
+
 /**
  * Dashboard section wrapper component for Cockpit dashboard sections.
  * Provides collapsible section with consistent styling and states (loading, empty, loaded).
@@ -45654,10 +45782,9 @@ var DashboardSection = function (_a) {
                 } },
                 headerActions,
                 onRefresh && (React.createElement("button", { className: "btn btn-default btn-sm", onClick: onRefresh, title: "Refresh", disabled: isLoading, style: { padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' } },
-                    React.createElement("span", { className: "glyphicon glyphicon-refresh" }),
+                    React.createElement(TbRefresh, { "aria-hidden": "true" }),
                     React.createElement("span", null, "Refresh"))),
-                React.createElement("button", { className: "section-toggle btn btn-link btn-sm", onClick: toggleSection, title: "Toggle this section" },
-                    React.createElement("span", { className: "glyphicon ".concat(activeSection ? 'glyphicon-menu-up' : 'glyphicon-menu-down') }))))));
+                React.createElement("button", { className: "section-toggle btn btn-link btn-sm", onClick: toggleSection, title: "Toggle this section" }, activeSection ? React.createElement(GoChevronUp, { "aria-hidden": "true" }) : React.createElement(GoChevronDown, { "aria-hidden": "true" }))))));
     var contentSection = (React.createElement(React.Fragment, null, activeSection && (React.createElement("div", null,
         React.createElement("div", { className: "cam-widget-loader loader-wrapper" },
             isLoading && (React.createElement("div", { className: "loader-state loading" },
