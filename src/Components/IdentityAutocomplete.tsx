@@ -6,6 +6,8 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { TbRefresh } from 'react-icons/tb';
+import './icons.scss';
 import type { API } from '../types';
 import { get, ApiError } from '../utils/api';
 
@@ -327,7 +329,7 @@ export const IdentityAutocomplete: React.FC<IdentityAutocompleteProps> = ({
             transform: 'translateY(-50%)',
           }}
         >
-          <span className="glyphicon glyphicon-refresh glyphicon-spin" />
+          <TbRefresh className="plugin-spin" aria-label="Loading" />
         </div>
       )}
     </div>

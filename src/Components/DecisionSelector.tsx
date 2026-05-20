@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
+import { GoChevronDown, GoX, GoCheck } from 'react-icons/go';
 import type { DecisionDefinition } from '../types';
 
 /** Delay in milliseconds before hiding the dropdown after blur */
@@ -149,9 +150,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
             title="Switch version"
           >
             v{selectedDecision.version}
-            {currentVersions.length > 1 && (
-              <span className="glyphicon glyphicon-triangle-bottom" style={{ marginLeft: 4 }} />
-            )}
+            {currentVersions.length > 1 && <GoChevronDown aria-hidden="true" style={{ marginLeft: 4 }} />}
           </button>
           <button
             type="button"
@@ -163,7 +162,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
             disabled={disabled}
             title="Clear selection"
           >
-            <span className="glyphicon glyphicon-remove" />
+            <GoX aria-hidden="true" />
           </button>
         </div>
       )}
@@ -183,7 +182,7 @@ const DecisionSelector: React.FC<DecisionSelectorProps> = ({ decisions, selected
               disabled={disabled}
             >
               Version {v.version}
-              {v.id === selectedId && <span className="glyphicon glyphicon-ok" style={{ marginLeft: 8 }} />}
+              {v.id === selectedId && <GoCheck aria-hidden="true" style={{ marginLeft: 8 }} />}
             </button>
           ))}
         </div>

@@ -7,6 +7,8 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { TbRefresh } from 'react-icons/tb';
+import './icons.scss';
 import type { API } from '../types';
 import {
   RESOURCE_TYPE_PROCESS_DEFINITION,
@@ -363,7 +365,7 @@ export const ResourceAutocomplete: React.FC<ResourceAutocompleteProps> = ({
             transform: 'translateY(-50%)',
           }}
         >
-          <span className="glyphicon glyphicon-refresh glyphicon-spin" />
+          <TbRefresh className="plugin-spin" aria-label="Loading" />
         </div>
       )}
     </div>
