@@ -141,7 +141,9 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
 
   // Replace "Custom Plugins" section title with "Incidents and locked tasks"
   useEffect(() => {
-    const titleElement = document.querySelector('h1.section-title.col-xs-4.ng-binding');
+    const titleElement =
+      document.querySelector('h1.section-title.col-xs-4.ng-binding') ||
+      document.querySelector('h1.section-title.col-sm-4.ng-binding');
     if (titleElement?.textContent === 'Custom Plugins') {
       titleElement.textContent = 'Incidents and retry locks';
       titleElement.classList.remove('col-xs-4');
