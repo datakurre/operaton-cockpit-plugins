@@ -118,7 +118,7 @@ const UnlockDialog: React.FC<UnlockDialogProps> = ({ api, processInstanceId }) =
   return (
     <>
       <button
-        className="btn btn-default btn-toolbar unlock-dialog__trigger-btn"
+        className="btn btn-default btn-toolbar btn-outline-secondary unlock-dialog__trigger-btn"
         title="Unlock External Tasks"
         onClick={handleOpen}
       >
@@ -147,9 +147,6 @@ const UnlockDialog: React.FC<UnlockDialogProps> = ({ api, processInstanceId }) =
         <div className="modal-content unlock-dialog__modal-content">
           <div className="modal-header">
             <h3 id="unlock-tasks-modal-title">Unlock External Tasks</h3>
-            <button onClick={handleClose} className="close unlock-dialog__close-btn" aria-label="Close modal">
-              ×
-            </button>
           </div>
 
           <div className="modal-body unlock-dialog__body" id="unlock-tasks-modal-description">

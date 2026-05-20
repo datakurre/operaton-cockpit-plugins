@@ -51,10 +51,21 @@
     }
 }
 
+.dashboard .inner {
+    min-height: 0 !important;
+}
+
 .dashboard section.deprecate {
     margin-top: 0;
 }
 
 .decisions-dashboard .dashboard-view + .dashboard-view {
     margin-top: -15px;
+}
+
+.dashboard .deprecate-dashboard-view > * {
+    width: 100%;
+    .section-toggle {
+        display: none;
+    }
 }

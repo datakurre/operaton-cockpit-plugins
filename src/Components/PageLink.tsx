@@ -27,17 +27,13 @@ const PageLink: React.FC<Props> = memo(({ label, page, isDisabled, isActive, onP
   );
 
   return (
-    <li
-      role="menuitem"
-      className={`pagination-page ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
-      key={label}
-    >
+    <li role="menuitem" className={`page-item ${isActive ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`} key={label}>
       <button
         type="button"
-        className={`pagination-link ${isDisabled ? 'disabled' : ''}`}
+        className={`page-link ${isDisabled ? 'disabled' : ''}`}
         onClick={pageClicked}
         disabled={isDisabled}
-        style={{ background: 'none', border: 'none', padding: '4px 8px', cursor: isDisabled ? 'default' : 'pointer' }}
+        style={{ border: 'none', padding: '4px 8px', cursor: isDisabled ? 'default' : 'pointer' }}
       >
         {label}
       </button>
