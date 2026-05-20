@@ -5,7 +5,7 @@
  * @module
  */
 import { filter, forEach, map, uniqueBy } from 'min-dash';
-import BPMNModdle from 'bpmn-moddle';
+import type { Activity, Bounds } from 'bpmn-moddle';
 
 import type { ElementRegistry, HistoricActivityInstance } from '../../types';
 
@@ -29,7 +29,7 @@ export interface DottedConnection {
  * @param shape - Shape bounds with x, y, width, height
  * @returns Center point coordinates
  */
-export const getMid = (shape: BPMNModdle.Bounds): XY => {
+export const getMid = (shape: Bounds): XY => {
   return {
     x: shape.x + shape.width / 2,
     y: shape.y + shape.height / 2,
@@ -45,7 +45,7 @@ const notDottedTypes = ['bpmn:SubProcess'];
  * @param connections - Array of BPMN connections
  * @returns Array of dotted connection objects with waypoints
  */
-export const getDottedConnections = (connections: BPMNModdle.Activity[]): DottedConnection[] => {
+export const getDottedConnections = (connections: Activity[]): DottedConnection[] => {
   const dottedConnections: DottedConnection[] = [];
 
   connections.forEach(connection => {
@@ -60,7 +60,7 @@ export const getDottedConnections = (connections: BPMNModdle.Activity[]): Dotted
         dottedConnections.push({
           waypoints: [
             conn.waypoints[conn.waypoints.length - 1] as XY,
-            getMid(target as unknown as BPMNModdle.Bounds),
+            getMid(target as unknown as Bounds),
             c2.waypoints[0] as XY,
           ],
         });
@@ -147,7 +147,7 @@ function buildConnectionDenyList(
     }
 
     const activityId = activity.activityId ?? '';
-    const element = elementRegistry.get(activityId) as unknown as BPMNModdle.Activity | undefined;
+    const element = elementRegistry.get(activityId) as unknown as Activity | undefined;
 
     if (!element?.outgoing || element.outgoing.length === 0) {
       continue;
@@ -214,27 +214,27 @@ function buildConnectionDenyList(
 export const getConnections = (
   activities: HistoricActivityInstance[],
   elementRegistry: ElementRegistry
-): BPMNModdle.Activity[] => {
+): Activity[] => {
   const validActivity = buildValidActivityMap(activities);
   const startTimesById = buildStartTimesMap(activities);
   const endTimesById = buildEndTimesMap(activities);
   const connectionDenyList = buildConnectionDenyList(activities, elementRegistry, startTimesById, endTimesById);
 
   // Build element map
-  const elementById = new Map<string, BPMNModdle.Activity>(
-    map(activities, (activity: HistoricActivityInstance): [string, BPMNModdle.Activity] => {
+  const elementById = new Map<string, Activity>(
+    map(activities, (activity: HistoricActivityInstance): [string, Activity] => {
       const activityId = activity.activityId ?? '';
-      const element = elementRegistry.get(activityId) as unknown as BPMNModdle.Activity | undefined;
-      return [activityId, element as BPMNModdle.Activity];
+      const element = elementRegistry.get(activityId) as unknown as Activity | undefined;
+      return [activityId, element as Activity];
     })
   );
 
   /**
    * Gets valid connections for a single activity.
    */
-  const getActivityConnections = (activityId: string): BPMNModdle.Activity[] => {
+  const getActivityConnections = (activityId: string): Activity[] => {
     const current = elementById.get(activityId) as
-      | (BPMNModdle.Activity & {
+      | (Activity & {
           incoming?: { id: string; source: { id: string } }[];
           outgoing?: { id: string; target: { id: string } }[];
         })
@@ -282,10 +282,10 @@ export const getConnections = (
       );
     });
 
-    return [...incoming, ...outgoing] as unknown as BPMNModdle.Activity[];
+    return [...incoming, ...outgoing] as unknown as Activity[];
   };
 
-  let connections: BPMNModdle.Activity[] = [];
+  let connections: Activity[] = [];
 
   forEach(Array.from(elementById.keys()), (activityId: string) => {
     connections = uniqueBy('id', [...connections, ...getActivityConnections(activityId)]);
