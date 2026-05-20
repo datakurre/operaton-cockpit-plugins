@@ -1,5 +1,5 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
-import BPMNModdle from 'bpmn-moddle';
+import type { BaseElement } from 'bpmn-moddle';
 import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
 import inherits from 'inherits-browser';
 import { append as svgAppend, create as svgCreate } from 'tiny-svg';
@@ -16,7 +16,7 @@ interface EventBus {
 
 /** BPMN renderer interface with shape handlers */
 interface BpmnRenderer {
-  handlers: Record<string, (parent: Element, element: BPMNModdle.BaseElement) => SVGElement>;
+  handlers: Record<string, (parent: Element, element: BaseElement) => SVGElement>;
 }
 
 class RobotTaskRenderer {
@@ -30,11 +30,11 @@ class RobotTaskRenderer {
     BaseRenderer.call(this, eventBus, RENDER_DELAY_MS);
   }
 
-  canRender(element: BPMNModdle.BaseElement): boolean {
+  canRender(element: BaseElement): boolean {
     return is(element, 'bpmn:ServiceTask') && /robot/i.exec(element.id) !== null;
   }
 
-  drawShape(parent: Element, element: BPMNModdle.BaseElement): SVGElement {
+  drawShape(parent: Element, element: BaseElement): SVGElement {
     this.bpmnRenderer.handlers['bpmn:Task']?.(parent, element);
     const gfx = svgCreate('image', {
       x: -1,

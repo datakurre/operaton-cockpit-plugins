@@ -1,4 +1,4 @@
-import BpmnModdle from 'bpmn-moddle';
+import { BpmnModdle } from 'bpmn-moddle';
 import moddle from 'camunda-bpmn-moddle/resources/camunda.json';
 import { get } from './api';
 import type { API } from '../types';
