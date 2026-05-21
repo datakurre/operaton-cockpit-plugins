@@ -184,17 +184,17 @@ var hasRequiredScheduler_production_min;
 function requireScheduler_production_min () {
 	if (hasRequiredScheduler_production_min) return scheduler_production_min;
 	hasRequiredScheduler_production_min = 1;
-	(function (exports) {
+	(function (exports$1) {
 function f(a,b){var c=a.length;a.push(b);a:for(;0<c;){var d=c-1>>>1,e=a[d];if(0<g(e,b))a[d]=b,a[c]=e,c=d;else break a}}function h(a){return 0===a.length?null:a[0]}function k(a){if(0===a.length)return null;var b=a[0],c=a.pop();if(c!==b){a[0]=c;a:for(var d=0,e=a.length,w=e>>>1;d<w;){var m=2*(d+1)-1,C=a[m],n=m+1,x=a[n];if(0>g(C,c))n<e&&0>g(x,C)?(a[d]=x,a[n]=c,d=n):(a[d]=C,a[m]=c,d=m);else if(n<e&&0>g(x,c))a[d]=x,a[n]=c,d=n;else break a}}return b}
-		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
+		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports$1.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports$1.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
 		"undefined"!==typeof navigator&&void 0!==navigator.scheduling&&void 0!==navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending.bind(navigator.scheduling);function G(a){for(var b=h(t);null!==b;){if(null===b.callback)k(t);else if(b.startTime<=a)k(t),b.sortIndex=b.expirationTime,f(r,b);else break;b=h(t);}}function H(a){B=false;G(a);if(!A)if(null!==h(r))A=true,I(J);else {var b=h(t);null!==b&&K(H,b.startTime-a);}}
-		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
-		function M(){return exports.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports.unstable_now());},b);}
-		exports.unstable_IdlePriority=5;exports.unstable_ImmediatePriority=1;exports.unstable_LowPriority=4;exports.unstable_NormalPriority=3;exports.unstable_Profiling=null;exports.unstable_UserBlockingPriority=2;exports.unstable_cancelCallback=function(a){a.callback=null;};exports.unstable_continueExecution=function(){A||z||(A=true,I(J));};
-		exports.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports.unstable_getCurrentPriorityLevel=function(){return y};exports.unstable_getFirstCallbackNode=function(){return h(r)};exports.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports.unstable_pauseExecution=function(){};
-		exports.unstable_requestPaint=function(){};exports.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
-		exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
-		exports.unstable_shouldYield=M;exports.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
+		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports$1.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
+		function M(){return exports$1.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports$1.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports$1.unstable_now());},b);}
+		exports$1.unstable_IdlePriority=5;exports$1.unstable_ImmediatePriority=1;exports$1.unstable_LowPriority=4;exports$1.unstable_NormalPriority=3;exports$1.unstable_Profiling=null;exports$1.unstable_UserBlockingPriority=2;exports$1.unstable_cancelCallback=function(a){a.callback=null;};exports$1.unstable_continueExecution=function(){A||z||(A=true,I(J));};
+		exports$1.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports$1.unstable_getCurrentPriorityLevel=function(){return y};exports$1.unstable_getFirstCallbackNode=function(){return h(r)};exports$1.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports$1.unstable_pauseExecution=function(){};
+		exports$1.unstable_requestPaint=function(){};exports$1.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
+		exports$1.unstable_scheduleCallback=function(a,b,c){var d=exports$1.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
+		exports$1.unstable_shouldYield=M;exports$1.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
 	} (scheduler_production_min));
 	return scheduler_production_min;
 }
@@ -641,7 +641,7 @@ function cloneObject(data) {
 
 var isKey = (value) => /^\w*$/.test(value);
 
-var isUndefined$3 = (val) => val === undefined;
+var isUndefined$2 = (val) => val === undefined;
 
 var compact = (value) => Array.isArray(value) ? value.filter(Boolean) : [];
 
@@ -652,8 +652,8 @@ var get$1 = (object, path, defaultValue) => {
         return defaultValue;
     }
     const result = (isKey(path) ? [path] : stringToPath(path)).reduce((result, key) => isNullOrUndefined$1(result) ? result : result[key], object);
-    return isUndefined$3(result) || result === object
-        ? isUndefined$3(object[path])
+    return isUndefined$2(result) || result === object
+        ? isUndefined$2(object[path])
             ? defaultValue
             : object[path]
         : result;
@@ -804,10 +804,10 @@ function useFormState(props) {
     return React.useMemo(() => getProxyFormState(formState, control, _localProxyFormState.current, false), [formState, control]);
 }
 
-var isString$3 = (value) => typeof value === 'string';
+var isString$1 = (value) => typeof value === 'string';
 
 var generateWatchOutput = (names, _names, formValues, isGlobal, defaultValue) => {
-    if (isString$3(names)) {
+    if (isString$1(names)) {
         isGlobal && _names.watch.add(names);
         return get$1(formValues, names, defaultValue);
     }
@@ -1070,7 +1070,7 @@ function useController(props) {
         if (_shouldUnregisterField) {
             const value = cloneObject(get$1(control._options.defaultValues, name, _props.current.defaultValue));
             set$1(control._defaultValues, name, value);
-            if (isUndefined$3(get$1(control._formValues, name))) {
+            if (isUndefined$2(get$1(control._formValues, name))) {
                 set$1(control._formValues, name, value);
             }
         }
@@ -1329,13 +1329,13 @@ function baseGet(object, updatePath) {
     const length = updatePath.slice(0, -1).length;
     let index = 0;
     while (index < length) {
-        object = isUndefined$3(object) ? index++ : object[updatePath[index++]];
+        object = isUndefined$2(object) ? index++ : object[updatePath[index++]];
     }
     return object;
 }
 function isEmptyArray(obj) {
     for (const key in obj) {
-        if (obj.hasOwnProperty(key) && !isUndefined$3(obj[key])) {
+        if (obj.hasOwnProperty(key) && !isUndefined$2(obj[key])) {
             return false;
         }
     }
@@ -1380,7 +1380,7 @@ function markFieldsDirty(data, fields = {}) {
             fields[key] = Array.isArray(value) ? [] : {};
             markFieldsDirty(value, fields[key]);
         }
-        else if (!isUndefined$3(value)) {
+        else if (!isUndefined$2(value)) {
             fields[key] = true;
         }
     }
@@ -1393,7 +1393,7 @@ function getDirtyFields(data, formValues, dirtyFieldsFromValues) {
     for (const key in data) {
         const value = data[key];
         if (isTraversable(value)) {
-            if (isUndefined$3(formValues) || isPrimitive(dirtyFieldsFromValues[key])) {
+            if (isUndefined$2(formValues) || isPrimitive(dirtyFieldsFromValues[key])) {
                 dirtyFieldsFromValues[key] = markFieldsDirty(value, Array.isArray(value) ? [] : {});
             }
             else {
@@ -1423,8 +1423,8 @@ var getCheckboxValue = (options) => {
         }
         return options[0].checked && !options[0].disabled
             ? // @ts-expect-error expected to work in the browser
-                options[0].attributes && !isUndefined$3(options[0].attributes.value)
-                    ? isUndefined$3(options[0].value) || options[0].value === ''
+                options[0].attributes && !isUndefined$2(options[0].attributes.value)
+                    ? isUndefined$2(options[0].value) || options[0].value === ''
                         ? validResult
                         : { value: options[0].value, isValid: true }
                     : validResult
@@ -1433,7 +1433,7 @@ var getCheckboxValue = (options) => {
     return defaultResult;
 };
 
-var getFieldValueAs = (value, { valueAsNumber, valueAsDate, setValueAs }) => isUndefined$3(value)
+var getFieldValueAs = (value, { valueAsNumber, valueAsDate, setValueAs }) => isUndefined$2(value)
     ? value
     : valueAsNumber
         ? value === ''
@@ -1441,7 +1441,7 @@ var getFieldValueAs = (value, { valueAsNumber, valueAsDate, setValueAs }) => isU
             : value
                 ? +value
                 : value
-        : valueAsDate && isString$3(value)
+        : valueAsDate && isString$1(value)
             ? new Date(value)
             : setValueAs
                 ? setValueAs(value)
@@ -1474,7 +1474,7 @@ function getFieldValue(_f) {
     if (isCheckBoxInput(ref)) {
         return getCheckboxValue(_f.refs).value;
     }
-    return getFieldValueAs(isUndefined$3(ref.value) ? _f.ref.value : ref.value, _f);
+    return getFieldValueAs(isUndefined$2(ref.value) ? _f.ref.value : ref.value, _f);
 }
 
 var getResolverOptions = (fieldsNames, _fields, criteriaMode, shouldUseNativeValidation) => {
@@ -1493,7 +1493,7 @@ var getResolverOptions = (fieldsNames, _fields, criteriaMode, shouldUseNativeVal
 
 var isRegex = (value) => value instanceof RegExp;
 
-var getRuleValue = (rule) => isUndefined$3(rule)
+var getRuleValue = (rule) => isUndefined$2(rule)
     ? rule
     : isRegex(rule)
         ? rule.source
@@ -1641,12 +1641,12 @@ var updateFieldArrayRootError = (errors, error, name) => {
 };
 
 function getValidateError(result, ref, type = 'validate') {
-    if (isString$3(result) ||
-        (Array.isArray(result) && result.every(isString$3)) ||
+    if (isString$1(result) ||
+        (Array.isArray(result) && result.every(isString$1)) ||
         (isBoolean(result) && !result)) {
         return {
             type,
-            message: isString$3(result) ? result : '',
+            message: isString$1(result) ? result : '',
             ref,
         };
     }
@@ -1677,8 +1677,8 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
     const isCheckBox = isCheckBoxInput(ref);
     const isRadioOrCheckbox = isRadio || isCheckBox;
     const isEmpty = ((valueAsNumber || isFileInput(ref)) &&
-        isUndefined$3(ref.value) &&
-        isUndefined$3(inputValue)) ||
+        isUndefined$2(ref.value) &&
+        isUndefined$2(inputValue)) ||
         (isHTMLElement(ref) && ref.value === '') ||
         inputValue === '' ||
         (Array.isArray(inputValue) && !inputValue.length);
@@ -1699,7 +1699,7 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
                 (isBoolean(inputValue) && !inputValue) ||
                 (isCheckBox && !getCheckboxValue(refs).isValid) ||
                 (isRadio && !getRadioValue(refs).isValid))) {
-        const { value, message } = isString$3(required)
+        const { value, message } = isString$1(required)
             ? { value: !!required, message: required }
             : getValueAndMessage(required);
         if (value) {
@@ -1735,14 +1735,14 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
             const convertTimeToDate = (time) => new Date(new Date().toDateString() + ' ' + time);
             const isTime = ref.type == 'time';
             const isWeek = ref.type == 'week';
-            if (isString$3(maxOutput.value) && inputValue) {
+            if (isString$1(maxOutput.value) && inputValue) {
                 exceedMax = isTime
                     ? convertTimeToDate(inputValue) > convertTimeToDate(maxOutput.value)
                     : isWeek
                         ? inputValue > maxOutput.value
                         : valueDate > new Date(maxOutput.value);
             }
-            if (isString$3(minOutput.value) && inputValue) {
+            if (isString$1(minOutput.value) && inputValue) {
                 exceedMin = isTime
                     ? convertTimeToDate(inputValue) < convertTimeToDate(minOutput.value)
                     : isWeek
@@ -1760,7 +1760,7 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
     }
     if ((maxLength || minLength) &&
         !isEmpty &&
-        (isString$3(inputValue) || (isFieldArray && Array.isArray(inputValue)))) {
+        (isString$1(inputValue) || (isFieldArray && Array.isArray(inputValue)))) {
         const maxLengthOutput = getValueAndMessage(maxLength);
         const minLengthOutput = getValueAndMessage(minLength);
         const exceedMax = !isNullOrUndefined$1(maxLengthOutput.value) &&
@@ -1775,7 +1775,7 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
             }
         }
     }
-    if (pattern && !isEmpty && isString$3(inputValue)) {
+    if (pattern && !isEmpty && isString$1(inputValue)) {
         const { value: patternValue, message } = getValueAndMessage(pattern);
         if (isRegex(patternValue) && !inputValue.match(patternValue)) {
             error[name] = {
@@ -2003,8 +2003,8 @@ function createFormControl(props = {}) {
     const updateValidAndValue = (name, shouldSkipSetValueAs, value, ref) => {
         const field = get$1(_fields, name);
         if (field) {
-            const defaultValue = get$1(_formValues, name, isUndefined$3(value) ? get$1(_defaultValues, name) : value);
-            isUndefined$3(defaultValue) ||
+            const defaultValue = get$1(_formValues, name, isUndefined$2(value) ? get$1(_defaultValues, name) : value);
+            isUndefined$2(defaultValue) ||
                 (ref && ref.defaultChecked) ||
                 shouldSkipSetValueAs
                 ? set$1(_formValues, name, shouldSkipSetValueAs ? defaultValue : getFieldValue(field._f))
@@ -2159,9 +2159,9 @@ function createFormControl(props = {}) {
     const _getWatch = (names, defaultValue, isGlobal) => generateWatchOutput(names, _names, {
         ...(_state.mount
             ? _formValues
-            : isUndefined$3(defaultValue)
+            : isUndefined$2(defaultValue)
                 ? _defaultValues
-                : isString$3(names)
+                : isString$1(names)
                     ? { [names]: defaultValue }
                     : defaultValue),
     }, isGlobal, defaultValue);
@@ -2381,7 +2381,7 @@ function createFormControl(props = {}) {
         let validationResult;
         const fieldNames = convertToArrayPayload(name);
         if (_options.resolver) {
-            const errors = await executeSchemaAndUpdateState(isUndefined$3(name) ? name : fieldNames);
+            const errors = await executeSchemaAndUpdateState(isUndefined$2(name) ? name : fieldNames);
             isValid = isEmptyObject(errors);
             validationResult = name
                 ? !fieldNames.some((name) => get$1(errors, name))
@@ -2398,7 +2398,7 @@ function createFormControl(props = {}) {
             validationResult = isValid = await executeBuiltInValidation(_fields);
         }
         _subjects.state.next({
-            ...(!isString$3(name) ||
+            ...(!isString$1(name) ||
                 ((_proxyFormState.isValid || _proxySubscribeFormState.isValid) &&
                     isValid !== _formState.isValid)
                 ? {}
@@ -2418,9 +2418,9 @@ function createFormControl(props = {}) {
         if (config) {
             values = extractFormValues(config.dirtyFields ? _formState.dirtyFields : _formState.touchedFields, values);
         }
-        return isUndefined$3(fieldNames)
+        return isUndefined$2(fieldNames)
             ? values
-            : isString$3(fieldNames)
+            : isString$1(fieldNames)
                 ? get$1(values, fieldNames)
                 : fieldNames.map((name) => get$1(values, name));
     };
@@ -2570,7 +2570,7 @@ function createFormControl(props = {}) {
                 if (ref) {
                     register(name, options);
                     field = get$1(_fields, name);
-                    const fieldRef = isUndefined$3(ref.value)
+                    const fieldRef = isUndefined$2(ref.value)
                         ? ref.querySelectorAll
                             ? ref.querySelectorAll('input,select,textarea')[0] || ref
                             : ref
@@ -2686,7 +2686,7 @@ function createFormControl(props = {}) {
     };
     const resetField = (name, options = {}) => {
         if (get$1(_fields, name)) {
-            if (isUndefined$3(options.defaultValue)) {
+            if (isUndefined$2(options.defaultValue)) {
                 setValue(name, cloneObject(get$1(_defaultValues, name)));
             }
             else {
@@ -2727,16 +2727,16 @@ function createFormControl(props = {}) {
                     const isDirty = get$1(_formState.dirtyFields, fieldName);
                     const existingValue = get$1(_formValues, fieldName);
                     const newValue = get$1(values, fieldName);
-                    if (isDirty && !isUndefined$3(existingValue)) {
+                    if (isDirty && !isUndefined$2(existingValue)) {
                         set$1(values, fieldName, existingValue);
                     }
-                    else if (!isDirty && !isUndefined$3(newValue)) {
+                    else if (!isDirty && !isUndefined$2(newValue)) {
                         setValue(fieldName, newValue);
                     }
                 }
             }
             else {
-                if (isWeb && isUndefined$3(formValues)) {
+                if (isWeb && isUndefined$2(formValues)) {
                     for (const name of _names.mount) {
                         const field = get$1(_fields, name);
                         if (field && field._f) {
@@ -2957,9 +2957,9 @@ var generateId = () => {
     });
 };
 
-var getFocusFieldName = (name, index, options = {}) => options.shouldFocus || isUndefined$3(options.shouldFocus)
+var getFocusFieldName = (name, index, options = {}) => options.shouldFocus || isUndefined$2(options.shouldFocus)
     ? options.focusName ||
-        `${name}.${isUndefined$3(options.focusIndex) ? index : options.focusIndex}.`
+        `${name}.${isUndefined$2(options.focusIndex) ? index : options.focusIndex}.`
     : '';
 
 var appendAt = (data, value) => [
@@ -2981,7 +2981,7 @@ var moveArrayAt = (data, from, to) => {
     if (!Array.isArray(data)) {
         return [];
     }
-    if (isUndefined$3(data[to])) {
+    if (isUndefined$2(data[to])) {
         data[to] = undefined;
     }
     data.splice(to, 0, data.splice(from, 1)[0]);
@@ -3002,7 +3002,7 @@ function removeAtIndexes(data, indexes) {
     }
     return compact(temp).length ? temp : [];
 }
-var removeArrayAt = (data, index) => isUndefined$3(index)
+var removeArrayAt = (data, index) => isUndefined$2(index)
     ? []
     : removeAtIndexes(data, convertToArrayPayload(index).sort((a, b) => a - b));
 
@@ -4587,1705 +4587,15 @@ var post = function (api, path, params, payload) { return __awaiter(void 0, void
  * @return {T[]}
  */
 
-const nativeToString$2 = Object.prototype.toString;
+const nativeToString = Object.prototype.toString;
+const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
 
-function isString$2(obj) {
-  return nativeToString$2.call(obj) === '[object String]';
-}
-
-/**
- * Convenience wrapper for `Object.assign`.
- *
- * @param {Object} target
- * @param {...Object} others
- *
- * @return {Object} the target
- */
-function assign$2(target, ...others) {
-  return Object.assign(target, ...others);
-}
-
-/**
- * Flatten array, one level deep.
- *
- * @template T
- *
- * @param {T[][] | T[] | null} [arr]
- *
- * @return {T[]}
- */
-
-const nativeToString$1 = Object.prototype.toString;
-const nativeHasOwnProperty$1 = Object.prototype.hasOwnProperty;
-
-function isUndefined$2(obj) {
+function isUndefined$1(obj) {
   return obj === undefined;
 }
 
 function isDefined(obj) {
   return obj !== undefined;
-}
-
-function isNil$1(obj) {
-  return obj == null;
-}
-
-function isArray$1(obj) {
-  return nativeToString$1.call(obj) === '[object Array]';
-}
-
-function isObject(obj) {
-  return nativeToString$1.call(obj) === '[object Object]';
-}
-
-function isString$1(obj) {
-  return nativeToString$1.call(obj) === '[object String]';
-}
-
-/**
- * Return true, if target owns a property with the given key.
- *
- * @param {Object} target
- * @param {String} key
- *
- * @return {Boolean}
- */
-function has$1(target, key) {
-  return !isNil$1(target) && nativeHasOwnProperty$1.call(target, key);
-}
-
-
-/**
- * Iterate over collection; returning something
- * (non-undefined) will stop iteration.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
- *
- * @return {T} return result that stopped the iteration
- */
-function forEach$1(collection, iterator) {
-
-  let val,
-      result;
-
-  if (isUndefined$2(collection)) {
-    return;
-  }
-
-  const convertKey = isArray$1(collection) ? toNum$1 : identity$1;
-
-  for (let key in collection) {
-
-    if (has$1(collection, key)) {
-      val = collection[key];
-
-      result = iterator(val, convertKey(key));
-
-      if (result === false) {
-        return val;
-      }
-    }
-  }
-}
-
-
-function identity$1(arg) {
-  return arg;
-}
-
-function toNum$1(arg) {
-  return Number(arg);
-}
-
-/**
- * Bind function against target <this>.
- *
- * @param  {Function} fn
- * @param  {Object}   target
- *
- * @return {Function} bound function
- */
-function bind(fn, target) {
-  return fn.bind(target);
-}
-
-/**
- * Convenience wrapper for `Object.assign`.
- *
- * @param {Object} target
- * @param {...Object} others
- *
- * @return {Object} the target
- */
-function assign$1(target, ...others) {
-  return Object.assign(target, ...others);
-}
-
-/**
- * Sets a nested property of a given object to the specified value.
- *
- * This mutates the object and returns it.
- *
- * @template T
- *
- * @param {T} target The target of the set operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} value The value to set.
- *
- * @return {T}
- */
-function set(target, path, value) {
-
-  let currentTarget = target;
-
-  forEach$1(path, function(key, idx) {
-
-    if (typeof key !== 'number' && typeof key !== 'string') {
-      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
-    }
-
-    if (key === 'constructor') {
-      throw new Error('illegal key: constructor');
-    }
-
-    if (key === '__proto__') {
-      throw new Error('illegal key: __proto__');
-    }
-
-    let nextKey = path[idx + 1];
-    let nextTarget = currentTarget[key];
-
-    if (isDefined(nextKey) && isNil$1(nextTarget)) {
-      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
-    }
-
-    if (isUndefined$2(nextKey)) {
-      if (isUndefined$2(value)) {
-        delete currentTarget[key];
-      } else {
-        currentTarget[key] = value;
-      }
-    } else {
-      currentTarget = nextTarget;
-    }
-  });
-
-  return target;
-}
-
-/**
- * Pick properties from the given target.
- *
- * @template T
- * @template {any[]} V
- *
- * @param {T} target
- * @param {V} properties
- *
- * @return Pick<T, V>
- */
-function pick(target, properties) {
-
-  let result = {};
-
-  let obj = Object(target);
-
-  forEach$1(properties, function(prop) {
-
-    if (prop in obj) {
-      result[prop] = target[prop];
-    }
-  });
-
-  return result;
-}
-
-/**
- * Moddle base element.
- */
-function Base() { }
-
-/**
- * @template { keyof this } K
- *
- * Get property value (typed)
- *
- * @overload
- *
- * @param {K} name
- *
- * @return { this[K] }
- */
-/**
- * @template T
- *
- * Get property value
- *
- * @overload
- *
- * @param {string} name
- *
- * @return {T}
- */
-/**
- * Get property value
- *
- * @overload
- *
- * @param {string} name
- *
- * @return {unknown}
- */
-Base.prototype.get = function(name) {
-  return this.$model.properties.get(this, name);
-};
-
-/**
- * @template { keyof this } K
- * @template { this[K] } V
- *
- * Set property value
- *
- * @overload
- *
- * @param {K} name
- * @param {V} value
- */
-/**
- * @template { string } S
- *
- * Set property value
- *
- * @overload
- *
- * @param { S extends keyof this ? never : S } name
- * @param { any } value
- */
-Base.prototype.set = function(name, value) {
-  this.$model.properties.set(this, name, value);
-};
-
-/**
- * @typedef {import('./ns.js').Namespace} Namespace
- * @typedef {import('./moddle.js').default} Moddle
- * @typedef {import('./properties.js').default} Properties
- * @typedef {import('./registry.js').EffectiveDescriptor} EffectiveDescriptor
- * @typedef {import('./base.js').default} BaseElement
- * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
- */
-
-/**
- * @template [T=Record<string,any>]
- * @typedef {{
- *   new(attrs?: Partial<T>): ModdleElement<T>;
- *   prototype: ModdleElement<T>;
- *   readonly $model: Moddle;
- *   readonly $descriptor: EffectiveDescriptor;
- * }} ModdleElementType
- */
-
-/**
- * @template [T=Record<string,any>]
- * @typedef {BaseElement & T & {
- *   readonly $model: Moddle;
- *   readonly $descriptor: EffectiveDescriptor;
- *   readonly $type: Namespace['name'];
- *   readonly $attrs: Record<string, any>;
- *   $parent?: ModdleElement | AnyModdleElement;
- *   hasType: Moddle['hasType'];
- *   $instanceOf: Moddle['hasType'];
- * }} ModdleElement
- */
-
-/**
- * @template [T=Record<string,any>]
- * @typedef {BaseElement & T & {
- *   $type: string;
- *   $instanceOf: (type: string) => boolean;
- *   $parent?: ModdleElement | AnyModdleElement;
- *   readonly $model: Moddle;
- *   readonly $descriptor: AnyTypeDescriptor;
- * }} AnyModdleElement
- */
-
-/**
- * A model element factory.
- *
- * @param {Moddle} model
- * @param {Properties} properties
- */
-function Factory(model, properties) {
-
-  /**
-   * @private
-   */
-  this.model = model;
-
-  /**
-   * @private
-   */
-  this.properties = properties;
-}
-
-/**
- * @template [T=Record<string,any>]
- * @param {EffectiveDescriptor} descriptor
- * @return {ModdleElementType<T>}
- */
-Factory.prototype.createType = function(descriptor) {
-
-  var model = this.model;
-
-  var props = this.properties,
-      prototype = Object.create(Base.prototype);
-
-  // initialize default values
-  forEach$1(descriptor.properties, function(p) {
-    if (!p.isMany && p.default !== undefined) {
-      prototype[p.name] = p.default;
-    }
-  });
-
-  props.defineModel(prototype, model);
-  props.defineDescriptor(prototype, descriptor);
-
-  var name = descriptor.ns.name;
-
-  /**
-   * The new type constructor
-   *
-   * @type { ModdleElementType }
-   */
-  function ModdleElement(attrs) {
-    props.define(this, '$type', { value: name, enumerable: true });
-    props.define(this, '$attrs', { value: {} });
-    props.define(this, '$parent', { writable: true });
-
-    forEach$1(attrs, bind(function(val, key) {
-      this.set(key, val);
-    }, this));
-  }
-
-  ModdleElement.prototype = prototype;
-
-  ModdleElement.hasType = prototype.$instanceOf = this.model.hasType;
-
-  // static links
-  props.defineModel(ModdleElement, model);
-  props.defineDescriptor(ModdleElement, descriptor);
-
-  return ModdleElement;
-};
-
-/**
- * Built-in moddle types
- */
-var BUILTINS = {
-  String: true,
-  Boolean: true,
-  Integer: true,
-  Real: true,
-  Element: true
-};
-
-/**
- * Converters for built-in types from string representations
- */
-var TYPE_CONVERTERS = {
-  String: function(s) { return s; },
-  Boolean: function(s) { return s === 'true'; },
-  Integer: function(s) { return parseInt(s, 10); },
-  Real: function(s) { return parseFloat(s); }
-};
-
-/**
- * @typedef {'String'} StringType
- * @typedef {'Boolean'} BooleanType
- * @typedef {'Integer'} IntegerType
- * @typedef {'Real'} RealType
- * @typedef {'Element'} ElementType
- * @typedef {StringType | BooleanType | IntegerType | RealType} BuiltInSimpleType
- * @typedef {BuiltInSimpleType | ElementType} BuiltInType
- */
-
-/**
- * Convert given value to string
- * @overlord
- * @param {StringType} type
- * @param {any} value
- * @return {string}
- */
-/**
- * Convert given value to boolean
- * @overlord
- * @param {BooleanType} type
- * @param {any} value
- * @return {boolean}
- */
-/**
- * Convert given value to number
- * @overlord
- * @param {IntegerType | RealType} type
- * @param {any} value
- * @return {number}
- */
-/**
- * Convert a type to its real representation
- * @template T
- * @overlord
- * @param {Exclude<string,BuiltInSimpleType>} type
- * @param {T} value
- * @return {T}
- */
-function coerceType(type, value) {
-
-  var converter = TYPE_CONVERTERS[type];
-
-  if (converter) {
-    return converter(value);
-  } else {
-    return value;
-  }
-}
-
-/**
- * Return whether the given type is built-in
- * @overload
- * @param {BuiltInType} type
- * @return {true}
- */
-/**
- * Return whether the given type is built-in
- * @overload
- * @param {Exclude<string,BuiltInType>} type
- * @return {false}
- */
-function isBuiltIn(type) {
-  return !!BUILTINS[type];
-}
-
-/**
- * Return true if the given type is simple
- * @overload
- * @param {BuiltInSimpleType} type
- * @return {true}
- */
-/**
- * Return false the given type is not simple
- * @overload
- * @param {Exclude<string,BuiltInSimpleType>} type
- * @return {false}
- */
-function isSimple(type) {
-  return !!TYPE_CONVERTERS[type];
-}
-
-/**
- * @typedef {{
- *   name: string;
- *   prefix: string;
- *   localName: string;
- * }} Namespace
- */
-
-/**
- * Parses a namespaced attribute name of the form (ns:)localName to an object,
- * given a default prefix to assume in case no explicit namespace is given.
- *
- * @param {String} name
- * @param {String} [defaultPrefix] the default prefix to take, if none is present.
- *
- * @return {Namespace} the parsed name
- */
-function parseName(name, defaultPrefix) {
-  var parts = name.split(/:/),
-      localName, prefix;
-
-  // no prefix (i.e. only local name)
-  if (parts.length === 1) {
-    localName = name;
-    prefix = defaultPrefix;
-  }
-
-  // prefix + local name
-  else if (parts.length === 2) {
-    localName = parts[1];
-    prefix = parts[0];
-  }
-
-  else {
-    throw new Error('expected <prefix:localName> or <localName>, got ' + name);
-  }
-
-  name = (prefix ? prefix + ':' : '') + localName;
-
-  return {
-    name: name,
-    prefix: prefix,
-    localName: localName
-  };
-}
-
-/**
- * @typedef {import('./ns.js').Namespace} Namespace
- * @typedef {import('./registry.js').RegisteredPackage} RegisteredPackage
- * @typedef {import('./registry.js').RegisteredTypeDef} RegisteredTypeDef
- * @typedef {import('./registry.js').RegisteredPropertyDef} RegisteredPropertyDef
- */
-
-/**
- * Effective element descriptor
- * aka element type descriptor
- * aka element descriptor
- * @typedef {{
- *   readonly ns: Namespace;
- *   readonly name: Namespace['name'];
- *   readonly allTypes: Array<RegisteredTypeDef>;
- *   readonly allTypesByName: Record<string, RegisteredTypeDef>;
- *   readonly properties: Array<PropertyDescriptor>;
- *   readonly propertiesByName: Record<string, PropertyDescriptor>;
- *   readonly bodyProperty?: PropertyDescriptor;
- *   readonly idProperty?: PropertyDescriptor;
- *   readonly $pkg?: RegisteredPackage;
- * }} EffectiveDescriptor
- */
-
-/**
- * Property descriptor
- * @typedef {RegisteredPropertyDef & {
- *   localName: Namespace['localName'];
- *   inherited?: boolean;
- *   definedBy?: RegisteredTypeDef;
- * }} PropertyDescriptor
- */
-
-/**
- * @typedef {{
- *   name: string;
- *   isGeneric: true;
- *   ns: {
- *     prefix: string;
- *     localName: string;
- *     uri: string;
- *   };
- * }} AnyTypeDescriptor
- */
-
-/**
- * A utility to build element descriptors.
- * @class DescriptorBuilder
- * @param {Namespace} nameNs
- */
-function DescriptorBuilder(nameNs) {
-
-  /**
-   * @private
-   * @type {Namespace}
-   */
-  this.ns = nameNs;
-
-  /**
-   * @private
-   * @type {Namespace['name']}
-   */
-  this.name = nameNs.name;
-
-  /**
-   * @private
-   * @type {Array<RegisteredTypeDef>}
-   */
-  this.allTypes = [];
-
-  /**
-   * @private
-   * @type {Record<string, RegisteredTypeDef>}
-   */
-  this.allTypesByName = {};
-
-  /**
-   * @private
-   * @type {Array<PropertyDescriptor>}
-   */
-  this.properties = [];
-
-  /**
-   * @private
-   * @type {Record<string, PropertyDescriptor>}
-   */
-  this.propertiesByName = {};
-}
-
-/**
- * @return {EffectiveDescriptor}
- */
-DescriptorBuilder.prototype.build = function() {
-  return pick(this, [
-    'ns',
-    'name',
-    'allTypes',
-    'allTypesByName',
-    'properties',
-    'propertiesByName',
-    'bodyProperty',
-    'idProperty'
-  ]);
-};
-
-/**
- * Add property at given index.
- *
- * @param {PropertyDescriptor} p
- * @param {Number} [idx]
- * @param {Boolean} [validate=true]
- */
-DescriptorBuilder.prototype.addProperty = function(p, idx, validate) {
-
-  if (typeof idx === 'boolean') {
-    validate = idx;
-    idx = undefined;
-  }
-
-  this.addNamedProperty(p, validate !== false);
-
-  var properties = this.properties;
-
-  if (idx !== undefined) {
-    properties.splice(idx, 0, p);
-  } else {
-    properties.push(p);
-  }
-};
-
-/**
- * @param {PropertyDescriptor} oldProperty
- * @param {PropertyDescriptor} newProperty
- * @param {string} replace
- */
-DescriptorBuilder.prototype.replaceProperty = function(oldProperty, newProperty, replace) {
-  var oldNameNs = oldProperty.ns;
-
-  var props = this.properties,
-      propertiesByName = this.propertiesByName,
-      rename = oldProperty.name !== newProperty.name;
-
-  if (oldProperty.isId) {
-    if (!newProperty.isId) {
-      throw new Error(
-        'property <' + newProperty.ns.name + '> must be id property ' +
-        'to refine <' + oldProperty.ns.name + '>');
-    }
-
-    this.setIdProperty(newProperty, false);
-  }
-
-  if (oldProperty.isBody) {
-
-    if (!newProperty.isBody) {
-      throw new Error(
-        'property <' + newProperty.ns.name + '> must be body property ' +
-        'to refine <' + oldProperty.ns.name + '>');
-    }
-
-    // TODO: Check compatibility
-    this.setBodyProperty(newProperty, false);
-  }
-
-  // validate existence and get location of old property
-  var idx = props.indexOf(oldProperty);
-  if (idx === -1) {
-    throw new Error('property <' + oldNameNs.name + '> not found in property list');
-  }
-
-  // remove old property
-  props.splice(idx, 1);
-
-  // replacing the named property is intentional
-  //
-  //  * validate only if this is a "rename" operation
-  //  * add at specific index unless we "replace"
-  //
-  this.addProperty(newProperty, replace ? undefined : idx, rename);
-
-  // make new property available under old name
-  propertiesByName[oldNameNs.name] = propertiesByName[oldNameNs.localName] = newProperty;
-};
-
-/**
- * @param {PropertyDescriptor} p
- * @param {string} targetPropertyName
- * @param {string} replace
- */
-DescriptorBuilder.prototype.redefineProperty = function(p, targetPropertyName, replace) {
-
-  var nsPrefix = p.ns.prefix;
-  var parts = targetPropertyName.split('#');
-
-  var name = parseName(parts[0], nsPrefix);
-  var attrName = parseName(parts[1], name.prefix).name;
-
-  var redefinedProperty = this.propertiesByName[attrName];
-  if (!redefinedProperty) {
-    throw new Error('refined property <' + attrName + '> not found');
-  } else {
-    this.replaceProperty(redefinedProperty, p, replace);
-  }
-
-  delete p.redefines;
-};
-
-/**
- * @param {PropertyDescriptor} p
- * @param {boolean} validate
- */
-DescriptorBuilder.prototype.addNamedProperty = function(p, validate) {
-  var ns = p.ns,
-      propsByName = this.propertiesByName;
-
-  if (validate) {
-    this.assertNotDefined(p, ns.name);
-    this.assertNotDefined(p, ns.localName);
-  }
-
-  propsByName[ns.name] = propsByName[ns.localName] = p;
-};
-
-/**
- * @param {RegisteredPropertyDef} p
- */
-DescriptorBuilder.prototype.removeNamedProperty = function(p) {
-  var ns = p.ns,
-      propsByName = this.propertiesByName;
-
-  delete propsByName[ns.name];
-  delete propsByName[ns.localName];
-};
-
-/**
- * @param {PropertyDescriptor} p
- * @param {boolean} [validate]
- */
-DescriptorBuilder.prototype.setBodyProperty = function(p, validate) {
-
-  if (validate && this.bodyProperty) {
-    throw new Error(
-      'body property defined multiple times ' +
-      '(<' + this.bodyProperty.ns.name + '>, <' + p.ns.name + '>)');
-  }
-
-  this.bodyProperty = p;
-};
-
-/**
- * @param {PropertyDescriptor} p
- * @param {boolean} [validate]
- */
-DescriptorBuilder.prototype.setIdProperty = function(p, validate) {
-
-  if (validate && this.idProperty) {
-    throw new Error(
-      'id property defined multiple times ' +
-      '(<' + this.idProperty.ns.name + '>, <' + p.ns.name + '>)');
-  }
-
-  this.idProperty = p;
-};
-
-/**
- * @param {RegisteredTypeDef} typeDescriptor
- */
-DescriptorBuilder.prototype.assertNotTrait = function(typeDescriptor) {
-
-  const _extends = typeDescriptor.extends || [];
-
-  if (_extends.length) {
-    throw new Error(
-      `cannot create <${ typeDescriptor.name }> extending <${ typeDescriptor.extends }>`
-    );
-  }
-};
-
-/**
- * @param {PropertyDescriptor} p
- */
-DescriptorBuilder.prototype.assertNotDefined = function(p, name) {
-  var propertyName = p.name,
-      definedProperty = this.propertiesByName[propertyName];
-
-  if (definedProperty) {
-    throw new Error(
-      'property <' + propertyName + '> already defined; ' +
-      'override of <' + definedProperty.definedBy.ns.name + '#' + definedProperty.ns.name + '> by ' +
-      '<' + p.definedBy.ns.name + '#' + p.ns.name + '> not allowed without redefines');
-  }
-};
-
-/**
- * @param {string} name
- * @return {PropertyDescriptor}
- */
-DescriptorBuilder.prototype.hasProperty = function(name) {
-  return this.propertiesByName[name];
-};
-
-/**
- * @param {RegisteredTypeDef} t
- * @param {boolean} inherited
- */
-DescriptorBuilder.prototype.addTrait = function(t, inherited) {
-
-  if (inherited) {
-    this.assertNotTrait(t);
-  }
-
-  var typesByName = this.allTypesByName,
-      types = this.allTypes;
-
-  var typeName = t.name;
-
-  if (typeName in typesByName) {
-    return;
-  }
-
-  forEach$1(t.properties, bind(function(p) {
-
-    // clone property to allow extensions
-    p = assign$1({}, p, {
-      name: p.ns.localName,
-      inherited: inherited
-    });
-
-    Object.defineProperty(p, 'definedBy', {
-      value: t
-    });
-
-    var replaces = p.replaces,
-        redefines = p.redefines;
-
-    // add replace/redefine support
-    if (replaces || redefines) {
-      this.redefineProperty(p, replaces || redefines, replaces);
-    } else {
-      if (p.isBody) {
-        this.setBodyProperty(p);
-      }
-      if (p.isId) {
-        this.setIdProperty(p);
-      }
-      this.addProperty(p);
-    }
-  }, this));
-
-  types.push(t);
-  typesByName[typeName] = t;
-};
-
-/**
- * @typedef {import('./ns.js').Namespace} Namespace
- * @typedef {import('./moddle.js').PackageDefinition} PackageDefinition
- * @typedef {import('./moddle.js').TypeDefinition} TypeDefinition
- * @typedef {import('./moddle.js').PropertyDefinition} PropertyDefinition
- * @typedef {import('./properties.js').default} Properties
- * @typedef {import('./descriptor-builder.js').EffectiveDescriptor} EffectiveDescriptor
- */
-
-/**
- * Registered package definition
- * @typedef {Omit<PackageDefinition, 'types'> & {
- *   types?: Array<RegisteredTypeDef>;
- * }} RegisteredPackage
- */
-
-/**
- * Registered type definition
- * @typedef {Omit<TypeDefinition, 'properties'> & {
- *   properties?: Array<RegisteredPropertyDef>;
- *   propertiesByName?: Record<string, RegisteredPropertyDef>;
- *   superClass?: Array<string>;
- *   extends?: Array<string>;
- *   meta?: Record<string, *>;
- *   traits?: Array<string>;
- *   ns?: Namespace;
- *   readonly $pkg?: RegisteredPackage;
- * }} RegisteredTypeDef
- */
-
-/**
- * Registered property definition
- * @typedef {PropertyDefinition & { ns: Namespace }} RegisteredPropertyDef
- */
-
-/**
- * A registry of Moddle packages.
- *
- * @param {Array<PackageDefinition> | Record<string,PackageDefinition>} packages
- * @param {Properties} properties
- */
-function Registry(packages, properties) {
-
-  /**
-   * @private
-   * @type {Record<string, RegisteredPackage>} registered packages map
-   */
-  this.packageMap = {};
-
-  /**
-   * @type {Record<string,RegisteredTypeDef>}
-   */
-  this.typeMap = {};
-
-  /**
-   * @private
-   * @type {Array<RegisteredPackage>} all registered packages
-   */
-  this.packages = [];
-
-  /**
-   * @private
-   * @type {Properties}
-   */
-  this.properties = properties;
-
-  forEach$1(packages, bind(this.registerPackage, this));
-}
-
-/**
- * @param {string} uriOrPrefix uri or prefix of package
- * @return {RegisteredPackage} registered package
- */
-Registry.prototype.getPackage = function(uriOrPrefix) {
-  return this.packageMap[uriOrPrefix];
-};
-
-/**
- * @return {Array<RegisteredPackage>} all registered packages
- */
-Registry.prototype.getPackages = function() {
-  return this.packages;
-};
-
-/**
- * @private
- * @param {PackageDefinition} pkg registering package
- */
-Registry.prototype.registerPackage = function(pkg) {
-
-  // copy package
-  pkg = assign$1({}, pkg);
-
-  var pkgMap = this.packageMap;
-
-  ensureAvailable(pkgMap, pkg, 'prefix');
-  ensureAvailable(pkgMap, pkg, 'uri');
-
-  // register types
-  forEach$1(pkg.types, bind(function(descriptor) {
-    this.registerType(descriptor, pkg);
-  }, this));
-
-  pkgMap[pkg.uri] = pkgMap[pkg.prefix] = pkg;
-  this.packages.push(pkg);
-};
-
-/**
- * @private
- * Register a type from a specific package with us
- * @param {TypeDefinition} type
- * @param {RegisteredPackage} pkg
- */
-Registry.prototype.registerType = function(type, pkg) {
-  type = assign$1({}, type, {
-    superClass: (type.superClass || []).slice(),
-    extends: (type.extends || []).slice(),
-    properties: (type.properties || []).slice(),
-    meta: assign$1((type.meta || {}))
-  });
-
-  var ns = parseName(type.name, pkg.prefix),
-      name = ns.name,
-      /** @type {Record<string, RegisteredPropertyDef>} */ propertiesByName = {};
-
-  // parse properties
-  forEach$1(type.properties, bind(function(p) {
-
-    // namespace property names
-    var propertyNs = parseName(p.name, ns.prefix),
-        propertyName = propertyNs.name;
-
-    // namespace property types
-    if (!isBuiltIn(p.type)) {
-      p.type = parseName(p.type, propertyNs.prefix).name;
-    }
-
-    assign$1(p, {
-      ns: propertyNs,
-      name: propertyName
-    });
-
-    propertiesByName[propertyName] = p;
-  }, this));
-
-  // update ns + name
-  assign$1(type, {
-    ns: ns,
-    name: name,
-    propertiesByName: propertiesByName
-  });
-
-  forEach$1(type.extends, bind(function(extendsName) {
-    var extendsNameNs = parseName(extendsName, ns.prefix);
-
-    var extended = this.typeMap[extendsNameNs.name];
-
-    extended.traits = extended.traits || [];
-    extended.traits.push(name);
-  }, this));
-
-  // link to package
-  this.definePackage(type, pkg);
-
-  // register
-  this.typeMap[name] = type;
-};
-
-/**
- * @callback IteratorFn
- * @param {RegisteredTypeDef} type
- * @param {boolean} inherited
- */
-
-/**
- * Traverse the type hierarchy from bottom to top,
- * calling iterator with (type, inherited) for all elements in
- * the inheritance chain.
- * @private
- * @param {Namespace} nsName
- * @param {IteratorFn} iterator
- * @param {Boolean} [trait=false]
- */
-Registry.prototype.mapTypes = function(nsName, iterator, trait) {
-
-  /** @type {RegisteredTypeDef} */
-  var type = isBuiltIn(nsName.name) ? { name: nsName.name } : this.typeMap[nsName.name];
-
-  var self = this;
-
-  /**
-   * Traverse the selected super type or trait
-   *
-   * @param {String} cls
-   * @param {Boolean} [trait=false]
-   */
-  function traverse(cls, trait) {
-    var parentNs = parseName(cls, isBuiltIn(cls) ? '' : nsName.prefix);
-    self.mapTypes(parentNs, iterator, trait);
-  }
-
-  /**
-   * Traverse the selected trait.
-   *
-   * @param {String} cls
-   */
-  function traverseTrait(cls) {
-    return traverse(cls, true);
-  }
-
-  /**
-   * Traverse the selected super type
-   *
-   * @param {String} cls
-   */
-  function traverseSuper(cls) {
-    return traverse(cls, false);
-  }
-
-  if (!type) {
-    throw new Error('unknown type <' + nsName.name + '>');
-  }
-
-  forEach$1(type.superClass, trait ? traverseTrait : traverseSuper);
-
-  // call iterator with (type, inherited=!trait)
-  iterator(type, !trait);
-
-  forEach$1(type.traits, traverseTrait);
-};
-
-/**
- * Returns the effective descriptor for a type.
- * @param  {Namespace['name']} name the namespaced name (ns:localName) of the type
- * @return {EffectiveDescriptor} the resulting effective descriptor
- */
-Registry.prototype.getEffectiveDescriptor = function(name) {
-
-  var nsName = parseName(name);
-
-  var builder = new DescriptorBuilder(nsName);
-
-  this.mapTypes(nsName, function(type, inherited) {
-    builder.addTrait(type, inherited);
-  });
-
-  var descriptor = builder.build();
-
-  // define package link
-  this.definePackage(descriptor, descriptor.allTypes[descriptor.allTypes.length - 1].$pkg);
-
-  return descriptor;
-};
-
-/**
- * @private
- * @param {RegisteredTypeDef | EffectiveDescriptor} target
- * @param {RegisteredPackage} pkg
- */
-Registry.prototype.definePackage = function(target, pkg) {
-  this.properties.define(target, '$pkg', { value: pkg });
-};
-
-// helpers ////////////////////////////
-
-/**
- * Checking already defined packages
- * @param {Record<string, RegisteredPackage>} packageMap
- * @param {PackageDefinition} pkg
- * @param {'prefix' | 'uri'} identifierKey
- */
-function ensureAvailable(packageMap, pkg, identifierKey) {
-
-  var value = pkg[identifierKey];
-
-  if (value in packageMap) {
-    throw new Error('package with ' + identifierKey + ' <' + value + '> already defined');
-  }
-}
-
-/**
- * @typedef {import('./moddle.js').default} Moddle
- * @typedef {import('./descriptor-builder.js').PropertyDescriptor} PropertyDesc
- * @typedef {import('./registry.js').EffectiveDescriptor} EffectiveDescriptor
- * @typedef {import('./factory.js').ModdleElement} ModdleElement
- * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
- */
-
-/**
- * A utility that gets and sets properties of model elements.
- *
- * @param {Moddle} model
- */
-function Properties(model) {
-
-  /** @type {Moddle} */
-  this.model = model;
-}
-
-/**
- * Sets a named property on the target element.
- * If the value is undefined, the property gets deleted.
- *
- * @param {ModdleElement} target
- * @param {String} name
- * @param {Object} value
- */
-Properties.prototype.set = function(target, name, value) {
-
-  if (!isString$1(name) || !name.length) {
-    throw new TypeError('property name must be a non-empty string');
-  }
-
-  var property = this.getProperty(target, name);
-
-  var propertyName = property && property.name;
-
-  if (isUndefined$1(value)) {
-
-    // unset the property, if the specified value is undefined;
-    // delete from $attrs (for extensions) or the target itself
-    if (property) {
-      delete target[propertyName];
-    } else {
-      delete target.$attrs[stripGlobal(name)];
-    }
-  } else {
-
-    // set the property, defining well defined properties on the fly
-    // or simply updating them in target.$attrs (for extensions)
-    if (property) {
-      if (propertyName in target) {
-        target[propertyName] = value;
-      } else {
-        defineProperty(target, property, value);
-      }
-    } else {
-      target.$attrs[stripGlobal(name)] = value;
-    }
-  }
-};
-
-/**
- * Returns the named property of the given element
- *
- * @param  {ModdleElement} target
- * @param  {String} name
- *
- * @return {Object}
- */
-Properties.prototype.get = function(target, name) {
-
-  var property = this.getProperty(target, name);
-
-  if (!property) {
-    return target.$attrs[stripGlobal(name)];
-  }
-
-  var propertyName = property.name;
-
-  // check if access to collection property and lazily initialize it
-  if (!target[propertyName] && property.isMany) {
-    defineProperty(target, property, []);
-  }
-
-  return target[propertyName];
-};
-
-/**
- * Define a property on the target element
- * @template [T=any]
- * @param  {NonNullable<T>} target
- * @param  {String} name
- * @param  {PropertyDescriptor} options
- */
-Properties.prototype.define = function(target, name, options) {
-
-  if (!options.writable) {
-
-    var value = options.value;
-
-    // use getters for read-only variables to support ES6 proxies
-    // cf. https://github.com/bpmn-io/internal-docs/issues/386
-    options = assign$1({}, options, {
-      get: function() { return value; }
-    });
-
-    delete options.value;
-  }
-
-  Object.defineProperty(target, name, options);
-};
-
-/**
- * Define the descriptor for an element
- * @template [T=any]
- * @param {NonNullable<T>} target
- * @param {EffectiveDescriptor | AnyTypeDescriptor} descriptor
- */
-Properties.prototype.defineDescriptor = function(target, descriptor) {
-  this.define(target, '$descriptor', { value: descriptor });
-};
-
-/**
- * Define the model for an element
- * @template [T=any]
- * @param {NonNullable<T>} target
- * @param {Moddle} model
- */
-Properties.prototype.defineModel = function(target, model) {
-  this.define(target, '$model', { value: model });
-};
-
-/**
- * Return property with the given name on the element.
- *
- * @param {ModdleElement} target
- * @param {string} name
- *
- * @return {PropertyDesc | null} property
- */
-Properties.prototype.getProperty = function(target, name) {
-
-  var model = this.model;
-
-  var property = model.getPropertyDescriptor(target, name);
-
-  if (property) {
-    return property;
-  }
-
-  if (name.includes(':')) {
-    return null;
-  }
-
-  const strict = model.config.strict;
-
-  if (typeof strict !== 'undefined') {
-    const error = new TypeError(`unknown property <${ name }> on <${ target.$type }>`);
-
-    if (strict) {
-      throw error;
-    } else {
-
-      typeof console !== 'undefined' && console.warn(error);
-    }
-  }
-
-  return null;
-};
-
-function isUndefined$1(val) {
-  return typeof val === 'undefined';
-}
-
-function defineProperty(target, property, value) {
-  Object.defineProperty(target, property.name, {
-    enumerable: !property.isReference,
-    writable: true,
-    value: value,
-    configurable: true
-  });
-}
-
-function stripGlobal(name) {
-  return name.replace(/^:/, '');
-}
-
-/**
- * @typedef {import('./registry.js').RegisteredTypeDef} RegisteredTypeDef
- * @typedef {import('./registry.js').RegisteredPackage} RegisteredPackage
- * @typedef {import('./base.js').default} BaseElement
- * @typedef {import('./descriptor-builder.js').EffectiveDescriptor} EffectiveDescriptor
- * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
- * @typedef {import('./descriptor-builder.js').PropertyDescriptor} PropertyDescriptor
- */
-
-/**
- * @template [T=Record<string,any>]
- * @typedef {import('./factory.js').ModdleElement<T>} ModdleElement
- * @typedef {import('./factory.js').ModdleElementType<T>} ModdleElementType
- * @typedef {import('./factory.js').AnyModdleElement<T>} AnyModdleElement
- */
-
-/**
- * Package definition
- * @typedef {{
- *   $schema?: string;
- *   name: string;
- *   prefix: string;
- *   types?: Array<TypeDefinition>;
- *   [key: string]: any;
- * } & PackageDefinitionXmlExtension} PackageDefinition
- */
-
-/**
- * Set of extended parameters for package definition used in moddle-xml.
- * @typedef {{
- *   uri?: string;
- *   xml?: {
- *     tagAlias?: 'lowerCase';
- *     typePrefix?: string;
- *   };
- * }} PackageDefinitionXmlExtension
- */
-
-/**
- * Type definition in declaration in package
- * @typedef {{
- *   name: string;
- *   isAbstract?: boolean;
- *   properties?: Array<PropertyDefinition>;
- *   superClass?: Array<string>;
- *   extends?: Array<string>;
- *   meta?: Record<string, *>;
- *   [key: string]: any;
- * }} TypeDefinition
- */
-
-/**
- * Set of extended parameters for property definition used in moddle-xml.
- * @typedef {{
- *   isBody?: boolean;
- *   isAttr?: boolean;
- *   xml?: {
- *     serialize?: string;
- *   };
- * }} PropertyDefinitionXmlExtension
- */
-
-/**
- * Property definition of type definition
- * @typedef {{
- *   name: string;
- *   type: 'String' | 'Boolean' | 'Integer' | 'Real' | string;
- *   default?: string | boolean | number;
- *   isMany?: boolean;
- *   isReference?: boolean;
- *   isId?: boolean;
- *   redefines?: string;
- *   replaces?: string;
- *   [key: string]: any;
- * } & PropertyDefinitionXmlExtension} PropertyDefinition
- */
-
-// Moddle implementation /////////////////////////////////////////////////
-
-/**
- * @class Moddle
- *
- * A model that can be used to create elements of a specific type.
- *
- * @example
- *
- * import Moddle from 'moddle';
- *
- * var pkg = {
- *   name: 'mypackage',
- *   prefix: 'my',
- *   types: [
- *     { name: 'Root' }
- *   ]
- * };
- *
- * var moddle = new Moddle([pkg]);
- *
- * @param {Array<PackageDefinition> | Record<string,PackageDefinition>} packages the packages to contain
- * @param {{ strict?: boolean }} [config={}] moddle configuration
- */
-function Moddle(packages, config = {}) {
-
-  /** @type Readonly<Properties> */
-  this.properties = new Properties(this);
-
-  /** @type Readonly<Factory> */
-  this.factory = new Factory(this, this.properties);
-
-  /** @type Readonly<Registry> */
-  this.registry = new Registry(packages, this.properties);
-
-  /**
-   * @type {Record<string,ModdleElementType>}
-   */
-  this.typeCache = {};
-
-  /**
-   * @type {Readonly<{readonly strict?: boolean}>}
-   */
-  this.config = config;
-}
-
-/**
- * Create an instance of the specified type.
- *
- * @method Moddle#create
- *
- * @example
- *
- * var foo = moddle.create('my:Foo');
- * var bar = moddle.create('my:Bar', { id: 'BAR_1' });
- *
- * @template [T=Record<string,any>]
- * @param  {String|EffectiveDescriptor} descriptor the type descriptor or name know to the model
- * @param  {Partial<T>} [attrs] a number of attributes to initialize the model instance with
- * @return {ModdleElement<T>} model instance
- */
-Moddle.prototype.create = function(descriptor, attrs) {
-  var Type = this.getType(descriptor);
-
-  if (!Type) {
-    throw new Error('unknown type <' + descriptor + '>');
-  }
-
-  return new Type(attrs);
-};
-
-/**
- * Returns the type representing a given descriptor
- *
- * @method Moddle#getType
- *
- * @example
- *
- * var Foo = moddle.getType('my:Foo');
- * var foo = new Foo({ 'id' : 'FOO_1' });
- *
- * @template [T=Record<string,any>]
- * @param  {String|EffectiveDescriptor} descriptor the type descriptor or name know to the model
- * @return {ModdleElementType<T>} the type representing the descriptor
- */
-Moddle.prototype.getType = function(descriptor) {
-
-  var cache = this.typeCache;
-
-  var name = isString$1(descriptor) ? descriptor : descriptor.ns.name;
-
-  var type = cache[name];
-
-  if (!type) {
-    descriptor = this.registry.getEffectiveDescriptor(name);
-    type = cache[name] = this.factory.createType(descriptor);
-  }
-
-  return type;
-};
-
-/**
- * Creates an any-element type to be used within model instances.
- *
- * This can be used to create custom elements that lie outside the meta-model.
- * The created element contains all the meta-data required to serialize it
- * as part of meta-model elements.
- *
- * @method Moddle#createAny
- *
- * @example
- *
- * var foo = moddle.createAny('vendor:Foo', 'http://vendor', {
- *   value: 'bar'
- * });
- *
- * var container = moddle.create('my:Container', 'http://my', {
- *   any: [ foo ]
- * });
- *
- * // go ahead and serialize the stuff
- *
- * @template [T=Record<string, any>]
- * @param  {String} name  the name of the element
- * @param  {String} nsUri the namespace uri of the element
- * @param  {T} [properties] a map of properties to initialize the instance with
- * @return {AnyModdleElement<T>} the any type instance
- */
-Moddle.prototype.createAny = function(name, nsUri, properties) {
-
-  var nameNs = parseName(name);
-
-  /** @type AnyModdleElement */
-  var element = {
-    $type: name,
-    $instanceOf: function(type) {
-      return type === this.$type;
-    },
-    get: function(key) {
-      return this[key];
-    },
-    set: function(key, value) {
-      set(this, [ key ], value);
-    }
-  };
-
-  /** @type AnyTypeDescriptor */
-  var descriptor = {
-    name: name,
-    isGeneric: true,
-    ns: {
-      prefix: nameNs.prefix,
-      localName: nameNs.localName,
-      uri: nsUri
-    }
-  };
-
-  this.properties.defineDescriptor(element, descriptor);
-  this.properties.defineModel(element, this);
-  this.properties.define(element, 'get', { enumerable: false, writable: true });
-  this.properties.define(element, 'set', { enumerable: false, writable: true });
-  this.properties.define(element, '$parent', { enumerable: false, writable: true });
-  this.properties.define(element, '$instanceOf', { enumerable: false, writable: true });
-
-  forEach$1(properties, function(a, key) {
-    if (isObject(a) && a.value !== undefined) {
-      element[a.name] = a.value;
-    } else {
-      element[key] = a;
-    }
-  });
-
-  return element;
-};
-
-/**
- * Returns a registered package by uri or prefix
- * @param {string} uriOrPrefix
- * @return {RegisteredPackage} the package
- */
-Moddle.prototype.getPackage = function(uriOrPrefix) {
-  return this.registry.getPackage(uriOrPrefix);
-};
-
-/**
- * Returns a snapshot of all known packages
- *
- * @return {Readonly<Array<RegisteredPackage>>} the package
- */
-Moddle.prototype.getPackages = function() {
-  return this.registry.getPackages();
-};
-
-/**
- * Returns the descriptor for an element
- * @param {ModdleElement | ModdleElementType} element
- * @return {EffectiveDescriptor}
- */
-Moddle.prototype.getElementDescriptor = function(element) {
-  return element.$descriptor;
-};
-
-/**
- * @overload
- * Returns true if the given descriptor or instance
- * represents the given type.
- * @param {ModdleElement | ModdleElementType} element
- * @param {string} type
- * @return {boolean}
- */
-/**
- * @overload
- * @param {string} type
- * @return {boolean}
- */
-Moddle.prototype.hasType = function(element, type) {
-  if (type === undefined) {
-    type = element;
-    element = this;
-  }
-
-  var descriptor = element.$model.getElementDescriptor(element);
-
-  return (type in descriptor.allTypesByName);
-};
-
-/**
- * Returns the descriptor of an elements named property
- * @param {ModdleElement | ModdleElementType} element
- * @param {string} property
- * @return {PropertyDescriptor}
- */
-Moddle.prototype.getPropertyDescriptor = function(element, property) {
-  return this.getElementDescriptor(element).propertiesByName[property];
-};
-
-/**
- * Return registered type definition
- * @param {string} type
- * @return {RegisteredTypeDef}
- */
-Moddle.prototype.getTypeDescriptor = function(type) {
-  return this.registry.typeMap[type];
-};
-
-/**
- * Flatten array, one level deep.
- *
- * @template T
- *
- * @param {T[][] | T[] | null} [arr]
- *
- * @return {T[]}
- */
-
-const nativeToString = Object.prototype.toString;
-const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
-
-function isUndefined(obj) {
-  return obj === undefined;
 }
 
 function isNil(obj) {
@@ -6294,6 +4604,10 @@ function isNil(obj) {
 
 function isArray(obj) {
   return nativeToString.call(obj) === '[object Array]';
+}
+
+function isObject(obj) {
+  return nativeToString.call(obj) === '[object Object]';
 }
 
 /**
@@ -6475,7 +4789,7 @@ function forEach(collection, iterator) {
   let val,
       result;
 
-  if (isUndefined(collection)) {
+  if (isUndefined$1(collection)) {
     return;
   }
 
@@ -6518,6 +4832,18 @@ function toNum(arg) {
 }
 
 /**
+ * Bind function against target <this>.
+ *
+ * @param  {Function} fn
+ * @param  {Object}   target
+ *
+ * @return {Function} bound function
+ */
+function bind(fn, target) {
+  return fn.bind(target);
+}
+
+/**
  * Convenience wrapper for `Object.assign`.
  *
  * @param {Object} target
@@ -6528,6 +4854,1081 @@ function toNum(arg) {
 function assign(target, ...others) {
   return Object.assign(target, ...others);
 }
+
+/**
+ * Sets a nested property of a given object to the specified value.
+ *
+ * This mutates the object and returns it.
+ *
+ * @template T
+ *
+ * @param {T} target The target of the set operation.
+ * @param {(string|number)[]} path The path to the nested value.
+ * @param {any} value The value to set.
+ *
+ * @return {T}
+ */
+function set(target, path, value) {
+
+  let currentTarget = target;
+
+  forEach(path, function(key, idx) {
+
+    if (typeof key !== 'number' && typeof key !== 'string') {
+      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
+    }
+
+    if (key === 'constructor') {
+      throw new Error('illegal key: constructor');
+    }
+
+    if (key === '__proto__') {
+      throw new Error('illegal key: __proto__');
+    }
+
+    let nextKey = path[idx + 1];
+    let nextTarget = currentTarget[key];
+
+    if (isDefined(nextKey) && isNil(nextTarget)) {
+      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
+    }
+
+    if (isUndefined$1(nextKey)) {
+      if (isUndefined$1(value)) {
+        delete currentTarget[key];
+      } else {
+        currentTarget[key] = value;
+      }
+    } else {
+      currentTarget = nextTarget;
+    }
+  });
+
+  return target;
+}
+
+/**
+ * Pick properties from the given target.
+ *
+ * @template T
+ * @template {any[]} V
+ *
+ * @param {T} target
+ * @param {V} properties
+ *
+ * @return Pick<T, V>
+ */
+function pick(target, properties) {
+
+  let result = {};
+
+  let obj = Object(target);
+
+  forEach(properties, function(prop) {
+
+    if (prop in obj) {
+      result[prop] = target[prop];
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Moddle base element.
+ */
+function Base() { }
+
+Base.prototype.get = function(name) {
+  return this.$model.properties.get(this, name);
+};
+
+Base.prototype.set = function(name, value) {
+  this.$model.properties.set(this, name, value);
+};
+
+/**
+ * A model element factory.
+ *
+ * @param {Moddle} model
+ * @param {Properties} properties
+ */
+function Factory(model, properties) {
+  this.model = model;
+  this.properties = properties;
+}
+
+
+Factory.prototype.createType = function(descriptor) {
+
+  var model = this.model;
+
+  var props = this.properties,
+      prototype = Object.create(Base.prototype);
+
+  // initialize default values
+  forEach(descriptor.properties, function(p) {
+    if (!p.isMany && p.default !== undefined) {
+      prototype[p.name] = p.default;
+    }
+  });
+
+  props.defineModel(prototype, model);
+  props.defineDescriptor(prototype, descriptor);
+
+  var name = descriptor.ns.name;
+
+  /**
+   * The new type constructor
+   */
+  function ModdleElement(attrs) {
+    props.define(this, '$type', { value: name, enumerable: true });
+    props.define(this, '$attrs', { value: {} });
+    props.define(this, '$parent', { writable: true });
+
+    forEach(attrs, bind(function(val, key) {
+      this.set(key, val);
+    }, this));
+  }
+
+  ModdleElement.prototype = prototype;
+
+  ModdleElement.hasType = prototype.$instanceOf = this.model.hasType;
+
+  // static links
+  props.defineModel(ModdleElement, model);
+  props.defineDescriptor(ModdleElement, descriptor);
+
+  return ModdleElement;
+};
+
+/**
+ * Built-in moddle types
+ */
+var BUILTINS = {
+  String: true,
+  Boolean: true,
+  Integer: true,
+  Real: true,
+  Element: true
+};
+
+/**
+ * Converters for built in types from string representations
+ */
+var TYPE_CONVERTERS = {
+  String: function(s) { return s; },
+  Boolean: function(s) { return s === 'true'; },
+  Integer: function(s) { return parseInt(s, 10); },
+  Real: function(s) { return parseFloat(s); }
+};
+
+/**
+ * Convert a type to its real representation
+ */
+function coerceType(type, value) {
+
+  var converter = TYPE_CONVERTERS[type];
+
+  if (converter) {
+    return converter(value);
+  } else {
+    return value;
+  }
+}
+
+/**
+ * Return whether the given type is built-in
+ */
+function isBuiltIn(type) {
+  return !!BUILTINS[type];
+}
+
+/**
+ * Return whether the given type is simple
+ */
+function isSimple(type) {
+  return !!TYPE_CONVERTERS[type];
+}
+
+/**
+ * Parses a namespaced attribute name of the form (ns:)localName to an object,
+ * given a default prefix to assume in case no explicit namespace is given.
+ *
+ * @param {String} name
+ * @param {String} [defaultPrefix] the default prefix to take, if none is present.
+ *
+ * @return {Object} the parsed name
+ */
+function parseName(name, defaultPrefix) {
+  var parts = name.split(/:/),
+      localName, prefix;
+
+  // no prefix (i.e. only local name)
+  if (parts.length === 1) {
+    localName = name;
+    prefix = defaultPrefix;
+  }
+
+  // prefix + local name
+  else if (parts.length === 2) {
+    localName = parts[1];
+    prefix = parts[0];
+  }
+
+  else {
+    throw new Error('expected <prefix:localName> or <localName>, got ' + name);
+  }
+
+  name = (prefix ? prefix + ':' : '') + localName;
+
+  return {
+    name: name,
+    prefix: prefix,
+    localName: localName
+  };
+}
+
+/**
+ * A utility to build element descriptors.
+ */
+function DescriptorBuilder(nameNs) {
+  this.ns = nameNs;
+  this.name = nameNs.name;
+  this.allTypes = [];
+  this.allTypesByName = {};
+  this.properties = [];
+  this.propertiesByName = {};
+}
+
+
+DescriptorBuilder.prototype.build = function() {
+  return pick(this, [
+    'ns',
+    'name',
+    'allTypes',
+    'allTypesByName',
+    'properties',
+    'propertiesByName',
+    'bodyProperty',
+    'idProperty'
+  ]);
+};
+
+/**
+ * Add property at given index.
+ *
+ * @param {Object} p
+ * @param {Number} [idx]
+ * @param {Boolean} [validate=true]
+ */
+DescriptorBuilder.prototype.addProperty = function(p, idx, validate) {
+
+  if (typeof idx === 'boolean') {
+    validate = idx;
+    idx = undefined;
+  }
+
+  this.addNamedProperty(p, validate !== false);
+
+  var properties = this.properties;
+
+  if (idx !== undefined) {
+    properties.splice(idx, 0, p);
+  } else {
+    properties.push(p);
+  }
+};
+
+
+DescriptorBuilder.prototype.replaceProperty = function(oldProperty, newProperty, replace) {
+  var oldNameNs = oldProperty.ns;
+
+  var props = this.properties,
+      propertiesByName = this.propertiesByName,
+      rename = oldProperty.name !== newProperty.name;
+
+  if (oldProperty.isId) {
+    if (!newProperty.isId) {
+      throw new Error(
+        'property <' + newProperty.ns.name + '> must be id property ' +
+        'to refine <' + oldProperty.ns.name + '>');
+    }
+
+    this.setIdProperty(newProperty, false);
+  }
+
+  if (oldProperty.isBody) {
+
+    if (!newProperty.isBody) {
+      throw new Error(
+        'property <' + newProperty.ns.name + '> must be body property ' +
+        'to refine <' + oldProperty.ns.name + '>');
+    }
+
+    // TODO: Check compatibility
+    this.setBodyProperty(newProperty, false);
+  }
+
+  // validate existence and get location of old property
+  var idx = props.indexOf(oldProperty);
+  if (idx === -1) {
+    throw new Error('property <' + oldNameNs.name + '> not found in property list');
+  }
+
+  // remove old property
+  props.splice(idx, 1);
+
+  // replacing the named property is intentional
+  //
+  //  * validate only if this is a "rename" operation
+  //  * add at specific index unless we "replace"
+  //
+  this.addProperty(newProperty, replace ? undefined : idx, rename);
+
+  // make new property available under old name
+  propertiesByName[oldNameNs.name] = propertiesByName[oldNameNs.localName] = newProperty;
+};
+
+
+DescriptorBuilder.prototype.redefineProperty = function(p, targetPropertyName, replace) {
+
+  var nsPrefix = p.ns.prefix;
+  var parts = targetPropertyName.split('#');
+
+  var name = parseName(parts[0], nsPrefix);
+  var attrName = parseName(parts[1], name.prefix).name;
+
+  var redefinedProperty = this.propertiesByName[attrName];
+  if (!redefinedProperty) {
+    throw new Error('refined property <' + attrName + '> not found');
+  } else {
+    this.replaceProperty(redefinedProperty, p, replace);
+  }
+
+  delete p.redefines;
+};
+
+DescriptorBuilder.prototype.addNamedProperty = function(p, validate) {
+  var ns = p.ns,
+      propsByName = this.propertiesByName;
+
+  if (validate) {
+    this.assertNotDefined(p, ns.name);
+    this.assertNotDefined(p, ns.localName);
+  }
+
+  propsByName[ns.name] = propsByName[ns.localName] = p;
+};
+
+DescriptorBuilder.prototype.removeNamedProperty = function(p) {
+  var ns = p.ns,
+      propsByName = this.propertiesByName;
+
+  delete propsByName[ns.name];
+  delete propsByName[ns.localName];
+};
+
+DescriptorBuilder.prototype.setBodyProperty = function(p, validate) {
+
+  if (validate && this.bodyProperty) {
+    throw new Error(
+      'body property defined multiple times ' +
+      '(<' + this.bodyProperty.ns.name + '>, <' + p.ns.name + '>)');
+  }
+
+  this.bodyProperty = p;
+};
+
+DescriptorBuilder.prototype.setIdProperty = function(p, validate) {
+
+  if (validate && this.idProperty) {
+    throw new Error(
+      'id property defined multiple times ' +
+      '(<' + this.idProperty.ns.name + '>, <' + p.ns.name + '>)');
+  }
+
+  this.idProperty = p;
+};
+
+DescriptorBuilder.prototype.assertNotTrait = function(typeDescriptor) {
+
+  const _extends = typeDescriptor.extends || [];
+
+  if (_extends.length) {
+    throw new Error(
+      `cannot create <${ typeDescriptor.name }> extending <${ typeDescriptor.extends }>`
+    );
+  }
+};
+
+DescriptorBuilder.prototype.assertNotDefined = function(p, name) {
+  var propertyName = p.name,
+      definedProperty = this.propertiesByName[propertyName];
+
+  if (definedProperty) {
+    throw new Error(
+      'property <' + propertyName + '> already defined; ' +
+      'override of <' + definedProperty.definedBy.ns.name + '#' + definedProperty.ns.name + '> by ' +
+      '<' + p.definedBy.ns.name + '#' + p.ns.name + '> not allowed without redefines');
+  }
+};
+
+DescriptorBuilder.prototype.hasProperty = function(name) {
+  return this.propertiesByName[name];
+};
+
+DescriptorBuilder.prototype.addTrait = function(t, inherited) {
+
+  if (inherited) {
+    this.assertNotTrait(t);
+  }
+
+  var typesByName = this.allTypesByName,
+      types = this.allTypes;
+
+  var typeName = t.name;
+
+  if (typeName in typesByName) {
+    return;
+  }
+
+  forEach(t.properties, bind(function(p) {
+
+    // clone property to allow extensions
+    p = assign({}, p, {
+      name: p.ns.localName,
+      inherited: inherited
+    });
+
+    Object.defineProperty(p, 'definedBy', {
+      value: t
+    });
+
+    var replaces = p.replaces,
+        redefines = p.redefines;
+
+    // add replace/redefine support
+    if (replaces || redefines) {
+      this.redefineProperty(p, replaces || redefines, replaces);
+    } else {
+      if (p.isBody) {
+        this.setBodyProperty(p);
+      }
+      if (p.isId) {
+        this.setIdProperty(p);
+      }
+      this.addProperty(p);
+    }
+  }, this));
+
+  types.push(t);
+  typesByName[typeName] = t;
+};
+
+/**
+ * A registry of Moddle packages.
+ *
+ * @param {Array<Package>} packages
+ * @param {Properties} properties
+ */
+function Registry(packages, properties) {
+  this.packageMap = {};
+  this.typeMap = {};
+
+  this.packages = [];
+
+  this.properties = properties;
+
+  forEach(packages, bind(this.registerPackage, this));
+}
+
+
+Registry.prototype.getPackage = function(uriOrPrefix) {
+  return this.packageMap[uriOrPrefix];
+};
+
+Registry.prototype.getPackages = function() {
+  return this.packages;
+};
+
+
+Registry.prototype.registerPackage = function(pkg) {
+
+  // copy package
+  pkg = assign({}, pkg);
+
+  var pkgMap = this.packageMap;
+
+  ensureAvailable(pkgMap, pkg, 'prefix');
+  ensureAvailable(pkgMap, pkg, 'uri');
+
+  // register types
+  forEach(pkg.types, bind(function(descriptor) {
+    this.registerType(descriptor, pkg);
+  }, this));
+
+  pkgMap[pkg.uri] = pkgMap[pkg.prefix] = pkg;
+  this.packages.push(pkg);
+};
+
+
+/**
+ * Register a type from a specific package with us
+ */
+Registry.prototype.registerType = function(type, pkg) {
+
+  type = assign({}, type, {
+    superClass: (type.superClass || []).slice(),
+    extends: (type.extends || []).slice(),
+    properties: (type.properties || []).slice(),
+    meta: assign((type.meta || {}))
+  });
+
+  var ns = parseName(type.name, pkg.prefix),
+      name = ns.name,
+      propertiesByName = {};
+
+  // parse properties
+  forEach(type.properties, bind(function(p) {
+
+    // namespace property names
+    var propertyNs = parseName(p.name, ns.prefix),
+        propertyName = propertyNs.name;
+
+    // namespace property types
+    if (!isBuiltIn(p.type)) {
+      p.type = parseName(p.type, propertyNs.prefix).name;
+    }
+
+    assign(p, {
+      ns: propertyNs,
+      name: propertyName
+    });
+
+    propertiesByName[propertyName] = p;
+  }, this));
+
+  // update ns + name
+  assign(type, {
+    ns: ns,
+    name: name,
+    propertiesByName: propertiesByName
+  });
+
+  forEach(type.extends, bind(function(extendsName) {
+    var extendsNameNs = parseName(extendsName, ns.prefix);
+
+    var extended = this.typeMap[extendsNameNs.name];
+
+    extended.traits = extended.traits || [];
+    extended.traits.push(name);
+  }, this));
+
+  // link to package
+  this.definePackage(type, pkg);
+
+  // register
+  this.typeMap[name] = type;
+};
+
+
+/**
+ * Traverse the type hierarchy from bottom to top,
+ * calling iterator with (type, inherited) for all elements in
+ * the inheritance chain.
+ *
+ * @param {Object} nsName
+ * @param {Function} iterator
+ * @param {Boolean} [trait=false]
+ */
+Registry.prototype.mapTypes = function(nsName, iterator, trait) {
+
+  var type = isBuiltIn(nsName.name) ? { name: nsName.name } : this.typeMap[nsName.name];
+
+  var self = this;
+
+  /**
+   * Traverse the selected super type or trait
+   *
+   * @param {String} cls
+   * @param {Boolean} [trait=false]
+   */
+  function traverse(cls, trait) {
+    var parentNs = parseName(cls, isBuiltIn(cls) ? '' : nsName.prefix);
+    self.mapTypes(parentNs, iterator, trait);
+  }
+
+  /**
+   * Traverse the selected trait.
+   *
+   * @param {String} cls
+   */
+  function traverseTrait(cls) {
+    return traverse(cls, true);
+  }
+
+  /**
+   * Traverse the selected super type
+   *
+   * @param {String} cls
+   */
+  function traverseSuper(cls) {
+    return traverse(cls, false);
+  }
+
+  if (!type) {
+    throw new Error('unknown type <' + nsName.name + '>');
+  }
+
+  forEach(type.superClass, trait ? traverseTrait : traverseSuper);
+
+  // call iterator with (type, inherited=!trait)
+  iterator(type, !trait);
+
+  forEach(type.traits, traverseTrait);
+};
+
+
+/**
+ * Returns the effective descriptor for a type.
+ *
+ * @param  {String} type the namespaced name (ns:localName) of the type
+ *
+ * @return {Descriptor} the resulting effective descriptor
+ */
+Registry.prototype.getEffectiveDescriptor = function(name) {
+
+  var nsName = parseName(name);
+
+  var builder = new DescriptorBuilder(nsName);
+
+  this.mapTypes(nsName, function(type, inherited) {
+    builder.addTrait(type, inherited);
+  });
+
+  var descriptor = builder.build();
+
+  // define package link
+  this.definePackage(descriptor, descriptor.allTypes[descriptor.allTypes.length - 1].$pkg);
+
+  return descriptor;
+};
+
+
+Registry.prototype.definePackage = function(target, pkg) {
+  this.properties.define(target, '$pkg', { value: pkg });
+};
+
+
+
+// helpers ////////////////////////////
+
+function ensureAvailable(packageMap, pkg, identifierKey) {
+
+  var value = pkg[identifierKey];
+
+  if (value in packageMap) {
+    throw new Error('package with ' + identifierKey + ' <' + value + '> already defined');
+  }
+}
+
+/**
+ * A utility that gets and sets properties of model elements.
+ *
+ * @param {Model} model
+ */
+function Properties(model) {
+  this.model = model;
+}
+
+
+/**
+ * Sets a named property on the target element.
+ * If the value is undefined, the property gets deleted.
+ *
+ * @param {Object} target
+ * @param {String} name
+ * @param {Object} value
+ */
+Properties.prototype.set = function(target, name, value) {
+
+  if (!isString(name) || !name.length) {
+    throw new TypeError('property name must be a non-empty string');
+  }
+
+  var property = this.getProperty(target, name);
+
+  var propertyName = property && property.name;
+
+  if (isUndefined(value)) {
+
+    // unset the property, if the specified value is undefined;
+    // delete from $attrs (for extensions) or the target itself
+    if (property) {
+      delete target[propertyName];
+    } else {
+      delete target.$attrs[stripGlobal(name)];
+    }
+  } else {
+
+    // set the property, defining well defined properties on the fly
+    // or simply updating them in target.$attrs (for extensions)
+    if (property) {
+      if (propertyName in target) {
+        target[propertyName] = value;
+      } else {
+        defineProperty(target, property, value);
+      }
+    } else {
+      target.$attrs[stripGlobal(name)] = value;
+    }
+  }
+};
+
+/**
+ * Returns the named property of the given element
+ *
+ * @param  {Object} target
+ * @param  {String} name
+ *
+ * @return {Object}
+ */
+Properties.prototype.get = function(target, name) {
+
+  var property = this.getProperty(target, name);
+
+  if (!property) {
+    return target.$attrs[stripGlobal(name)];
+  }
+
+  var propertyName = property.name;
+
+  // check if access to collection property and lazily initialize it
+  if (!target[propertyName] && property.isMany) {
+    defineProperty(target, property, []);
+  }
+
+  return target[propertyName];
+};
+
+
+/**
+ * Define a property on the target element
+ *
+ * @param  {Object} target
+ * @param  {String} name
+ * @param  {Object} options
+ */
+Properties.prototype.define = function(target, name, options) {
+
+  if (!options.writable) {
+
+    var value = options.value;
+
+    // use getters for read-only variables to support ES6 proxies
+    // cf. https://github.com/bpmn-io/internal-docs/issues/386
+    options = assign({}, options, {
+      get: function() { return value; }
+    });
+
+    delete options.value;
+  }
+
+  Object.defineProperty(target, name, options);
+};
+
+
+/**
+ * Define the descriptor for an element
+ */
+Properties.prototype.defineDescriptor = function(target, descriptor) {
+  this.define(target, '$descriptor', { value: descriptor });
+};
+
+/**
+ * Define the model for an element
+ */
+Properties.prototype.defineModel = function(target, model) {
+  this.define(target, '$model', { value: model });
+};
+
+/**
+ * Return property with the given name on the element.
+ *
+ * @param {any} target
+ * @param {string} name
+ *
+ * @return {object | null} property
+ */
+Properties.prototype.getProperty = function(target, name) {
+
+  var model = this.model;
+
+  var property = model.getPropertyDescriptor(target, name);
+
+  if (property) {
+    return property;
+  }
+
+  if (name.includes(':')) {
+    return null;
+  }
+
+  const strict = model.config.strict;
+
+  if (typeof strict !== 'undefined') {
+    const error = new TypeError(`unknown property <${ name }> on <${ target.$type }>`);
+
+    if (strict) {
+      throw error;
+    } else {
+
+      // eslint-disable-next-line no-undef
+      typeof console !== 'undefined' && console.warn(error);
+    }
+  }
+
+  return null;
+};
+
+function isUndefined(val) {
+  return typeof val === 'undefined';
+}
+
+function defineProperty(target, property, value) {
+  Object.defineProperty(target, property.name, {
+    enumerable: !property.isReference,
+    writable: true,
+    value: value,
+    configurable: true
+  });
+}
+
+function stripGlobal(name) {
+  return name.replace(/^:/, '');
+}
+
+// Moddle implementation /////////////////////////////////////////////////
+
+/**
+ * @class Moddle
+ *
+ * A model that can be used to create elements of a specific type.
+ *
+ * @example
+ *
+ * var Moddle = require('moddle');
+ *
+ * var pkg = {
+ *   name: 'mypackage',
+ *   prefix: 'my',
+ *   types: [
+ *     { name: 'Root' }
+ *   ]
+ * };
+ *
+ * var moddle = new Moddle([pkg]);
+ *
+ * @param {Array<Package>} packages the packages to contain
+ *
+ * @param { { strict?: boolean } } [config] moddle configuration
+ */
+function Moddle(packages, config = {}) {
+
+  this.properties = new Properties(this);
+
+  this.factory = new Factory(this, this.properties);
+  this.registry = new Registry(packages, this.properties);
+
+  this.typeCache = {};
+
+  this.config = config;
+}
+
+
+/**
+ * Create an instance of the specified type.
+ *
+ * @method Moddle#create
+ *
+ * @example
+ *
+ * var foo = moddle.create('my:Foo');
+ * var bar = moddle.create('my:Bar', { id: 'BAR_1' });
+ *
+ * @param  {String|Object} descriptor the type descriptor or name know to the model
+ * @param  {Object} attrs   a number of attributes to initialize the model instance with
+ * @return {Object}         model instance
+ */
+Moddle.prototype.create = function(descriptor, attrs) {
+  var Type = this.getType(descriptor);
+
+  if (!Type) {
+    throw new Error('unknown type <' + descriptor + '>');
+  }
+
+  return new Type(attrs);
+};
+
+
+/**
+ * Returns the type representing a given descriptor
+ *
+ * @method Moddle#getType
+ *
+ * @example
+ *
+ * var Foo = moddle.getType('my:Foo');
+ * var foo = new Foo({ 'id' : 'FOO_1' });
+ *
+ * @param  {String|Object} descriptor the type descriptor or name know to the model
+ * @return {Object}         the type representing the descriptor
+ */
+Moddle.prototype.getType = function(descriptor) {
+
+  var cache = this.typeCache;
+
+  var name = isString(descriptor) ? descriptor : descriptor.ns.name;
+
+  var type = cache[name];
+
+  if (!type) {
+    descriptor = this.registry.getEffectiveDescriptor(name);
+    type = cache[name] = this.factory.createType(descriptor);
+  }
+
+  return type;
+};
+
+
+/**
+ * Creates an any-element type to be used within model instances.
+ *
+ * This can be used to create custom elements that lie outside the meta-model.
+ * The created element contains all the meta-data required to serialize it
+ * as part of meta-model elements.
+ *
+ * @method Moddle#createAny
+ *
+ * @example
+ *
+ * var foo = moddle.createAny('vendor:Foo', 'http://vendor', {
+ *   value: 'bar'
+ * });
+ *
+ * var container = moddle.create('my:Container', 'http://my', {
+ *   any: [ foo ]
+ * });
+ *
+ * // go ahead and serialize the stuff
+ *
+ *
+ * @param  {String} name  the name of the element
+ * @param  {String} nsUri the namespace uri of the element
+ * @param  {Object} [properties] a map of properties to initialize the instance with
+ * @return {Object} the any type instance
+ */
+Moddle.prototype.createAny = function(name, nsUri, properties) {
+
+  var nameNs = parseName(name);
+
+  var element = {
+    $type: name,
+    $instanceOf: function(type) {
+      return type === this.$type;
+    },
+    get: function(key) {
+      return this[key];
+    },
+    set: function(key, value) {
+      set(this, [ key ], value);
+    }
+  };
+
+  var descriptor = {
+    name: name,
+    isGeneric: true,
+    ns: {
+      prefix: nameNs.prefix,
+      localName: nameNs.localName,
+      uri: nsUri
+    }
+  };
+
+  this.properties.defineDescriptor(element, descriptor);
+  this.properties.defineModel(element, this);
+  this.properties.define(element, 'get', { enumerable: false, writable: true });
+  this.properties.define(element, 'set', { enumerable: false, writable: true });
+  this.properties.define(element, '$parent', { enumerable: false, writable: true });
+  this.properties.define(element, '$instanceOf', { enumerable: false, writable: true });
+
+  forEach(properties, function(a, key) {
+    if (isObject(a) && a.value !== undefined) {
+      element[a.name] = a.value;
+    } else {
+      element[key] = a;
+    }
+  });
+
+  return element;
+};
+
+/**
+ * Returns a registered package by uri or prefix
+ *
+ * @return {Object} the package
+ */
+Moddle.prototype.getPackage = function(uriOrPrefix) {
+  return this.registry.getPackage(uriOrPrefix);
+};
+
+/**
+ * Returns a snapshot of all known packages
+ *
+ * @return {Object} the package
+ */
+Moddle.prototype.getPackages = function() {
+  return this.registry.getPackages();
+};
+
+/**
+ * Returns the descriptor for an element
+ */
+Moddle.prototype.getElementDescriptor = function(element) {
+  return element.$descriptor;
+};
+
+/**
+ * Returns true if the given descriptor or instance
+ * represents the given type.
+ *
+ * May be applied to this, if element is omitted.
+ */
+Moddle.prototype.hasType = function(element, type) {
+  if (type === undefined) {
+    type = element;
+    element = this;
+  }
+
+  var descriptor = element.$model.getElementDescriptor(element);
+
+  return (type in descriptor.allTypesByName);
+};
+
+/**
+ * Returns the descriptor of an elements named property
+ */
+Moddle.prototype.getPropertyDescriptor = function(element, property) {
+  return this.getElementDescriptor(element).propertiesByName[property];
+};
+
+/**
+ * Returns a mapped type's descriptor
+ */
+Moddle.prototype.getTypeDescriptor = function(type) {
+  return this.registry.typeMap[type];
+};
 
 var fromCharCode = String.fromCharCode;
 
@@ -7204,16 +6605,16 @@ function Parser(options) {
         data = xml.substring(j);
       } else
 
-        // start errors
-        if (j === 0) {
-          data = xml.substring(j, i);
-        }
+      // start errors
+      if (j === 0) {
+        data = xml.substring(j, i);
+      }
 
-        // other errors
-        else {
-          column = i - startOfLine;
-          data = (j == -1 ? xml.substring(i) : xml.substring(i, j + 1));
-        }
+      // other errors
+      else {
+        column = i - startOfLine;
+        data = (j == -1 ? xml.substring(i) : xml.substring(i, j + 1));
+      }
 
       return {
         'data': data,
@@ -9462,12 +8863,12 @@ BpmnModdle.prototype = Object.create(Moddle.prototype);
  */
 BpmnModdle.prototype.fromXML = function(xmlStr, typeName, options) {
 
-  if (!isString$2(typeName)) {
+  if (!isString(typeName)) {
     options = typeName;
     typeName = 'bpmn:Definitions';
   }
 
-  var reader = new Reader(assign$2({ model: this, lax: true }, options));
+  var reader = new Reader(assign({ model: this, lax: true }, options));
   var rootHandler = reader.handler(typeName);
 
   return reader.fromXML(xmlStr, rootHandler);
@@ -13152,7 +12553,7 @@ const packages = {
 };
 
 function SimpleBpmnModdle(additionalPackages, options) {
-  const pks = assign$2({}, packages, additionalPackages);
+  const pks = assign({}, packages, additionalPackages);
 
   return new BpmnModdle(pks, options);
 }
@@ -14394,10 +13795,12 @@ function collectMessagesFromElement(el, allMessages, collected, insideEventSubpr
                 }
                 else {
                     // Upgrade flags independently — both can become true over multiple encounters
-                    if (isProcessStartEvent)
+                    if (isProcessStartEvent) {
                         existing.isStartEvent = true;
-                    if (isCatchContext)
+                    }
+                    if (isCatchContext) {
                         existing.hasCatchUsage = true;
+                    }
                 }
             }
         }
@@ -14430,8 +13833,8 @@ function collectMessagesFromEvents(elements, allMessages, collected, insideEvent
         collectMessagesFromElement(el, allMessages, collected, insideEventSubprocess);
         // Recurse into subprocesses, tracking whether the subprocess is event-triggered
         if (el.flowElements !== undefined) {
-            var childIsEventSubprocess = el.$type === 'bpmn:SubProcess' && ((_a = el.triggeredByEvent) !== null && _a !== void 0 ? _a : false);
-            collectMessagesFromEvents(el.flowElements, allMessages, collected, insideEventSubprocess || childIsEventSubprocess);
+            var isChildEventSubprocess = el.$type === 'bpmn:SubProcess' && ((_a = el.triggeredByEvent) !== null && _a !== void 0 ? _a : false);
+            collectMessagesFromEvents(el.flowElements, allMessages, collected, insideEventSubprocess || isChildEventSubprocess);
         }
     }
 }
@@ -14766,6 +14169,7 @@ var BatchMessageForm = function (_a) {
         return (React.createElement("div", { className: "modify-form__error" },
             React.createElement(ErrorMessage, { message: error })));
     }
+    var submitLabel = (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true ? 'Start Process' : 'Correlate Message';
     return (React.createElement(FormProvider, __assign({}, methods),
         React.createElement("form", { onSubmit: function (e) {
                 e.preventDefault();
@@ -14807,11 +14211,7 @@ var BatchMessageForm = function (_a) {
             error && React.createElement(ErrorMessage, { message: error }),
             successMessage && React.createElement(SuccessMessage, { message: successMessage }),
             React.createElement("div", { className: "modify-form__actions" },
-                React.createElement(FormButton, { type: "submit", disabled: isSubmitting, variant: "primary", minWidth: 160 }, isSubmitting
-                    ? 'Sending...'
-                    : (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true
-                        ? 'Start Process'
-                        : 'Correlate Message'),
+                React.createElement(FormButton, { type: "submit", disabled: isSubmitting, variant: "primary", minWidth: 160 }, isSubmitting ? 'Sending...' : submitLabel),
                 React.createElement(FormButton, { type: "button", variant: "secondary", onClick: handleReset, minWidth: 100 }, "Reset")))));
 };
 
