@@ -139,8 +139,12 @@ function collectMessagesFromElement(
           });
         } else {
           // Upgrade flags independently — both can become true over multiple encounters
-          if (isProcessStartEvent) { existing.isStartEvent = true; }
-          if (isCatchContext) { existing.hasCatchUsage = true; }
+          if (isProcessStartEvent) {
+            existing.isStartEvent = true;
+          }
+          if (isCatchContext) {
+            existing.hasCatchUsage = true;
+          }
         }
       }
     }
