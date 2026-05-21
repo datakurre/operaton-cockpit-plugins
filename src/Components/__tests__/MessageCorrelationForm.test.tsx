@@ -113,7 +113,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      expect(screen.getByText(/No message catch events found/i)).toBeInTheDocument();
+      expect(screen.getByText(/No message events found/i)).toBeInTheDocument();
     });
 
     it('should fetch process definition if not provided', async () => {
@@ -266,6 +266,92 @@ describe('MessageCorrelationForm', () => {
       await user.click(advancedCheckbox); // Hide
 
       expect(screen.queryByText('Correlation Keys')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('start event message behaviour', () => {
+    const mockStartEventMessages = [
+      { id: 'Message_Start', name: 'StartOrder', isStartEvent: true, hasCatchUsage: false },
+    ];
+
+    beforeEach(() => {
+      mockGetBpmnElements.mockResolvedValue({
+        activities: [],
+        sequenceFlows: [],
+        messages: mockStartEventMessages,
+      });
+      jest
+        .spyOn(globalThis.crypto, 'randomUUID')
+        .mockReturnValue('00000000-0000-4000-8000-000000000000' as ReturnType<typeof crypto.randomUUID>);
+    });
+
+    it('should show the business key field for start event messages', async () => {
+      render(<MessageCorrelationForm {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
+      });
+
+      expect(screen.getByLabelText('Business Key')).toBeInTheDocument();
+    });
+
+    it('should pre-fill the business key field with a generated UUID', async () => {
+      render(<MessageCorrelationForm {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Business Key')).toHaveValue('00000000-0000-4000-8000-000000000000');
+      });
+    });
+
+    it('should hide advanced correlation options for start event messages', async () => {
+      render(<MessageCorrelationForm {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
+      });
+
+      expect(screen.queryByRole('checkbox', { name: /advanced correlation options/i })).not.toBeInTheDocument();
+    });
+
+    it('should show Start Process Instance button for start event messages', async () => {
+      render(<MessageCorrelationForm {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('button', { name: 'Start Process Instance' })).toBeInTheDocument();
+    });
+
+    it('should submit without processInstanceId and include businessKey for start event messages', async () => {
+      const user = userEvent.setup();
+      render(<MessageCorrelationForm {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Business Key')).toHaveValue('00000000-0000-4000-8000-000000000000');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Start Process Instance' }));
+
+      await waitFor(() => {
+        const body = (mockPost as jest.Mock).mock.calls[0]?.[3] as string | undefined;
+        expect(body).toBeDefined();
+        const parsed = JSON.parse(body ?? '{}') as Record<string, unknown>;
+        expect(parsed).toMatchObject({
+          messageName: 'StartOrder',
+          businessKey: '00000000-0000-4000-8000-000000000000',
+        });
+        expect(parsed).not.toHaveProperty('processInstanceId');
+        expect(parsed).not.toHaveProperty('correlationKeys');
+      });
     });
   });
 

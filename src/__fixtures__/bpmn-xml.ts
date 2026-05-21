@@ -152,3 +152,26 @@ export const bpmnWithMessages = `<?xml version="1.0" encoding="UTF-8"?>
     </bpmn:boundaryEvent>
   </bpmn:process>
 </bpmn:definitions>`;
+
+/** BPMN process with a message start event (triggers new instance on correlation). */
+export const bpmnWithStartEventMessage = `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  id="Definitions_1"
+                  targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:message id="Message_StartOrder" name="StartOrder"/>
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_Msg" name="Order Requested">
+      <bpmn:messageEventDefinition messageRef="Message_StartOrder"/>
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_1" name="Process Order">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="EndEvent_1" name="End">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_Msg" targetRef="Task_1"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_1" targetRef="EndEvent_1"/>
+  </bpmn:process>
+</bpmn:definitions>`;
