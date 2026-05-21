@@ -1,4 +1,4 @@
-import { BpmnModdle } from 'bpmn-moddle';
+import BpmnModdle from 'bpmn-moddle';
 import moddle from 'camunda-bpmn-moddle/resources/camunda.json';
 import { get } from './api';
 import type { API } from '../types';
@@ -139,8 +139,8 @@ function collectMessagesFromElement(
           });
         } else {
           // Upgrade flags independently — both can become true over multiple encounters
-          if (isProcessStartEvent) existing.isStartEvent = true;
-          if (isCatchContext) existing.hasCatchUsage = true;
+          if (isProcessStartEvent) { existing.isStartEvent = true; }
+          if (isCatchContext) { existing.hasCatchUsage = true; }
         }
       }
     }
@@ -178,12 +178,12 @@ function collectMessagesFromEvents(
 
     // Recurse into subprocesses, tracking whether the subprocess is event-triggered
     if (el.flowElements !== undefined) {
-      const childIsEventSubprocess = el.$type === 'bpmn:SubProcess' && (el.triggeredByEvent ?? false);
+      const isChildEventSubprocess = el.$type === 'bpmn:SubProcess' && (el.triggeredByEvent ?? false);
       collectMessagesFromEvents(
         el.flowElements,
         allMessages,
         collected,
-        insideEventSubprocess || childIsEventSubprocess
+        insideEventSubprocess || isChildEventSubprocess
       );
     }
   }

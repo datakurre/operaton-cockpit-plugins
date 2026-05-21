@@ -17,6 +17,8 @@ module.exports = {
     // Mock react-select-filter-box (library with nested React types)
     '^react-select-filter-box$': '<rootDir>/src/__mocks__/react-select-filter-box.tsx',
     '^react-select-filter-box/styles$': 'identity-obj-proxy',
+    // Use the CJS build of bpmn-moddle so Jest can require it without ESM transform
+    '^bpmn-moddle$': '<rootDir>/node_modules/bpmn-moddle/dist/index.cjs',
   },
   // setupFiles runs BEFORE the test environment is set up
   setupFiles: ['<rootDir>/src/setupPolyfills.js'],
