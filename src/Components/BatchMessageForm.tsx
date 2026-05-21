@@ -198,6 +198,8 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
     );
   }
 
+  const submitLabel = selectedMessage?.isStartEvent === true ? 'Start Process' : 'Correlate Message';
+
   return (
     <FormProvider {...methods}>
       <form
@@ -288,11 +290,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
 
         <div className="modify-form__actions">
           <FormButton type="submit" disabled={isSubmitting} variant="primary" minWidth={160}>
-            {isSubmitting
-              ? 'Sending...'
-              : selectedMessage?.isStartEvent === true
-                ? 'Start Process'
-                : 'Correlate Message'}
+            {isSubmitting ? 'Sending...' : submitLabel}
           </FormButton>
           <FormButton type="button" variant="secondary" onClick={handleReset} minWidth={100}>
             Reset
