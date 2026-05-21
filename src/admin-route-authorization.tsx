@@ -134,10 +134,19 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
     [api.adminApi, api.engine]
   );
 
+  /** True when the All-types view has no active filters — querying without a filter would return every record. */
+  const requiresFilter = selectedResourceType === ALL_RESOURCE_TYPES && Object.keys(filterParams).length === 0;
+
   /**
    * Fetch authorizations from the API
    */
   const fetchAuthorizations = useCallback(async () => {
+    if (selectedResourceType === ALL_RESOURCE_TYPES && Object.keys(filterParams).length === 0) {
+      setAuthorizations([]);
+      setTotalCount(0);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -475,7 +484,12 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
 
               {/* Content based on loading/data state */}
               {isLoading && <LoadingSpinner />}
-              {!isLoading && authorizations.length === 0 && (
+              {!isLoading && requiresFilter && (
+                <div className="alert alert-info">
+                  Add at least one filter to search across all authorization types.
+                </div>
+              )}
+              {!isLoading && !requiresFilter && authorizations.length === 0 && (
                 <div className="alert alert-info">No authorizations found for {currentResourceName}.</div>
               )}
               {!isLoading && authorizations.length > 0 && (

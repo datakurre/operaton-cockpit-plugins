@@ -183,9 +183,10 @@ describe('AuthorizationsView Component', () => {
     it('should highlight selected resource type', async () => {
       renderPlugin();
 
-      // Wait for the component to render by checking for any resource type
+      // In "All" view with no filter the prompt is shown instead of the table;
+      // wait for the sidebar to be rendered instead.
       await waitFor(() => {
-        expect(screen.getByRole('table')).toBeInTheDocument();
+        expect(screen.getAllByText('All Authorizations').length).toBeGreaterThan(0);
       });
 
       // "All Authorizations" should be selected by default (wrapped in <strong>)
@@ -218,16 +219,28 @@ describe('AuthorizationsView Component', () => {
   });
 
   describe('Authorization table', () => {
-    it('should fetch and display authorizations', async () => {
+    it('should show filter prompt in All view with no filters', async () => {
       renderPlugin();
 
       await waitFor(() => {
-        // Should show authorization table
+        expect(
+          screen.getByText(/Add at least one filter to search across all authorization types/)
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('should fetch and display authorizations after selecting a resource type', async () => {
+      renderPlugin();
+
+      await selectResourceType('Application');
+
+      await waitFor(() => {
+        // Should show authorization table once a resource type is selected
         expect(screen.getByRole('table')).toBeInTheDocument();
       });
     });
 
-    it('should show empty state when no authorizations', async () => {
+    it('should show empty state when no authorizations for a resource type', async () => {
       // Override handler to return empty array
       server.use(
         http.get('*/api/engine/default/authorization', () => {
@@ -239,6 +252,9 @@ describe('AuthorizationsView Component', () => {
       );
 
       renderPlugin();
+
+      // Must select a resource type first — the All view requires a filter
+      await selectResourceType('Application');
 
       await waitFor(() => {
         expect(screen.getByText(/No authorizations found/)).toBeInTheDocument();
@@ -268,6 +284,9 @@ describe('AuthorizationsView Component', () => {
       );
 
       renderPlugin();
+
+      // Select a resource type to trigger the fetch
+      await selectResourceType('Application');
 
       await waitFor(() => {
         // Error message should be displayed
@@ -668,21 +687,20 @@ describe('SortableAuthorizationsTable', () => {
     const plugin = adminRouteAuthorization[0];
     plugin.render(container, { api: mockApi });
 
-    // Wait for the table to be rendered
+    // Wait for the sidebar to render before clicking
     await waitFor(() => {
-      expect(screen.getByRole('table')).toBeInTheDocument();
+      expect(screen.getAllByText('Application').length).toBeGreaterThan(0);
     });
 
-    // Click on Application to switch from "All" view to specific resource type
-    // This makes action buttons visible
+    // Click on Application to switch from "All" view (which requires a filter)
+    // to a specific resource type so the table is fetched and action buttons are visible
     const appLinks = screen.getAllByText('Application');
     const user = userEvent.setup();
     await user.click(appLinks[0]!);
 
-    // Wait for the view to update
+    // Wait for the table to be rendered after switching resource type
     await waitFor(() => {
-      const appLink = appLinks[0]!.closest('li');
-      expect(appLink).toHaveClass('active');
+      expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
     return container;
