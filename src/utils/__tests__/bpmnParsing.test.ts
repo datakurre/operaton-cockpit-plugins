@@ -6,7 +6,13 @@
 import { getBpmnElements } from '../bpmnParsing';
 import { createMockApi } from '../../__mocks__/api';
 import { setFetchFunction, resetFetchFunction } from '../api';
-import { simpleBpmnXml, bpmnWithGateway, bpmnWithMessages, bpmnWithSubprocess } from '../../__fixtures__/bpmn-xml';
+import {
+  simpleBpmnXml,
+  bpmnWithGateway,
+  bpmnWithMessages,
+  bpmnWithSubprocess,
+  bpmnWithStartEventMessage,
+} from '../../__fixtures__/bpmn-xml';
 
 describe('utils/bpmnParsing', () => {
   const mockApi = createMockApi();
@@ -160,6 +166,19 @@ describe('utils/bpmnParsing', () => {
         name: 'CancelOrder',
         isStartEvent: false,
         hasCatchUsage: true,
+      });
+    });
+
+    it('should mark messages from start events with isStartEvent: true', async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ bpmn20Xml: bpmnWithStartEventMessage }));
+
+      const { messages } = await getBpmnElements('def-123', mockApi);
+
+      expect(messages).toContainEqual({
+        id: 'Message_StartOrder',
+        name: 'StartOrder',
+        isStartEvent: true,
+        hasCatchUsage: false,
       });
     });
 

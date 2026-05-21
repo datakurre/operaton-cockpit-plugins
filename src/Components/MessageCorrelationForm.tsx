@@ -31,6 +31,7 @@ interface Variable {
 
 interface CorrelationFormData {
   messageName: string;
+  businessKey: string;
   correlationKeys: Variable[];
   localCorrelationKeys: Variable[];
   processVariables: Variable[];
@@ -39,6 +40,14 @@ interface CorrelationFormData {
 
 /** Success message shown after correlating a message */
 const SUCCESS_MESSAGE = 'Message correlated successfully! The page will refresh to show updates.';
+
+/**
+ * Generate a UUID v4 string for use as a default business key.
+ * @returns A UUID v4 string
+ */
+function generateUUID(): string {
+  return crypto.randomUUID();
+}
 
 /**
  * Form component for correlating messages to process instances.
@@ -59,12 +68,18 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
 
   const methods = useForm<CorrelationFormData>({
     defaultValues: {
+      messageName: '',
+      businessKey: '',
       correlationKeys: [],
       localCorrelationKeys: [],
       processVariables: [],
       processVariablesLocal: [],
     },
   });
+
+  const watchedMessageName = methods.watch('messageName');
+  const selectedMessage = messages.find(msg => msg.name === watchedMessageName);
+  const isStartEvent = selectedMessage?.isStartEvent === true;
 
   useEffect(() => {
     const loadMessages = async (): Promise<void> => {
@@ -81,7 +96,7 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
 
         if (defId !== undefined && defId !== '') {
           const { messages: allMessages } = await getBpmnElements(defId, api);
-          setMessages(allMessages.filter(m => !m.isStartEvent || m.hasCatchUsage));
+          setMessages(allMessages);
         } else {
           throw new Error('Could not determine process definition ID.');
         }
@@ -95,6 +110,27 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
     void loadMessages();
   }, [api, processInstanceId, processDefinitionId, processData]);
 
+  // Set a default messageName once messages are loaded so isStartEvent is computed correctly
+  useEffect(() => {
+    if (messages.length > 0 && methods.getValues('messageName') === '') {
+      const first = messages[0];
+      if (first !== undefined) {
+        methods.setValue('messageName', first.name);
+      }
+    }
+    // methods is a stable reference from useForm
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
+
+  // Generate a fresh business key whenever the user selects a start event message
+  useEffect(() => {
+    if (isStartEvent) {
+      methods.setValue('businessKey', generateUUID());
+    }
+    // methods is a stable reference from useForm
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStartEvent]);
+
   const transformVariables = (vars: Variable[]): Record<string, { value: unknown; type: string }> =>
     transformVariablesUtil(vars, false);
 
@@ -103,15 +139,21 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
       setIsSubmitted(true);
       setError(null);
 
-      const payload: Record<string, unknown> = {
-        messageName: data.messageName,
-        processInstanceId,
-        all: false,
-        correlationKeys: transformVariables(data.correlationKeys),
-        localCorrelationKeys: transformVariables(data.localCorrelationKeys),
-        processVariables: transformVariables(data.processVariables),
-        processVariablesLocal: transformVariables(data.processVariablesLocal),
-      };
+      const payload: Record<string, unknown> = isStartEvent
+        ? {
+            messageName: data.messageName,
+            businessKey: data.businessKey,
+            processVariables: transformVariables(data.processVariables),
+          }
+        : {
+            messageName: data.messageName,
+            processInstanceId,
+            all: false,
+            correlationKeys: transformVariables(data.correlationKeys),
+            localCorrelationKeys: transformVariables(data.localCorrelationKeys),
+            processVariables: transformVariables(data.processVariables),
+            processVariablesLocal: transformVariables(data.processVariablesLocal),
+          };
 
       await post(api, '/message', {}, JSON.stringify(payload));
 
@@ -137,10 +179,10 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
   if (messages.length === 0 && !error) {
     return (
       <div className="message-correlation-form">
-        <p>No message catch events found in the process definition.</p>
+        <p>No message events found in the process definition.</p>
         <p className="message-correlation-form__info-text">
-          Message correlation requires the process to have message intermediate catch events, message boundary events,
-          receive tasks, or event subprocess start events.
+          Message correlation requires the process to have message start events, intermediate catch events, message
+          boundary events, or receive tasks.
         </p>
       </div>
     );
@@ -154,6 +196,8 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
       </div>
     );
   }
+
+  const submitLabel = isStartEvent ? 'Start Process Instance' : 'Correlate Message';
 
   return (
     <FormProvider {...methods}>
@@ -169,51 +213,72 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
             {messages.map(msg => (
               <option key={msg.id} value={msg.name}>
                 {msg.name}
+                {msg.isStartEvent ? ' (Start Event)' : ''}
               </option>
             ))}
           </select>
         </div>
+
+        {isStartEvent && (
+          <div className="form-group">
+            <label htmlFor="businessKey">Business Key</label>
+            <input
+              id="businessKey"
+              type="text"
+              {...methods.register('businessKey')}
+              className="form-control"
+              placeholder="Enter business key"
+            />
+            <small className="form-text text-muted">
+              A unique key to identify the new process instance. Defaults to a generated UUID.
+            </small>
+          </div>
+        )}
 
         <div className="form-group">
           <h5>Process Variables</h5>
           <VariableBuilder name="processVariables" showLocalFlag={false} />
         </div>
 
-        <div className="form-group">
-          <h5>Process Variables Local</h5>
-          <VariableBuilder name="processVariablesLocal" showLocalFlag={false} />
-        </div>
-
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={showAdvancedOptions}
-              onChange={() => {
-                setShowAdvancedOptions(!showAdvancedOptions);
-              }}
-            />{' '}
-            Advanced Correlation Options
-          </label>
-        </div>
-
-        {showAdvancedOptions && (
+        {!isStartEvent && (
           <>
             <div className="form-group">
-              <h5>Correlation Keys</h5>
-              <VariableBuilder name="correlationKeys" showLocalFlag={false} />
+              <h5>Process Variables Local</h5>
+              <VariableBuilder name="processVariablesLocal" showLocalFlag={false} />
             </div>
+
             <div className="form-group">
-              <h5>Local Correlation Keys</h5>
-              <VariableBuilder name="localCorrelationKeys" showLocalFlag={false} />
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showAdvancedOptions}
+                  onChange={() => {
+                    setShowAdvancedOptions(!showAdvancedOptions);
+                  }}
+                />{' '}
+                Advanced Correlation Options
+              </label>
             </div>
+
+            {showAdvancedOptions && (
+              <>
+                <div className="form-group">
+                  <h5>Correlation Keys</h5>
+                  <VariableBuilder name="correlationKeys" showLocalFlag={false} />
+                </div>
+                <div className="form-group">
+                  <h5>Local Correlation Keys</h5>
+                  <VariableBuilder name="localCorrelationKeys" showLocalFlag={false} />
+                </div>
+              </>
+            )}
           </>
         )}
 
         {error && (error === SUCCESS_MESSAGE ? <SuccessMessage message={error} /> : <ErrorMessage message={error} />)}
 
         <button type="submit" className="btn btn-primary" disabled={isSubmitted}>
-          {isSubmitted ? 'Correlating...' : 'Correlate Message'}
+          {isSubmitted ? 'Correlating...' : submitLabel}
         </button>
       </form>
     </FormProvider>
