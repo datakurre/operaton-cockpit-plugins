@@ -5,7 +5,10 @@
  * @module
  */
 import { filter, forEach, map, uniqueBy } from 'min-dash';
-import type { Activity, Bounds } from 'bpmn-moddle';
+import type BPMNModdle from 'bpmn-moddle';
+
+type Activity = BPMNModdle.Activity;
+type Bounds = BPMNModdle.Bounds;
 
 import type { ElementRegistry, HistoricActivityInstance } from '../../types';
 

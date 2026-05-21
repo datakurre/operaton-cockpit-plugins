@@ -47,8 +47,8 @@ interface RestartProcessFormProps {
  * @returns The termination type category
  */
 function deriveTerminationType(state: string): 'external' | 'internal' | 'completed' {
-  if (state.includes('EXTERNALLY_TERMINATED')) return 'external';
-  if (state.includes('INTERNALLY_TERMINATED')) return 'internal';
+  if (state.includes('EXTERNALLY_TERMINATED')) { return 'external'; }
+  if (state.includes('INTERNALLY_TERMINATED')) { return 'internal'; }
   return 'completed';
 }
 
@@ -276,12 +276,12 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
               setIsAcknowledgeCompleted(false);
             }}
             options={terminatedInstances.map(inst => {
-              const statusLabel =
-                inst.terminationType === 'external'
-                  ? 'EXTERNALLY TERMINATED'
-                  : inst.terminationType === 'internal'
-                    ? 'INTERNALLY TERMINATED'
-                    : 'COMPLETED';
+              const terminationLabels: Record<string, string> = {
+                external: 'EXTERNALLY TERMINATED',
+                internal: 'INTERNALLY TERMINATED',
+                completed: 'COMPLETED',
+              };
+              const statusLabel = terminationLabels[inst.terminationType ?? 'completed'] ?? 'COMPLETED';
               const baseLabel = inst.businessKey ?? inst.id;
               const endTimeStr = inst.endTime ? new Date(inst.endTime).toLocaleString() : 'N/A';
               return {

@@ -1,6 +1,8 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
-import type { BaseElement } from 'bpmn-moddle';
+import type BPMNModdle from 'bpmn-moddle';
 import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
+
+type BaseElement = BPMNModdle.BaseElement;
 import inherits from 'inherits-browser';
 import { append as svgAppend, create as svgCreate } from 'tiny-svg';
 
