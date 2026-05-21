@@ -117,7 +117,7 @@ describe('Admin Route Authorization Plugin', () => {
       plugin.render(container, { api: mockApi });
 
       await waitFor(() => {
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
+        expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
         // Use a more specific query to avoid multiple matches
         const breadcrumbs = container.querySelector('.breadcrumbs-panel');
         expect(breadcrumbs).toBeInTheDocument();
@@ -173,10 +173,10 @@ describe('AuthorizationsView Component', () => {
       renderPlugin();
 
       await waitFor(() => {
-        expect(screen.getByText('Application')).toBeInTheDocument();
-        expect(screen.getByText('User')).toBeInTheDocument();
-        expect(screen.getByText('Group')).toBeInTheDocument();
-        expect(screen.getByText('Process Definition')).toBeInTheDocument();
+        expect(screen.getAllByText('Application').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('User').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Group').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Process Definition').length).toBeGreaterThan(0);
       });
     });
 

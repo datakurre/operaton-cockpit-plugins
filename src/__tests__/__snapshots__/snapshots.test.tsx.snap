@@ -237,134 +237,134 @@ exports[`Snapshot Tests Navigation Components Pagination last page renders corre
       role="menu"
     >
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           First
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           Previous
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           4
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           5
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           6
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           7
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           8
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           9
         </button>
       </li>
       <li
-        class="pagination-page active "
+        class="page-item active "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           10
         </button>
       </li>
       <li
-        class="pagination-page  disabled"
+        class="page-item  disabled"
         role="menuitem"
       >
         <button
-          class="pagination-link disabled"
+          class="page-link disabled"
           disabled=""
-          style="background: none; padding: 4px 8px; cursor: default;"
+          style="padding: 4px 8px; cursor: default;"
           type="button"
         >
           Next
         </button>
       </li>
       <li
-        class="pagination-page  disabled"
+        class="page-item  disabled"
         role="menuitem"
       >
         <button
-          class="pagination-link disabled"
+          class="page-link disabled"
           disabled=""
-          style="background: none; padding: 4px 8px; cursor: default;"
+          style="padding: 4px 8px; cursor: default;"
           type="button"
         >
           Last
@@ -383,132 +383,132 @@ exports[`Snapshot Tests Navigation Components Pagination middle page renders cor
       role="menu"
     >
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           First
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           Previous
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           2
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           3
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           4
         </button>
       </li>
       <li
-        class="pagination-page active "
+        class="page-item active "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           5
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           6
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           7
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           8
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           Next
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           Last
@@ -527,134 +527,134 @@ exports[`Snapshot Tests Navigation Components Pagination renders correctly 1`] =
       role="menu"
     >
       <li
-        class="pagination-page  disabled"
+        class="page-item  disabled"
         role="menuitem"
       >
         <button
-          class="pagination-link disabled"
+          class="page-link disabled"
           disabled=""
-          style="background: none; padding: 4px 8px; cursor: default;"
+          style="padding: 4px 8px; cursor: default;"
           type="button"
         >
           First
         </button>
       </li>
       <li
-        class="pagination-page  disabled"
+        class="page-item  disabled"
         role="menuitem"
       >
         <button
-          class="pagination-link disabled"
+          class="page-link disabled"
           disabled=""
-          style="background: none; padding: 4px 8px; cursor: default;"
+          style="padding: 4px 8px; cursor: default;"
           type="button"
         >
           Previous
         </button>
       </li>
       <li
-        class="pagination-page active "
+        class="page-item active "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           1
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           2
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           3
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           4
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           5
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           6
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           7
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           Next
         </button>
       </li>
       <li
-        class="pagination-page  "
+        class="page-item  "
         role="menuitem"
       >
         <button
-          class="pagination-link "
-          style="background: none; padding: 4px 8px; cursor: pointer;"
+          class="page-link "
+          style="padding: 4px 8px; cursor: pointer;"
           type="button"
         >
           Last
