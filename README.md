@@ -16,14 +16,14 @@ Breaking changes
 Try it
 ------
 
-With Camunda Platform 7.14.0 and 7.20.0 or later:
+### With Camunda Platform 7.14.0 and 7.20.0 or later:
 
 ```bash
 $ git clone https://github.com/datakurre/operaton-cockpit-plugins.git
 $ docker run --rm -p 8080:8080 -v $(pwd)/operaton-cockpit-plugins:/camunda/webapps/camunda/app/cockpit/scripts/:ro camunda/camunda-bpm-platform:7.14.0
 ```
 
-With Camunda Platform 7.15.0 to 7.19.0:
+### With Camunda Platform 7.15.0 to 7.19.0:
 
 ```bash
 $ git clone https://github.com/datakurre/operaton-cockpit-plugins.git
@@ -39,7 +39,7 @@ If you don't immediately see the plugin, try again with your browser's private b
 
 Note: Trying out the plugins with Camunda Platform 7.15.0 Docker image is more complex than with the previous version 7.14.0, because the new location of `camunda-cockpit-ui.js` prevents simple override of the scripts folder.
 
-Building Operaton standalone image with plugins:
+## Building Operaton standalone image with plugins:
 ```docker
 FROM docker.io/operaton/operaton:1.1.5
 
