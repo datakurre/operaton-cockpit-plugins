@@ -39,6 +39,35 @@ If you don't immediately see the plugin, try again with your browser's private b
 
 Note: Trying out the plugins with Camunda Platform 7.15.0 Docker image is more complex than with the previous version 7.14.0, because the new location of `camunda-cockpit-ui.js` prevents simple override of the scripts folder.
 
+Building Operaton standalone image with plugins:
+```docker
+FROM docker.io/operaton/operaton:1.1.5
+
+USER root
+
+# Upgrade system packages
+RUN apk -U upgrade
+RUN apk add --no-cache git zip
+
+# install cockpit plugins
+RUN git clone https://github.com/datakurre/operaton-cockpit-plugins.git /operaton/META-INF/resources/webjars/operaton/app/cockpit/scripts/ \
+    && chown operaton:operaton /operaton/META-INF/resources/webjars/operaton/app/cockpit/scripts/
+
+# add plugins webapp
+RUN zip -r /operaton/internal/webapps/operaton-webapp-webjar-1.1.5.jar META-INF \
+    && rm -r /operaton/META-INF \
+    && chown operaton:operaton /operaton/internal/webapps/operaton-webapp-webjar-1.1.5.jar
+
+# clean up git and zip
+RUN apk del git zip && \
+    apk cache clean
+
+# Run container without root privileges
+USER operaton
+```
+
+Be aware that Operaton version is part of the jar-files and docker image. If you use a different version than in the code snippet above, you have to adjust the filename.
+
 
 Use it
 ------
