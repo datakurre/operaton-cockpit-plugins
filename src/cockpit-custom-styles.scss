@@ -162,8 +162,25 @@
             white-space: nowrap !important;
         }
     }
-    th:last-child, td:last-child {
-        max-width: 3vw;
+    th:last-child, td:last-child,
+    th.tenantID, td.tenantID,
+    th.tenant-id, td.tenant-id {
+        width: 105px !important;
+        min-width: 105px !important;
+        white-space: nowrap !important;
+    }
+    th:last-child,
+    th.tenantID,
+    th.tenant-id {
+        .tenantID-label,
+        .tenant-id-label {
+            white-space: nowrap !important;
+        }
+        a {
+            white-space: nowrap !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
     }
 }
 
@@ -190,6 +207,37 @@
         align-items: center !important;
         justify-content: center !important;
         border-radius: 3px !important;
+    }
+
+    .stored-criteria .dropdown-menu {
+        .input-group-sm {
+            display: flex !important;
+            align-items: stretch !important;
+
+            .form-control {
+                height: 31px !important;
+                border-top-right-radius: 0 !important;
+                border-bottom-right-radius: 0 !important;
+            }
+
+            .input-group-btn {
+                display: flex !important;
+                align-items: stretch !important;
+
+                .btn {
+                    height: 31px !important;
+                    min-height: 31px !important;
+                    padding: 4px 10px !important;
+                    font-size: 13px !important;
+                    line-height: 1 !important;
+                    border-top-left-radius: 0 !important;
+                    border-bottom-left-radius: 0 !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                }
+            }
+        }
     }
 }
 
@@ -400,7 +448,9 @@
       vertical-align: middle !important;
 
       .glyphicon,
-      [class*="bi"] {
+      .bi,
+      [class^="bi-"],
+      [class*=" bi-"] {
         color: #155cb5 !important;
         font-size: 13px !important;
         font-weight: bold !important;
@@ -431,13 +481,16 @@
       .bi-chevron-up {
         font-weight: 900 !important;
         font-size: 12px !important;
+        -webkit-text-stroke: 0.8px currentColor !important;
       }
 
       &:hover {
         color: #0b4c8c !important;
 
         .glyphicon,
-        [class*="bi"] {
+        .bi,
+        [class^="bi-"],
+        [class*=" bi-"] {
           color: #0b4c8c !important;
         }
       }
@@ -564,6 +617,15 @@ body,
   height: 24px !important;
 }
 
+.input-group-sm > .input-group-btn > .btn,
+.input-group-sm > .btn {
+  height: 31px !important;
+  min-height: 31px !important;
+  padding: 4px 10px !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
 // Diagram canvas zoom and reset controls (+, -, reset)
 .bjs-container .djs-overlay-context-pad .entry,
 .bjs-container .io-zoom-controls .btn {
@@ -629,7 +691,9 @@ body,
     }
 
     .glyphicon,
-    [class*="bi"],
+    .bi,
+    [class^="bi-"],
+    [class*=" bi-"],
     [class*="icon"],
     svg {
       color: #333333 !important;
@@ -681,7 +745,9 @@ body,
 // than legacy Glyphicons. Scaling up by ~15-20% restores the solid, clear visibility
 // and perceived optical size of 1.0.3.
 .glyphicon,
-[class*="bi"] {
+.bi,
+[class^="bi-"],
+[class*=" bi-"] {
   display: inline-block;
   font-size: 1.15em;
   vertical-align: -0.1em;
@@ -689,14 +755,52 @@ body,
 
 // Keep button icons proportioned and vertically centered
 .btn .glyphicon,
-.btn [class*="bi"] {
+.btn .bi,
+.btn [class^="bi-"],
+.btn [class*=" bi-"] {
   font-size: 16px !important;
   vertical-align: middle !important;
 }
 
 .btn-xs .glyphicon,
-.btn-xs [class*="bi"],
+.btn-xs .bi,
+.btn-xs [class^="bi-"],
+.btn-xs [class*=" bi-"],
 .action-button .glyphicon,
-.action-button [class*="bi"] {
+.action-button .bi,
+.action-button [class^="bi-"],
+.action-button [class*=" bi-"] {
   font-size: 13px !important;
+}
+
+// Reinforce stroke weight for thin line-drawn chevrons (sort chevrons, accordions, toggles)
+.glyphicon-chevron-down,
+.glyphicon-chevron-up,
+.glyphicon-chevron-right,
+.glyphicon-chevron-left,
+.bi-chevron-down,
+.bi-chevron-up,
+.bi-chevron-right,
+.bi-chevron-left {
+  -webkit-text-stroke: 0.8px currentColor !important;
+}
+
+// ==============================================================================
+// 11. Process Information Panel (.process-information)
+// Ensures discrete label/value layout and consistent typography
+// ==============================================================================
+.process-information {
+  dt {
+    display: block !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 21px !important;
+    margin: 0 !important;
+  }
+  dd {
+    display: block !important;
+    font-size: 14px !important;
+    line-height: 21px !important;
+    margin: 0 0 10px !important;
+  }
 }
