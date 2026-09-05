@@ -98,6 +98,7 @@ describe('utils/misc', () => {
         autoRefresh: false,
         showHistoricBadges: false,
         showSequenceFlow: false,
+        showHeatmap: false,
         leftPaneSize: null,
         topPaneSize: null,
         maxResults: 1000,
@@ -203,6 +204,7 @@ describe('utils/misc', () => {
         autoRefresh: false,
         showHistoricBadges: false,
         showSequenceFlow: false,
+        showHeatmap: false,
         leftPaneSize: null,
         topPaneSize: null,
       };
