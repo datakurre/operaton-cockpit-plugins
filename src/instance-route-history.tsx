@@ -467,6 +467,10 @@ export default [
             businessKey: instance.businessKey,
             tenantId: instance.tenantId,
             superProcessInstanceId: instance.superProcessInstanceId,
+            startTime: instance.startTime,
+            endTime: instance.endTime,
+            durationInMillis: instance.durationInMillis,
+            deleteReason: instance.deleteReason,
             ...(instance.processDefinitionName !== null &&
               instance.processDefinitionName !== undefined && {
                 processDefinitionName: instance.processDefinitionName,
