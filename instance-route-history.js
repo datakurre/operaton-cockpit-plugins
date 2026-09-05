@@ -3906,12 +3906,14 @@ var loadSettings = function () {
     var autoRefreshParam = parsed['autoRefresh'];
     var showHistoricBadgesParam = parsed['showHistoricBadges'];
     var showSequenceFlowParam = parsed['showSequenceFlow'];
+    var showHeatmapParam = parsed['showHeatmap'];
     var maxResultsParam = parsed['maxResults'];
     var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
     return {
         autoRefresh: raw.autoRefresh === true || autoRefreshParam !== undefined,
         showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
         showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
+        showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
         leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
         topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
         maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
@@ -76015,6 +76017,63 @@ var getExecutedConnections = function (activities, elementRegistry) {
 };
 
 /**
+ * Whether an activity is one the instance is currently sitting on: started, not
+ * finished, and not canceled.
+ * @param activity - Historic activity instance
+ * @returns True when the activity is still running
+ */
+var isRunning = function (activity) { return !activity.endTime && activity.canceled !== true; };
+/**
+ * Draws Cockpit's own blue token badge on the activities a running instance is
+ * currently sitting on.
+ *
+ * The markup is Cockpit's, deliberately: `.badge.instance-count` inside
+ * `.activity-bottom-left-position.instances-overlay` picks up the webapp's own styling,
+ * so the token matches the runtime view exactly and follows any theming rather than
+ * being a lookalike drawn with inline colours. Bottom-left is where Cockpit puts it,
+ * which also keeps it clear of the execution-count badge at bottom-right.
+ *
+ * A finished instance has no unfinished activities, so this draws nothing.
+ *
+ * @param viewer - The BPMN viewer instance
+ * @param activities - Historic activity instances for the process instance
+ * @returns The overlay ids created, so they can be removed again
+ */
+var renderRunningTokens = function (viewer, activities) {
+    var _a, _b, _c, _d;
+    var running = {};
+    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
+        var activity = activities_1[_i];
+        if (!isRunning(activity)) {
+            continue;
+        }
+        var elementId = (_b = ((_a = activity.activityId) !== null && _a !== void 0 ? _a : '').split('#')[0]) !== null && _b !== void 0 ? _b : '';
+        if (elementId !== '') {
+            running[elementId] = ((_c = running[elementId]) !== null && _c !== void 0 ? _c : 0) + 1;
+        }
+    }
+    var overlays = viewer.get('overlays');
+    var ids = [];
+    for (var _e = 0, _f = Object.keys(running); _e < _f.length; _e++) {
+        var elementId = _f[_e];
+        var count = (_d = running[elementId]) !== null && _d !== void 0 ? _d : 0;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'activity-bottom-left-position instances-overlay';
+        var badge = document.createElement('span');
+        badge.className = 'badge instance-count';
+        badge.innerText = String(count);
+        badge.title = count === 1 ? 'One running activity instance' : "".concat(count, " running activity instances");
+        wrapper.appendChild(badge);
+        try {
+            ids.push(overlays.add(elementId, { position: { bottom: 0, left: 0 }, html: wrapper }));
+        }
+        catch (_g) {
+            // Silently skip elements that can't have overlays
+        }
+    }
+    return ids;
+};
+/**
  * Renders activity count badges on the BPMN diagram overlays.
  * Shows how many times each activity was executed.
  * @param viewer - The BPMN viewer instance
@@ -76023,16 +76082,16 @@ var getExecutedConnections = function (activities, elementRegistry) {
 var renderActivities = function (viewer, activities) {
     var _a, _b, _c, _d;
     var counter = {};
-    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
-        var activity = activities_1[_i];
+    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
+        var activity = activities_2[_i];
         var id = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
         var current = counter[id];
         counter[id] = current !== undefined ? current + 1 : 1;
     }
     var seen = {};
     var overlays = viewer.get('overlays');
-    for (var _e = 0, activities_2 = activities; _e < activities_2.length; _e++) {
-        var activity = activities_2[_e];
+    for (var _e = 0, activities_3 = activities; _e < activities_3.length; _e++) {
+        var activity = activities_3[_e];
         var id = (_b = activity.activityId) !== null && _b !== void 0 ? _b : '';
         if (seen[id]) {
             continue;
@@ -76586,6 +76645,7 @@ function createArrowMarker(defs, id) {
 }
 /**
  * Finds the SVG's defs element, creating it when the diagram has none yet.
+ * Shared with the heatmap, which needs the same place for its gradients and filter.
  * @param canvas - The viewer canvas
  * @returns The defs element to hold marker definitions
  */
@@ -76978,6 +77038,9 @@ var BPMNViewer = function (_a) {
         var overlays = viewer.get('overlays');
         overlays === null || overlays === void 0 ? void 0 : overlays.clear();
         renderActivities(viewer, activities !== null && activities !== void 0 ? activities : []);
+        // A still-running instance gets Cockpit's blue token on whatever it is sitting on,
+        // the same as the runtime view shows. Inside this effect so it follows activities.
+        renderRunningTokens(viewer, activities !== null && activities !== void 0 ? activities : []);
         if (isSequenceFlowActiveRef.current) {
             clearSequenceFlow(sequenceFlowRef.current);
             sequenceFlowRef.current = renderSequenceFlow(viewer, activities !== null && activities !== void 0 ? activities : [], { truncated: activitiesTruncated });
@@ -76997,7 +77060,12 @@ var BPMNViewer = function (_a) {
             });
         }
     }, [viewer]);
-    return (React.createElement("div", { className: className, ref: ref, style: style }, viewer !== null ? (React.createElement(ViewerButtonsPortal, { viewer: viewer, position: { right: '15px', top: '15px', bottom: '45px' } },
+    // Cockpit scopes its diagram styling to a `process-diagram` ancestor — badge colours
+    // and the activity-*-position overlay classes all key off it. This container really is
+    // a process diagram, so wearing the attribute gets the webapp's own look for the
+    // running-token badges instead of a lookalike built from hardcoded hexes, and keeps
+    // them following its theming.
+    return (React.createElement("div", { className: className, ref: ref, style: style, 'process-diagram': '' }, viewer !== null ? (React.createElement(ViewerButtonsPortal, { viewer: viewer, position: { right: '15px', top: '15px', bottom: '45px' } },
         React.createElement("div", { style: { display: 'flex', flexDirection: 'column', height: '100%', pointerEvents: 'none' } },
             React.createElement("div", { style: { display: 'flex', flexDirection: 'column', pointerEvents: 'auto' } },
                 React.createElement(ToggleSequenceFlowButton, { partial: activitiesTruncated, onToggleSequenceFlow: handleToggleSequenceFlow }),

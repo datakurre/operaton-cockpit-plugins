@@ -1534,12 +1534,14 @@ var loadSettings = function () {
     var autoRefreshParam = parsed['autoRefresh'];
     var showHistoricBadgesParam = parsed['showHistoricBadges'];
     var showSequenceFlowParam = parsed['showSequenceFlow'];
+    var showHeatmapParam = parsed['showHeatmap'];
     var maxResultsParam = parsed['maxResults'];
     var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
     return {
         autoRefresh: raw.autoRefresh === true || autoRefreshParam !== undefined,
         showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
         showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
+        showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
         leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
         topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
         maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
@@ -2080,6 +2082,12 @@ var getExecutedConnections = function (activities, elementRegistry) {
 };
 
 /**
+ * Whether an activity is one the instance is currently sitting on: started, not
+ * finished, and not canceled.
+ * @param activity - Historic activity instance
+ * @returns True when the activity is still running
+ */
+/**
  * Renders activity count badges on the BPMN diagram overlays.
  * Shows how many times each activity was executed.
  * @param viewer - The BPMN viewer instance
@@ -2088,16 +2096,16 @@ var getExecutedConnections = function (activities, elementRegistry) {
 var renderActivities = function (viewer, activities) {
     var _a, _b, _c, _d;
     var counter = {};
-    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
-        var activity = activities_1[_i];
+    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
+        var activity = activities_2[_i];
         var id = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
         var current = counter[id];
         counter[id] = current !== undefined ? current + 1 : 1;
     }
     var seen = {};
     var overlays = viewer.get('overlays');
-    for (var _e = 0, activities_2 = activities; _e < activities_2.length; _e++) {
-        var activity = activities_2[_e];
+    for (var _e = 0, activities_3 = activities; _e < activities_3.length; _e++) {
+        var activity = activities_3[_e];
         var id = (_b = activity.activityId) !== null && _b !== void 0 ? _b : '';
         if (seen[id]) {
             continue;
@@ -3001,6 +3009,7 @@ function createArrowMarker(defs, id) {
 }
 /**
  * Finds the SVG's defs element, creating it when the diagram has none yet.
+ * Shared with the heatmap, which needs the same place for its gradients and filter.
  * @param canvas - The viewer canvas
  * @returns The defs element to hold marker definitions
  */
