@@ -28,7 +28,7 @@ deploy them without running the build.
 |--------|------------------|--------------|
 | `dashboard-favourites.js` | Dashboard section + star button on a process definition | Star process definitions and list the starred ones on the dashboard with running instance and incident counts |
 | `dashboard-integrations.js` | Dashboard section | Lists external tasks that have an incident or are currently locked, with retry and unlock actions (individual and batch) |
-| `definition-historic-activities.js` | Definition tab *Statistics* + diagram | Historic activity statistics with a filter box, plus a three-state diagram overlay: off, per-activity execution counts, or a heatmap of cumulative time with the totals in the badges. All three follow the tab's filter |
+| `definition-historic-activities.js` | Definition tab *Statistics* + diagram | Historic activity statistics with a filter box, plus a three-state diagram overlay: off, per-activity execution counts, or a heatmap of cumulative time with the totals in the badges. All three follow the tab's filter and describe the same records, and both the table and the toggle button say so when the query hit its result cap |
 | `definition-tab-modify.js` | Definition tab *Modify* | Batch modification, message correlation and signal broadcast across instances of a definition. Every operation has a dry run that shows both the instances it would reach and the exact request it would send |
 | `instance-auto-refresh.js` | Instance diagram | Toggle button for periodic auto-refresh of the instance view |
 | `instance-action-unlock.js` | Instance action button | Dialog listing the instance's locked external tasks, with batch unlock |
@@ -316,7 +316,15 @@ These are current gaps, not bugs to report:
   instances of the current definition only and says so; the real reach is wider than the list.
 
 * **History queries are capped.** History endpoints return at most `maxResults` records (1000 by
-  default). Raise it with the `maxResults` setting or URL parameter if you need more.
+  default). Raise it with the `maxResults` setting or URL parameter if you need more. Both history
+  views over-fetch by one record to detect the cap and say so — the instance diagram's toggles turn
+  amber, and the definition *Statistics* tab shows a warning above the table — because the cap drops
+  the oldest records, which skews the figures towards recent activity rather than merely shortening
+  them.
+
+* **Statistics cover finished executions only.** An activity still running has no duration to total,
+  average or colour by, so it is left out of the table, the badges and the heatmap alike rather than
+  being counted in one and not the others. Activities with no name are listed under their element id.
 
 * **The heatmap ranks elements against each other, not against a target.** Colour is the element's
   share of the slowest element's cumulative time, so the hottest spot is always red however fast the
