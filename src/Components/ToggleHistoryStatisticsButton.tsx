@@ -26,6 +26,9 @@ const MODE_LABEL: Record<StatisticsMode, string> = {
 /** Colour of the icon in heat mode, taken from the hot end of the heatmap ramp. */
 const HEAT_ICON_COLOR = '#d82c20';
 
+/** Colour of the icon when the figures came from a capped query */
+const PARTIAL_COLOR = '#b8860b';
+
 /**
  * Reads the stored mode. It is kept as two booleans rather than one string so that
  * settings and URL parameters written before the heatmap existed still mean what they
@@ -46,6 +49,12 @@ function loadMode(): StatisticsMode {
 interface ToggleHistoryStatisticsButtonProps {
   /** Callback invoked when the mode changes */
   onToggleHistoryStatistics: (mode: StatisticsMode) => void;
+  /**
+   * Whether the query hit its result cap. The badges and the heat then describe only the
+   * records that fit, and the tab's warning is on the other side of the screen from the
+   * diagram, so the button has to carry the caveat too.
+   */
+  partial?: boolean;
 }
 
 /**
@@ -54,10 +63,12 @@ interface ToggleHistoryStatisticsButtonProps {
  *
  * @param props - Component props
  * @param props.onToggleHistoryStatistics - Callback invoked when the mode changes
+ * @param props.partial - Whether the query hit its result cap
  * @returns Toggle button component
  */
 export const ToggleHistoryStatisticsButton: React.FC<ToggleHistoryStatisticsButtonProps> = ({
   onToggleHistoryStatistics,
+  partial = false,
 }) => {
   const [mode, setMode] = useState<StatisticsMode>(loadMode);
 
@@ -76,8 +87,20 @@ export const ToggleHistoryStatisticsButton: React.FC<ToggleHistoryStatisticsButt
 
   // The label names what the next click does, so the third state is discoverable
   // rather than something you find by clicking twice.
-  const label = MODE_LABEL[mode];
+  const action = MODE_LABEL[mode];
+  // Only worth saying while something is actually drawn: off, there are no figures for
+  // the caveat to be about.
+  const caveated = partial && mode !== 'off';
+  const label = caveated ? `${action} (result limit reached — figures cover recent activity only)` : action;
   const Icon = mode === 'heat' ? FaFire : FaHistory;
+  // Amber wins over the heat red: a caveat about what the figures cover matters more
+  // than the mode they are drawn in, and the two never need saying at once.
+  let iconColor: string | undefined = undefined;
+  if (caveated) {
+    iconColor = PARTIAL_COLOR;
+  } else if (mode === 'heat') {
+    iconColor = HEAT_ICON_COLOR;
+  }
 
   return (
     <button className="toggle-history-statistics-button" title={label} aria-label={label} onClick={handleClick}>
@@ -85,7 +108,7 @@ export const ToggleHistoryStatisticsButton: React.FC<ToggleHistoryStatisticsButt
         style={{
           opacity: mode === 'off' ? '0.33' : '1.0',
           fontSize: '133%',
-          ...(mode === 'heat' ? { color: HEAT_ICON_COLOR } : {}),
+          ...(iconColor !== undefined ? { color: iconColor } : {}),
         }}
       />
     </button>

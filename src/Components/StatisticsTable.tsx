@@ -2,6 +2,7 @@ import React from 'react';
 import { CellProps, Column } from 'react-table';
 
 import { HistoricActivityInstance } from '../types';
+import { durationOf } from '../utils/bpmn/heatmap';
 import { asctime } from '../utils/misc';
 import { Clippy } from './Clippy';
 import SortableTable from './SortableTable';
@@ -31,6 +32,21 @@ interface Props {
  * Statistics table displaying aggregated activity timing metrics
  * including instance counts, total/average/median durations.
  */
+/**
+ * What a row is labelled with. An unnamed element — most gateways, plenty of events —
+ * would otherwise land in a single nameless row that lumps them all together, so fall
+ * back to the element id, which is at least something to match against the diagram.
+ * @param activity - Historic activity instance
+ * @returns The label to group and display the activity under
+ */
+function labelOf(activity: HistoricActivityInstance): string {
+  const name = activity.activityName;
+  if (name !== null && name !== undefined && name !== '') {
+    return name;
+  }
+  return activity.activityId ?? '';
+}
+
 const StatisticsTable: React.FC<Props> = ({ activities }) => {
   const columns = React.useMemo<Column<StatRow>[]>(
     () => [
@@ -65,7 +81,7 @@ const StatisticsTable: React.FC<Props> = ({ activities }) => {
   const counter = React.useMemo(() => {
     const counter: Record<string, number> = {};
     for (const activity of activities) {
-      const name = activity.activityName ?? '';
+      const name = labelOf(activity);
       const current = counter[name];
       counter[name] = current !== undefined ? current + 1 : 1;
     }
@@ -75,8 +91,12 @@ const StatisticsTable: React.FC<Props> = ({ activities }) => {
     const totals: Record<string, number> = {};
     const durations: Record<string, number[]> = {};
     for (const activity of activities) {
-      const activityName = activity.activityName ?? '';
-      const duration = new Date(activity.endTime ?? 0).getTime() - new Date(activity.startTime ?? 0).getTime();
+      const activityName = labelOf(activity);
+      // Shared with the heatmap so the table and the colours cannot disagree about how
+      // long something took. Subtracting the raw timestamps here used to read a missing
+      // endTime as the epoch, turning an unfinished activity into a duration of minus
+      // fifty-odd years and poisoning every total it was summed into.
+      const duration = durationOf(activity);
       totals[activityName] = (totals[activityName] ?? 0) + duration;
       const existingDurations = durations[activityName];
       if (existingDurations === undefined) {

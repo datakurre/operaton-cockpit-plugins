@@ -1499,6 +1499,7 @@ var loadSettings = function () {
     var showHistoricBadgesParam = parsed['showHistoricBadges'];
     var showSequenceFlowParam = parsed['showSequenceFlow'];
     var showHeatmapParam = parsed['showHeatmap'];
+    var showInstanceHeatmapParam = parsed['showInstanceHeatmap'];
     var maxResultsParam = parsed['maxResults'];
     var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
     return {
@@ -1506,6 +1507,10 @@ var loadSettings = function () {
         showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
         showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
         showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
+        // Kept separate from showHeatmap: that one drives the definition diagram's
+        // statistics button, where it also implies the badges are on. Sharing it would
+        // mean switching heat on here silently switched badges on over there.
+        showInstanceHeatmap: raw.showInstanceHeatmap === true || showInstanceHeatmapParam !== undefined,
         leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
         topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
         maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,

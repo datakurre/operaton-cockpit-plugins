@@ -8,9 +8,17 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import RobotModule from '../RobotModule';
 import { Canvas, OverlayManager } from '../services/ViewerService';
 import { HistoricActivityInstance } from '../types';
-import { clearSequenceFlow, renderSequenceFlow, renderActivities, renderRunningTokens } from '../utils/bpmn';
+import {
+  clearHeatmap,
+  clearSequenceFlow,
+  renderActivities,
+  renderHeatmap,
+  renderRunningTokens,
+  renderSequenceFlow,
+} from '../utils/bpmn';
 import { ZOOM_INCREMENT, ZOOM_RESET_DELAY_INITIAL_MS, ZOOM_RESET_DELAY_FINAL_MS } from '../utils/constants';
 import ResetZoomButton from './ResetZoomButton';
+import { ToggleHeatmapButton } from './ToggleHeatmapButton';
 import { ToggleHistoryViewButton } from './ToggleHistoryViewButton';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';
 import { ViewerButtonsPortal } from './ViewerButtonsPortal';
@@ -88,6 +96,8 @@ const BPMNViewer: React.FC<Props> = ({
   const [viewer, setViewer] = useState<BpmnViewerInstance | null>(null);
   const isSequenceFlowActiveRef = useRef(false);
   const sequenceFlowRef = useRef<SVGElement[]>([]);
+  const isHeatmapActiveRef = useRef(false);
+  const heatmapRef = useRef<SVGElement[]>([]);
   const activitiesRef = useRef(activities);
   activitiesRef.current = activities;
   const activitiesTruncatedRef = useRef(activitiesTruncated);
@@ -151,15 +161,18 @@ const BPMNViewer: React.FC<Props> = ({
     };
   }, [diagramXML]);
 
-  // Clean up sequence flow when viewer changes or unmounts
+  // Clean up sequence flow and heatmap when viewer changes or unmounts
   useEffect(() => {
     return () => {
       clearSequenceFlow(sequenceFlowRef.current);
       sequenceFlowRef.current = [];
+      clearHeatmap(heatmapRef.current);
+      heatmapRef.current = [];
     };
   }, [viewer]);
 
-  // Re-render overlays and sequence flows whenever viewer, activities, or activitiesTruncated changes
+  // Re-render overlays, sequence flows and the heatmap whenever viewer, activities,
+  // or activitiesTruncated changes
   useEffect(() => {
     if (!viewer) {
       return;
@@ -176,7 +189,27 @@ const BPMNViewer: React.FC<Props> = ({
       clearSequenceFlow(sequenceFlowRef.current);
       sequenceFlowRef.current = renderSequenceFlow(viewer, activities ?? [], { truncated: activitiesTruncated });
     }
+
+    if (isHeatmapActiveRef.current) {
+      clearHeatmap(heatmapRef.current);
+      heatmapRef.current = renderHeatmap(viewer, activities ?? []);
+    }
   }, [viewer, activities, activitiesTruncated]);
+
+  const handleToggleHeatmap = useCallback(
+    (value: boolean): void => {
+      isHeatmapActiveRef.current = value;
+      if (!value) {
+        clearHeatmap(heatmapRef.current);
+        heatmapRef.current = [];
+        return;
+      }
+      if (viewer && heatmapRef.current.length === 0) {
+        heatmapRef.current = renderHeatmap(viewer, activitiesRef.current ?? []);
+      }
+    },
+    [viewer]
+  );
 
   const handleToggleSequenceFlow = useCallback(
     (value: boolean): void => {
@@ -200,13 +233,21 @@ const BPMNViewer: React.FC<Props> = ({
   // a process diagram, so wearing the attribute gets the webapp's own look for the
   // running-token badges instead of a lookalike built from hardcoded hexes, and keeps
   // them following its theming.
+  //
+  // The attribute also brings `position: relative`, and that has a sharp edge: Cockpit's
+  // page-level classes carry offsets meant to clear the app chrome — `.ctn-content` is
+  // `left: 280px; right: 56px` for the sidebar and the right rail. On a static container
+  // those sit inert; making it positioned activates them and shoves the whole diagram
+  // 280px sideways. Pinning the offsets here neutralises any the caller's class happens
+  // to bring, while leaving them overridable through `style` for a caller that means it.
   return (
-    <div className={className} ref={ref} style={style} {...{ 'process-diagram': '' }}>
+    <div className={className} ref={ref} style={{ left: 0, right: 0, ...style }} {...{ 'process-diagram': '' }}>
       {viewer !== null ? (
         <ViewerButtonsPortal viewer={viewer} position={{ right: '15px', top: '15px', bottom: '45px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%', pointerEvents: 'none' }}>
             <div style={{ display: 'flex', flexDirection: 'column', pointerEvents: 'auto' }}>
               <ToggleSequenceFlowButton partial={activitiesTruncated} onToggleSequenceFlow={handleToggleSequenceFlow} />
+              <ToggleHeatmapButton partial={activitiesTruncated} onToggleHeatmap={handleToggleHeatmap} />
               {showRuntimeToggle ? (
                 <ToggleHistoryViewButton
                   onToggleHistoryView={(value: boolean): void => {

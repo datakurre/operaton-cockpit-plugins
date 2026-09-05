@@ -136,7 +136,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-sequence-flow-button,\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-sequence-flow-button:hover,\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
+___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-heatmap-button,\n.toggle-sequence-flow-button,\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-heatmap-button:hover,\n.toggle-sequence-flow-button:hover,\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
 
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
@@ -3780,6 +3780,7 @@ var loadSettings = function () {
     var showHistoricBadgesParam = parsed['showHistoricBadges'];
     var showSequenceFlowParam = parsed['showSequenceFlow'];
     var showHeatmapParam = parsed['showHeatmap'];
+    var showInstanceHeatmapParam = parsed['showInstanceHeatmap'];
     var maxResultsParam = parsed['maxResults'];
     var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
     return {
@@ -3787,6 +3788,10 @@ var loadSettings = function () {
         showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
         showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
         showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
+        // Kept separate from showHeatmap: that one drives the definition diagram's
+        // statistics button, where it also implies the badges are on. Sharing it would
+        // mean switching heat on here silently switched badges on over there.
+        showInstanceHeatmap: raw.showInstanceHeatmap === true || showInstanceHeatmapParam !== undefined,
         leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
         topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
         maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
@@ -3958,6 +3963,27 @@ var post = function (api, path, params, payload) { return __awaiter(void 0, void
         }
     });
 }); };
+/**
+ * Splits an over-fetched result into the page to show and whether more was waiting.
+ *
+ * Both history views ask the engine for one record more than they mean to display: if
+ * that extra one comes back, the query hit its cap and whatever is drawn from it — a
+ * path, a table, a heatmap — describes a subset. This is the shared decision, kept out
+ * of the components so it can be reasoned about on its own.
+ *
+ * @param records - What the engine returned, having been asked for limit + 1
+ * @param limit - How many records the caller actually wants
+ * @returns The capped records and whether anything was left behind
+ */
+function capToLimit(records, limit) {
+    if (!Number.isFinite(limit) || limit <= 0) {
+        return { activities: records, truncated: false };
+    }
+    return {
+        activities: records.slice(0, limit),
+        truncated: records.length > limit,
+    };
+}
 
 function r(e){var t,f,n="";if("string"==typeof e||"number"==typeof e)n+=e;else if("object"==typeof e)if(Array.isArray(e)){var o=e.length;for(t=0;t<o;t++)e[t]&&(f=r(e[t]))&&(n&&(n+=" "),n+=f);}else for(f in e)e[f]&&(n&&(n+=" "),n+=f);return n}function clsx(){for(var e,t,f=0,n="",o=arguments.length;f<o;f++)(e=arguments[f])&&(t=r(e))&&(n&&(n+=" "),n+=t);return n}
 
@@ -20514,6 +20540,803 @@ var Portal = function (_a) {
     return ReactDOM.createPortal(children, node);
 };
 
+/**
+ * Simple error message component for consistent error display.
+ * Uses role="alert" with aria-live="assertive" for immediate screen reader announcement.
+ */
+var ErrorMessage = function (_a) {
+    var message = _a.message, _b = _a.className, className = _b === void 0 ? 'alert alert-danger' : _b;
+    return (React.createElement("div", { className: className, role: "alert", "aria-live": "assertive" }, message));
+};
+
+function ensureImported(element, target) {
+
+  if (element.ownerDocument !== target.ownerDocument) {
+    try {
+
+      // may fail on webkit
+      return target.ownerDocument.importNode(element, true);
+    } catch (e) {
+
+      // ignore
+    }
+  }
+
+  return element;
+}
+
+/**
+ * appendTo utility
+ */
+
+
+/**
+ * Append a node to a target element and return the appended node.
+ *
+ * @param  {SVGElement} element
+ * @param  {SVGElement} target
+ *
+ * @return {SVGElement} the appended node
+ */
+function appendTo(element, target) {
+  return target.appendChild(ensureImported(element, target));
+}
+
+/**
+ * append utility
+ */
+
+
+/**
+ * Append a node to an element
+ *
+ * @param  {SVGElement} element
+ * @param  {SVGElement} node
+ *
+ * @return {SVGElement} the element
+ */
+function append(target, node) {
+  appendTo(node, target);
+  return target;
+}
+
+/**
+ * attribute accessor utility
+ */
+
+var LENGTH_ATTR = 2;
+
+var CSS_PROPERTIES = {
+  'alignment-baseline': 1,
+  'baseline-shift': 1,
+  'clip': 1,
+  'clip-path': 1,
+  'clip-rule': 1,
+  'color': 1,
+  'color-interpolation': 1,
+  'color-interpolation-filters': 1,
+  'color-profile': 1,
+  'color-rendering': 1,
+  'cursor': 1,
+  'direction': 1,
+  'display': 1,
+  'dominant-baseline': 1,
+  'enable-background': 1,
+  'fill': 1,
+  'fill-opacity': 1,
+  'fill-rule': 1,
+  'filter': 1,
+  'flood-color': 1,
+  'flood-opacity': 1,
+  'font': 1,
+  'font-family': 1,
+  'font-size': LENGTH_ATTR,
+  'font-size-adjust': 1,
+  'font-stretch': 1,
+  'font-style': 1,
+  'font-variant': 1,
+  'font-weight': 1,
+  'glyph-orientation-horizontal': 1,
+  'glyph-orientation-vertical': 1,
+  'image-rendering': 1,
+  'kerning': 1,
+  'letter-spacing': 1,
+  'lighting-color': 1,
+  'marker': 1,
+  'marker-end': 1,
+  'marker-mid': 1,
+  'marker-start': 1,
+  'mask': 1,
+  'opacity': 1,
+  'overflow': 1,
+  'pointer-events': 1,
+  'shape-rendering': 1,
+  'stop-color': 1,
+  'stop-opacity': 1,
+  'stroke': 1,
+  'stroke-dasharray': 1,
+  'stroke-dashoffset': 1,
+  'stroke-linecap': 1,
+  'stroke-linejoin': 1,
+  'stroke-miterlimit': 1,
+  'stroke-opacity': 1,
+  'stroke-width': LENGTH_ATTR,
+  'text-anchor': 1,
+  'text-decoration': 1,
+  'text-rendering': 1,
+  'unicode-bidi': 1,
+  'visibility': 1,
+  'word-spacing': 1,
+  'writing-mode': 1
+};
+
+
+function getAttribute(node, name) {
+  if (CSS_PROPERTIES[name]) {
+    return node.style[name];
+  } else {
+    return node.getAttributeNS(null, name);
+  }
+}
+
+function setAttribute(node, name, value) {
+  var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+  var type = CSS_PROPERTIES[hyphenated];
+
+  if (type) {
+
+    // append pixel unit, unless present
+    if (type === LENGTH_ATTR && typeof value === 'number') {
+      value = String(value) + 'px';
+    }
+
+    node.style[hyphenated] = value;
+  } else {
+    node.setAttributeNS(null, name, value);
+  }
+}
+
+function setAttributes(node, attrs) {
+
+  var names = Object.keys(attrs), i, name;
+
+  for (i = 0, name; (name = names[i]); i++) {
+    setAttribute(node, name, attrs[name]);
+  }
+}
+
+/**
+ * Gets or sets raw attributes on a node.
+ *
+ * @param  {SVGElement} node
+ * @param  {Object} [attrs]
+ * @param  {String} [name]
+ * @param  {String} [value]
+ *
+ * @return {String}
+ */
+function attr(node, name, value) {
+  if (typeof name === 'string') {
+    {
+      return getAttribute(node, name);
+    }
+  } else {
+    setAttributes(node, name);
+  }
+
+  return node;
+}
+
+var ns = {
+  svg: 'http://www.w3.org/2000/svg'
+};
+
+/**
+ * DOM parsing utility
+ */
+
+
+var SVG_START = '<svg xmlns="' + ns.svg + '"';
+
+function parse(svg) {
+
+  var unwrap = false;
+
+  // ensure we import a valid svg document
+  if (svg.substring(0, 4) === '<svg') {
+    if (svg.indexOf(ns.svg) === -1) {
+      svg = SVG_START + svg.substring(4);
+    }
+  } else {
+
+    // namespace svg
+    svg = SVG_START + '>' + svg + '</svg>';
+    unwrap = true;
+  }
+
+  var parsed = parseDocument(svg);
+
+  if (!unwrap) {
+    return parsed;
+  }
+
+  var fragment = document.createDocumentFragment();
+
+  var parent = parsed.firstChild;
+
+  while (parent.firstChild) {
+    fragment.appendChild(parent.firstChild);
+  }
+
+  return fragment;
+}
+
+function parseDocument(svg) {
+
+  var parser;
+
+  // parse
+  parser = new DOMParser();
+  parser.async = false;
+
+  return parser.parseFromString(svg, 'text/xml');
+}
+
+/**
+ * Create utility for SVG elements
+ */
+
+
+
+/**
+ * Create a specific type from name or SVG markup.
+ *
+ * @param {String} name the name or markup of the element
+ * @param {Object} [attrs] attributes to set on the element
+ *
+ * @returns {SVGElement}
+ */
+function create(name, attrs) {
+  var element;
+
+  name = name.trim();
+
+  if (name.charAt(0) === '<') {
+    element = parse(name).firstChild;
+    element = document.importNode(element, true);
+  } else {
+    element = document.createElementNS(ns.svg, name);
+  }
+
+  return element;
+}
+
+function remove(element) {
+  var parent = element.parentNode;
+
+  if (parent) {
+    parent.removeChild(element);
+  }
+
+  return element;
+}
+
+/**
+ * UI and timing constants used across the application.
+ * Centralizes magic numbers for easier maintenance and configuration.
+ */
+// =============================================================================
+// UI Constants
+// =============================================================================
+/** Modal overlay z-index to ensure modals appear above other content */
+/** Default maximum results for history API queries */
+var DEFAULT_MAX_RESULTS = 1000;
+// =============================================================================
+// Heatmap Constants
+// =============================================================================
+/**
+ * Layer index of the heatmap. Negative puts it *below* diagram-js's base layer, so
+ * element borders, labels and flows stay crisp on top of the heat rather than being
+ * tinted by it. Shapes paint a near-opaque white fill, so the heat reads as a halo
+ * around them rather than a wash over them.
+ */
+var HEATMAP_LAYER_INDEX = -1;
+/** Opacity of the heatmap layer. It sits behind the diagram, so it can be strong */
+var HEATMAP_OPACITY = 0.85;
+/** Gaussian blur applied to the whole heatmap group, in diagram units */
+var HEATMAP_BLUR = 12;
+/** Blob radius as a multiple of half the element's longest side */
+var HEATMAP_RADIUS_SCALE = 2.1;
+/** Smallest blob radius, so events and gateways still register */
+var HEATMAP_MIN_RADIUS = 46;
+/** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
+var HEATMAP_GAMMA = 0.7;
+/** How much of a blob's radius follows intensity rather than the element's size */
+var HEATMAP_BLOOM = 0.35;
+/** Samples taken from the colour ramp to build the filter's transfer tables */
+var HEATMAP_RAMP_SAMPLES = 12;
+/** Width of the density smear drawn along a sequence flow, in diagram units */
+var HEATMAP_PATH_WIDTH = 30;
+/** Density floor, so a cold-but-executed element still joins the field */
+var HEATMAP_MIN_DENSITY = 0.1;
+/**
+ * Amplifies the density field before it is coloured. Blurring spreads each
+ * contribution and so lowers its peak; without a gain the hottest element never
+ * reaches the top of the ramp and the map tops out orange.
+ */
+var HEATMAP_DENSITY_GAIN = 1.25;
+/** Exponent on the opacity curve; above 1 it holds cold regions back */
+var HEATMAP_ALPHA_EXPONENT = 1.6;
+/** Slope of the opacity curve once it starts rising */
+var HEATMAP_ALPHA_SLOPE = 2.1;
+
+var componentEvent = {};
+
+var hasRequiredComponentEvent;
+
+function requireComponentEvent () {
+	if (hasRequiredComponentEvent) return componentEvent;
+	hasRequiredComponentEvent = 1;
+	var bind, unbind, prefix;
+
+	function detect () {
+	  bind = window.addEventListener ? 'addEventListener' : 'attachEvent';
+	  unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
+	  prefix = bind !== 'addEventListener' ? 'on' : '';
+	}
+
+	/**
+	 * Bind `el` event `type` to `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	componentEvent.bind = function(el, type, fn, capture){
+	  if (!bind) detect();
+	  el[bind](prefix + type, fn, capture || false);
+	  return fn;
+	};
+
+	/**
+	 * Unbind `el` event `type`'s callback `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	componentEvent.unbind = function(el, type, fn, capture){
+	  if (!unbind) detect();
+	  el[unbind](prefix + type, fn, capture || false);
+	  return fn;
+	};
+	return componentEvent;
+}
+
+requireComponentEvent();
+
+function query(selector, el) {
+  el = el || document;
+
+  return el.querySelector(selector);
+}
+
+/**
+ * Finds the SVG's defs element, creating it when the diagram has none yet.
+ * Shared with the heatmap, which needs the same place for its gradients and filter.
+ * @param canvas - The viewer canvas
+ * @returns The defs element to hold marker definitions
+ */
+function resolveDefs(canvas) {
+    // Cast SVG to HTMLElement for domQuery, which expects HTMLElement
+    var existing = query('defs', canvas._svg);
+    if (existing !== null) {
+        return existing;
+    }
+    var defs = create('defs');
+    append(canvas._svg, defs);
+    return defs;
+}
+
+/**
+ * BPMN heatmap rendering.
+ *
+ * Shades the diagram by how much cumulative time each element consumed, so the parts
+ * of a process that cost the most are visible at a glance rather than having to be
+ * read out of a table.
+ * @module
+ */
+/**
+ * Colour ramp, cold to hot. Chosen to read as heat rather than as status: it avoids
+ * the executed path's green at both ends, so the two overlays can be on together.
+ */
+/* eslint-disable no-magic-numbers -- channel values of a colour ramp are data */
+var HEAT_RAMP = [
+    { stop: 0, rgb: [43, 92, 214] },
+    { stop: 0.35, rgb: [38, 190, 198] },
+    { stop: 0.6, rgb: [122, 201, 67] },
+    { stop: 0.8, rgb: [240, 196, 42] },
+    { stop: 1, rgb: [216, 44, 32] },
+];
+/* eslint-enable no-magic-numbers */
+/** Counter behind per-render ids, so two diagrams on one page cannot share defs. */
+var heatmapSequence = 0;
+/**
+ * Strips the execution scope suffix the engine appends to an activity id.
+ */
+var toElementId = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
+/**
+ * Multi-instance bodies span their instances, so counting both double-counts the time.
+ */
+var isMultiInstanceBody = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
+/**
+ * Milliseconds an activity occupied, preferring the engine's own figure and falling
+ * back to the timestamps when it is absent.
+ * @param activity - Historic activity instance
+ * @returns Duration in milliseconds, or 0 when it cannot be determined
+ */
+function durationOf(activity) {
+    if (typeof activity.durationInMillis === 'number') {
+        return activity.durationInMillis;
+    }
+    if (!activity.startTime || !activity.endTime) {
+        return 0;
+    }
+    var elapsed = Date.parse(activity.endTime) - Date.parse(activity.startTime);
+    return Number.isNaN(elapsed) ? 0 : elapsed;
+}
+/**
+ * Sums the time spent per diagram element.
+ *
+ * Still-running activities contribute nothing: they have no duration yet, and guessing
+ * one would make the hottest spot of a diagram the thing that simply has not finished.
+ *
+ * @param activities - Historic activity instances to aggregate
+ * @returns One cell per element that consumed time, hottest first
+ */
+function aggregateDurations(activities) {
+    var _a, _b;
+    var totals = new Map();
+    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
+        var activity = activities_1[_i];
+        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
+        if (activityId === '' || isMultiInstanceBody(activityId)) {
+            continue;
+        }
+        var elementId = toElementId(activityId);
+        totals.set(elementId, ((_b = totals.get(elementId)) !== null && _b !== void 0 ? _b : 0) + durationOf(activity));
+    }
+    var cells = [];
+    for (var _c = 0, _d = Array.from(totals.entries()); _c < _d.length; _c++) {
+        var entry = _d[_c];
+        if (entry[1] > 0) {
+            cells.push({ elementId: entry[0], totalMillis: entry[1] });
+        }
+    }
+    cells.sort(function (a, b) { return b.totalMillis - a.totalMillis; });
+    return cells;
+}
+/**
+ * Maps a 0..1 intensity onto the ramp.
+ * @param intensity - Normalised heat, clamped to 0..1
+ * @returns An `rgb()` colour string
+ */
+function getHeatColor(intensity) {
+    var t = Math.min(1, Math.max(0, intensity));
+    var lower = HEAT_RAMP[0];
+    var upper = HEAT_RAMP[HEAT_RAMP.length - 1];
+    for (var i = 0; i < HEAT_RAMP.length - 1; i++) {
+        var a = HEAT_RAMP[i];
+        var b = HEAT_RAMP[i + 1];
+        if (t >= a.stop && t <= b.stop) {
+            lower = a;
+            upper = b;
+            break;
+        }
+    }
+    var span = upper.stop - lower.stop;
+    var ratio = span === 0 ? 0 : (t - lower.stop) / span;
+    var channel = function (index) { var _a, _b, _c; return Math.round(((_a = lower.rgb[index]) !== null && _a !== void 0 ? _a : 0) + (((_b = upper.rgb[index]) !== null && _b !== void 0 ? _b : 0) - ((_c = lower.rgb[index]) !== null && _c !== void 0 ? _c : 0)) * ratio); };
+    return "rgb(".concat(channel(0), ", ").concat(channel(1), ", ").concat(channel(2), ")");
+}
+/**
+ * Normalises a total against the hottest element.
+ *
+ * Time per activity is heavy-tailed — one waiting user task can dwarf every service
+ * task in the process — so a straight ratio would leave everything but the worst
+ * offender uniformly cold. The gamma lifts the middle without reordering anything.
+ *
+ * @param totalMillis - This element's total
+ * @param maxMillis - The hottest element's total
+ * @returns Intensity in 0..1
+ */
+function getIntensity(totalMillis, maxMillis) {
+    if (maxMillis <= 0) {
+        return 0;
+    }
+    return Math.pow(Math.min(1, totalMillis / maxMillis), HEATMAP_GAMMA);
+}
+/**
+ * Builds the filter that turns the density field into heat.
+ *
+ * This is the part that makes the map continuous rather than a scatter of coloured
+ * discs. Everything below is drawn in plain white at varying opacity, so overlapping
+ * contributions compose into one greyscale density field; only then is that field
+ * blurred and mapped through the colour ramp. Colouring each blob separately, as the
+ * first version did, cannot merge neighbours — two warm elements stay two warm spots
+ * instead of becoming one warm region.
+ *
+ * The chain is: blur, copy alpha into every channel, then transfer each channel
+ * through a table sampled from the ramp. Because the tables are indexed by the same
+ * density value, the result is the ramp colour for that density.
+ *
+ * @param defs - The defs element to append to
+ * @param id - Unique filter id
+ * @returns The created filter
+ */
+function createHeatFilter(defs, id) {
+    var _a;
+    var filterEl = create('filter');
+    attr(filterEl, {
+        id: id,
+        x: '-25%',
+        y: '-25%',
+        width: '150%',
+        height: '150%',
+        // Without this the browser interpolates in linearRGB and the ramp washes out.
+        'color-interpolation-filters': 'sRGB',
+    });
+    var blur = create('feGaussianBlur');
+    attr(blur, { in: 'SourceGraphic', stdDeviation: HEATMAP_BLUR, result: 'density' });
+    append(filterEl, blur);
+    // Copy the density (alpha) into R, G and B so the transfer tables below all read it.
+    var spread = create('feColorMatrix');
+    attr(spread, {
+        in: 'density',
+        type: 'matrix',
+        // The gain in every row lifts the blurred peak back to the top of the ramp.
+        values: "0 0 0 ".concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0"),
+        result: 'grey',
+    });
+    append(filterEl, spread);
+    var channels = [[], [], []];
+    var alphas = [];
+    for (var sample = 0; sample < HEATMAP_RAMP_SAMPLES; sample++) {
+        var along = sample / (HEATMAP_RAMP_SAMPLES - 1);
+        var rgb = /rgb\((\d+), (\d+), (\d+)\)/.exec(getHeatColor(along));
+        for (var channel = 0; channel < channels.length; channel++) {
+            channels[channel].push(Number((_a = rgb === null || rgb === void 0 ? void 0 : rgb[channel + 1]) !== null && _a !== void 0 ? _a : 0) / MAX_CHANNEL);
+        }
+        // Cold density fades out rather than hazing blue across the whole canvas.
+        alphas.push(Math.min(1, Math.pow(along, HEATMAP_ALPHA_EXPONENT) * HEATMAP_ALPHA_SLOPE));
+    }
+    var transfer = create('feComponentTransfer');
+    attr(transfer, { in: 'grey' });
+    ['feFuncR', 'feFuncG', 'feFuncB'].forEach(function (name, channel) {
+        var func = create(name);
+        attr(func, { type: 'table', tableValues: channels[channel].join(' ') });
+        append(transfer, func);
+    });
+    var funcA = create('feFuncA');
+    attr(funcA, { type: 'table', tableValues: alphas.join(' ') });
+    append(transfer, funcA);
+    append(filterEl, transfer);
+    append(defs, filterEl);
+    return filterEl;
+}
+/**
+ * The single radial gradient every density blob is painted with: opaque white at the
+ * centre, transparent at the rim. One definition serves every blob because intensity
+ * is carried by the blob's own opacity, not by its colour.
+ */
+function createDensityGradient(defs, id) {
+    var gradient = create('radialGradient');
+    attr(gradient, { id: id });
+    var inner = create('stop');
+    attr(inner, { offset: '0%', 'stop-color': 'white', 'stop-opacity': 1 });
+    var outer = create('stop');
+    attr(outer, { offset: '100%', 'stop-color': 'white', 'stop-opacity': 0 });
+    append(gradient, inner);
+    append(gradient, outer);
+    append(defs, gradient);
+    return gradient;
+}
+/** Largest value of an RGB channel, for normalising ramp samples into transfer tables. */
+var MAX_CHANNEL = 255;
+/**
+ * Density contributed by an element, floored so an executed-but-quick element still
+ * joins the field instead of leaving a hole in it.
+ */
+function densityOf(intensity) {
+    return HEATMAP_MIN_DENSITY + (1 - HEATMAP_MIN_DENSITY) * intensity;
+}
+/**
+ * The gradient fading a flow from its source's density to its target's.
+ */
+function createFlowGradient(defs, id, smear) {
+    var gradient = create('linearGradient');
+    attr(gradient, {
+        id: id,
+        gradientUnits: 'userSpaceOnUse',
+        x1: smear.start.x,
+        y1: smear.start.y,
+        x2: smear.end.x,
+        y2: smear.end.y,
+    });
+    var first = create('stop');
+    attr(first, { offset: '0%', 'stop-color': 'white', 'stop-opacity': smear.from });
+    var last = create('stop');
+    attr(last, { offset: '100%', 'stop-color': 'white', 'stop-opacity': smear.to });
+    append(gradient, first);
+    append(gradient, last);
+    append(defs, gradient);
+    return gradient;
+}
+/**
+ * The thick soft stroke that carries a flow's density along its waypoints.
+ */
+function createFlowSmear(waypoints, gradientId) {
+    var line = create('path');
+    attr(line, {
+        d: waypoints.map(function (point, at) { return "".concat(at === 0 ? 'M' : 'L', " ").concat(point.x, " ").concat(point.y); }).join(' '),
+        fill: 'none',
+        stroke: "url(#".concat(gradientId, ")"),
+        'stroke-width': HEATMAP_PATH_WIDTH,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+    });
+    return line;
+}
+/**
+ * Smears density along the sequence flows between heated elements.
+ *
+ * Flows carry no duration of their own, so this is interpolation rather than
+ * measurement: the smear fades from the source's density to the target's. It exists to
+ * close the gaps between elements so the map reads as one field, and it never invents
+ * a hot spot — a flow can only be as warm as the elements it joins.
+ *
+ * @param group - The density group to draw into
+ * @param defs - Where the per-flow gradients go
+ * @param registry - BPMN element registry
+ * @param density - Density per element id
+ * @param sequence - Render sequence, for unique gradient ids
+ * @returns The gradients created, for cleanup
+ */
+function appendFlowDensity(group, defs, registry, density, sequence) {
+    var _a, _b;
+    var created = [];
+    var index = 0;
+    for (var _i = 0, _c = Array.from(density.keys()); _i < _c.length; _i++) {
+        var elementId = _c[_i];
+        var element = registry.get(elementId);
+        for (var _d = 0, _e = (_a = element === null || element === void 0 ? void 0 : element.outgoing) !== null && _a !== void 0 ? _a : []; _d < _e.length; _d++) {
+            var flow = _e[_d];
+            var from = density.get(elementId);
+            var to = density.get(flow.target.id);
+            var waypoints = (_b = flow.waypoints) !== null && _b !== void 0 ? _b : [];
+            var start = waypoints[0];
+            var end = waypoints[waypoints.length - 1];
+            if (from === undefined || to === undefined || start === undefined || end === undefined) {
+                continue;
+            }
+            var gradientId = "history-heatmap-flow-".concat(sequence, "-").concat(index++);
+            created.push(createFlowGradient(defs, gradientId, { start: start, end: end, from: from, to: to }));
+            append(group, createFlowSmear(waypoints, gradientId));
+        }
+    }
+    return created;
+}
+/**
+ * The density blob for one element, or null when it has no bounds to sit on.
+ */
+function createDensityBlob(registry, cell, maxMillis, gradientId) {
+    var _a, _b;
+    var element = registry.get(cell.elementId);
+    var width = element === null || element === void 0 ? void 0 : element.width;
+    var height = element === null || element === void 0 ? void 0 : element.height;
+    if (element === undefined || width === undefined || height === undefined) {
+        return null;
+    }
+    var intensity = getIntensity(cell.totalMillis, maxMillis);
+    // Hot spots bloom a little wider as well as denser, so they read first.
+    var spread = 1 - HEATMAP_BLOOM + HEATMAP_BLOOM * intensity;
+    var radius = Math.max(HEATMAP_MIN_RADIUS, (Math.max(width, height) / 2) * HEATMAP_RADIUS_SCALE) * spread;
+    var blob = create('ellipse');
+    attr(blob, {
+        cx: ((_a = element.x) !== null && _a !== void 0 ? _a : 0) + width / 2,
+        cy: ((_b = element.y) !== null && _b !== void 0 ? _b : 0) + height / 2,
+        rx: radius,
+        ry: radius,
+        fill: "url(#".concat(gradientId, ")"),
+        opacity: densityOf(intensity),
+    });
+    return blob;
+}
+/**
+ * Creates the colourising filter and the shared density gradient for one render.
+ * Ids carry the render sequence so two diagrams on a page cannot share them.
+ * @param defs - The defs element to append to
+ * @param sequence - This render's sequence number
+ * @returns The ids to reference and the nodes to remove later
+ */
+function prepareHeatDefs(defs, sequence) {
+    var filterId = "history-heatmap-filter-".concat(sequence);
+    var gradientId = "history-heatmap-density-".concat(sequence);
+    return {
+        filterId: filterId,
+        gradientId: gradientId,
+        nodes: [createHeatFilter(defs, filterId), createDensityGradient(defs, gradientId)],
+    };
+}
+/**
+ * Renders the heatmap layer over the diagram.
+ *
+ * Blobs and flow smears are drawn in diagram coordinates on their own canvas layer, so
+ * panning and zooming carry them along without any redraw.
+ *
+ * @param viewer - The BPMN viewer instance
+ * @param activities - Historic activity instances to visualise
+ * @returns The SVG nodes added, for later cleanup
+ */
+var renderHeatmap = function (viewer, activities) {
+    var _a, _b;
+    var registry = viewer.get('elementRegistry');
+    var canvas = viewer.get('canvas');
+    var cells = aggregateDurations(activities);
+    var added = [];
+    if (cells.length === 0) {
+        return added;
+    }
+    var maxMillis = (_b = (_a = cells[0]) === null || _a === void 0 ? void 0 : _a.totalMillis) !== null && _b !== void 0 ? _b : 0;
+    var defs = resolveDefs(canvas);
+    var sequence = heatmapSequence++;
+    var _c = prepareHeatDefs(defs, sequence), filterId = _c.filterId, gradientId = _c.gradientId, nodes = _c.nodes;
+    added.push.apply(added, nodes);
+    var group = create('g');
+    attr(group, {
+        class: 'history-heatmap',
+        filter: "url(#".concat(filterId, ")"),
+        opacity: HEATMAP_OPACITY,
+        'pointer-events': 'none',
+    });
+    var density = new Map();
+    for (var _i = 0, cells_1 = cells; _i < cells_1.length; _i++) {
+        var cell = cells_1[_i];
+        density.set(cell.elementId, densityOf(getIntensity(cell.totalMillis, maxMillis)));
+    }
+    // Flows go down first so element blobs sit over their joins.
+    added.push.apply(added, appendFlowDensity(group, defs, registry, density, sequence));
+    for (var _d = 0, cells_2 = cells; _d < cells_2.length; _d++) {
+        var cell = cells_2[_d];
+        var blob = createDensityBlob(registry, cell, maxMillis, gradientId);
+        if (blob) {
+            append(group, blob);
+        }
+    }
+    append(canvas.getLayer('historyHeatmap', HEATMAP_LAYER_INDEX), group);
+    added.push(group);
+    return added;
+};
+/**
+ * Removes heatmap nodes previously added to the diagram.
+ * @param nodes - The nodes returned by renderHeatmap
+ */
+var clearHeatmap = function (nodes) {
+    for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
+        var node = nodes_1[_i];
+        remove(node);
+    }
+};
+
 var Component = {};
 
 var toggleSelection;
@@ -21032,6 +21855,21 @@ function SortableTable(_a) {
  * Statistics table displaying aggregated activity timing metrics
  * including instance counts, total/average/median durations.
  */
+/**
+ * What a row is labelled with. An unnamed element — most gateways, plenty of events —
+ * would otherwise land in a single nameless row that lumps them all together, so fall
+ * back to the element id, which is at least something to match against the diagram.
+ * @param activity - Historic activity instance
+ * @returns The label to group and display the activity under
+ */
+function labelOf(activity) {
+    var _a;
+    var name = activity.activityName;
+    if (name !== null && name !== undefined && name !== '') {
+        return name;
+    }
+    return (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
+}
 var StatisticsTable = function (_a) {
     var activities = _a.activities;
     var columns = React.useMemo(function () { return [
@@ -21077,25 +21915,28 @@ var StatisticsTable = function (_a) {
         },
     ]; }, []);
     var counter = React.useMemo(function () {
-        var _a;
         var counter = {};
         for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
             var activity = activities_1[_i];
-            var name_1 = (_a = activity.activityName) !== null && _a !== void 0 ? _a : '';
+            var name_1 = labelOf(activity);
             var current = counter[name_1];
             counter[name_1] = current !== undefined ? current + 1 : 1;
         }
         return counter;
     }, [activities]);
     var _b = React.useMemo(function () {
-        var _a, _b, _c, _d;
+        var _a;
         var totals = {};
         var durations = {};
         for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
             var activity = activities_2[_i];
-            var activityName = (_a = activity.activityName) !== null && _a !== void 0 ? _a : '';
-            var duration = new Date((_b = activity.endTime) !== null && _b !== void 0 ? _b : 0).getTime() - new Date((_c = activity.startTime) !== null && _c !== void 0 ? _c : 0).getTime();
-            totals[activityName] = ((_d = totals[activityName]) !== null && _d !== void 0 ? _d : 0) + duration;
+            var activityName = labelOf(activity);
+            // Shared with the heatmap so the table and the colours cannot disagree about how
+            // long something took. Subtracting the raw timestamps here used to read a missing
+            // endTime as the epoch, turning an unfinished activity into a duration of minus
+            // fifty-odd years and poisoning every total it was summed into.
+            var duration = durationOf(activity);
+            totals[activityName] = ((_a = totals[activityName]) !== null && _a !== void 0 ? _a : 0) + duration;
             var existingDurations = durations[activityName];
             if (existingDurations === undefined) {
                 durations[activityName] = [duration];
@@ -21150,6 +21991,41 @@ var StatisticsTable = function (_a) {
     return React.createElement(SortableTable, { columns: columns, data: data, ariaLabel: "Activity statistics table" });
 };
 
+/** Warning box styling constants */
+var WARNING_STYLES = {
+    padding: '10px',
+    backgroundColor: '#fff3cd',
+    border: '1px solid #ffc107',
+    borderRadius: '2px',
+    marginBottom: '15px',
+};
+/**
+ * Reusable warning box component for displaying cautionary messages.
+ * Uses Bootstrap-like warning colors (yellow/amber).
+ *
+ * @example
+ * ```tsx
+ * <WarningBox>
+ *   Process instance modification is a powerful operation that can lead to
+ *   inconsistent process states. Use with extreme care.
+ * </WarningBox>
+ *
+ * <WarningBox title="Danger Zone">
+ *   This action cannot be undone.
+ * </WarningBox>
+ * ```
+ */
+var WarningBox = function (_a) {
+    var children = _a.children, _b = _a.title, title = _b === void 0 ? 'Warning' : _b, className = _a.className;
+    return (React.createElement("div", { role: "alert", "aria-live": "polite", style: WARNING_STYLES, className: className },
+        React.createElement("strong", null,
+            "\u26A0\uFE0F ",
+            title,
+            ":"),
+        " ",
+        children));
+};
+
 // THIS FILE IS AUTO GENERATED
 function FaFire (props) {
   return GenIcon({"attr":{"viewBox":"0 0 384 512"},"child":[{"tag":"path","attr":{"d":"M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-21.7-26.47-32.23-41.43-16.5C27.8 213.16 0 261.33 0 320c0 105.87 86.13 192 192 192s192-86.13 192-192c0-170.29-168-193-168-296.14z"},"child":[]}]})(props);
@@ -21166,6 +22042,8 @@ var MODE_LABEL = {
 };
 /** Colour of the icon in heat mode, taken from the hot end of the heatmap ramp. */
 var HEAT_ICON_COLOR = '#d82c20';
+/** Colour of the icon when the figures came from a capped query */
+var PARTIAL_COLOR = '#b8860b';
 /**
  * Reads the stored mode. It is kept as two booleans rather than one string so that
  * settings and URL parameters written before the heatmap existed still mean what they
@@ -21185,11 +22063,12 @@ function loadMode() {
  *
  * @param props - Component props
  * @param props.onToggleHistoryStatistics - Callback invoked when the mode changes
+ * @param props.partial - Whether the query hit its result cap
  * @returns Toggle button component
  */
 var ToggleHistoryStatisticsButton = function (_a) {
-    var onToggleHistoryStatistics = _a.onToggleHistoryStatistics;
-    var _b = reactExports.useState(loadMode), mode = _b[0], setMode = _b[1];
+    var onToggleHistoryStatistics = _a.onToggleHistoryStatistics, _b = _a.partial, partial = _b === void 0 ? false : _b;
+    var _c = reactExports.useState(loadMode), mode = _c[0], setMode = _c[1];
     reactExports.useEffect(function () {
         onToggleHistoryStatistics(mode);
         saveSettings(__assign(__assign({}, loadSettings()), { showHistoricBadges: mode !== 'off', showHeatmap: mode === 'heat' }));
@@ -21199,10 +22078,23 @@ var ToggleHistoryStatisticsButton = function (_a) {
     }, []);
     // The label names what the next click does, so the third state is discoverable
     // rather than something you find by clicking twice.
-    var label = MODE_LABEL[mode];
+    var action = MODE_LABEL[mode];
+    // Only worth saying while something is actually drawn: off, there are no figures for
+    // the caveat to be about.
+    var caveated = partial && mode !== 'off';
+    var label = caveated ? "".concat(action, " (result limit reached \u2014 figures cover recent activity only)") : action;
     var Icon = mode === 'heat' ? FaFire : FaHistory;
+    // Amber wins over the heat red: a caveat about what the figures cover matters more
+    // than the mode they are drawn in, and the two never need saying at once.
+    var iconColor = undefined;
+    if (caveated) {
+        iconColor = PARTIAL_COLOR;
+    }
+    else if (mode === 'heat') {
+        iconColor = HEAT_ICON_COLOR;
+    }
     return (React.createElement("button", { className: "toggle-history-statistics-button", title: label, "aria-label": label, onClick: handleClick },
-        React.createElement(Icon, { style: __assign({ opacity: mode === 'off' ? '0.33' : '1.0', fontSize: '133%' }, (mode === 'heat' ? { color: HEAT_ICON_COLOR } : {})) })));
+        React.createElement(Icon, { style: __assign({ opacity: mode === 'off' ? '0.33' : '1.0', fontSize: '133%' }, (iconColor !== undefined ? { color: iconColor } : {})) })));
 };
 
 /**
@@ -21390,794 +22282,6 @@ function createHistoryService(api) {
     return new HistoryService(api);
 }
 
-/**
- * UI and timing constants used across the application.
- * Centralizes magic numbers for easier maintenance and configuration.
- */
-// =============================================================================
-// UI Constants
-// =============================================================================
-/** Modal overlay z-index to ensure modals appear above other content */
-/** Default maximum results for history API queries */
-var DEFAULT_MAX_RESULTS = 1000;
-// =============================================================================
-// Heatmap Constants
-// =============================================================================
-/**
- * Layer index of the heatmap. Negative puts it *below* diagram-js's base layer, so
- * element borders, labels and flows stay crisp on top of the heat rather than being
- * tinted by it. Shapes paint a near-opaque white fill, so the heat reads as a halo
- * around them rather than a wash over them.
- */
-var HEATMAP_LAYER_INDEX = -1;
-/** Opacity of the heatmap layer. It sits behind the diagram, so it can be strong */
-var HEATMAP_OPACITY = 0.85;
-/** Gaussian blur applied to the whole heatmap group, in diagram units */
-var HEATMAP_BLUR = 12;
-/** Blob radius as a multiple of half the element's longest side */
-var HEATMAP_RADIUS_SCALE = 2.1;
-/** Smallest blob radius, so events and gateways still register */
-var HEATMAP_MIN_RADIUS = 46;
-/** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
-var HEATMAP_GAMMA = 0.7;
-/** How much of a blob's radius follows intensity rather than the element's size */
-var HEATMAP_BLOOM = 0.35;
-/** Samples taken from the colour ramp to build the filter's transfer tables */
-var HEATMAP_RAMP_SAMPLES = 12;
-/** Width of the density smear drawn along a sequence flow, in diagram units */
-var HEATMAP_PATH_WIDTH = 30;
-/** Density floor, so a cold-but-executed element still joins the field */
-var HEATMAP_MIN_DENSITY = 0.1;
-/**
- * Amplifies the density field before it is coloured. Blurring spreads each
- * contribution and so lowers its peak; without a gain the hottest element never
- * reaches the top of the ramp and the map tops out orange.
- */
-var HEATMAP_DENSITY_GAIN = 1.25;
-/** Exponent on the opacity curve; above 1 it holds cold regions back */
-var HEATMAP_ALPHA_EXPONENT = 1.6;
-/** Slope of the opacity curve once it starts rising */
-var HEATMAP_ALPHA_SLOPE = 2.1;
-
-var componentEvent = {};
-
-var hasRequiredComponentEvent;
-
-function requireComponentEvent () {
-	if (hasRequiredComponentEvent) return componentEvent;
-	hasRequiredComponentEvent = 1;
-	var bind, unbind, prefix;
-
-	function detect () {
-	  bind = window.addEventListener ? 'addEventListener' : 'attachEvent';
-	  unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
-	  prefix = bind !== 'addEventListener' ? 'on' : '';
-	}
-
-	/**
-	 * Bind `el` event `type` to `fn`.
-	 *
-	 * @param {Element} el
-	 * @param {String} type
-	 * @param {Function} fn
-	 * @param {Boolean} capture
-	 * @return {Function}
-	 * @api public
-	 */
-
-	componentEvent.bind = function(el, type, fn, capture){
-	  if (!bind) detect();
-	  el[bind](prefix + type, fn, capture || false);
-	  return fn;
-	};
-
-	/**
-	 * Unbind `el` event `type`'s callback `fn`.
-	 *
-	 * @param {Element} el
-	 * @param {String} type
-	 * @param {Function} fn
-	 * @param {Boolean} capture
-	 * @return {Function}
-	 * @api public
-	 */
-
-	componentEvent.unbind = function(el, type, fn, capture){
-	  if (!unbind) detect();
-	  el[unbind](prefix + type, fn, capture || false);
-	  return fn;
-	};
-	return componentEvent;
-}
-
-requireComponentEvent();
-
-function query(selector, el) {
-  el = el || document;
-
-  return el.querySelector(selector);
-}
-
-function ensureImported(element, target) {
-
-  if (element.ownerDocument !== target.ownerDocument) {
-    try {
-
-      // may fail on webkit
-      return target.ownerDocument.importNode(element, true);
-    } catch (e) {
-
-      // ignore
-    }
-  }
-
-  return element;
-}
-
-/**
- * appendTo utility
- */
-
-
-/**
- * Append a node to a target element and return the appended node.
- *
- * @param  {SVGElement} element
- * @param  {SVGElement} target
- *
- * @return {SVGElement} the appended node
- */
-function appendTo(element, target) {
-  return target.appendChild(ensureImported(element, target));
-}
-
-/**
- * append utility
- */
-
-
-/**
- * Append a node to an element
- *
- * @param  {SVGElement} element
- * @param  {SVGElement} node
- *
- * @return {SVGElement} the element
- */
-function append(target, node) {
-  appendTo(node, target);
-  return target;
-}
-
-/**
- * attribute accessor utility
- */
-
-var LENGTH_ATTR = 2;
-
-var CSS_PROPERTIES = {
-  'alignment-baseline': 1,
-  'baseline-shift': 1,
-  'clip': 1,
-  'clip-path': 1,
-  'clip-rule': 1,
-  'color': 1,
-  'color-interpolation': 1,
-  'color-interpolation-filters': 1,
-  'color-profile': 1,
-  'color-rendering': 1,
-  'cursor': 1,
-  'direction': 1,
-  'display': 1,
-  'dominant-baseline': 1,
-  'enable-background': 1,
-  'fill': 1,
-  'fill-opacity': 1,
-  'fill-rule': 1,
-  'filter': 1,
-  'flood-color': 1,
-  'flood-opacity': 1,
-  'font': 1,
-  'font-family': 1,
-  'font-size': LENGTH_ATTR,
-  'font-size-adjust': 1,
-  'font-stretch': 1,
-  'font-style': 1,
-  'font-variant': 1,
-  'font-weight': 1,
-  'glyph-orientation-horizontal': 1,
-  'glyph-orientation-vertical': 1,
-  'image-rendering': 1,
-  'kerning': 1,
-  'letter-spacing': 1,
-  'lighting-color': 1,
-  'marker': 1,
-  'marker-end': 1,
-  'marker-mid': 1,
-  'marker-start': 1,
-  'mask': 1,
-  'opacity': 1,
-  'overflow': 1,
-  'pointer-events': 1,
-  'shape-rendering': 1,
-  'stop-color': 1,
-  'stop-opacity': 1,
-  'stroke': 1,
-  'stroke-dasharray': 1,
-  'stroke-dashoffset': 1,
-  'stroke-linecap': 1,
-  'stroke-linejoin': 1,
-  'stroke-miterlimit': 1,
-  'stroke-opacity': 1,
-  'stroke-width': LENGTH_ATTR,
-  'text-anchor': 1,
-  'text-decoration': 1,
-  'text-rendering': 1,
-  'unicode-bidi': 1,
-  'visibility': 1,
-  'word-spacing': 1,
-  'writing-mode': 1
-};
-
-
-function getAttribute(node, name) {
-  if (CSS_PROPERTIES[name]) {
-    return node.style[name];
-  } else {
-    return node.getAttributeNS(null, name);
-  }
-}
-
-function setAttribute(node, name, value) {
-  var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-
-  var type = CSS_PROPERTIES[hyphenated];
-
-  if (type) {
-
-    // append pixel unit, unless present
-    if (type === LENGTH_ATTR && typeof value === 'number') {
-      value = String(value) + 'px';
-    }
-
-    node.style[hyphenated] = value;
-  } else {
-    node.setAttributeNS(null, name, value);
-  }
-}
-
-function setAttributes(node, attrs) {
-
-  var names = Object.keys(attrs), i, name;
-
-  for (i = 0, name; (name = names[i]); i++) {
-    setAttribute(node, name, attrs[name]);
-  }
-}
-
-/**
- * Gets or sets raw attributes on a node.
- *
- * @param  {SVGElement} node
- * @param  {Object} [attrs]
- * @param  {String} [name]
- * @param  {String} [value]
- *
- * @return {String}
- */
-function attr(node, name, value) {
-  if (typeof name === 'string') {
-    {
-      return getAttribute(node, name);
-    }
-  } else {
-    setAttributes(node, name);
-  }
-
-  return node;
-}
-
-var ns = {
-  svg: 'http://www.w3.org/2000/svg'
-};
-
-/**
- * DOM parsing utility
- */
-
-
-var SVG_START = '<svg xmlns="' + ns.svg + '"';
-
-function parse(svg) {
-
-  var unwrap = false;
-
-  // ensure we import a valid svg document
-  if (svg.substring(0, 4) === '<svg') {
-    if (svg.indexOf(ns.svg) === -1) {
-      svg = SVG_START + svg.substring(4);
-    }
-  } else {
-
-    // namespace svg
-    svg = SVG_START + '>' + svg + '</svg>';
-    unwrap = true;
-  }
-
-  var parsed = parseDocument(svg);
-
-  if (!unwrap) {
-    return parsed;
-  }
-
-  var fragment = document.createDocumentFragment();
-
-  var parent = parsed.firstChild;
-
-  while (parent.firstChild) {
-    fragment.appendChild(parent.firstChild);
-  }
-
-  return fragment;
-}
-
-function parseDocument(svg) {
-
-  var parser;
-
-  // parse
-  parser = new DOMParser();
-  parser.async = false;
-
-  return parser.parseFromString(svg, 'text/xml');
-}
-
-/**
- * Create utility for SVG elements
- */
-
-
-
-/**
- * Create a specific type from name or SVG markup.
- *
- * @param {String} name the name or markup of the element
- * @param {Object} [attrs] attributes to set on the element
- *
- * @returns {SVGElement}
- */
-function create(name, attrs) {
-  var element;
-
-  name = name.trim();
-
-  if (name.charAt(0) === '<') {
-    element = parse(name).firstChild;
-    element = document.importNode(element, true);
-  } else {
-    element = document.createElementNS(ns.svg, name);
-  }
-
-  return element;
-}
-
-function remove(element) {
-  var parent = element.parentNode;
-
-  if (parent) {
-    parent.removeChild(element);
-  }
-
-  return element;
-}
-
-/**
- * Finds the SVG's defs element, creating it when the diagram has none yet.
- * Shared with the heatmap, which needs the same place for its gradients and filter.
- * @param canvas - The viewer canvas
- * @returns The defs element to hold marker definitions
- */
-function resolveDefs(canvas) {
-    // Cast SVG to HTMLElement for domQuery, which expects HTMLElement
-    var existing = query('defs', canvas._svg);
-    if (existing !== null) {
-        return existing;
-    }
-    var defs = create('defs');
-    append(canvas._svg, defs);
-    return defs;
-}
-
-/**
- * BPMN heatmap rendering.
- *
- * Shades the diagram by how much cumulative time each element consumed, so the parts
- * of a process that cost the most are visible at a glance rather than having to be
- * read out of a table.
- * @module
- */
-/**
- * Colour ramp, cold to hot. Chosen to read as heat rather than as status: it avoids
- * the executed path's green at both ends, so the two overlays can be on together.
- */
-/* eslint-disable no-magic-numbers -- channel values of a colour ramp are data */
-var HEAT_RAMP = [
-    { stop: 0, rgb: [43, 92, 214] },
-    { stop: 0.35, rgb: [38, 190, 198] },
-    { stop: 0.6, rgb: [122, 201, 67] },
-    { stop: 0.8, rgb: [240, 196, 42] },
-    { stop: 1, rgb: [216, 44, 32] },
-];
-/* eslint-enable no-magic-numbers */
-/** Counter behind per-render ids, so two diagrams on one page cannot share defs. */
-var heatmapSequence = 0;
-/**
- * Strips the execution scope suffix the engine appends to an activity id.
- */
-var toElementId = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
-/**
- * Multi-instance bodies span their instances, so counting both double-counts the time.
- */
-var isMultiInstanceBody = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
-/**
- * Milliseconds an activity occupied, preferring the engine's own figure and falling
- * back to the timestamps when it is absent.
- * @param activity - Historic activity instance
- * @returns Duration in milliseconds, or 0 when it cannot be determined
- */
-function durationOf(activity) {
-    if (typeof activity.durationInMillis === 'number') {
-        return activity.durationInMillis;
-    }
-    if (!activity.startTime || !activity.endTime) {
-        return 0;
-    }
-    var elapsed = Date.parse(activity.endTime) - Date.parse(activity.startTime);
-    return Number.isNaN(elapsed) ? 0 : elapsed;
-}
-/**
- * Sums the time spent per diagram element.
- *
- * Still-running activities contribute nothing: they have no duration yet, and guessing
- * one would make the hottest spot of a diagram the thing that simply has not finished.
- *
- * @param activities - Historic activity instances to aggregate
- * @returns One cell per element that consumed time, hottest first
- */
-function aggregateDurations(activities) {
-    var _a, _b;
-    var totals = new Map();
-    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
-        var activity = activities_1[_i];
-        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        if (activityId === '' || isMultiInstanceBody(activityId)) {
-            continue;
-        }
-        var elementId = toElementId(activityId);
-        totals.set(elementId, ((_b = totals.get(elementId)) !== null && _b !== void 0 ? _b : 0) + durationOf(activity));
-    }
-    var cells = [];
-    for (var _c = 0, _d = Array.from(totals.entries()); _c < _d.length; _c++) {
-        var entry = _d[_c];
-        if (entry[1] > 0) {
-            cells.push({ elementId: entry[0], totalMillis: entry[1] });
-        }
-    }
-    cells.sort(function (a, b) { return b.totalMillis - a.totalMillis; });
-    return cells;
-}
-/**
- * Maps a 0..1 intensity onto the ramp.
- * @param intensity - Normalised heat, clamped to 0..1
- * @returns An `rgb()` colour string
- */
-function getHeatColor(intensity) {
-    var t = Math.min(1, Math.max(0, intensity));
-    var lower = HEAT_RAMP[0];
-    var upper = HEAT_RAMP[HEAT_RAMP.length - 1];
-    for (var i = 0; i < HEAT_RAMP.length - 1; i++) {
-        var a = HEAT_RAMP[i];
-        var b = HEAT_RAMP[i + 1];
-        if (t >= a.stop && t <= b.stop) {
-            lower = a;
-            upper = b;
-            break;
-        }
-    }
-    var span = upper.stop - lower.stop;
-    var ratio = span === 0 ? 0 : (t - lower.stop) / span;
-    var channel = function (index) { var _a, _b, _c; return Math.round(((_a = lower.rgb[index]) !== null && _a !== void 0 ? _a : 0) + (((_b = upper.rgb[index]) !== null && _b !== void 0 ? _b : 0) - ((_c = lower.rgb[index]) !== null && _c !== void 0 ? _c : 0)) * ratio); };
-    return "rgb(".concat(channel(0), ", ").concat(channel(1), ", ").concat(channel(2), ")");
-}
-/**
- * Normalises a total against the hottest element.
- *
- * Time per activity is heavy-tailed — one waiting user task can dwarf every service
- * task in the process — so a straight ratio would leave everything but the worst
- * offender uniformly cold. The gamma lifts the middle without reordering anything.
- *
- * @param totalMillis - This element's total
- * @param maxMillis - The hottest element's total
- * @returns Intensity in 0..1
- */
-function getIntensity(totalMillis, maxMillis) {
-    if (maxMillis <= 0) {
-        return 0;
-    }
-    return Math.pow(Math.min(1, totalMillis / maxMillis), HEATMAP_GAMMA);
-}
-/**
- * Builds the filter that turns the density field into heat.
- *
- * This is the part that makes the map continuous rather than a scatter of coloured
- * discs. Everything below is drawn in plain white at varying opacity, so overlapping
- * contributions compose into one greyscale density field; only then is that field
- * blurred and mapped through the colour ramp. Colouring each blob separately, as the
- * first version did, cannot merge neighbours — two warm elements stay two warm spots
- * instead of becoming one warm region.
- *
- * The chain is: blur, copy alpha into every channel, then transfer each channel
- * through a table sampled from the ramp. Because the tables are indexed by the same
- * density value, the result is the ramp colour for that density.
- *
- * @param defs - The defs element to append to
- * @param id - Unique filter id
- * @returns The created filter
- */
-function createHeatFilter(defs, id) {
-    var _a;
-    var filterEl = create('filter');
-    attr(filterEl, {
-        id: id,
-        x: '-25%',
-        y: '-25%',
-        width: '150%',
-        height: '150%',
-        // Without this the browser interpolates in linearRGB and the ramp washes out.
-        'color-interpolation-filters': 'sRGB',
-    });
-    var blur = create('feGaussianBlur');
-    attr(blur, { in: 'SourceGraphic', stdDeviation: HEATMAP_BLUR, result: 'density' });
-    append(filterEl, blur);
-    // Copy the density (alpha) into R, G and B so the transfer tables below all read it.
-    var spread = create('feColorMatrix');
-    attr(spread, {
-        in: 'density',
-        type: 'matrix',
-        // The gain in every row lifts the blurred peak back to the top of the ramp.
-        values: "0 0 0 ".concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0"),
-        result: 'grey',
-    });
-    append(filterEl, spread);
-    var channels = [[], [], []];
-    var alphas = [];
-    for (var sample = 0; sample < HEATMAP_RAMP_SAMPLES; sample++) {
-        var along = sample / (HEATMAP_RAMP_SAMPLES - 1);
-        var rgb = /rgb\((\d+), (\d+), (\d+)\)/.exec(getHeatColor(along));
-        for (var channel = 0; channel < channels.length; channel++) {
-            channels[channel].push(Number((_a = rgb === null || rgb === void 0 ? void 0 : rgb[channel + 1]) !== null && _a !== void 0 ? _a : 0) / MAX_CHANNEL);
-        }
-        // Cold density fades out rather than hazing blue across the whole canvas.
-        alphas.push(Math.min(1, Math.pow(along, HEATMAP_ALPHA_EXPONENT) * HEATMAP_ALPHA_SLOPE));
-    }
-    var transfer = create('feComponentTransfer');
-    attr(transfer, { in: 'grey' });
-    ['feFuncR', 'feFuncG', 'feFuncB'].forEach(function (name, channel) {
-        var func = create(name);
-        attr(func, { type: 'table', tableValues: channels[channel].join(' ') });
-        append(transfer, func);
-    });
-    var funcA = create('feFuncA');
-    attr(funcA, { type: 'table', tableValues: alphas.join(' ') });
-    append(transfer, funcA);
-    append(filterEl, transfer);
-    append(defs, filterEl);
-    return filterEl;
-}
-/**
- * The single radial gradient every density blob is painted with: opaque white at the
- * centre, transparent at the rim. One definition serves every blob because intensity
- * is carried by the blob's own opacity, not by its colour.
- */
-function createDensityGradient(defs, id) {
-    var gradient = create('radialGradient');
-    attr(gradient, { id: id });
-    var inner = create('stop');
-    attr(inner, { offset: '0%', 'stop-color': 'white', 'stop-opacity': 1 });
-    var outer = create('stop');
-    attr(outer, { offset: '100%', 'stop-color': 'white', 'stop-opacity': 0 });
-    append(gradient, inner);
-    append(gradient, outer);
-    append(defs, gradient);
-    return gradient;
-}
-/** Largest value of an RGB channel, for normalising ramp samples into transfer tables. */
-var MAX_CHANNEL = 255;
-/**
- * Density contributed by an element, floored so an executed-but-quick element still
- * joins the field instead of leaving a hole in it.
- */
-function densityOf(intensity) {
-    return HEATMAP_MIN_DENSITY + (1 - HEATMAP_MIN_DENSITY) * intensity;
-}
-/**
- * The gradient fading a flow from its source's density to its target's.
- */
-function createFlowGradient(defs, id, smear) {
-    var gradient = create('linearGradient');
-    attr(gradient, {
-        id: id,
-        gradientUnits: 'userSpaceOnUse',
-        x1: smear.start.x,
-        y1: smear.start.y,
-        x2: smear.end.x,
-        y2: smear.end.y,
-    });
-    var first = create('stop');
-    attr(first, { offset: '0%', 'stop-color': 'white', 'stop-opacity': smear.from });
-    var last = create('stop');
-    attr(last, { offset: '100%', 'stop-color': 'white', 'stop-opacity': smear.to });
-    append(gradient, first);
-    append(gradient, last);
-    append(defs, gradient);
-    return gradient;
-}
-/**
- * The thick soft stroke that carries a flow's density along its waypoints.
- */
-function createFlowSmear(waypoints, gradientId) {
-    var line = create('path');
-    attr(line, {
-        d: waypoints.map(function (point, at) { return "".concat(at === 0 ? 'M' : 'L', " ").concat(point.x, " ").concat(point.y); }).join(' '),
-        fill: 'none',
-        stroke: "url(#".concat(gradientId, ")"),
-        'stroke-width': HEATMAP_PATH_WIDTH,
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-    });
-    return line;
-}
-/**
- * Smears density along the sequence flows between heated elements.
- *
- * Flows carry no duration of their own, so this is interpolation rather than
- * measurement: the smear fades from the source's density to the target's. It exists to
- * close the gaps between elements so the map reads as one field, and it never invents
- * a hot spot — a flow can only be as warm as the elements it joins.
- *
- * @param group - The density group to draw into
- * @param defs - Where the per-flow gradients go
- * @param registry - BPMN element registry
- * @param density - Density per element id
- * @param sequence - Render sequence, for unique gradient ids
- * @returns The gradients created, for cleanup
- */
-function appendFlowDensity(group, defs, registry, density, sequence) {
-    var _a, _b;
-    var created = [];
-    var index = 0;
-    for (var _i = 0, _c = Array.from(density.keys()); _i < _c.length; _i++) {
-        var elementId = _c[_i];
-        var element = registry.get(elementId);
-        for (var _d = 0, _e = (_a = element === null || element === void 0 ? void 0 : element.outgoing) !== null && _a !== void 0 ? _a : []; _d < _e.length; _d++) {
-            var flow = _e[_d];
-            var from = density.get(elementId);
-            var to = density.get(flow.target.id);
-            var waypoints = (_b = flow.waypoints) !== null && _b !== void 0 ? _b : [];
-            var start = waypoints[0];
-            var end = waypoints[waypoints.length - 1];
-            if (from === undefined || to === undefined || start === undefined || end === undefined) {
-                continue;
-            }
-            var gradientId = "history-heatmap-flow-".concat(sequence, "-").concat(index++);
-            created.push(createFlowGradient(defs, gradientId, { start: start, end: end, from: from, to: to }));
-            append(group, createFlowSmear(waypoints, gradientId));
-        }
-    }
-    return created;
-}
-/**
- * The density blob for one element, or null when it has no bounds to sit on.
- */
-function createDensityBlob(registry, cell, maxMillis, gradientId) {
-    var _a, _b;
-    var element = registry.get(cell.elementId);
-    var width = element === null || element === void 0 ? void 0 : element.width;
-    var height = element === null || element === void 0 ? void 0 : element.height;
-    if (element === undefined || width === undefined || height === undefined) {
-        return null;
-    }
-    var intensity = getIntensity(cell.totalMillis, maxMillis);
-    // Hot spots bloom a little wider as well as denser, so they read first.
-    var spread = 1 - HEATMAP_BLOOM + HEATMAP_BLOOM * intensity;
-    var radius = Math.max(HEATMAP_MIN_RADIUS, (Math.max(width, height) / 2) * HEATMAP_RADIUS_SCALE) * spread;
-    var blob = create('ellipse');
-    attr(blob, {
-        cx: ((_a = element.x) !== null && _a !== void 0 ? _a : 0) + width / 2,
-        cy: ((_b = element.y) !== null && _b !== void 0 ? _b : 0) + height / 2,
-        rx: radius,
-        ry: radius,
-        fill: "url(#".concat(gradientId, ")"),
-        opacity: densityOf(intensity),
-    });
-    return blob;
-}
-/**
- * Creates the colourising filter and the shared density gradient for one render.
- * Ids carry the render sequence so two diagrams on a page cannot share them.
- * @param defs - The defs element to append to
- * @param sequence - This render's sequence number
- * @returns The ids to reference and the nodes to remove later
- */
-function prepareHeatDefs(defs, sequence) {
-    var filterId = "history-heatmap-filter-".concat(sequence);
-    var gradientId = "history-heatmap-density-".concat(sequence);
-    return {
-        filterId: filterId,
-        gradientId: gradientId,
-        nodes: [createHeatFilter(defs, filterId), createDensityGradient(defs, gradientId)],
-    };
-}
-/**
- * Renders the heatmap layer over the diagram.
- *
- * Blobs and flow smears are drawn in diagram coordinates on their own canvas layer, so
- * panning and zooming carry them along without any redraw.
- *
- * @param viewer - The BPMN viewer instance
- * @param activities - Historic activity instances to visualise
- * @returns The SVG nodes added, for later cleanup
- */
-var renderHeatmap = function (viewer, activities) {
-    var _a, _b;
-    var registry = viewer.get('elementRegistry');
-    var canvas = viewer.get('canvas');
-    var cells = aggregateDurations(activities);
-    var added = [];
-    if (cells.length === 0) {
-        return added;
-    }
-    var maxMillis = (_b = (_a = cells[0]) === null || _a === void 0 ? void 0 : _a.totalMillis) !== null && _b !== void 0 ? _b : 0;
-    var defs = resolveDefs(canvas);
-    var sequence = heatmapSequence++;
-    var _c = prepareHeatDefs(defs, sequence), filterId = _c.filterId, gradientId = _c.gradientId, nodes = _c.nodes;
-    added.push.apply(added, nodes);
-    var group = create('g');
-    attr(group, {
-        class: 'history-heatmap',
-        filter: "url(#".concat(filterId, ")"),
-        opacity: HEATMAP_OPACITY,
-        'pointer-events': 'none',
-    });
-    var density = new Map();
-    for (var _i = 0, cells_1 = cells; _i < cells_1.length; _i++) {
-        var cell = cells_1[_i];
-        density.set(cell.elementId, densityOf(getIntensity(cell.totalMillis, maxMillis)));
-    }
-    // Flows go down first so element blobs sit over their joins.
-    added.push.apply(added, appendFlowDensity(group, defs, registry, density, sequence));
-    for (var _d = 0, cells_2 = cells; _d < cells_2.length; _d++) {
-        var cell = cells_2[_d];
-        var blob = createDensityBlob(registry, cell, maxMillis, gradientId);
-        if (blob) {
-            append(group, blob);
-        }
-    }
-    append(canvas.getLayer('historyHeatmap', HEATMAP_LAYER_INDEX), group);
-    added.push(group);
-    return added;
-};
-/**
- * Removes heatmap nodes previously added to the diagram.
- * @param nodes - The nodes returned by renderHeatmap
- */
-var clearHeatmap = function (nodes) {
-    for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
-        var node = nodes_1[_i];
-        remove(node);
-    }
-};
-
 var initialState = {
     viewer: null,
     statistics: null,
@@ -22248,12 +22352,14 @@ var Plugin = function (_a) {
     hooks.setViewer = setViewer;
     hooks.setStatistics = setStatistics;
     var _h = reactExports.useState([]), activities = _h[0], setActivities = _h[1];
+    var _j = reactExports.useState(false), truncated = _j[0], setTruncated = _j[1];
+    var _k = reactExports.useState(null), fetchError = _k[0], setFetchError = _k[1];
     // Overlay ids, not elements: bpmn-js keeps a container per overlay that only
     // overlays.remove() takes down, so tracking the HTML leaks one container per
     // activity on every filter change.
-    var _j = reactExports.useState([]), overlayIds = _j[0], setOverlayIds = _j[1];
-    var _k = reactExports.useState([]), heatmapNodes = _k[0], setHeatmapNodes = _k[1];
-    var _l = reactExports.useState('off'), mode = _l[0], setMode = _l[1];
+    var _l = reactExports.useState([]), overlayIds = _l[0], setOverlayIds = _l[1];
+    var _m = reactExports.useState([]), heatmapNodes = _m[0], setHeatmapNodes = _m[1];
+    var _o = reactExports.useState('off'), mode = _o[0], setMode = _o[1];
     // Create history service instance (memoized to avoid recreation on each render)
     var historyService = reactExports.useMemo(function () { return createHistoryService(api); }, [api]);
     // Create filter schema with API for autocomplete (memoized to avoid recreation)
@@ -22310,20 +22416,50 @@ var Plugin = function (_a) {
     }, [processVersion, initialFilterSet]);
     // FETCH
     reactExports.useEffect(function () {
-        if (Object.keys(query).length > 0) {
-            void (function () { return __awaiter(void 0, void 0, void 0, function () {
-                var result;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, historyService.getActivitiesByDefinition(processDefinitionId, query)];
-                        case 1:
-                            result = _a.sent();
-                            setActivities(result);
-                            return [2 /*return*/];
-                    }
-                });
-            }); })();
+        if (Object.keys(query).length === 0) {
+            return;
         }
+        // A slow response for an old filter must not land on top of a newer one, and a
+        // request in flight when the tab goes away must not set state on the way out.
+        // Held in an object rather than a plain `let` so the flag is read as mutable state
+        // shared with the cleanup below, not as a constant the analyser can fold away.
+        var request = { cancelled: false };
+        void (function () { return __awaiter(void 0, void 0, void 0, function () {
+            var limit, probe, result, page, error_1;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        limit = Number((_a = query['maxResults']) !== null && _a !== void 0 ? _a : DEFAULT_MAX_RESULTS);
+                        probe = Number.isFinite(limit) && limit > 0 ? __assign(__assign({}, query), { maxResults: String(limit + 1) }) : query;
+                        return [4 /*yield*/, historyService.getActivitiesByDefinition(processDefinitionId, probe)];
+                    case 1:
+                        result = (_b.sent());
+                        if (request.cancelled) {
+                            return [2 /*return*/];
+                        }
+                        page = capToLimit(result, limit);
+                        setTruncated(page.truncated);
+                        setActivities(page.activities);
+                        setFetchError(null);
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _b.sent();
+                        // Without this the rejection went nowhere: the tab kept showing the previous
+                        // figures with no hint that the refresh had failed, so a filter that errors
+                        // looked like a filter that matched what was already on screen.
+                        if (!request.cancelled) {
+                            setFetchError(error_1 instanceof Error ? error_1.message : String(error_1));
+                        }
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        }); })();
+        return function () {
+            request.cancelled = true;
+        };
     }, [historyService, processDefinitionId, query]);
     reactExports.useEffect(function () {
         if (expressions.length > 0) {
@@ -22335,17 +22471,42 @@ var Plugin = function (_a) {
         }
     }, [expressions]);
     // Overlay
+    // The button lives outside React's tree, mounted into the viewer's own container, so
+    // it gets its own root. Created once per viewer and kept in a ref: rebuilding it
+    // whenever a prop changes would append a second button and orphan the first.
+    var buttonRootRef = reactExports.useRef(null);
     reactExports.useEffect(function () {
-        if (viewer) {
-            var toggleHistoryStatisticsButton = document.createElement('div');
-            toggleHistoryStatisticsButton.className = 'viewer-button-container viewer-button-container--top-60';
-            viewer._container.appendChild(toggleHistoryStatisticsButton);
-            clientExports.createRoot(toggleHistoryStatisticsButton).render(React.createElement(React.StrictMode, null,
-                React.createElement(ToggleHistoryStatisticsButton, { onToggleHistoryStatistics: function (next) {
-                        setMode(next);
-                    } })));
+        if (!viewer) {
+            return;
         }
+        var container = document.createElement('div');
+        container.className = 'viewer-button-container viewer-button-container--top-60';
+        viewer._container.appendChild(container);
+        var root = clientExports.createRoot(container);
+        buttonRootRef.current = root;
+        return function () {
+            buttonRootRef.current = null;
+            // Unmounting synchronously from inside an effect cleanup is what React warns
+            // about, so let the current commit finish first.
+            queueMicrotask(function () {
+                root.unmount();
+                container.remove();
+            });
+        };
     }, [viewer]);
+    // Re-render rather than remount, so the button picks up a truncation that only shows
+    // up once the fetch comes back.
+    reactExports.useEffect(function () {
+        var _a;
+        (_a = buttonRootRef.current) === null || _a === void 0 ? void 0 : _a.render(React.createElement(React.StrictMode, null,
+            React.createElement(ToggleHistoryStatisticsButton, { partial: truncated, onToggleHistoryStatistics: function (next) {
+                    setMode(next);
+                } })));
+    }, [viewer, truncated]);
+    // The table, the badges and the heat all have to describe the same set of records, or
+    // a badge reads 3 where the table reads 2 and neither is wrong. Unfinished executions
+    // are the ones to leave out: they have no duration to total, average or colour by.
+    var finished = reactExports.useMemo(function () { return filter(activities, function (activity) { return Boolean(activity.endTime); }); }, [activities]);
     /* eslint-disable react-hooks/exhaustive-deps */
     // Note: overlayIds and heatmapNodes are intentionally excluded from deps — the effect
     // replaces them, so including them would loop.
@@ -22356,14 +22517,14 @@ var Plugin = function (_a) {
             overlays === null || overlays === void 0 ? void 0 : overlays.remove(id);
         }
         clearHeatmap(heatmapNodes);
-        if (mode === 'off' || viewer === null || activities.length === 0) {
+        if (mode === 'off' || viewer === null || finished.length === 0) {
             setOverlayIds([]);
             setHeatmapNodes([]);
             return;
         }
-        setOverlayIds(overlays ? renderBadges(overlays, activities, mode) : []);
-        setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, activities) : []);
-    }, [viewer, activities, mode]);
+        setOverlayIds(overlays ? renderBadges(overlays, finished, mode) : []);
+        setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, finished) : []);
+    }, [viewer, finished, mode]);
     /* eslint-enable react-hooks/exhaustive-deps */
     // Hack to ensure long living HTML node for filter box
     if (statistics && !Array.from(statistics.children).includes(root)) {
@@ -22374,7 +22535,14 @@ var Plugin = function (_a) {
         React.createElement(FilterBox, { schema: definitionFilterSchema, onFilterChange: function () {
                 // New format handled by onLegacyFilterChange
             }, onLegacyFilterChange: setExpressions, placeholder: "Add filter...", initialExpressions: fromLegacyExpressions(expressions, definitionFilterSchema), storageKey: "minimal-history-plugin-saved-searches-definition-activities" }),
-        activities.length > 0 ? (React.createElement(StatisticsTable, { activities: filter(activities, function (activity) { return Boolean(activity.activityName && activity.endTime); }) })) : null)) : null;
+        fetchError !== null ? React.createElement(ErrorMessage, { message: "Could not load activity statistics: ".concat(fetchError) }) : null,
+        truncated ? (React.createElement(WarningBox, { title: "Partial statistics" },
+            "The engine returned as many activity records as the query allows, so these figures cover only the most recently finished ",
+            activities.length,
+            ". Older executions are missing from the table, the badges and the heatmap alike. Narrow the filter or raise ",
+            React.createElement("code", null, "maxResults"),
+            " to see the rest.")) : null,
+        finished.length > 0 ? React.createElement(StatisticsTable, { activities: finished }) : null)) : null;
 };
 var definitionHistoricActivities = [
     {
