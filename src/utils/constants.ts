@@ -118,3 +118,16 @@ export const UUID_LENGTH = 36;
 
 /** Zoom increment step for BPMN viewer controls */
 export const ZOOM_INCREMENT = 0.1;
+
+// =============================================================================
+// Executed Path Constants
+// =============================================================================
+
+/** Stroke width of an executed sequence flow that was traversed once */
+export const EXECUTED_PATH_STROKE_WIDTH = 4;
+
+/** Stroke width added per doubling of the traversal count */
+export const EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
+
+/** Upper bound on the stroke width of an executed sequence flow */
+export const EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
