@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
+import DryRunResultPreview, { type DryRunResult } from './DryRunResultPreview';
 import ErrorMessage from './ErrorMessage';
 import FormButton from './FormButton';
 import SuccessMessage from './SuccessMessage';
@@ -15,20 +16,12 @@ import WarningBox from './WarningBox';
 import type { API } from '../types';
 import { ProcessInstance } from '../types';
 import { get, post } from '../utils/api';
-import { transformVariables as transformVariablesUtil, VariableInput } from '../utils/variables';
+import { buildSignalRequest, type BatchRequest, type SignalRequestInput } from '../utils/batchOperations';
 
 /** Maximum number of instances to show in dry-run preview */
 const MAX_PREVIEW_INSTANCES = 10;
 
-interface SignalFormData {
-  signalName: string;
-  processVariables: VariableInput[];
-}
-
-interface DryRunResult {
-  count: number;
-  instances: ProcessInstance[];
-}
+type SignalFormData = SignalRequestInput;
 
 interface BatchSignalFormProps {
   api: API;
@@ -45,6 +38,7 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
+  const [dryRunRequest, setDryRunRequest] = useState<BatchRequest | null>(null);
 
   const methods = useForm<SignalFormData>({
     defaultValues: {
@@ -55,17 +49,23 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
 
   const { handleSubmit, reset } = methods;
 
-  const transformVariables = (vars: VariableInput[]): Record<string, { value: unknown; type: string }> =>
-    transformVariablesUtil(vars, true);
-
   /**
-   * Run a dry-run query to show affected instances
+   * Preview the broadcast: the request it would send, and the instances of *this*
+   * definition, which is only part of what a signal reaches.
    */
-  const runDryRun = async (): Promise<void> => {
+  const runDryRun = async (data: SignalFormData): Promise<void> => {
     try {
       setIsDryRun(true);
       setError(null);
       setDryRunResult(null);
+      setDryRunRequest(null);
+
+      const request = buildSignalRequest(data);
+      if (!request) {
+        setError('Please enter a signal name.');
+        return;
+      }
+      setDryRunRequest(request);
 
       const instances = (await get(api, '/process-instance', {
         processDefinitionId,
@@ -97,23 +97,16 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
       setError(null);
       setSuccessMessage(null);
       setDryRunResult(null);
+      setDryRunRequest(null);
 
-      if (!data.signalName) {
+      const request = buildSignalRequest(data);
+      if (!request) {
         setError('Please enter a signal name.');
         setIsSubmitting(false);
         return;
       }
 
-      const payload: Record<string, unknown> = {
-        name: data.signalName,
-        executionId: undefined, // Broadcast to all matching
-      };
-
-      if (data.processVariables.length > 0) {
-        payload['variables'] = transformVariables(data.processVariables);
-      }
-
-      await post(api, '/signal', {}, JSON.stringify(payload));
+      await post(api, request.path, {}, JSON.stringify(request.payload));
 
       setSuccessMessage(
         `Signal "${data.signalName}" broadcast engine-wide. All matching signal catch events across all process definitions have been triggered.`
@@ -135,6 +128,7 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
     setError(null);
     setSuccessMessage(null);
     setDryRunResult(null);
+    setDryRunRequest(null);
   };
 
   return (
@@ -171,35 +165,25 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
               type="button"
               variant="secondary"
               onClick={() => {
-                void runDryRun();
+                void handleSubmit(runDryRun)();
               }}
               disabled={isDryRun}
               minWidth={120}
             >
-              {isDryRun ? 'Querying...' : 'Preview Instances'}
+              {isDryRun ? 'Querying...' : 'Dry Run'}
             </FormButton>
           </div>
 
-          {dryRunResult && (
-            <div className="modify-form__dry-run-result">
-              <h5>
-                Found {dryRunResult.count} active instance{dryRunResult.count !== 1 ? 's' : ''} for this definition (the
-                signal will broadcast engine-wide across all definitions)
-              </h5>
-              {dryRunResult.instances.length > 0 && (
-                <ul className="modify-form__instance-list">
-                  {dryRunResult.instances.map(inst => (
-                    <li key={inst.id}>
-                      {inst.id} {inst.businessKey ? `(${inst.businessKey})` : ''}
-                    </li>
-                  ))}
-                  {dryRunResult.count > MAX_PREVIEW_INSTANCES && (
-                    <li>...and {dryRunResult.count - MAX_PREVIEW_INSTANCES} more</li>
-                  )}
-                </ul>
-              )}
-            </div>
-          )}
+          <DryRunResultPreview
+            result={dryRunResult}
+            request={dryRunRequest}
+            maxInstances={MAX_PREVIEW_INSTANCES}
+            instanceLabel="active instance of this definition"
+            instanceNote={
+              'This list covers this definition only. The broadcast reaches every matching signal catch event ' +
+              'in every deployed definition, so the real reach is wider than shown.'
+            }
+          />
         </div>
 
         <h4>Variables</h4>

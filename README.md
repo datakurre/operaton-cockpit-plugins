@@ -29,7 +29,7 @@ deploy them without running the build.
 | `dashboard-favourites.js` | Dashboard section + star button on a process definition | Star process definitions and list the starred ones on the dashboard with running instance and incident counts |
 | `dashboard-integrations.js` | Dashboard section | Lists external tasks that have an incident or are currently locked, with retry and unlock actions (individual and batch) |
 | `definition-historic-activities.js` | Definition tab *Statistics* + diagram | Historic activity statistics with a filter box, plus per-activity count badges on the diagram |
-| `definition-tab-modify.js` | Definition tab *Modify* | Batch modification, message correlation and signal broadcast across instances of a definition ([see limitations](#known-limitations)) |
+| `definition-tab-modify.js` | Definition tab *Modify* | Batch modification, message correlation and signal broadcast across instances of a definition. Every operation has a dry run that shows both the instances it would reach and the exact request it would send |
 | `instance-auto-refresh.js` | Instance diagram | Toggle button for periodic auto-refresh of the instance view |
 | `instance-action-unlock.js` | Instance action button | Dialog listing the instance's locked external tasks, with batch unlock |
 | `instance-historic-activities.js` | Instance tab *Audit Log* + diagram | Audit log for the instance, activity overlays and executed sequence-flow highlighting |
@@ -297,22 +297,10 @@ Known limitations
 
 These are current gaps, not bugs to report:
 
-* **The definition *Modify* tab's message feature is only half finished.** For a message on an
-  intermediate or boundary event it correlates to *every* active instance of the definition — the
-  "Preview Instances" button shows the set, but there is no way to narrow it down. For a message on a
-  start event it simply starts one new instance and offers no business key, so you cannot identify the
-  instance it created afterwards. Prefer the instance-level *Modify → Correlate Message* tab when you
-  need to target a specific instance.
-
-* **Dry runs do not show the request that would be sent.** The batch modify, message and signal forms
-  preview *which* instances would be affected, but not the payload that would be posted. Check the
-  instructions and variables carefully before submitting — these operations are asynchronous batch
-  operations and cannot be undone from the UI.
-
 * **Signal broadcast is engine-wide.** The *Signal* tab posts to `/signal` without an execution ID, so
   it triggers every matching signal catch event in every deployed process definition, not only in the
-  definition you are looking at. The instance preview shown next to it only lists instances of the
-  current definition, so it understates the reach.
+  definition you are looking at. The engine offers no way to query that set, so the dry run lists
+  instances of the current definition only and says so; the real reach is wider than the list.
 
 * **History queries are capped.** History endpoints return at most `maxResults` records (1000 by
   default). Raise it with the `maxResults` setting or URL parameter if you need more.

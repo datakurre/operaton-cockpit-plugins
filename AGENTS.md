@@ -63,7 +63,9 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [src/dashboard-integrations.tsx](src/dashboard-integrations.tsx): Cockpit dashboard section listing active external tasks (process, task, topic, worker, lock time, retries) with incident indicators and retry/unlock actions for individual tasks and batches. Reuses the favourites stored by `dashboard-favourites` (`minimal-history-plugin-favourites`) to offer a favourites-only filter, on by default.
 - [src/decisions-dashboard.tsx](src/decisions-dashboard.tsx): **Abandoned.** DMN "Decision Simulator" dashboard (`cockpit.decisions.dashboard`). See [Abandoned plugins](#abandoned-plugins) before touching it.
 - [src/definition-historic-activities.tsx](src/definition-historic-activities.tsx): Adds a runtime tab and diagram overlay for historic activity statistics with a filter UI and badge overlays.
-- [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition "Modify" tab hosting three batch operations against a definition: `BatchModifyForm` (Batch Modify), `BatchMessageForm` (Message) and `BatchSignalForm` (Signal). The Message tab has a known half-broken feature — see [Known issues and fixes](#known-issues-and-fixes).
+- [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition "Modify" tab hosting three batch operations against a definition: `BatchModifyForm` (Batch Modify), `BatchMessageForm` (Message) and `BatchSignalForm` (Signal). All three target instances through the shared helpers in
+[src/utils/batchOperations.ts](src/utils/batchOperations.ts) and preview the request they would send — see
+[Dangerous operations and dry runs](#dangerous-operations-and-dry-runs).
 - [src/instance-action-unlock.tsx](src/instance-action-unlock.tsx): Process instance action button that provides a dialog for unlocking external tasks that are locked by workers, with batch selection and individual retry capabilities.
 - [src/instance-auto-refresh.tsx](src/instance-auto-refresh.tsx): Diagram plugin exposing a toggle for auto-refresh on an instance view.
 - [src/instance-historic-activities.tsx](src/instance-historic-activities.tsx): Adds audit-log tab and diagram overlays for a process instance, including sequence-flow highlighting.
@@ -88,6 +90,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [authorization.ts](src/utils/authorization.ts): Authorization types, constants (AUTH_TYPES, RESOURCE_TYPES, PERMISSIONS_BY_RESOURCE), and helper functions for admin authorization management
 - [bpmn.ts](src/utils/bpmn.ts): Re-exports from `bpmn/` submodule for backwards compatibility
 - [bpmnParsing.ts](src/utils/bpmnParsing.ts): BPMN XML parsing for extracting activities, sequence flows, and message definitions
+- [batchOperations.ts](src/utils/batchOperations.ts): Instance targeting helpers and the request builders behind the definition-level batch operations. Every dry run and every submit goes through these, so the previewed request is the sent request
 - [constants.ts](src/utils/constants.ts): Centralized UI, timing, pagination, retry, and validation constants
 - [datePickerWidget.tsx](src/utils/datePickerWidget.tsx) / [datePickerWidget.scss](src/utils/datePickerWidget.scss): Date picker widget used inside FilterBox tokens
 - [filterExpressionParsers.ts](src/utils/filterExpressionParsers.ts): Pure functions for parsing FilterBox expressions to API query parameters. Provides `parseActivityInstanceExpressions()`, `parseProcessInstanceExpressions()`, `parseAuthorizationExpressions()` with typed interfaces for each query type.
@@ -161,9 +164,10 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Single-instance message correlation form with BPMN message parsing, variable configuration, and a business key field for message start events
 - [RestartProcessForm.tsx](src/Components/RestartProcessForm.tsx): Restart form for externally/internally terminated instances, either picking one from a list or targeting the instance currently open in the history view
 - [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx): Batch process modification form with instance selection, dry-run preview, and modification instructions
-- [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx): Definition-level message form — correlates asynchronously to all active instances of the definition, or starts a new instance when the selected message sits on a start event (see [Known issues and fixes](#known-issues-and-fixes))
+- [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx): Definition-level message form — correlates asynchronously to a selected set of instances (all, by activity/state query, or by explicit ids), or starts one new instance with a business key when the selected message sits on a start event
+- [InstanceSelectionFields.tsx](src/Components/InstanceSelectionFields.tsx): Shared "select instances by" fields (all / query / specific ids) used by the batch modify and message forms
 - [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx): Batch signal broadcast form for broadcasting signals globally
-- [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx): Dry-run result preview component showing affected process instances
+- [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx): Dry-run preview showing the affected process instances and the request the real run would send
 - [IdentityAutocomplete.tsx](src/Components/IdentityAutocomplete.tsx): Autocomplete input for users/groups in authorization forms
 - [ResourceAutocomplete.tsx](src/Components/ResourceAutocomplete.tsx): Autocomplete input for resource IDs in authorization forms
 - [AuthorizationFormModal.tsx](src/Components/AuthorizationFormModal.tsx): Modal form for creating/editing authorizations with type, identity, permissions, and resource ID selection
@@ -399,11 +403,11 @@ The rule for anything with such a blast radius:
 
 Current state, and the gap to close:
 
-| Form | Dry run | Shows affected instances | Shows POST payload |
-|------|---------|--------------------------|--------------------|
-| [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx) (`POST /modification/executeAsync`) | "Dry Run" button | yes | **no — to be added** |
-| [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx) (`POST /process-instance/message-async`, `POST /message`) | "Preview Instances" button | yes | **no — to be added** |
-| [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx) (`POST /signal`) | "Preview Instances" button | yes, but only for the current definition while the broadcast is engine-wide | **no — to be added** |
+| Form | Dry run | Shows affected instances | Shows the request |
+|------|---------|--------------------------|-------------------|
+| [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx) (`POST /modification/executeAsync`) | "Dry Run" | yes | yes |
+| [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx) (`POST /process-instance/message-async`, `POST /message`) | "Dry Run" | yes, for correlation; a start message creates an instance and has none | yes, both paths |
+| [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx) (`POST /signal`) | "Dry Run" | this definition's instances only, with a note that the broadcast is engine-wide | yes |
 
 The per-instance actions — external task retry/unlock ([instance-action-unlock.tsx](src/instance-action-unlock.tsx),
 [dashboard-integrations.tsx](src/dashboard-integrations.tsx)) and restart
@@ -411,12 +415,14 @@ The per-instance actions — external task retry/unlock ([instance-action-unlock
 see in a table, which satisfies rule 1 for them. They still send a body worth showing, so if you touch them,
 surface it too.
 
-When adding the payload preview, build it from the *same* code path that builds the real request body — do not
-write a second, parallel "what we would send" serializer, or the preview will drift from reality and become
-worse than no preview at all. Extract the body builder into a pure function, render it with
-`JSON.stringify(payload, null, 2)`, and pass the same value to `post()`. The natural home for the shared
-rendering is [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx), which today only renders the
-instance list and is not yet used by all three forms.
+This is wired so it cannot drift. [src/utils/batchOperations.ts](src/utils/batchOperations.ts) holds the pure
+targeting helpers and one request builder per operation, each returning a `BatchRequest`
+(`{ method, path, payload }`). The dry run renders that value through
+[DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx) and the submit handler posts the same
+value — there is no second "what we would send" serializer to fall out of step. When you add an operation,
+follow the same shape: builder in `batchOperations.ts`, unit tests beside it in
+[src/utils/__tests__/batchOperations.test.ts](src/utils/__tests__/batchOperations.test.ts), and never
+construct a payload inline in a form.
 
 ## Testing
 
@@ -475,38 +481,10 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
   by an allowlisted name. Drop `bpmn-moddle` from that list and the nested copy silently stops being
   transformed again.
 
-- **Definition-level message sending is half-broken.** In the `Message` tab of `definition-tab-modify`
-  ([BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx)) the selected BPMN message drives two very
-  different code paths, and only one of them is finished:
-  - *Intermediate/boundary message* — correlates asynchronously to **every** active instance of the
-    definition (`POST /process-instance/message-async` with `processInstanceQuery: { processDefinitionId }`).
-    The "Preview Instances" button queries the same set, but there is no way to narrow it: no filter, no
-    per-instance selection, no business-key or variable-based targeting. It is all instances of the
-    definition or nothing, even though the form presents itself as targeting a set.
-  - *Message start event* — falls back to `POST /message` with just `messageName` and `processVariables`,
-    starting a single new instance. The targeting UI is hidden but the surrounding "batch" framing still
-    applies, and unlike the single-instance
-    [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx) it offers **no business key**
-    field, so the caller cannot identify or later find the instance it just started.
-
-  Fixing this means deciding what the tab is for and making both paths honour it: real target selection
-  (instance query/selection reusing `BatchModifyForm`'s instance-selection UI) for correlation, and parity
-  with `MessageCorrelationForm` — business key included — for the start-event path. Until then, do not
-  describe this feature as working in user-facing docs.
-
-- **Dry runs do not show the request payload.** See
-  [Dangerous operations and dry runs](#dangerous-operations-and-dry-runs). All three batch forms preview
-  *which* instances would be hit but never *what* would be sent to them; the payload preview is the missing
-  half and should be added to each.
-
-- **`DryRunResultPreview` is not used consistently.** [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx)
-  exists as the shared preview component, but `BatchModifyForm`, `BatchMessageForm` and `BatchSignalForm`
-  each still inline their own near-identical copy of the same markup. Consolidate on the component when you
-  next touch these forms — it is also where the payload preview belongs.
-
-- **`BatchSignalForm` preview understates the blast radius.** `POST /signal` broadcasts engine-wide to every
-  matching signal catch event in every deployed definition, but the preview only lists instances of the
-  current definition. The `WarningBox` says so in words; the preview still does not.
+- **`BatchSignalForm`'s instance preview cannot show the full blast radius.** `POST /signal` reaches every
+  matching signal catch event in every deployed definition, but the engine offers no way to query that
+  set, so the preview lists instances of the current definition and says in a note that the real reach is
+  wider. This is a limit of the API, not a bug to fix.
 
 - **`dashboard-integrations` fetches external tasks one instance at a time.** It calls
   `/external-task` with no `maxResults` and no `processDefinitionKeyIn`, then loops one
