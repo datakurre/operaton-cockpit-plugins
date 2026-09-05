@@ -6,6 +6,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ToggleHeatmapButton } from '../ToggleHeatmapButton';
 import { ToggleHistoryStatisticsButton } from '../ToggleHistoryStatisticsButton';
 import { ToggleHistoryViewButton } from '../ToggleHistoryViewButton';
 import { ToggleSequenceFlowButton } from '../ToggleSequenceFlowButton';
@@ -15,6 +16,7 @@ jest.mock('../../utils/misc', () => ({
   loadSettings: jest.fn(() => ({
     showHistoricBadges: false,
     showSequenceFlow: false,
+    showInstanceHeatmap: false,
     autoRefresh: false,
   })),
   saveSettings: jest.fn(),
@@ -214,5 +216,72 @@ describe('ToggleSequenceFlowButton', () => {
     // Toggle on again
     await user.click(button);
     expect(onToggle).toHaveBeenLastCalledWith(true);
+  });
+});
+
+describe('ToggleHeatmapButton', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should render with correct initial aria-label when off', () => {
+    const onToggle = jest.fn();
+    render(<ToggleHeatmapButton onToggleHeatmap={onToggle} />);
+
+    expect(screen.getByRole('button', { name: 'Show time heatmap' })).toBeInTheDocument();
+  });
+
+  it('should call callback with initial state on mount', () => {
+    const onToggle = jest.fn();
+    render(<ToggleHeatmapButton onToggleHeatmap={onToggle} />);
+
+    expect(onToggle).toHaveBeenCalledWith(false);
+  });
+
+  it('should toggle state and call callback when clicked', async () => {
+    const user = userEvent.setup();
+    const onToggle = jest.fn();
+    render(<ToggleHeatmapButton onToggleHeatmap={onToggle} />);
+
+    await user.click(screen.getByRole('button'));
+
+    expect(onToggle).toHaveBeenCalledWith(true);
+    expect(screen.getByRole('button', { name: 'Hide time heatmap' })).toBeInTheDocument();
+  });
+
+  it('should warn in its label when the heat came from a truncated history', () => {
+    const onToggle = jest.fn();
+    render(<ToggleHeatmapButton onToggleHeatmap={onToggle} partial />);
+
+    // A cut-short history makes every total a floor, and the element that looks
+    // hottest may simply be the hottest one that survived the cut. Say so in the
+    // label so it reaches screen readers, not only in the icon colour.
+    expect(
+      screen.getByRole('button', { name: 'Show time heatmap (history truncated — totals may be incomplete)' })
+    ).toBeInTheDocument();
+  });
+
+  it('should persist the mode under its own key', async () => {
+    const user = userEvent.setup();
+    const { saveSettings } = require('../../utils/misc');
+    const onToggle = jest.fn();
+
+    render(<ToggleHeatmapButton onToggleHeatmap={onToggle} />);
+    await user.click(screen.getByRole('button'));
+
+    // Deliberately not `showHeatmap`: that one drives the definition diagram's
+    // statistics button, where it also implies the count badges are on.
+    expect(saveSettings).toHaveBeenLastCalledWith(expect.objectContaining({ showInstanceHeatmap: true }));
+  });
+
+  it('should start on when the setting says so', () => {
+    const { loadSettings } = require('../../utils/misc');
+    (loadSettings as jest.Mock).mockReturnValue({ showInstanceHeatmap: true });
+    const onToggle = jest.fn();
+
+    render(<ToggleHeatmapButton onToggleHeatmap={onToggle} />);
+
+    expect(onToggle).toHaveBeenCalledWith(true);
+    expect(screen.getByRole('button', { name: 'Hide time heatmap' })).toBeInTheDocument();
   });
 });
