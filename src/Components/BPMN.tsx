@@ -233,8 +233,15 @@ const BPMNViewer: React.FC<Props> = ({
   // a process diagram, so wearing the attribute gets the webapp's own look for the
   // running-token badges instead of a lookalike built from hardcoded hexes, and keeps
   // them following its theming.
+  //
+  // The attribute also brings `position: relative`, and that has a sharp edge: Cockpit's
+  // page-level classes carry offsets meant to clear the app chrome — `.ctn-content` is
+  // `left: 280px; right: 56px` for the sidebar and the right rail. On a static container
+  // those sit inert; making it positioned activates them and shoves the whole diagram
+  // 280px sideways. Pinning the offsets here neutralises any the caller's class happens
+  // to bring, while leaving them overridable through `style` for a caller that means it.
   return (
-    <div className={className} ref={ref} style={style} {...{ 'process-diagram': '' }}>
+    <div className={className} ref={ref} style={{ left: 0, right: 0, ...style }} {...{ 'process-diagram': '' }}>
       {viewer !== null ? (
         <ViewerButtonsPortal viewer={viewer} position={{ right: '15px', top: '15px', bottom: '45px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%', pointerEvents: 'none' }}>
