@@ -1554,17 +1554,20 @@ var saveSettings = function (settings) {
     storage.set(SETTINGS_KEY, JSON.stringify(settings));
 };
 
+/** Colour of the icon when the path was drawn from a truncated history */
+var PARTIAL_PATH_COLOR = '#b8860b';
 /**
  * Toggle button for showing/hiding sequence flow on BPMN diagrams.
  * Persists the user's preference in localStorage.
  *
  * @param props - Component props
  * @param props.onToggleSequenceFlow - Callback invoked when visibility changes
+ * @param props.partial - Whether the path was drawn from a truncated history
  * @returns Toggle button component
  */
 var ToggleSequenceFlowButton = function (_a) {
-    var onToggleSequenceFlow = _a.onToggleSequenceFlow;
-    var _b = reactExports.useState(loadSettings().showSequenceFlow), showSequenceFlow = _b[0], setShowSequenceFlow = _b[1];
+    var onToggleSequenceFlow = _a.onToggleSequenceFlow, _b = _a.partial, partial = _b === void 0 ? false : _b;
+    var _c = reactExports.useState(loadSettings().showSequenceFlow), showSequenceFlow = _c[0], setShowSequenceFlow = _c[1];
     reactExports.useEffect(function () {
         onToggleSequenceFlow(showSequenceFlow);
         saveSettings(__assign(__assign({}, loadSettings()), { showSequenceFlow: showSequenceFlow }));
@@ -1572,8 +1575,11 @@ var ToggleSequenceFlowButton = function (_a) {
     var handleClick = reactExports.useCallback(function () {
         setShowSequenceFlow(function (prev) { return !prev; });
     }, []);
-    return (React.createElement("button", { className: "toggle-sequence-flow-button", title: !showSequenceFlow ? 'Show sequence flow' : 'Hide sequence flow', "aria-label": !showSequenceFlow ? 'Show sequence flow' : 'Hide sequence flow', onClick: handleClick },
-        React.createElement(GiStrikingArrows, { style: { opacity: !showSequenceFlow ? '0.33' : '1.0', fontSize: '133%' } })));
+    // The label carries the warning, not just the colour, so it reaches screen readers too.
+    var action = !showSequenceFlow ? 'Show sequence flow' : 'Hide sequence flow';
+    var label = partial ? "".concat(action, " (history truncated \u2014 path may be incomplete)") : action;
+    return (React.createElement("button", { className: "toggle-sequence-flow-button", title: label, "aria-label": label, onClick: handleClick },
+        React.createElement(GiStrikingArrows, { style: __assign({ opacity: !showSequenceFlow ? '0.33' : '1.0', fontSize: '133%' }, (partial ? { color: PARTIAL_PATH_COLOR } : {})) })));
 };
 
 /**
@@ -1689,6 +1695,59 @@ var get = function (api, path, params, options) { return __awaiter(void 0, void 
         }
     });
 }); };
+// =============================================================================
+// Typed API Client Functions
+// =============================================================================
+/**
+ * Fetches historic activity instances for a process instance.
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @param params - Optional additional query parameters
+ * @returns Promise resolving to array of historic activity instances
+ */
+function getActivities(api, processInstanceId, params) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, get(api, '/history/activity-instance', __assign({ processInstanceId: processInstanceId }, params))];
+                case 1: return [2 /*return*/, (_a.sent())];
+            }
+        });
+    });
+}
+/**
+ * Fetches a bounded page of historic activity instances, oldest first, reporting
+ * whether the instance had more than fit.
+ *
+ * Ordering matters here, not just the bound: an unordered truncated response leaves
+ * the executed path with holes scattered through it, while a chronological prefix
+ * leaves a path that is simply complete up to a point.
+ *
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @param maxResults - Maximum records to keep
+ * @returns The records and whether the history was truncated
+ */
+function getActivityHistoryPage(api, processInstanceId, maxResults) {
+    return __awaiter(this, void 0, void 0, function () {
+        var records;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, getActivities(api, processInstanceId, {
+                        sortBy: 'startTime',
+                        sortOrder: 'asc',
+                        maxResults: String(maxResults + 1),
+                    })];
+                case 1:
+                    records = _a.sent();
+                    return [2 /*return*/, {
+                            activities: records.slice(0, maxResults),
+                            truncated: records.length > maxResults,
+                        }];
+            }
+        });
+    });
+}
 
 /**
  * Gets the midpoint of a BPMN shape.
@@ -1906,8 +1965,28 @@ function resolveTakenBranch(outgoing, execution, index, targetPointers) {
     return bestConnection;
 }
 /**
- * Builds a deny list of connections that should not be highlighted for exclusive gateways.
- * For each execution of the gateway only the branch that was taken is kept.
+ * Gateways narrowed to the single branch taken on each pass.
+ *
+ * Inclusive gateways are deliberately absent: they may fire several branches from one
+ * execution, and the generic traversal pairing already models that correctly — each
+ * fired branch pairs with the same gateway execution and scores one, while a branch
+ * that never ran has no target executions to pair with and is dropped.
+ *
+ * Event-based gateways are absent for a different reason. Exactly one of their
+ * branches wins, so narrowing looks right, but the branches all start at the same
+ * instant — their subscriptions are created together — so ranking by the target's
+ * start time cannot tell the winner from the losers and would pick by array order.
+ * Whether that matters depends on what history a losing catch event leaves: if the
+ * engine records it as canceled, the canceled-activity rule below already excludes it
+ * and nothing more is needed. That observation needs a live engine — see issue #66.
+ */
+var singleBranchGatewayTypes = ['exclusiveGateway'];
+/** Whether an activity record is a gateway narrowed to the single branch it took. */
+var isSingleBranchGateway = function (activity) { var _a; return singleBranchGatewayTypes.includes((_a = activity.activityType) !== null && _a !== void 0 ? _a : ''); };
+/**
+ * Builds a deny list of connections that should not be highlighted for gateways that
+ * take a single branch. For each execution of the gateway only the branch that was
+ * taken is kept.
  * @param activities - Historic activity instances
  * @param elementRegistry - BPMN element registry
  * @param index - Execution time index
@@ -1919,7 +1998,7 @@ function buildConnectionDenyList(activities, elementRegistry, index) {
     var visited = new Set();
     for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
         var activity = activities_2[_i];
-        if (activity.activityType !== 'exclusiveGateway') {
+        if (!isSingleBranchGateway(activity)) {
             continue;
         }
         var elementId = toElementId((_a = activity.activityId) !== null && _a !== void 0 ? _a : '');
@@ -2884,14 +2963,21 @@ var getStrokeWidth = function (count) {
     return Math.min(EXECUTED_PATH_STROKE_WIDTH_MAX, Math.round(width));
 };
 /**
- * Adds a native tooltip naming the exact traversal count, since the stroke width only
- * shows it approximately and saturates at the cap.
+ * Adds a native tooltip naming the traversal count, since the stroke width only shows
+ * it approximately and saturates at the cap.
  * @param path - The path element to describe
  * @param count - Number of times the flow was traversed
+ * @param truncated - Whether the history it was counted from was cut short, making
+ *   every count a lower bound rather than the real figure
  */
-function appendTraversalTitle(path, count) {
+function appendTraversalTitle(path, count, truncated) {
     var title = create('title');
-    title.textContent = count === 1 ? 'Executed once' : "Executed ".concat(count, " times");
+    if (truncated) {
+        title.textContent = count === 1 ? 'Executed at least once' : "Executed at least ".concat(count, " times");
+    }
+    else {
+        title.textContent = count === 1 ? 'Executed once' : "Executed ".concat(count, " times");
+    }
     append(path, title);
 }
 /**
@@ -2930,9 +3016,12 @@ function resolveDefs(canvas) {
  * often each flow was traversed.
  * @param viewer - The BPMN viewer instance
  * @param activities - Historic activity instances to visualize
+ * @param options - Rendering options
  * @returns Array of SVG elements that were added (for later cleanup)
  */
-var renderSequenceFlow = function (viewer, activities) {
+var renderSequenceFlow = function (viewer, activities, options) {
+    if (options === void 0) { options = {}; }
+    var isTruncated = options.truncated === true;
     var registry = viewer.get('elementRegistry');
     var canvas = viewer.get('canvas');
     var layer = canvas.getLayer('processInstance', 1);
@@ -2950,7 +3039,7 @@ var renderSequenceFlow = function (viewer, activities) {
             strokeWidth: getStrokeWidth(count),
         });
         attr(curve, { class: EXECUTED_PATH_CLASS });
-        appendTraversalTitle(curve, count);
+        appendTraversalTitle(curve, count, isTruncated);
         append(layer, curve);
         paths.push(curve);
     }
@@ -2964,7 +3053,7 @@ var renderSequenceFlow = function (viewer, activities) {
             strokeWidth: getStrokeWidth(count),
         });
         attr(curve, { class: EXECUTED_PATH_CLASS });
-        appendTraversalTitle(curve, count);
+        appendTraversalTitle(curve, count, isTruncated);
         append(layer, curve);
         paths.push(curve);
     }
@@ -2988,7 +3077,8 @@ var clearSequenceFlow = function (nodes) {
 var InstanceDiagramHistoricActivities = function (_a) {
     var api = _a.api, processInstanceId = _a.processInstanceId, viewer = _a.viewer;
     var _b = reactExports.useState([]), activities = _b[0], setActivities = _b[1];
-    var _c = reactExports.useState(true), isLoading = _c[0], setIsLoading = _c[1];
+    var _c = reactExports.useState(false), isTruncated = _c[0], setIsTruncated = _c[1];
+    var _d = reactExports.useState(true), isLoading = _d[0], setIsLoading = _d[1];
     // The drawn paths live in a ref rather than in state: the toggle callback has to see
     // its own last write synchronously, or StrictMode's double effect run draws twice and
     // leaks the first set of curves.
@@ -2996,16 +3086,17 @@ var InstanceDiagramHistoricActivities = function (_a) {
     var hasOverlaysRendered = reactExports.useRef(false);
     reactExports.useEffect(function () {
         var fetchActivities = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var data, err_1;
+            var page, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, 3, 4]);
                         setIsLoading(true);
-                        return [4 /*yield*/, get(api, '/history/activity-instance', { processInstanceId: processInstanceId })];
+                        return [4 /*yield*/, getActivityHistoryPage(api, processInstanceId, loadSettings().maxResults)];
                     case 1:
-                        data = _a.sent();
-                        setActivities(data);
+                        page = _a.sent();
+                        setActivities(page.activities);
+                        setIsTruncated(page.truncated);
                         return [3 /*break*/, 4];
                     case 2:
                         err_1 = _a.sent();
@@ -3034,18 +3125,18 @@ var InstanceDiagramHistoricActivities = function (_a) {
     var handleToggleSequenceFlow = reactExports.useCallback(function (value) {
         if (value) {
             if (sequenceFlowRef.current.length === 0) {
-                sequenceFlowRef.current = renderSequenceFlow(viewer, activities);
+                sequenceFlowRef.current = renderSequenceFlow(viewer, activities, { truncated: isTruncated });
             }
         }
         else if (sequenceFlowRef.current.length > 0) {
             clearSequenceFlow(sequenceFlowRef.current);
             sequenceFlowRef.current = [];
         }
-    }, [viewer, activities]);
+    }, [viewer, activities, isTruncated]);
     if (isLoading) {
         return null;
     }
-    return React.createElement(ToggleSequenceFlowButton, { onToggleSequenceFlow: handleToggleSequenceFlow });
+    return React.createElement(ToggleSequenceFlowButton, { onToggleSequenceFlow: handleToggleSequenceFlow, partial: isTruncated });
 };
 
 /**
