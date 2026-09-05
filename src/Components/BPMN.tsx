@@ -67,13 +67,22 @@ interface Props {
   style?: Record<string, string | number>;
   /** Whether to show the runtime/history toggle button */
   showRuntimeToggle: boolean;
+  /** Whether the activity history was truncated, making the drawn path incomplete */
+  activitiesTruncated?: boolean;
 }
 
 /**
  * BPMN diagram viewer component.
  * Renders a navigable BPMN diagram with zoom controls and optional history overlays.
  */
-const BPMNViewer: React.FC<Props> = ({ activities, className, diagramXML, style, showRuntimeToggle }) => {
+const BPMNViewer: React.FC<Props> = ({
+  activities,
+  className,
+  diagramXML,
+  style,
+  showRuntimeToggle,
+  activitiesTruncated = false,
+}) => {
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -109,23 +118,23 @@ const BPMNViewer: React.FC<Props> = ({ activities, className, diagramXML, style,
             bottom: 45px;
           `;
         viewer._container.appendChild(buttons);
+        // Mutated synchronously so the toggle sees its own last write, StrictMode's
+        // double effect run included.
         const sequenceFlow: SVGElement[] = [];
+        const handleToggleSequenceFlow = (value: boolean): void => {
+          if (!value) {
+            clearSequenceFlow(sequenceFlow);
+            sequenceFlow.length = 0;
+            return;
+          }
+          if (sequenceFlow.length === 0) {
+            const drawn = renderSequenceFlow(viewer, activities ?? [], { truncated: activitiesTruncated });
+            sequenceFlow.splice(0, sequenceFlow.length, ...drawn);
+          }
+        };
         createRoot(buttons).render(
           <React.StrictMode>
-            <ToggleSequenceFlowButton
-              onToggleSequenceFlow={(value: boolean) => {
-                if (value) {
-                  if (sequenceFlow.length === 0) {
-                    sequenceFlow.splice(0, sequenceFlow.length, ...renderSequenceFlow(viewer, activities ?? []));
-                  }
-                } else {
-                  if (sequenceFlow.length > 0) {
-                    clearSequenceFlow(sequenceFlow);
-                    sequenceFlow.length = 0;
-                  }
-                }
-              }}
-            />
+            <ToggleSequenceFlowButton partial={activitiesTruncated} onToggleSequenceFlow={handleToggleSequenceFlow} />
             {showRuntimeToggle ? (
               <ToggleHistoryViewButton
                 onToggleHistoryView={(value: boolean): void => {

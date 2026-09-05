@@ -48,6 +48,8 @@ interface HistoryViewLayoutProps {
   diagramXML: string;
   /** Sorted activities for audit log and diagram overlays. */
   activities: ActivityData[];
+  /** Whether the activity history was truncated, making the drawn path incomplete. */
+  activitiesTruncated?: boolean;
   /** Sorted variables for variables table. */
   variables: VariableData[];
   /** Map of activity ID to activity data. */
@@ -78,6 +80,7 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
   definition,
   diagramXML,
   activities,
+  activitiesTruncated = false,
   variables,
   activityById,
   decisionByActivity,
@@ -221,6 +224,7 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                 <div style={{ height: '100%', position: 'relative' }}>
                   <BPMNViewer
                     activities={activities}
+                    activitiesTruncated={activitiesTruncated}
                     diagramXML={diagramXML}
                     className="ctn-content"
                     style={{ width: '100%', height: '100%' }}

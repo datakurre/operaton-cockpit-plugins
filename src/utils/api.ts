@@ -347,6 +347,48 @@ export async function getActivities(
 }
 
 /**
+ * A bounded page of activity history, and whether the instance had more records.
+ */
+export interface ActivityHistoryPage {
+  /** The records fetched, oldest first. */
+  activities: HistoricActivityInstance[];
+  /** True when the instance has more activity records than were fetched. */
+  truncated: boolean;
+}
+
+/**
+ * Fetches a bounded page of historic activity instances, oldest first, reporting
+ * whether the instance had more than fit.
+ *
+ * Ordering matters here, not just the bound: an unordered truncated response leaves
+ * the executed path with holes scattered through it, while a chronological prefix
+ * leaves a path that is simply complete up to a point.
+ *
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @param maxResults - Maximum records to keep
+ * @returns The records and whether the history was truncated
+ */
+export async function getActivityHistoryPage(
+  api: API,
+  processInstanceId: string,
+  maxResults: number
+): Promise<ActivityHistoryPage> {
+  // Asking for one more than we keep is the truncation probe: getting it back means
+  // the instance has more, without a second count request.
+  const records = await getActivities(api, processInstanceId, {
+    sortBy: 'startTime',
+    sortOrder: 'asc',
+    maxResults: String(maxResults + 1),
+  });
+
+  return {
+    activities: records.slice(0, maxResults),
+    truncated: records.length > maxResults,
+  };
+}
+
+/**
  * Fetches historic variable instances for a process instance.
  * @param api - The API configuration object
  * @param processInstanceId - The process instance ID
