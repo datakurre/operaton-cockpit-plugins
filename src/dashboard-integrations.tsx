@@ -451,11 +451,12 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     }
 
     try {
-      // Use batch endpoint if available, otherwise retry individually
-      await post(
+      // /external-task/retries is PUT-only. It used to be called with POST here, which the
+      // engine answered with 405 every time, so the batch never ran and a silent catch fell
+      // back to one request per task while hiding real failures such as a denied permission.
+      await put(
         api,
         '/external-task/retries',
-        {},
         JSON.stringify({
           externalTaskIds: taskIds,
           retries: 1,
@@ -463,19 +464,17 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
       );
       setSelectedTasks(new Set());
       await fetchTasks();
-    } catch {
-      // Fallback to individual retries using PUT helper
-      for (const taskId of taskIds) {
-        try {
-          await put(api, `/external-task/${taskId}/retries`, JSON.stringify({ retries: 1 }));
-        } catch (_err) {
-          console.error('Error retrying task:', taskId, _err);
-        }
-      }
-      setSelectedTasks(new Set());
-      await fetchTasks();
+    } catch (_err) {
+      console.error('Error retrying tasks:', _err);
+      setError(`Failed to retry ${taskIds.length} task${taskIds.length !== 1 ? 's' : ''}`);
     } finally {
-      setActionLoading(new Set());
+      setActionLoading(prev => {
+        const next = new Set(prev);
+        for (const taskId of taskIds) {
+          next.delete(taskId);
+        }
+        return next;
+      });
     }
   };
 
