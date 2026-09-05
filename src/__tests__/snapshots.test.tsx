@@ -269,5 +269,33 @@ describe('Snapshot Tests', () => {
       const { container } = render(<ProcessInfoPanel instance={instance} definition={definition} />);
       expect(container).toMatchSnapshot();
     });
+
+    it('ProcessInfoPanel renders the history-only fields of a terminated instance', () => {
+      // start/end/duration and the delete reason only exist on a historic instance,
+      // which is the whole point of this view — Cockpit's own panel has none of them.
+      const instance = {
+        id: 'instance-789',
+        businessKey: 'ORDER-2024-002',
+        processDefinitionVersion: 3,
+        processDefinitionId: 'orderProcess:3:ghi',
+        processDefinitionKey: 'orderProcess',
+        processDefinitionName: 'Order Process',
+        tenantId: null,
+        superProcessInstanceId: null,
+        state: 'EXTERNALLY_TERMINATED',
+        startTime: '2024-01-01T10:00:00.000+0000',
+        endTime: '2024-01-01T11:23:45.678+0000',
+        durationInMillis: 5025678,
+        deleteReason: 'Cancelled by operator',
+      };
+
+      const definition = {
+        deploymentId: 'deploy-789',
+        resource: 'order-process.bpmn',
+      };
+
+      const { container } = render(<ProcessInfoPanel instance={instance} definition={definition} />);
+      expect(container).toMatchSnapshot();
+    });
   });
 });
