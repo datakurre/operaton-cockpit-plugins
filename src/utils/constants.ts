@@ -131,3 +131,37 @@ export const EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
 
 /** Upper bound on the stroke width of an executed sequence flow */
 export const EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
+
+// =============================================================================
+// Heatmap Constants
+// =============================================================================
+
+/** Layer index of the heatmap, above the diagram and the executed path */
+export const HEATMAP_LAYER_INDEX = 2;
+
+/** Opacity of the heatmap layer, low enough to keep labels readable through it */
+export const HEATMAP_OPACITY = 0.7;
+
+/** Gaussian blur applied to the whole heatmap group, in diagram units */
+export const HEATMAP_BLUR = 12;
+
+/** Blob radius as a multiple of half the element's longest side */
+export const HEATMAP_RADIUS_SCALE = 2.1;
+
+/** Smallest blob radius, so events and gateways still register */
+export const HEATMAP_MIN_RADIUS = 46;
+
+/** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
+export const HEATMAP_GAMMA = 0.5;
+
+/** Opacity weight of the coldest element, so quiet parts stay faint rather than loud */
+export const HEATMAP_MIN_ALPHA = 0.22;
+
+/** How much of a blob's radius follows intensity rather than the element's size */
+export const HEATMAP_BLOOM = 0.35;
+
+/**
+ * Falloff exponent for the colour within a blob. Below 1 the hot colour holds further
+ * out, so a single centre stop does not get blurred away into the cooler ring.
+ */
+export const HEATMAP_CORE = 0.55;

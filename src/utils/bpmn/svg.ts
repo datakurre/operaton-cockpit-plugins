@@ -98,10 +98,11 @@ function createArrowMarker(defs: SVGElement, id: string): SVGMarkerElement {
 
 /**
  * Finds the SVG's defs element, creating it when the diagram has none yet.
+ * Shared with the heatmap, which needs the same place for its gradients and filter.
  * @param canvas - The viewer canvas
  * @returns The defs element to hold marker definitions
  */
-function resolveDefs(canvas: Canvas): SVGElement {
+export function resolveDefs(canvas: Canvas): SVGElement {
   // Cast SVG to HTMLElement for domQuery, which expects HTMLElement
   const existing = domQuery('defs', canvas._svg as unknown as HTMLElement) as SVGElement | null;
   if (existing !== null) {
