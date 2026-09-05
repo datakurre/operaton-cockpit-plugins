@@ -81,10 +81,18 @@ export class ApiError extends Error {
   readonly path: string;
 
   /**
-   *
+   * @param message - Human readable error message, from the engine where it sends one
+   * @param status - HTTP status code of the response
+   * @param body - Parsed response body
+   * @param path - API endpoint path that produced the error
    */
   constructor(message: string, status: number, body: unknown, path: string) {
     super(message);
+    // Required while the build targets ES5: the downlevel of `extends Error` loses the
+    // prototype link, which silently makes every `err instanceof ApiError` false. Without
+    // this line the status checks throughout the plugins never match. Safe to keep at any
+    // target, and harmless once the target is raised.
+    Object.setPrototypeOf(this, ApiError.prototype);
     this.name = 'ApiError';
     this.status = status;
     this.body = body;
@@ -152,15 +160,27 @@ async function parseResponseBody(res: Response): Promise<unknown> {
   return res.text();
 }
 
+/** Per-request options accepted by the read helpers. */
+export interface RequestOptions {
+  /** Signal used to abort the request, for callers that supersede their own requests */
+  signal?: AbortSignal | undefined;
+}
+
 /**
  * Makes a GET request to the engine API.
  * @param api - The API configuration object
  * @param path - The API endpoint path
  * @param params - Optional query parameters
+ * @param options - Optional per-request options, such as an abort signal
  * @returns Promise resolving to the response data
  * @throws {ApiError} When the response status is not 2xx
  */
-export const get = async (api: API, path: string, params?: Record<string, string>): Promise<unknown> => {
+export const get = async (
+  api: API,
+  path: string,
+  params?: Record<string, string>,
+  options?: RequestOptions
+): Promise<unknown> => {
   // XXX: Workaround a possible bug where engine api has been parsed wrong
   if (/\/#\//.exec(api.engine)) {
     const splitResult = api.engine.split('/#/')[0];
@@ -181,6 +201,7 @@ export const get = async (api: API, path: string, params?: Record<string, string
   const res = await fetchFn(url, {
     method: 'get',
     headers: headers(api),
+    ...(options?.signal ? { signal: options.signal } : {}),
   });
 
   const body = await parseResponseBody(res);

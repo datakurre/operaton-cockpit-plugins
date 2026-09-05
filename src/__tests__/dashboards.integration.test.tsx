@@ -111,6 +111,76 @@ describe('dashboard plugins', () => {
     });
   });
 
+  describe('dashboard-integrations request shape', () => {
+    it('loads tasks, definitions and incidents in three bounded calls', async () => {
+      storage.set(FAVOURITES_KEY, JSON.stringify([{ key: 'proc', name: 'Proc' }]));
+      storage.set(FAVOURITES_ONLY_KEY, 'true');
+
+      const task = {
+        id: 'task-1',
+        processDefinitionId: 'proc:1:dep',
+        processDefinitionKey: 'proc',
+        processInstanceId: 'pi-1',
+        lockExpirationTime: new Date(Date.now() + 600000).toISOString(),
+        workerId: 'worker-1',
+        retries: 0,
+        topicName: 'topic',
+        activityId: 'act',
+        activityInstanceId: 'ai',
+        errorMessage: null,
+        executionId: 'ex',
+        suspended: false,
+        priority: 0,
+        tenantId: null,
+        businessKey: null,
+      };
+
+      mockFetch.mockImplementation(async (url: string) => {
+        if (url.includes('/external-task')) {
+          return jsonResponse([task]);
+        }
+        if (url.includes('/process-definition')) {
+          return jsonResponse([{ id: 'proc:1:dep', key: 'proc', name: 'Proc', version: 1 }]);
+        }
+        if (url.includes('/incident')) {
+          return jsonResponse([]);
+        }
+        return jsonResponse({});
+      });
+
+      const { default: Plugin } = await import('../dashboard-integrations');
+      const dashboard = Plugin.find(p => p.pluginPoint === 'cockpit.dashboard');
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      await act(async () => {
+        dashboard?.render(container, { api: mockApi });
+      });
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 350));
+      });
+
+      const urls = mockFetch.mock.calls.map((c: string[]) => c[0] ?? '');
+
+      // The favourites filter is applied by the engine, and the query is bounded.
+      const taskCall = urls.find(u => u.includes('/external-task'));
+      expect(taskCall).toContain('processDefinitionKeyIn=proc');
+      expect(taskCall).toContain('maxResults=');
+
+      // One definition lookup for all ids, not one per id.
+      const defCalls = urls.filter(u => u.includes('/process-definition'));
+      expect(defCalls).toHaveLength(1);
+      expect(defCalls[0]).toContain('processDefinitionIdIn=');
+
+      // One incident lookup for all keys, not one per process instance.
+      const incidentCalls = urls.filter(u => u.includes('/incident'));
+      expect(incidentCalls).toHaveLength(1);
+      expect(incidentCalls[0]).toContain('processDefinitionKeyIn=proc');
+
+      document.body.removeChild(container);
+    });
+  });
+
   describe('dashboard-integrations batch retry', () => {
     it('sets retries with PUT on the batch endpoint', async () => {
       // Favourites filter off, so the plugin does not short-circuit before fetching.

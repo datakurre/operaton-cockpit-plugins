@@ -3,7 +3,7 @@
  *
  * @module
  */
-import { headers, get, post, setFetchFunction, resetFetchFunction, getFetchFunction } from '../api';
+import { headers, get, post, setFetchFunction, resetFetchFunction, getFetchFunction, ApiError } from '../api';
 import { createMockApi } from '../../__mocks__/api';
 
 describe('utils/api', () => {
@@ -360,5 +360,29 @@ describe('utils/api', () => {
       );
       expect(result).toEqual({ posted: true });
     });
+  });
+});
+
+describe('ApiError prototype', () => {
+  it('is recognised by instanceof', () => {
+    // The build targets ES5, whose downlevel of `class extends Error` drops the prototype
+    // link unless the constructor restores it. Without that, every `err instanceof
+    // ApiError` in the plugins is false and the status checks behind them never run.
+    const error = new ApiError('Forbidden', 403, { message: 'Forbidden' }, '/group');
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error).toBeInstanceOf(Error);
+    expect(error.status).toBe(403);
+    expect(error.name).toBe('ApiError');
+  });
+
+  it('is recognised after being thrown and caught', () => {
+    let caught: unknown;
+    try {
+      throw new ApiError('Not found', 404, null, '/process-definition/x');
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught instanceof ApiError).toBe(true);
+    expect((caught as ApiError).status).toBe(404);
   });
 });
