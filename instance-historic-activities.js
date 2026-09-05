@@ -1723,6 +1723,27 @@ function getActivities(api, processInstanceId, params) {
     });
 }
 /**
+ * Splits an over-fetched result into the page to show and whether more was waiting.
+ *
+ * Both history views ask the engine for one record more than they mean to display: if
+ * that extra one comes back, the query hit its cap and whatever is drawn from it — a
+ * path, a table, a heatmap — describes a subset. This is the shared decision, kept out
+ * of the components so it can be reasoned about on its own.
+ *
+ * @param records - What the engine returned, having been asked for limit + 1
+ * @param limit - How many records the caller actually wants
+ * @returns The capped records and whether anything was left behind
+ */
+function capToLimit(records, limit) {
+    if (!Number.isFinite(limit) || limit <= 0) {
+        return { activities: records, truncated: false };
+    }
+    return {
+        activities: records.slice(0, limit),
+        truncated: records.length > limit,
+    };
+}
+/**
  * Fetches a bounded page of historic activity instances, oldest first, reporting
  * whether the instance had more than fit.
  *
@@ -1747,10 +1768,7 @@ function getActivityHistoryPage(api, processInstanceId, maxResults) {
                     })];
                 case 1:
                     records = _a.sent();
-                    return [2 /*return*/, {
-                            activities: records.slice(0, maxResults),
-                            truncated: records.length > maxResults,
-                        }];
+                    return [2 /*return*/, capToLimit(records, maxResults)];
             }
         });
     });

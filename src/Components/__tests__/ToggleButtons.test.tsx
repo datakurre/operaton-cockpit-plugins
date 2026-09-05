@@ -84,6 +84,41 @@ describe('ToggleHistoryStatisticsButton', () => {
   });
 });
 
+describe('ToggleHistoryStatisticsButton truncation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should warn in its label once the badges are on and the query hit its cap', async () => {
+    // The tab's warning box is on the other side of the screen from the diagram, so
+    // the badges need to carry the caveat where they are actually being read.
+    const user = userEvent.setup();
+    render(<ToggleHistoryStatisticsButton onToggleHistoryStatistics={jest.fn()} partial />);
+
+    await user.click(screen.getByRole('button'));
+
+    expect(
+      screen.getByRole('button', { name: /result limit reached — figures cover recent activity only/i })
+    ).toBeInTheDocument();
+  });
+
+  it('should stay quiet while nothing is drawn', () => {
+    // Off, there are no figures for the caveat to be about.
+    render(<ToggleHistoryStatisticsButton onToggleHistoryStatistics={jest.fn()} partial />);
+
+    expect(screen.getByRole('button', { name: 'Show history instance statistics' })).toBeInTheDocument();
+  });
+
+  it('should say nothing extra when the query was complete', async () => {
+    const user = userEvent.setup();
+    render(<ToggleHistoryStatisticsButton onToggleHistoryStatistics={jest.fn()} />);
+
+    await user.click(screen.getByRole('button'));
+
+    expect(screen.getByRole('button', { name: 'Show time heatmap' })).toBeInTheDocument();
+  });
+});
+
 describe('ToggleHistoryViewButton', () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -37,6 +37,7 @@ jest.mock('../RobotModule', () => ({}));
 import { setFetchFunction, resetFetchFunction } from '../services/HistoryService';
 import { mockApi } from '../__mocks__/api';
 import { createActivity } from '../__fixtures__/activities';
+import { DEFAULT_MAX_RESULTS } from '../utils/constants';
 
 describe('definition-historic-activities integration', () => {
   let mockFetch: jest.Mock;
@@ -243,6 +244,44 @@ describe('definition-historic-activities integration', () => {
 
       document.body.removeChild(actionContainer);
       document.body.removeChild(statisticsContainer);
+    });
+  });
+
+  describe('Result cap', () => {
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
+    it('should ask for one record more than it means to show', async () => {
+      mockFetch.mockResolvedValue({
+        status: 200,
+        ok: true,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        json: async () => [],
+      });
+
+      const definitionHistoricActivities = await import('../definition-historic-activities');
+      const Plugin = definitionHistoricActivities.default;
+      const actionPlugin = Plugin.find(p => p.pluginPoint === 'cockpit.processDefinition.runtime.action');
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      await act(async () => {
+        actionPlugin?.render(container, {
+          api: mockApi,
+          processDefinitionId: 'test-def:1:xyz',
+          root: container,
+        });
+      });
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalled();
+      });
+
+      // Without the extra record there is no way to tell a query that happened to
+      // return exactly maxResults from one the engine had to cut short. What is done
+      // with that record is capToLimit's decision, covered in the api tests.
+      const url = mockFetch.mock.calls[0]?.[0] as string;
+      expect(url).toContain(`maxResults=${DEFAULT_MAX_RESULTS + 1}`);
     });
   });
 });

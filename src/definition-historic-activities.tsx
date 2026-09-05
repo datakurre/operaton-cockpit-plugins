@@ -1,15 +1,18 @@
 import './Components/Button.scss';
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
 
 import FilterBox from './Components/FilterBox';
 import Portal from './Components/Portal';
+import ErrorMessage from './Components/ErrorMessage';
 import StatisticsTable from './Components/StatisticsTable';
+import WarningBox from './Components/WarningBox';
 import { ToggleHistoryStatisticsButton, type StatisticsMode } from './Components/ToggleHistoryStatisticsButton';
 import { createHistoryService } from './services/HistoryService';
 import type { BpmnViewerInstance, OverlayManager } from './services/ViewerService';
 import { DefinitionPluginParams, HistoricActivityInstance } from './types';
+import { capToLimit } from './utils/api';
 import { DEFAULT_MAX_RESULTS } from './utils/constants';
 import {
   parseActivityInstanceExpressions,
@@ -104,6 +107,8 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
   hooks.setStatistics = setStatistics;
 
   const [activities, setActivities] = useState<HistoricActivityInstance[]>([]);
+  const [truncated, setTruncated] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   // Overlay ids, not elements: bpmn-js keeps a container per overlay that only
   // overlays.remove() takes down, so tracking the HTML leaks one container per
   // activity on every filter change.
@@ -162,12 +167,45 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
   // FETCH
 
   useEffect(() => {
-    if (Object.keys(query).length > 0) {
-      void (async () => {
-        const result = await historyService.getActivitiesByDefinition(processDefinitionId, query);
-        setActivities(result as HistoricActivityInstance[]);
-      })();
+    if (Object.keys(query).length === 0) {
+      return;
     }
+    // A slow response for an old filter must not land on top of a newer one, and a
+    // request in flight when the tab goes away must not set state on the way out.
+    // Held in an object rather than a plain `let` so the flag is read as mutable state
+    // shared with the cleanup below, not as a constant the analyser can fold away.
+    const request = { cancelled: false };
+    void (async () => {
+      try {
+        // Ask for one more than we mean to use: if it comes back, the engine had more to
+        // give and everything on this tab is describing a subset. The query sorts by
+        // endTime descending, so the records that fall off the end are the oldest, and
+        // the statistics quietly skew towards recent activity.
+        const limit = Number(query['maxResults'] ?? DEFAULT_MAX_RESULTS);
+        const probe = Number.isFinite(limit) && limit > 0 ? { ...query, maxResults: String(limit + 1) } : query;
+        const result = (await historyService.getActivitiesByDefinition(
+          processDefinitionId,
+          probe
+        )) as HistoricActivityInstance[];
+        if (request.cancelled) {
+          return;
+        }
+        const page = capToLimit(result, limit);
+        setTruncated(page.truncated);
+        setActivities(page.activities);
+        setFetchError(null);
+      } catch (error) {
+        // Without this the rejection went nowhere: the tab kept showing the previous
+        // figures with no hint that the refresh had failed, so a filter that errors
+        // looked like a filter that matched what was already on screen.
+        if (!request.cancelled) {
+          setFetchError(error instanceof Error ? error.message : String(error));
+        }
+      }
+    })();
+    return () => {
+      request.cancelled = true;
+    };
   }, [historyService, processDefinitionId, query]);
 
   useEffect(() => {
@@ -181,22 +219,50 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
 
   // Overlay
 
+  // The button lives outside React's tree, mounted into the viewer's own container, so
+  // it gets its own root. Created once per viewer and kept in a ref: rebuilding it
+  // whenever a prop changes would append a second button and orphan the first.
+  const buttonRootRef = useRef<Root | null>(null);
+
   useEffect(() => {
-    if (viewer) {
-      const toggleHistoryStatisticsButton = document.createElement('div');
-      toggleHistoryStatisticsButton.className = 'viewer-button-container viewer-button-container--top-60';
-      viewer._container.appendChild(toggleHistoryStatisticsButton);
-      createRoot(toggleHistoryStatisticsButton).render(
-        <React.StrictMode>
-          <ToggleHistoryStatisticsButton
-            onToggleHistoryStatistics={(next: StatisticsMode) => {
-              setMode(next);
-            }}
-          />
-        </React.StrictMode>
-      );
+    if (!viewer) {
+      return;
     }
+    const container = document.createElement('div');
+    container.className = 'viewer-button-container viewer-button-container--top-60';
+    viewer._container.appendChild(container);
+    const root = createRoot(container);
+    buttonRootRef.current = root;
+    return () => {
+      buttonRootRef.current = null;
+      // Unmounting synchronously from inside an effect cleanup is what React warns
+      // about, so let the current commit finish first.
+      queueMicrotask(() => {
+        root.unmount();
+        container.remove();
+      });
+    };
   }, [viewer]);
+
+  // Re-render rather than remount, so the button picks up a truncation that only shows
+  // up once the fetch comes back.
+  useEffect(() => {
+    buttonRootRef.current?.render(
+      <React.StrictMode>
+        <ToggleHistoryStatisticsButton
+          partial={truncated}
+          onToggleHistoryStatistics={(next: StatisticsMode) => {
+            setMode(next);
+          }}
+        />
+      </React.StrictMode>
+    );
+  }, [viewer, truncated]);
+
+  // The table, the badges and the heat all have to describe the same set of records, or
+  // a badge reads 3 where the table reads 2 and neither is wrong. Unfinished executions
+  // are the ones to leave out: they have no duration to total, average or colour by.
+  const finished = useMemo(() => filter(activities, activity => Boolean(activity.endTime)), [activities]);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   // Note: overlayIds and heatmapNodes are intentionally excluded from deps — the effect
@@ -208,15 +274,15 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
     }
     clearHeatmap(heatmapNodes);
 
-    if (mode === 'off' || viewer === null || activities.length === 0) {
+    if (mode === 'off' || viewer === null || finished.length === 0) {
       setOverlayIds([]);
       setHeatmapNodes([]);
       return;
     }
 
-    setOverlayIds(overlays ? renderBadges(overlays, activities, mode) : []);
-    setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, activities) : []);
-  }, [viewer, activities, mode]);
+    setOverlayIds(overlays ? renderBadges(overlays, finished, mode) : []);
+    setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, finished) : []);
+  }, [viewer, finished, mode]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
   // Hack to ensure long living HTML node for filter box
@@ -237,11 +303,15 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
         initialExpressions={fromLegacyExpressions(expressions, definitionFilterSchema)}
         storageKey="minimal-history-plugin-saved-searches-definition-activities"
       />
-      {activities.length > 0 ? (
-        <StatisticsTable
-          activities={filter(activities, activity => Boolean(activity.activityName && activity.endTime))}
-        />
+      {fetchError !== null ? <ErrorMessage message={`Could not load activity statistics: ${fetchError}`} /> : null}
+      {truncated ? (
+        <WarningBox title="Partial statistics">
+          The engine returned as many activity records as the query allows, so these figures cover only the most
+          recently finished {activities.length}. Older executions are missing from the table, the badges and the heatmap
+          alike. Narrow the filter or raise <code>maxResults</code> to see the rest.
+        </WarningBox>
       ) : null}
+      {finished.length > 0 ? <StatisticsTable activities={finished} /> : null}
     </Portal>
   ) : null;
 };
