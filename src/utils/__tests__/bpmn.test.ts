@@ -6,7 +6,11 @@
  *
  * @module
  */
-import { renderSequenceFlow, clearSequenceFlow, renderActivities } from '../bpmn';
+import { createCurve } from 'svg-curves';
+import { create as svgCreate } from 'tiny-svg';
+
+import { renderSequenceFlow, clearSequenceFlow, getStrokeWidth, renderActivities } from '../bpmn';
+import { EXECUTED_PATH_STROKE_WIDTH, EXECUTED_PATH_STROKE_WIDTH_MAX } from '../constants';
 
 describe('utils/bpmn', () => {
   /**
@@ -210,6 +214,150 @@ describe('utils/bpmn', () => {
 
       // Should return array with at least the marker
       expect(Array.isArray(result)).toBe(true);
+    });
+  });
+
+  describe('getStrokeWidth', () => {
+    it('draws a single traversal at the base width', () => {
+      expect(getStrokeWidth(1)).toBe(EXECUTED_PATH_STROKE_WIDTH);
+    });
+
+    it('grows the line with each doubling of the traversal count', () => {
+      expect(getStrokeWidth(2)).toBe(6);
+      expect(getStrokeWidth(4)).toBe(8);
+      expect(getStrokeWidth(8)).toBe(10);
+    });
+
+    it('saturates at the cap rather than growing without bound', () => {
+      expect(getStrokeWidth(16)).toBe(EXECUTED_PATH_STROKE_WIDTH_MAX);
+      expect(getStrokeWidth(1000)).toBe(EXECUTED_PATH_STROKE_WIDTH_MAX);
+    });
+
+    it('never falls below the base width', () => {
+      expect(getStrokeWidth(0)).toBe(EXECUTED_PATH_STROKE_WIDTH);
+    });
+  });
+
+  /** Two tasks wired both ways, so the forward and back edges get different counts. */
+  function createLoopViewer() {
+    const taskA = { id: 'Task_A', type: 'bpmn:Task', x: 0, y: 0, width: 80, height: 60, incoming: [], outgoing: [] };
+    const taskB = {
+      id: 'Task_B',
+      type: 'bpmn:Task',
+      x: 200,
+      y: 0,
+      width: 80,
+      height: 60,
+      incoming: [],
+      outgoing: [],
+    };
+    const forward = {
+      id: 'Flow_Forward',
+      source: taskA,
+      target: taskB,
+      waypoints: [
+        { x: 80, y: 30 },
+        { x: 200, y: 30 },
+      ],
+    };
+    const back = {
+      id: 'Flow_Back',
+      source: taskB,
+      target: taskA,
+      waypoints: [
+        { x: 200, y: 50 },
+        { x: 80, y: 50 },
+      ],
+    };
+    taskA.outgoing.push(forward as never);
+    taskA.incoming.push(back as never);
+    taskB.outgoing.push(back as never);
+    taskB.incoming.push(forward as never);
+
+    return createMockViewer({
+      elements: new Map<string, unknown>([
+        ['Task_A', taskA],
+        ['Task_B', taskB],
+      ]),
+    });
+  }
+
+  const at = (minute: number) => `2024-01-01T10:0${minute}:00.000+0000`;
+
+  describe('renderSequenceFlow weighting', () => {
+    it('draws a repeatedly executed flow more heavily than a single pass', () => {
+      const mockViewer = createLoopViewer();
+      (createCurve as jest.Mock).mockClear();
+
+      renderSequenceFlow(mockViewer, [
+        { activityId: 'Task_A', activityType: 'userTask', startTime: at(1), endTime: at(1) },
+        { activityId: 'Task_B', activityType: 'userTask', startTime: at(2), endTime: at(2) },
+        { activityId: 'Task_A', activityType: 'userTask', startTime: at(3), endTime: at(3) },
+        { activityId: 'Task_B', activityType: 'userTask', startTime: at(4), endTime: at(4) },
+      ]);
+
+      const widthsByCall = (createCurve as jest.Mock).mock.calls.map(call => call[1].strokeWidth);
+
+      // Forward taken twice, back edge once.
+      expect(widthsByCall).toContain(getStrokeWidth(2));
+      expect(widthsByCall).toContain(getStrokeWidth(1));
+      expect(Math.max(...widthsByCall)).toBe(getStrokeWidth(2));
+    });
+
+    it('references a fresh arrow marker on every render', () => {
+      const mockViewer = createLoopViewer();
+      (createCurve as jest.Mock).mockClear();
+
+      renderSequenceFlow(mockViewer, [
+        { activityId: 'Task_A', activityType: 'userTask', startTime: at(1), endTime: at(1) },
+        { activityId: 'Task_B', activityType: 'userTask', startTime: at(2), endTime: at(2) },
+      ]);
+      const first = (createCurve as jest.Mock).mock.calls[0][1].markerEnd;
+
+      (createCurve as jest.Mock).mockClear();
+      renderSequenceFlow(mockViewer, [
+        { activityId: 'Task_A', activityType: 'userTask', startTime: at(1), endTime: at(1) },
+        { activityId: 'Task_B', activityType: 'userTask', startTime: at(2), endTime: at(2) },
+      ]);
+      const second = (createCurve as jest.Mock).mock.calls[0][1].markerEnd;
+
+      expect(first).toMatch(/^url\(#executed-path-arrow-\d+\)$/);
+      expect(second).not.toBe(first);
+    });
+  });
+
+  describe('renderSequenceFlow truncation', () => {
+    /** Text of every <title> element the render created. */
+    function titlesFrom(create: jest.Mock): string[] {
+      return create.mock.results
+        .map(result => result.value as SVGElement | undefined)
+        .filter((el): el is SVGElement => el?.tagName === 'title')
+        .map(el => el.textContent ?? '');
+    }
+
+    const activities = [
+      { activityId: 'Task_A', activityType: 'userTask', startTime: at(1), endTime: at(1) },
+      { activityId: 'Task_B', activityType: 'userTask', startTime: at(2), endTime: at(2) },
+    ];
+
+    it('states the exact count when the history is complete', () => {
+      const mockViewer = createLoopViewer();
+      (svgCreate as jest.Mock).mockClear();
+
+      renderSequenceFlow(mockViewer, activities);
+
+      expect(titlesFrom(svgCreate as jest.Mock)).toContain('Executed once');
+    });
+
+    it('states the count as a lower bound when the history was truncated', () => {
+      const mockViewer = createLoopViewer();
+      (svgCreate as jest.Mock).mockClear();
+
+      renderSequenceFlow(mockViewer, activities, { truncated: true });
+
+      const titles = titlesFrom(svgCreate as jest.Mock);
+      expect(titles).toContain('Executed at least once');
+      expect(titles).not.toContain('Executed once');
     });
   });
 

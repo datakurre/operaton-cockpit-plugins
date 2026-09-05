@@ -9,14 +9,21 @@ import { createCurve } from 'svg-curves';
 import { append as svgAppend, attr as svgAttr, create as svgCreate, remove as svgRemove } from 'tiny-svg';
 
 import type { BpmnViewerInstance, Canvas, ElementRegistry, HistoricActivityInstance } from '../../types';
-import { getConnections, getDottedConnections, XY } from './connections';
+import {
+  EXECUTED_PATH_STROKE_WIDTH,
+  EXECUTED_PATH_STROKE_WIDTH_MAX,
+  EXECUTED_PATH_STROKE_WIDTH_STEP,
+} from '../constants';
+import { getDottedConnections, getExecutedConnections } from './connections';
 
 /** Fill color for sequence flow highlighting */
 const FILL = '#52B415';
 
+/** Class set on every path this module draws, so the overlay stays identifiable */
+const EXECUTED_PATH_CLASS = 'executed-sequence-flow';
+
 /** Marker SVG attributes configuration */
 const MARKER_ATTRS = {
-  id: 'arrow',
   viewBox: '0 0 10 10',
   refX: 7,
   refY: 5,
@@ -34,14 +41,54 @@ const ARROW_PATH_ATTRS = {
 };
 
 /**
+ * Counter behind the per-render marker id. Two viewers can share a document — the
+ * instance diagram and the history route — so a fixed id would make one steal the
+ * other's arrowheads.
+ */
+let markerSequence = 0;
+
+/**
+ * Scales the stroke width with the number of traversals, logarithmically so that a
+ * long-running loop stays a line rather than becoming a slab.
+ * @param count - Number of times the flow was traversed
+ * @returns Stroke width in diagram units, capped at EXECUTED_PATH_STROKE_WIDTH_MAX
+ */
+export const getStrokeWidth = (count: number): number => {
+  if (count <= 1) {
+    return EXECUTED_PATH_STROKE_WIDTH;
+  }
+  const width = EXECUTED_PATH_STROKE_WIDTH + EXECUTED_PATH_STROKE_WIDTH_STEP * Math.log2(count);
+  return Math.min(EXECUTED_PATH_STROKE_WIDTH_MAX, Math.round(width));
+};
+
+/**
+ * Adds a native tooltip naming the traversal count, since the stroke width only shows
+ * it approximately and saturates at the cap.
+ * @param path - The path element to describe
+ * @param count - Number of times the flow was traversed
+ * @param truncated - Whether the history it was counted from was cut short, making
+ *   every count a lower bound rather than the real figure
+ */
+function appendTraversalTitle(path: SVGElement, count: number, truncated: boolean): void {
+  const title = svgCreate('title');
+  if (truncated) {
+    title.textContent = count === 1 ? 'Executed at least once' : `Executed at least ${count} times`;
+  } else {
+    title.textContent = count === 1 ? 'Executed once' : `Executed ${count} times`;
+  }
+  svgAppend(path, title);
+}
+
+/**
  * Creates and appends the arrow marker definition to the SVG defs element.
  * @param defs - The defs element to append to
+ * @param id - Unique id to reference the marker by
  * @returns The created marker element
  */
-function createArrowMarker(defs: SVGElement): SVGMarkerElement {
+function createArrowMarker(defs: SVGElement, id: string): SVGMarkerElement {
   const marker = svgCreate('marker');
   const path = svgCreate('path');
-  svgAttr(marker, MARKER_ATTRS);
+  svgAttr(marker, { ...MARKER_ATTRS, id });
   svgAttr(path, ARROW_PATH_ATTRS);
   svgAppend(marker, path);
   svgAppend(defs, marker);
@@ -49,51 +96,78 @@ function createArrowMarker(defs: SVGElement): SVGMarkerElement {
 }
 
 /**
+ * Finds the SVG's defs element, creating it when the diagram has none yet.
+ * @param canvas - The viewer canvas
+ * @returns The defs element to hold marker definitions
+ */
+function resolveDefs(canvas: Canvas): SVGElement {
+  // Cast SVG to HTMLElement for domQuery, which expects HTMLElement
+  const existing = domQuery('defs', canvas._svg as unknown as HTMLElement) as SVGElement | null;
+  if (existing !== null) {
+    return existing;
+  }
+  const defs = svgCreate('defs') as SVGElement;
+  svgAppend(canvas._svg, defs);
+  return defs;
+}
+
+/** Options for rendering the executed path. */
+export interface RenderSequenceFlowOptions {
+  /**
+   * Whether the activity history was cut short. The path is then complete only up to
+   * the point the records stop, and every count is a lower bound.
+   */
+  truncated?: boolean;
+}
+
+/**
  * Renders sequence flow highlighting on the BPMN diagram based on historic activities.
- * Draws colored arrows showing the execution path through the process.
+ * Draws colored arrows showing the execution path through the process, weighted by how
+ * often each flow was traversed.
  * @param viewer - The BPMN viewer instance
  * @param activities - Historic activity instances to visualize
+ * @param options - Rendering options
  * @returns Array of SVG elements that were added (for later cleanup)
  */
 export const renderSequenceFlow = (
   viewer: BpmnViewerInstance,
-  activities: HistoricActivityInstance[]
+  activities: HistoricActivityInstance[],
+  options: RenderSequenceFlowOptions = {}
 ): SVGElement[] => {
+  const isTruncated = options.truncated === true;
   const registry = viewer.get('elementRegistry') as ElementRegistry;
   const canvas = viewer.get('canvas') as Canvas;
   const layer = canvas.getLayer('processInstance', 1);
-  const connections = getConnections(activities, registry);
+  const connections = getExecutedConnections(activities, registry);
   const paths: SVGElement[] = [];
 
-  // Query for existing defs element - cast SVG to HTMLElement for domQuery which expects HTMLElement
-  let defs = domQuery('defs', canvas._svg as unknown as HTMLElement) as SVGElement | null;
-  if (defs === null) {
-    defs = svgCreate('defs') as SVGElement;
-    svgAppend(canvas._svg, defs);
-  }
-
-  const marker = createArrowMarker(defs);
+  const markerId = `executed-path-arrow-${markerSequence++}`;
+  const marker = createArrowMarker(resolveDefs(canvas), markerId);
   paths.push(marker);
 
-  for (const connection of connections) {
-    const connWithWaypoints = connection as unknown as { waypoints: XY[] };
-    const curve = createCurve(connWithWaypoints.waypoints, {
-      markerEnd: 'url(#arrow)',
+  for (const { element, count } of connections) {
+    // The arrowhead inherits strokeWidth units, so it grows with the line.
+    const curve = createCurve(element.waypoints, {
+      markerEnd: `url(#${markerId})`,
       stroke: FILL,
-      strokeWidth: 4,
+      strokeWidth: getStrokeWidth(count),
     });
+    svgAttr(curve, { class: EXECUTED_PATH_CLASS });
+    appendTraversalTitle(curve, count, isTruncated);
     svgAppend(layer, curve);
     paths.push(curve);
   }
 
   const dottedConnections = getDottedConnections(connections);
-  for (const connection of dottedConnections) {
-    const curve = createCurve(connection.waypoints, {
+  for (const { waypoints, count } of dottedConnections) {
+    const curve = createCurve(waypoints, {
       strokeDasharray: '1 8',
       strokeLinecap: 'round',
       stroke: FILL,
-      strokeWidth: 4,
+      strokeWidth: getStrokeWidth(count),
     });
+    svgAttr(curve, { class: EXECUTED_PATH_CLASS });
+    appendTraversalTitle(curve, count, isTruncated);
     svgAppend(layer, curve);
     paths.push(curve);
   }

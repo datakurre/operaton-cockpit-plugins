@@ -1,23 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';
-import { InstancePluginParams } from '../types';
-import { OverlayManager } from '../services/ViewerService';
-import { get } from '../utils/api';
-import { clearSequenceFlow, renderSequenceFlow } from '../utils/bpmn';
-
-interface HistoricActivity {
-  activityId: string;
-  activityName?: string;
-  activityType?: string;
-  endTime?: string;
-  startTime?: string;
-}
-
-/** Interface for BPMN viewer instance */
-interface BpmnViewerInstance {
-  _container: HTMLElement;
-  get: (serviceName: string) => unknown;
-}
+import { BpmnViewerInstance, HistoricActivityInstance, InstancePluginParams } from '../types';
+import { getActivityHistoryPage } from '../utils/api';
+import { loadSettings } from '../utils/misc';
+import { clearSequenceFlow, renderActivities, renderSequenceFlow } from '../utils/bpmn';
 
 interface InstanceDiagramHistoricActivitiesProps extends InstancePluginParams {
   viewer: BpmnViewerInstance;
@@ -32,17 +18,22 @@ export const InstanceDiagramHistoricActivities: React.FC<InstanceDiagramHistoric
   processInstanceId,
   viewer,
 }) => {
-  const [activities, setActivities] = useState<HistoricActivity[]>([]);
+  const [activities, setActivities] = useState<HistoricActivityInstance[]>([]);
+  const [isTruncated, setIsTruncated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [sequenceFlow, setSequenceFlow] = useState<SVGElement[]>([]);
-  const [hasOverlaysRendered, setHasOverlaysRendered] = useState(false);
+  // The drawn paths live in a ref rather than in state: the toggle callback has to see
+  // its own last write synchronously, or StrictMode's double effect run draws twice and
+  // leaks the first set of curves.
+  const sequenceFlowRef = useRef<SVGElement[]>([]);
+  const hasOverlaysRendered = useRef(false);
 
   useEffect(() => {
     const fetchActivities = async (): Promise<void> => {
       try {
         setIsLoading(true);
-        const data = await get(api, '/history/activity-instance', { processInstanceId });
-        setActivities(data as HistoricActivity[]);
+        const page = await getActivityHistoryPage(api, processInstanceId, loadSettings().maxResults);
+        setActivities(page.activities);
+        setIsTruncated(page.truncated);
       } catch (err) {
         console.error('Failed to fetch historic activities:', err);
       } finally {
@@ -53,70 +44,40 @@ export const InstanceDiagramHistoricActivities: React.FC<InstanceDiagramHistoric
   }, [api, processInstanceId]);
 
   useEffect(() => {
-    if (isLoading || hasOverlaysRendered || activities.length === 0) {
+    if (isLoading || hasOverlaysRendered.current || activities.length === 0) {
       return;
     }
+    renderActivities(viewer, activities);
+    hasOverlaysRendered.current = true;
+  }, [isLoading, activities, viewer]);
 
-    const overlays = viewer.get('overlays') as OverlayManager;
+  useEffect(
+    () => (): void => {
+      clearSequenceFlow(sequenceFlowRef.current);
+      sequenceFlowRef.current = [];
+    },
+    []
+  );
 
-    const counter: Record<string, number> = {};
-    for (const activity of activities) {
-      const id = activity.activityId;
-      counter[id] = counter[id] !== undefined ? counter[id] + 1 : 1;
-    }
-
-    const seen: Record<string, boolean> = {};
-    for (const activity of activities) {
-      const id = activity.activityId;
-      if (seen[id] === true) {
-        continue;
-      } else {
-        seen[id] = true;
+  const handleToggleSequenceFlow = useCallback(
+    (value: boolean): void => {
+      if (value) {
+        if (sequenceFlowRef.current.length === 0) {
+          sequenceFlowRef.current = renderSequenceFlow(viewer, activities, { truncated: isTruncated });
+        }
+      } else if (sequenceFlowRef.current.length > 0) {
+        clearSequenceFlow(sequenceFlowRef.current);
+        sequenceFlowRef.current = [];
       }
-
-      const overlay = document.createElement('span');
-      overlay.innerText = String(counter[id] ?? 0);
-      overlay.className = 'badge';
-      overlay.style.cssText = `
-        background: lightgray;
-      `;
-      const elementId = id.split('#')[0];
-      if (elementId !== undefined) {
-        overlays.add(elementId, {
-          position: {
-            bottom: 17,
-            right: 10,
-          },
-          html: overlay,
-        });
-      }
-    }
-
-    setHasOverlaysRendered(true);
-  }, [isLoading, activities, viewer, hasOverlaysRendered]);
-
-  const handleToggleSequenceFlow = (value: boolean): void => {
-    if (value) {
-      if (sequenceFlow.length === 0) {
-        const newSequenceFlow = renderSequenceFlow(
-          viewer as unknown as { get: (s: string) => unknown; _container: HTMLElement },
-          activities
-        );
-        setSequenceFlow(newSequenceFlow);
-      }
-    } else {
-      if (sequenceFlow.length > 0) {
-        clearSequenceFlow(sequenceFlow);
-        setSequenceFlow([]);
-      }
-    }
-  };
+    },
+    [viewer, activities, isTruncated]
+  );
 
   if (isLoading) {
     return null;
   }
 
-  return <ToggleSequenceFlowButton onToggleSequenceFlow={handleToggleSequenceFlow} />;
+  return <ToggleSequenceFlowButton onToggleSequenceFlow={handleToggleSequenceFlow} partial={isTruncated} />;
 };
 
 export default InstanceDiagramHistoricActivities;

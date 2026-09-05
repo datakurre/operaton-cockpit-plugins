@@ -1,16 +1,19 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { InstanceDiagramAutoRefresh } from '../InstanceDiagramAutoRefresh';
 import { InstanceDiagramHistoricActivities } from '../InstanceDiagramHistoricActivities';
 import { InstanceTabAuditLog } from '../InstanceTabAuditLog';
 import { TasklistTabAuditLog } from '../TasklistTabAuditLog';
 import { setFetchFunction, resetFetchFunction } from '../../utils/api';
+import { renderActivities, renderSequenceFlow } from '../../utils/bpmn';
+import { MemoryStorage, resetStorage, setStorage } from '../../utils/storage';
 import { mockApi } from '../../__mocks__/api';
 
 // Mock bpmn utilities
 jest.mock('../../utils/bpmn', () => ({
   renderSequenceFlow: jest.fn().mockReturnValue([]),
   clearSequenceFlow: jest.fn(),
+  renderActivities: jest.fn(),
 }));
 
 /**
@@ -120,14 +123,12 @@ describe('InstanceDiagramHistoricActivities', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('should add overlays for activities', async () => {
+  it('should render badge overlays for the fetched activities', async () => {
     const activities = [
       { activityId: 'task1', activityName: 'Task 1', endTime: '2024-01-01T10:00:00.000Z' },
       { activityId: 'task1', activityName: 'Task 1', endTime: '2024-01-01T11:00:00.000Z' },
       { activityId: 'task2', activityName: 'Task 2', endTime: '2024-01-01T12:00:00.000Z' },
     ];
-    const mockOverlays = { add: jest.fn() };
-    mockViewer.get.mockReturnValue(mockOverlays);
     setFetchFunction(
       createRoutedMockFetch({
         'activity-instance': activities,
@@ -140,8 +141,36 @@ describe('InstanceDiagramHistoricActivities', () => {
       expect(screen.getByRole('button')).toBeInTheDocument();
     });
 
-    // Should add overlays for each unique activity
-    expect(mockOverlays.add).toHaveBeenCalledTimes(2);
+    // Badge counting itself lives in utils/bpmn; here we only own the delegation.
+    expect(renderActivities).toHaveBeenCalledWith(mockViewer, activities);
+  });
+
+  it('should draw the executed path once when mounted with the toggle already on', async () => {
+    // StrictMode runs mount effects twice. The drawn paths must be tracked synchronously,
+    // or the second run draws a duplicate set that the toggle can no longer clear.
+    const storage = new MemoryStorage();
+    storage.set('minimal-history-plugin', JSON.stringify({ showSequenceFlow: true }));
+    setStorage(storage);
+    const activities = [{ activityId: 'task1', activityName: 'Task 1', endTime: '2024-01-01T10:00:00.000Z' }];
+    (renderSequenceFlow as jest.Mock).mockReturnValue([document.createElementNS('http://www.w3.org/2000/svg', 'path')]);
+    setFetchFunction(
+      createRoutedMockFetch({
+        'activity-instance': activities,
+      })
+    );
+
+    render(
+      <React.StrictMode>
+        <InstanceDiagramHistoricActivities api={mockApi} processInstanceId="test-id" viewer={mockViewer} />
+      </React.StrictMode>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Hide sequence flow')).toBeInTheDocument();
+    });
+
+    expect(renderSequenceFlow).toHaveBeenCalledTimes(1);
+    resetStorage();
   });
 });
 

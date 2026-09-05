@@ -8,5 +8,12 @@
  */
 
 // Re-export all utilities for backwards compatibility
-export { clearSequenceFlow, getConnections, renderActivities, renderSequenceFlow } from './bpmn/index';
-export type { DottedConnection, XY } from './bpmn/index';
+export {
+  clearSequenceFlow,
+  countTraversals,
+  getExecutedConnections,
+  getStrokeWidth,
+  renderActivities,
+  renderSequenceFlow,
+} from './bpmn/index';
+export type { ConnectionElement, DottedConnection, ExecutedConnection, XY } from './bpmn/index';

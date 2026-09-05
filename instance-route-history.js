@@ -4125,6 +4125,39 @@ function getActivities(api, processInstanceId, params) {
     });
 }
 /**
+ * Fetches a bounded page of historic activity instances, oldest first, reporting
+ * whether the instance had more than fit.
+ *
+ * Ordering matters here, not just the bound: an unordered truncated response leaves
+ * the executed path with holes scattered through it, while a chronological prefix
+ * leaves a path that is simply complete up to a point.
+ *
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @param maxResults - Maximum records to keep
+ * @returns The records and whether the history was truncated
+ */
+function getActivityHistoryPage(api, processInstanceId, maxResults) {
+    return __awaiter(this, void 0, void 0, function () {
+        var records;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, getActivities(api, processInstanceId, {
+                        sortBy: 'startTime',
+                        sortOrder: 'asc',
+                        maxResults: String(maxResults + 1),
+                    })];
+                case 1:
+                    records = _a.sent();
+                    return [2 /*return*/, {
+                            activities: records.slice(0, maxResults),
+                            truncated: records.length > maxResults,
+                        }];
+            }
+        });
+    });
+}
+/**
  * Fetches historic variable instances for a process instance.
  * @param api - The API configuration object
  * @param processInstanceId - The process instance ID
@@ -22861,10 +22894,10 @@ function flatten(arr) {
   return Array.prototype.concat.apply([], arr);
 }
 
-const nativeToString$8 = Object.prototype.toString;
-const nativeHasOwnProperty$7 = Object.prototype.hasOwnProperty;
+const nativeToString$7 = Object.prototype.toString;
+const nativeHasOwnProperty$6 = Object.prototype.hasOwnProperty;
 
-function isUndefined$8(obj) {
+function isUndefined$7(obj) {
   return obj === undefined;
 }
 
@@ -22872,20 +22905,20 @@ function isDefined$3(obj) {
   return obj !== undefined;
 }
 
-function isNil$6(obj) {
+function isNil$5(obj) {
   return obj == null;
 }
 
-function isArray$9(obj) {
-  return nativeToString$8.call(obj) === '[object Array]';
+function isArray$8(obj) {
+  return nativeToString$7.call(obj) === '[object Array]';
 }
 
 function isObject$3(obj) {
-  return nativeToString$8.call(obj) === '[object Object]';
+  return nativeToString$7.call(obj) === '[object Object]';
 }
 
 function isNumber$1(obj) {
-  return nativeToString$8.call(obj) === '[object Number]';
+  return nativeToString$7.call(obj) === '[object Number]';
 }
 
 /**
@@ -22893,8 +22926,8 @@ function isNumber$1(obj) {
  *
  * @return {boolean}
  */
-function isFunction$4(obj) {
-  const tag = nativeToString$8.call(obj);
+function isFunction$3(obj) {
+  const tag = nativeToString$7.call(obj);
 
   return (
     tag === '[object Function]' ||
@@ -22906,7 +22939,7 @@ function isFunction$4(obj) {
 }
 
 function isString$4(obj) {
-  return nativeToString$8.call(obj) === '[object String]';
+  return nativeToString$7.call(obj) === '[object String]';
 }
 
 
@@ -22917,7 +22950,7 @@ function isString$4(obj) {
  */
 function ensureArray(obj) {
 
-  if (isArray$9(obj)) {
+  if (isArray$8(obj)) {
     return;
   }
 
@@ -22932,8 +22965,8 @@ function ensureArray(obj) {
  *
  * @return {Boolean}
  */
-function has$7(target, key) {
-  return !isNil$6(target) && nativeHasOwnProperty$7.call(target, key);
+function has$6(target, key) {
+  return !isNil$5(target) && nativeHasOwnProperty$6.call(target, key);
 }
 
 /**
@@ -22998,11 +23031,11 @@ function has$7(target, key) {
  */
 function find$3(collection, matcher) {
 
-  const matchFn = toMatcher$4(matcher);
+  const matchFn = toMatcher$3(matcher);
 
   let match;
 
-  forEach$7(collection, function(val, key) {
+  forEach$6(collection, function(val, key) {
     if (matchFn(val, key)) {
       match = val;
 
@@ -23024,13 +23057,13 @@ function find$3(collection, matcher) {
  *
  * @return {T[]} result
  */
-function filter$3(collection, matcher) {
+function filter$2(collection, matcher) {
 
-  const matchFn = toMatcher$4(matcher);
+  const matchFn = toMatcher$3(matcher);
 
   let result = [];
 
-  forEach$7(collection, function(val, key) {
+  forEach$6(collection, function(val, key) {
     if (matchFn(val, key)) {
       result.push(val);
     }
@@ -23050,20 +23083,20 @@ function filter$3(collection, matcher) {
  *
  * @return {T} return result that stopped the iteration
  */
-function forEach$7(collection, iterator) {
+function forEach$6(collection, iterator) {
 
   let val,
       result;
 
-  if (isUndefined$8(collection)) {
+  if (isUndefined$7(collection)) {
     return;
   }
 
-  const convertKey = isArray$9(collection) ? toNum$7 : identity$7;
+  const convertKey = isArray$8(collection) ? toNum$6 : identity$6;
 
   for (let key in collection) {
 
-    if (has$7(collection, key)) {
+    if (has$6(collection, key)) {
       val = collection[key];
 
       result = iterator(val, convertKey(key));
@@ -23086,13 +23119,13 @@ function forEach$7(collection, iterator) {
  */
 function without(arr, matcher) {
 
-  if (isUndefined$8(arr)) {
+  if (isUndefined$7(arr)) {
     return [];
   }
 
   ensureArray(arr);
 
-  const matchFn = toMatcher$4(matcher);
+  const matchFn = toMatcher$3(matcher);
 
   return arr.filter(function(el, idx) {
     return !matchFn(el, idx);
@@ -23115,7 +23148,7 @@ function without(arr, matcher) {
  */
 function reduce$2(collection, iterator, result) {
 
-  forEach$7(collection, function(value, idx) {
+  forEach$6(collection, function(value, idx) {
     result = iterator(result, value, idx);
   });
 
@@ -23164,11 +23197,11 @@ function some$2(collection, matcher) {
  *
  * @return {Array} transformed collection
  */
-function map$3(collection, fn) {
+function map$2(collection, fn) {
 
   let result = [];
 
-  forEach$7(collection, function(val, key) {
+  forEach$6(collection, function(val, key) {
     result.push(fn(val, key));
   });
 
@@ -23184,7 +23217,7 @@ function map$3(collection, fn) {
  * @return {Array}
  */
 function values$1(collection) {
-  return map$3(collection, (val) => val);
+  return map$2(collection, (val) => val);
 }
 
 
@@ -23196,11 +23229,11 @@ function values$1(collection) {
  *
  * @return {Object} map with { attrValue => [ a, b, c ] }
  */
-function groupBy$1(collection, extractor, grouped = {}) {
+function groupBy(collection, extractor, grouped = {}) {
 
-  extractor = toExtractor$2(extractor);
+  extractor = toExtractor$1(extractor);
 
-  forEach$7(collection, function(val) {
+  forEach$6(collection, function(val) {
     let discriminator = extractor(val) || '_';
 
     let group = grouped[discriminator];
@@ -23216,15 +23249,15 @@ function groupBy$1(collection, extractor, grouped = {}) {
 }
 
 
-function uniqueBy$1(extractor, ...collections) {
+function uniqueBy(extractor, ...collections) {
 
-  extractor = toExtractor$2(extractor);
+  extractor = toExtractor$1(extractor);
 
   let grouped = {};
 
-  forEach$7(collections, (c) => groupBy$1(c, extractor, grouped));
+  forEach$6(collections, (c) => groupBy(c, extractor, grouped));
 
-  let result = map$3(grouped, function(val, key) {
+  let result = map$2(grouped, function(val, key) {
     return val[0];
   });
 
@@ -23232,7 +23265,7 @@ function uniqueBy$1(extractor, ...collections) {
 }
 
 
-const unionBy = uniqueBy$1;
+const unionBy = uniqueBy;
 
 
 
@@ -23248,11 +23281,11 @@ const unionBy = uniqueBy$1;
  */
 function sortBy$1(collection, extractor) {
 
-  extractor = toExtractor$2(extractor);
+  extractor = toExtractor$1(extractor);
 
   let sorted = [];
 
-  forEach$7(collection, function(value, key) {
+  forEach$6(collection, function(value, key) {
     let disc = extractor(value, key);
 
     let entry = {
@@ -23273,7 +23306,7 @@ function sortBy$1(collection, extractor) {
     sorted.push(entry);
   });
 
-  return map$3(sorted, (e) => e.v);
+  return map$2(sorted, (e) => e.v);
 }
 
 
@@ -23311,12 +23344,12 @@ function matchPattern$2(pattern) {
  *
  * @return { (e: any) => any }
  */
-function toExtractor$2(extractor) {
+function toExtractor$1(extractor) {
 
   /**
    * @satisfies { (e: any) => any }
    */
-  return isFunction$4(extractor) ? extractor : (e) => {
+  return isFunction$3(extractor) ? extractor : (e) => {
 
     // @ts-ignore: just works
     return e[extractor];
@@ -23330,18 +23363,18 @@ function toExtractor$2(extractor) {
  *
  * @return {MatchFn<T>}
  */
-function toMatcher$4(matcher) {
-  return isFunction$4(matcher) ? matcher : (e) => {
+function toMatcher$3(matcher) {
+  return isFunction$3(matcher) ? matcher : (e) => {
     return e === matcher;
   };
 }
 
 
-function identity$7(arg) {
+function identity$6(arg) {
   return arg;
 }
 
-function toNum$7(arg) {
+function toNum$6(arg) {
   return Number(arg);
 }
 
@@ -23471,7 +23504,7 @@ function pick$2(target, properties) {
 
   let obj = Object(target);
 
-  forEach$7(properties, function(prop) {
+  forEach$6(properties, function(prop) {
 
     if (prop in obj) {
       result[prop] = target[prop];
@@ -23498,7 +23531,7 @@ function omit$1(target, properties) {
 
   let obj = Object(target);
 
-  forEach$7(obj, function(prop, key) {
+  forEach$6(obj, function(prop, key) {
 
     if (properties.indexOf(key) === -1) {
       result[key] = prop;
@@ -23642,7 +23675,7 @@ var p2s = /,?([a-z]),?/gi,
     pathCommand = /([a-z])[\s,]*((-?\d*\.?\d*(?:e[-+]?\d+)?[\s]*,?[\s]*)+)/ig,
     pathValues = /(-?\d*\.?\d*(?:e[-+]?\d+)?)[\s]*,?[\s]*/ig;
 
-var isArray$8 = Array.isArray || function(o) { return o instanceof Array; };
+var isArray$7 = Array.isArray || function(o) { return o instanceof Array; };
 
 function hasProperty(obj, property) {
   return Object.prototype.hasOwnProperty.call(obj, property);
@@ -24114,7 +24147,7 @@ function findPathIntersections(path1, path2, justCount) {
  * @return {boolean}
  */
 function isPathComponents(path) {
-  return isArray$8(path) && isArray$8(path[0]);
+  return isArray$7(path) && isArray$7(path[0]);
 }
 
 /**
@@ -24577,7 +24610,7 @@ function pathToCurve(path) {
  * @return {boolean}
  */
 function isConnection(value) {
-  return isObject$3(value) && has$7(value, 'waypoints');
+  return isObject$3(value) && has$6(value, 'waypoints');
 }
 
 /**
@@ -24588,7 +24621,7 @@ function isConnection(value) {
  * @return {boolean}
  */
 function isLabel(value) {
-  return isObject$3(value) && has$7(value, 'labelTarget');
+  return isObject$3(value) && has$6(value, 'labelTarget');
 }
 
 /**
@@ -24904,10 +24937,10 @@ function log10(x) {
  * @return {T[]}
  */
 
-const nativeToString$7 = Object.prototype.toString;
-const nativeHasOwnProperty$6 = Object.prototype.hasOwnProperty;
+const nativeToString$6 = Object.prototype.toString;
+const nativeHasOwnProperty$5 = Object.prototype.hasOwnProperty;
 
-function isUndefined$7(obj) {
+function isUndefined$6(obj) {
   return obj === undefined;
 }
 
@@ -24915,20 +24948,20 @@ function isDefined$2(obj) {
   return obj !== undefined;
 }
 
-function isNil$5(obj) {
+function isNil$4(obj) {
   return obj == null;
 }
 
-function isArray$7(obj) {
-  return nativeToString$7.call(obj) === '[object Array]';
+function isArray$6(obj) {
+  return nativeToString$6.call(obj) === '[object Array]';
 }
 
 function isObject$2(obj) {
-  return nativeToString$7.call(obj) === '[object Object]';
+  return nativeToString$6.call(obj) === '[object Object]';
 }
 
 function isNumber(obj) {
-  return nativeToString$7.call(obj) === '[object Number]';
+  return nativeToString$6.call(obj) === '[object Number]';
 }
 
 /**
@@ -24936,8 +24969,8 @@ function isNumber(obj) {
  *
  * @return {boolean}
  */
-function isFunction$3(obj) {
-  const tag = nativeToString$7.call(obj);
+function isFunction$2(obj) {
+  const tag = nativeToString$6.call(obj);
 
   return (
     tag === '[object Function]' ||
@@ -24949,7 +24982,7 @@ function isFunction$3(obj) {
 }
 
 function isString$3(obj) {
-  return nativeToString$7.call(obj) === '[object String]';
+  return nativeToString$6.call(obj) === '[object String]';
 }
 
 /**
@@ -24960,8 +24993,8 @@ function isString$3(obj) {
  *
  * @return {Boolean}
  */
-function has$6(target, key) {
-  return !isNil$5(target) && nativeHasOwnProperty$6.call(target, key);
+function has$5(target, key) {
+  return !isNil$4(target) && nativeHasOwnProperty$5.call(target, key);
 }
 
 /**
@@ -25026,11 +25059,11 @@ function has$6(target, key) {
  */
 function find$2(collection, matcher) {
 
-  const matchFn = toMatcher$3(matcher);
+  const matchFn = toMatcher$2(matcher);
 
   let match;
 
-  forEach$6(collection, function(val, key) {
+  forEach$5(collection, function(val, key) {
     if (matchFn(val, key)) {
       match = val;
 
@@ -25054,11 +25087,11 @@ function find$2(collection, matcher) {
  */
 function findIndex$1(collection, matcher) {
 
-  const matchFn = toMatcher$3(matcher);
+  const matchFn = toMatcher$2(matcher);
 
-  let idx = isArray$7(collection) ? -1 : undefined;
+  let idx = isArray$6(collection) ? -1 : undefined;
 
-  forEach$6(collection, function(val, key) {
+  forEach$5(collection, function(val, key) {
     if (matchFn(val, key)) {
       idx = key;
 
@@ -25079,13 +25112,13 @@ function findIndex$1(collection, matcher) {
  *
  * @return {T[]} result
  */
-function filter$2(collection, matcher) {
+function filter$1(collection, matcher) {
 
-  const matchFn = toMatcher$3(matcher);
+  const matchFn = toMatcher$2(matcher);
 
   let result = [];
 
-  forEach$6(collection, function(val, key) {
+  forEach$5(collection, function(val, key) {
     if (matchFn(val, key)) {
       result.push(val);
     }
@@ -25105,20 +25138,20 @@ function filter$2(collection, matcher) {
  *
  * @return {T} return result that stopped the iteration
  */
-function forEach$6(collection, iterator) {
+function forEach$5(collection, iterator) {
 
   let val,
       result;
 
-  if (isUndefined$7(collection)) {
+  if (isUndefined$6(collection)) {
     return;
   }
 
-  const convertKey = isArray$7(collection) ? toNum$6 : identity$6;
+  const convertKey = isArray$6(collection) ? toNum$5 : identity$5;
 
   for (let key in collection) {
 
-    if (has$6(collection, key)) {
+    if (has$5(collection, key)) {
       val = collection[key];
 
       result = iterator(val, convertKey(key));
@@ -25145,7 +25178,7 @@ function forEach$6(collection, iterator) {
  */
 function reduce$1(collection, iterator, result) {
 
-  forEach$6(collection, function(value, idx) {
+  forEach$5(collection, function(value, idx) {
     result = iterator(result, value, idx);
   });
 
@@ -25194,11 +25227,11 @@ function some$1(collection, matcher) {
  *
  * @return {Array} transformed collection
  */
-function map$2(collection, fn) {
+function map$1(collection, fn) {
 
   let result = [];
 
-  forEach$6(collection, function(val, key) {
+  forEach$5(collection, function(val, key) {
     result.push(fn(val, key));
   });
 
@@ -25226,7 +25259,7 @@ function keys(collection) {
  * @return {Array}
  */
 function values(collection) {
-  return map$2(collection, (val) => val);
+  return map$1(collection, (val) => val);
 }
 
 
@@ -25243,11 +25276,11 @@ function values(collection) {
  */
 function sortBy(collection, extractor) {
 
-  extractor = toExtractor$1(extractor);
+  extractor = toExtractor(extractor);
 
   let sorted = [];
 
-  forEach$6(collection, function(value, key) {
+  forEach$5(collection, function(value, key) {
     let disc = extractor(value, key);
 
     let entry = {
@@ -25268,7 +25301,7 @@ function sortBy(collection, extractor) {
     sorted.push(entry);
   });
 
-  return map$2(sorted, (e) => e.v);
+  return map$1(sorted, (e) => e.v);
 }
 
 
@@ -25306,12 +25339,12 @@ function matchPattern$1(pattern) {
  *
  * @return { (e: any) => any }
  */
-function toExtractor$1(extractor) {
+function toExtractor(extractor) {
 
   /**
    * @satisfies { (e: any) => any }
    */
-  return isFunction$3(extractor) ? extractor : (e) => {
+  return isFunction$2(extractor) ? extractor : (e) => {
 
     // @ts-ignore: just works
     return e[extractor];
@@ -25325,18 +25358,18 @@ function toExtractor$1(extractor) {
  *
  * @return {MatchFn<T>}
  */
-function toMatcher$3(matcher) {
-  return isFunction$3(matcher) ? matcher : (e) => {
+function toMatcher$2(matcher) {
+  return isFunction$2(matcher) ? matcher : (e) => {
     return e === matcher;
   };
 }
 
 
-function identity$6(arg) {
+function identity$5(arg) {
   return arg;
 }
 
-function toNum$6(arg) {
+function toNum$5(arg) {
   return Number(arg);
 }
 
@@ -25369,7 +25402,7 @@ function pick$1(target, properties) {
 
   let obj = Object(target);
 
-  forEach$6(properties, function(prop) {
+  forEach$5(properties, function(prop) {
 
     if (prop in obj) {
       result[prop] = target[prop];
@@ -25396,7 +25429,7 @@ function omit(target, properties) {
 
   let obj = Object(target);
 
-  forEach$6(obj, function(prop, key) {
+  forEach$5(obj, function(prop, key) {
 
     if (properties.indexOf(key) === -1) {
       result[key] = prop;
@@ -25784,7 +25817,7 @@ function unwrapEvent(fn, that) {
  */
 CommandInterceptor.prototype.on = function(events, hook, priority, handlerFn, unwrap, that) {
 
-  if (isFunction$4(hook) || isNumber$1(hook)) {
+  if (isFunction$3(hook) || isNumber$1(hook)) {
     that = unwrap;
     unwrap = handlerFn;
     handlerFn = priority;
@@ -25792,7 +25825,7 @@ CommandInterceptor.prototype.on = function(events, hook, priority, handlerFn, un
     hook = null;
   }
 
-  if (isFunction$4(priority)) {
+  if (isFunction$3(priority)) {
     that = unwrap;
     unwrap = handlerFn;
     handlerFn = priority;
@@ -25804,17 +25837,17 @@ CommandInterceptor.prototype.on = function(events, hook, priority, handlerFn, un
     unwrap = false;
   }
 
-  if (!isFunction$4(handlerFn)) {
+  if (!isFunction$3(handlerFn)) {
     throw new Error('handlerFn must be a function');
   }
 
-  if (!isArray$9(events)) {
+  if (!isArray$8(events)) {
     events = [ events ];
   }
 
   var eventBus = this._eventBus;
 
-  forEach$7(events, function(event) {
+  forEach$6(events, function(event) {
 
     // concat commandStack(.event)?(.hook)?
     var fullEvent = [ 'commandStack', event, hook ].filter(function(e) { return e; }).join('.');
@@ -25948,7 +25981,7 @@ function createHook(hook) {
    */
   const hookFn = function(events, priority, handlerFn, unwrap, that) {
 
-    if (isFunction$4(events) || isNumber$1(events)) {
+    if (isFunction$3(events) || isNumber$1(events)) {
       that = unwrap;
       unwrap = handlerFn;
       handlerFn = priority;
@@ -26301,7 +26334,7 @@ AppendBehavior.$inject = [
 function getParents$1(elements) {
 
   // find elements that are not children of any other elements
-  return filter$3(elements, function(element) {
+  return filter$2(elements, function(element) {
     return !find$3(elements, function(e) {
       return e !== element && getParent$2(element, e);
     });
@@ -26359,14 +26392,14 @@ function eachElement(elements, fn, depth) {
 
   depth = depth || 0;
 
-  if (!isArray$9(elements)) {
+  if (!isArray$8(elements)) {
     elements = [ elements ];
   }
 
-  forEach$7(elements, function(s, i) {
+  forEach$6(elements, function(s, i) {
     var filter = fn(s, i, depth);
 
-    if (isArray$9(filter) && filter.length) {
+    if (isArray$8(filter) && filter.length) {
       eachElement(filter, fn, depth + 1);
     }
   });
@@ -26430,7 +26463,7 @@ function selfAndAllChildren(elements, allowDuplicates) {
  */
 function getClosure(elements, isTopLevel, closure) {
 
-  if (isUndefined$8(isTopLevel)) {
+  if (isUndefined$7(isTopLevel)) {
     isTopLevel = true;
   }
 
@@ -26449,7 +26482,7 @@ function getClosure(elements, isTopLevel, closure) {
 
   var topLevel = copyObject(
     closure.topLevel,
-    isTopLevel && groupBy$1(elements, function(e) { return e.id; })
+    isTopLevel && groupBy(elements, function(e) { return e.id; })
   );
 
 
@@ -26481,9 +26514,9 @@ function getClosure(elements, isTopLevel, closure) {
       allShapes[element.id] = element;
 
       // remember all connections
-      forEach$7(element.incoming, handleConnection);
+      forEach$6(element.incoming, handleConnection);
 
-      forEach$7(element.outgoing, handleConnection);
+      forEach$6(element.outgoing, handleConnection);
 
       // recurse into children
       return element.children;
@@ -26513,7 +26546,7 @@ function getClosure(elements, isTopLevel, closure) {
 function getBBox(elements, stopRecursion) {
 
   stopRecursion = !!stopRecursion;
-  if (!isArray$9(elements)) {
+  if (!isArray$8(elements)) {
     elements = [ elements ];
   }
 
@@ -26522,7 +26555,7 @@ function getBBox(elements, stopRecursion) {
       maxX,
       maxY;
 
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
 
     // If element is a connection the bbox must be computed first
     var bbox = element;
@@ -26576,7 +26609,7 @@ function getEnclosedElements(elements, bbox) {
 
   var filteredElements = {};
 
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
 
     var e = element;
 
@@ -26700,7 +26733,7 @@ function ArtifactBehavior(
    */
   function getEnclosedArtifacts(elements) {
 
-    var containerElements = filter$2(
+    var containerElements = filter$1(
       elements, e => is$1(e, 'bpmn:Participant') || is$1(e, 'bpmn:SubProcess')
     );
 
@@ -26719,7 +26752,7 @@ function ArtifactBehavior(
     var enclosedArtifacts = new Set();
 
     // we need to verify for all container elements, all artifacts <m:n>
-    forEach$6(containerElements, containerElement => {
+    forEach$5(containerElements, containerElement => {
       const newEnclosedArtifacts = new Set(values(
         getEnclosedElements(
           Array.from(remainingArtifacts),
@@ -26760,11 +26793,11 @@ function AssociationBehavior(injector, modeling) {
     var newParent = context.newParent,
         shape = context.shape;
 
-    var associations = filter$2(shape.incoming.concat(shape.outgoing), function(connection) {
+    var associations = filter$1(shape.incoming.concat(shape.outgoing), function(connection) {
       return is$1(connection, 'bpmn:Association');
     });
 
-    forEach$6(associations, function(association) {
+    forEach$5(associations, function(association) {
       modeling.moveConnection(association, { x: 0, y: 0 }, newParent);
     });
   }, true);
@@ -27081,7 +27114,7 @@ function BoundaryEventBehavior(eventBus, modeling) {
   CommandInterceptor.call(this, eventBus);
 
   function getBoundaryEvents(element) {
-    return filter$2(element.attachers, function(attacher) {
+    return filter$1(element.attachers, function(attacher) {
       return is$1(attacher, 'bpmn:BoundaryEvent');
     });
   }
@@ -27109,7 +27142,7 @@ function BoundaryEventBehavior(eventBus, modeling) {
 
     if (is$1(oldSource, 'bpmn:Gateway') &&
         is$1(newSource, 'bpmn:EventBasedGateway')) {
-      forEach$6(newSource.outgoing, function(connection) {
+      forEach$5(newSource.outgoing, function(connection) {
         var target = connection.target,
             attachedboundaryEvents = getBoundaryEvents(target);
 
@@ -28248,7 +28281,7 @@ function computeChildrenBBox(shapeOrChildren, padding) {
 
     // grab all the children that are part of the
     // parents children box
-    elements = filter$3(shapeOrChildren.children, isBBoxChild);
+    elements = filter$2(shapeOrChildren.children, isBBoxChild);
 
   } else {
     elements = shapeOrChildren;
@@ -28890,11 +28923,11 @@ function DropOnFlowBehavior(eventBus, bpmnRules, modeling) {
 
     var duplicateConnections = [].concat(
 
-      incomingConnection && filter$2(oldIncoming, function(connection) {
+      incomingConnection && filter$1(oldIncoming, function(connection) {
         return connection.source === incomingConnection.source;
       }) || [],
 
-      outgoingConnection && filter$2(oldOutgoing, function(connection) {
+      outgoingConnection && filter$1(oldOutgoing, function(connection) {
         return connection.target === outgoingConnection.target;
       }) || []
     );
@@ -31149,9 +31182,9 @@ function safeGetWaypoints(connection) {
 }
 
 function getWaypointsInsideBounds(waypoints, bounds) {
-  var originalWaypoints = map$3(waypoints, getOriginal$1);
+  var originalWaypoints = map$2(waypoints, getOriginal$1);
 
-  return filter$3(originalWaypoints, function(waypoint) {
+  return filter$2(originalWaypoints, function(waypoint) {
     return isInsideBounds(waypoint, bounds);
   });
 }
@@ -31640,7 +31673,7 @@ function ReplaceConnectionBehavior(eventBus, modeling, bpmnRules, injector) {
     var closure = context.closure,
         allConnections = closure.allConnections;
 
-    forEach$6(allConnections, fixConnection);
+    forEach$5(allConnections, fixConnection);
   }, true);
 
   this.preExecute('connection.reconnect', replaceReconnectedConnection);
@@ -31737,7 +31770,7 @@ function ReplaceElementBehaviour(
         newHost = context.newHost,
         elements = [];
 
-    forEach$6(context.closure.topLevel, function(topLevelElements) {
+    forEach$5(context.closure.topLevel, function(topLevelElements) {
       if (isEventSubProcess(topLevelElements)) {
         elements = elements.concat(topLevelElements.children);
       } else {
@@ -31791,7 +31824,7 @@ ReplaceElementBehaviour.prototype._replaceElements = function(elements, newEleme
       bpmnReplace = this._bpmnReplace,
       selection = this._selection;
 
-  forEach$6(newElements, function(replacement) {
+  forEach$5(newElements, function(replacement) {
     var newElement = {
       type: replacement.newElementType
     };
@@ -32424,7 +32457,7 @@ e(RootElementReferenceBehavior, CommandInterceptor);
 // helpers //////////
 
 function hasAnyEventDefinition(element, types) {
-  if (!isArray$7(types)) {
+  if (!isArray$6(types)) {
     types = [ types ];
   }
 
@@ -32451,7 +32484,7 @@ function SpaceToolBehavior(eventBus) {
         start = context.start,
         minDimensions = {};
 
-    forEach$6(shapes, function(shape) {
+    forEach$5(shapes, function(shape) {
       var id = shape.id;
 
       if (is$1(shape, 'bpmn:Participant')) {
@@ -32636,13 +32669,13 @@ var TEXT_ANNOTATION_PADDING = 7;
 function getElementAnnotations(element) {
   let result = [];
 
-  forEach$6(element.incoming, (connection) => {
+  forEach$5(element.incoming, (connection) => {
     if (is$1(connection, 'bpmn:Association') && is$1(connection.source, 'bpmn:TextAnnotation')) {
       result.push({ annotation: connection.source, association: connection });
     }
   });
 
-  forEach$6(element.outgoing, (connection) => {
+  forEach$5(element.outgoing, (connection) => {
     if (is$1(connection, 'bpmn:Association') && is$1(connection.target, 'bpmn:TextAnnotation')) {
       result.push({ annotation: connection.target, association: connection });
     }
@@ -32662,8 +32695,8 @@ function getElementAnnotations(element) {
 function collectElementsAnnotations(elements) {
   const result = new Map();
 
-  forEach$6(selfAndChildren(elements, true), (element) => {
-    forEach$6(getElementAnnotations(element), (entry) => {
+  forEach$5(selfAndChildren(elements, true), (element) => {
+    forEach$5(getElementAnnotations(element), (entry) => {
       if (!result.has(entry.annotation)) {
         result.set(entry.annotation, { annotation: entry.annotation, associations: [] });
       }
@@ -32833,7 +32866,7 @@ function SubProcessPlaneBehavior(
   this.postExecuted('elements.create', function(context) {
     var elements = context.elements;
 
-    forEach$6(elements, function(element) {
+    forEach$5(elements, function(element) {
       if (!isCollapsedSubProcess(element)) {
         return;
       }
@@ -32871,7 +32904,7 @@ function SubProcessPlaneBehavior(
       return;
     }
 
-    forEach$6(collectElementsAnnotations([ shape ]), (entry) => {
+    forEach$5(collectElementsAnnotations([ shape ]), (entry) => {
       modeling.removeShape(entry.annotation);
     });
   }, true);
@@ -33096,10 +33129,10 @@ function SubProcessPlaneBehavior(
 
       // annotations live at process level by design;
       // move them back from the sub-process to the process root
-      forEach$6(collectElementsAnnotations(shape.children), (entry) => {
+      forEach$5(collectElementsAnnotations(shape.children), (entry) => {
         modeling.moveShape(entry.annotation, { x: 0, y: 0 }, shape.parent);
 
-        forEach$6(entry.associations, (association) => {
+        forEach$5(entry.associations, (association) => {
           modeling.moveConnection(association, { x: 0, y: 0 }, shape.parent);
         });
       });
@@ -33241,9 +33274,9 @@ SubProcessPlaneBehavior.prototype._disconnectSharedAnnotations = function(shape)
     return;
   }
 
-  forEach$6(collectElementsAnnotations(shape.children), (entry) => {
+  forEach$5(collectElementsAnnotations(shape.children), (entry) => {
     if (sharedAnnotations.has(entry.annotation)) {
-      forEach$6(entry.associations, (association) => {
+      forEach$5(entry.associations, (association) => {
         modeling.removeConnection(association);
       });
     }
@@ -33374,7 +33407,7 @@ SubProcessPlaneBehavior.$inject = [
 function collectAnnotationElements(elements) {
   var result = [];
 
-  forEach$6(collectElementsAnnotations(elements), (entry) => {
+  forEach$5(collectElementsAnnotations(elements), (entry) => {
     result.push(entry.annotation);
     result.push.apply(result, entry.associations);
   });
@@ -33568,11 +33601,11 @@ function ToggleCollapseConnectionBehaviour(
       var incomingConnections = child.incoming.slice(),
           outgoingConnections = child.outgoing.slice();
 
-      forEach$6(incomingConnections, function(c) {
+      forEach$5(incomingConnections, function(c) {
         handleConnection(c, true);
       });
 
-      forEach$6(outgoingConnections, function(c) {
+      forEach$5(outgoingConnections, function(c) {
         handleConnection(c, false);
       });
     });
@@ -35156,7 +35189,7 @@ function canReplace(elements, target, position) {
     replacements: []
   };
 
-  forEach$6(elements, function(element) {
+  forEach$5(elements, function(element) {
 
     if (!isEventSubProcess(target)) {
 
@@ -35529,7 +35562,7 @@ function BpmnDiOrdering(eventBus, canvas) {
   function orderDi() {
     var rootElements = canvas.getRootElements();
 
-    forEach$6(rootElements, function(root) {
+    forEach$5(rootElements, function(root) {
       var rootDi = getDi(root),
           elements,
           diElements;
@@ -35537,11 +35570,11 @@ function BpmnDiOrdering(eventBus, canvas) {
       elements = selfAndAllChildren([ root ], false);
 
       // only bpmndi:Shape and bpmndi:Edge can be direct children of bpmndi:Plane
-      elements = filter$2(elements, function(element) {
+      elements = filter$1(elements, function(element) {
         return element !== root && !element.labelTarget;
       });
 
-      diElements = map$2(elements, getDi);
+      diElements = map$1(elements, getDi);
 
       rootDi.set('planeElement', diElements);
     });
@@ -35882,19 +35915,19 @@ var ClipboardModule = {
  * @return {T[]}
  */
 
-const nativeToString$6 = Object.prototype.toString;
-const nativeHasOwnProperty$5 = Object.prototype.hasOwnProperty;
+const nativeToString$5 = Object.prototype.toString;
+const nativeHasOwnProperty$4 = Object.prototype.hasOwnProperty;
 
-function isUndefined$6(obj) {
+function isUndefined$5(obj) {
   return obj === undefined;
 }
 
-function isNil$4(obj) {
+function isNil$3(obj) {
   return obj == null;
 }
 
-function isArray$6(obj) {
-  return nativeToString$6.call(obj) === '[object Array]';
+function isArray$5(obj) {
+  return nativeToString$5.call(obj) === '[object Array]';
 }
 
 /**
@@ -35905,8 +35938,8 @@ function isArray$6(obj) {
  *
  * @return {Boolean}
  */
-function has$5(target, key) {
-  return !isNil$4(target) && nativeHasOwnProperty$5.call(target, key);
+function has$4(target, key) {
+  return !isNil$3(target) && nativeHasOwnProperty$4.call(target, key);
 }
 
 
@@ -35920,20 +35953,20 @@ function has$5(target, key) {
  *
  * @return {T} return result that stopped the iteration
  */
-function forEach$5(collection, iterator) {
+function forEach$4(collection, iterator) {
 
   let val,
       result;
 
-  if (isUndefined$6(collection)) {
+  if (isUndefined$5(collection)) {
     return;
   }
 
-  const convertKey = isArray$6(collection) ? toNum$5 : identity$5;
+  const convertKey = isArray$5(collection) ? toNum$4 : identity$4;
 
   for (let key in collection) {
 
-    if (has$5(collection, key)) {
+    if (has$4(collection, key)) {
       val = collection[key];
 
       result = iterator(val, convertKey(key));
@@ -35946,11 +35979,11 @@ function forEach$5(collection, iterator) {
 }
 
 
-function identity$5(arg) {
+function identity$4(arg) {
   return arg;
 }
 
-function toNum$5(arg) {
+function toNum$4(arg) {
   return Number(arg);
 }
 
@@ -36061,12 +36094,12 @@ function _mergeNamespaces$1(n, m) {
 function assign$4(element, ...styleSources) {
   const target = element.style;
 
-  forEach$5(styleSources, function(style) {
+  forEach$4(styleSources, function(style) {
     if (!style) {
       return;
     }
 
-    forEach$5(style, function(value, key) {
+    forEach$4(style, function(value, key) {
       target[key] = value;
     });
   });
@@ -37527,13 +37560,13 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
   }
 
   function registerEvents(svg) {
-    forEach$7(bindings, function(val, key) {
+    forEach$6(bindings, function(val, key) {
       registerEvent(svg, key, val);
     });
   }
 
   function unregisterEvents(svg) {
-    forEach$7(bindings, function(val, key) {
+    forEach$6(bindings, function(val, key) {
       unregisterEvent(svg, key, val);
     });
   }
@@ -37643,7 +37676,7 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
   this.removeHits = function(gfx) {
     var hits = all('.djs-hit', gfx);
 
-    forEach$7(hits, remove);
+    forEach$6(hits, remove);
   };
 
   /**
@@ -37937,7 +37970,7 @@ Selection.prototype.select = function(elements, add) {
   var selectedElements = this._selectedElements,
       oldSelection = selectedElements.slice();
 
-  if (!isArray$9(elements)) {
+  if (!isArray$8(elements)) {
     elements = elements ? [ elements ] : [];
   }
 
@@ -37954,7 +37987,7 @@ Selection.prototype.select = function(elements, add) {
   // selection may be cleared by passing an empty array or null
   // to the method
   if (add) {
-    forEach$7(elements, function(element) {
+    forEach$6(elements, function(element) {
       if (selectedElements.indexOf(element) !== -1) {
 
         // already selected
@@ -38021,13 +38054,13 @@ function SelectionVisuals(canvas, eventBus) {
     var oldSelection = event.oldSelection,
         newSelection = event.newSelection;
 
-    forEach$7(oldSelection, function(e) {
+    forEach$6(oldSelection, function(e) {
       if (newSelection.indexOf(e) === -1) {
         deselect(e);
       }
     });
 
-    forEach$7(newSelection, function(e) {
+    forEach$6(newSelection, function(e) {
       if (oldSelection.indexOf(e) === -1) {
         select(e);
       }
@@ -38070,7 +38103,7 @@ function SelectionBehavior(eventBus, selection, canvas, elementRegistry) {
         return;
       }
 
-      if (isArray$9(autoSelect)) {
+      if (isArray$8(autoSelect)) {
         selection.select(autoSelect);
       } else {
 
@@ -38258,7 +38291,7 @@ function isCmd(event) {
  * @return {boolean}
  */
 function isKey(keys, event) {
-  keys = isArray$9(keys) ? keys : [ keys ];
+  keys = isArray$8(keys) ? keys : [ keys ];
 
   return keys.indexOf(event.key) !== -1 || keys.indexOf(event.code) !== -1;
 }
@@ -39241,7 +39274,7 @@ function Create(
     }
 
     // ignore child elements and external labels
-    elements = filter$3(elements, function(element) {
+    elements = filter$2(elements, function(element) {
       var labelTarget = element.labelTarget;
 
       return !element.parent && !(isLabel(element) && elements.indexOf(labelTarget) !== -1);
@@ -39444,7 +39477,7 @@ function Create(
    * @param {any} [context={}]
    */
   this.start = function(event, elements, context) {
-    if (!isArray$9(elements)) {
+    if (!isArray$8(elements)) {
       elements = [ elements ];
     }
 
@@ -39465,7 +39498,7 @@ function Create(
     }, context || {});
 
     // make sure each element has x and y
-    forEach$7(elements, function(element) {
+    forEach$6(elements, function(element) {
       if (!isNumber$1(element.x)) {
         element.x = 0;
       }
@@ -39475,16 +39508,16 @@ function Create(
       }
     });
 
-    var visibleElements = filter$3(elements, function(element) {
+    var visibleElements = filter$2(elements, function(element) {
       return !element.hidden;
     });
 
     var bbox = getBBox(visibleElements);
 
     // center elements around cursor
-    forEach$7(elements, function(element) {
+    forEach$6(elements, function(element) {
       if (isConnection(element)) {
-        element.waypoints = map$3(element.waypoints, function(waypoint) {
+        element.waypoints = map$2(element.waypoints, function(waypoint) {
           return {
             x: waypoint.x - bbox.x - bbox.width / 2,
             y: waypoint.y - bbox.y - bbox.height / 2
@@ -39933,7 +39966,7 @@ function CopyPaste(
       descriptor.labelTarget = element.labelTarget.id;
     }
 
-    forEach$7([ 'x', 'y', 'width', 'height' ], function(property) {
+    forEach$6([ 'x', 'y', 'width', 'height' ], function(property) {
       if (isNumber$1(element[ property ])) {
         descriptor[ property ] = element[ property ];
       }
@@ -39994,7 +40027,7 @@ CopyPaste.prototype.copy = function(elements, hints = {}) {
   var allowed,
       tree;
 
-  if (!isArray$9(elements)) {
+  if (!isArray$8(elements)) {
     elements = elements ? [ elements ] : [];
   }
 
@@ -40005,7 +40038,7 @@ CopyPaste.prototype.copy = function(elements, hints = {}) {
   if (allowed === false) {
     tree = {};
   } else {
-    tree = this.createTree(isArray$9(allowed) ? allowed : elements);
+    tree = this.createTree(isArray$8(allowed) ? allowed : elements);
   }
 
   this._eventBus.fire('copyPaste.elementsCopied', {
@@ -40108,8 +40141,8 @@ CopyPaste.prototype.cut = function(elements) {
 CopyPaste.prototype._getElementIdsFromTree = function(tree) {
   var elementIds = {};
 
-  forEach$7(tree, function(branch) {
-    forEach$7(branch, function(descriptor) {
+  forEach$6(tree, function(branch) {
+    forEach$6(branch, function(descriptor) {
       if (descriptor.id) {
         elementIds[descriptor.id] = true;
       }
@@ -40132,7 +40165,7 @@ CopyPaste.prototype._getElementIdsFromTree = function(tree) {
 CopyPaste.prototype._paste = function(elements, target, position, hints) {
 
   // make sure each element has x and y
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     if (!isNumber$1(element.x)) {
       element.x = 0;
     }
@@ -40145,9 +40178,9 @@ CopyPaste.prototype._paste = function(elements, target, position, hints) {
   var bbox = getBBox(elements);
 
   // center elements around cursor
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     if (isConnection(element)) {
-      element.waypoints = map$3(element.waypoints, function(waypoint) {
+      element.waypoints = map$2(element.waypoints, function(waypoint) {
         return {
           x: waypoint.x - bbox.x - bbox.width / 2,
           y: waypoint.y - bbox.y - bbox.height / 2
@@ -40180,12 +40213,12 @@ CopyPaste.prototype._createElements = function(tree) {
 
   var elements = [];
 
-  forEach$7(tree, function(branch, depth) {
+  forEach$6(tree, function(branch, depth) {
 
     // sort by priority
     branch = sortBy$1(branch, 'priority');
 
-    forEach$7(branch, function(descriptor) {
+    forEach$6(branch, function(descriptor) {
 
       // remove priority
       var attrs = assign$6({}, omit$1(descriptor, [ 'priority' ]));
@@ -40376,15 +40409,15 @@ CopyPaste.prototype.createTree = function(elements) {
     }
 
     // always copy external labels
-    forEach$7(element.labels, function(label) {
+    forEach$6(element.labels, function(label) {
       addElementData(label, depth);
     });
 
     function addRelatedElements(elements) {
-      elements && elements.length && forEach$7(elements, function(element) {
+      elements && elements.length && forEach$6(elements, function(element) {
 
         // add external labels
-        forEach$7(element.labels, function(label) {
+        forEach$6(element.labels, function(label) {
           addElementData(label, depth);
         });
 
@@ -40392,7 +40425,7 @@ CopyPaste.prototype.createTree = function(elements) {
       });
     }
 
-    forEach$7([ element.attachers, element.incoming, element.outgoing ], addRelatedElements);
+    forEach$6([ element.attachers, element.incoming, element.outgoing ], addRelatedElements);
 
     addElementData(element, depth);
 
@@ -40411,12 +40444,12 @@ CopyPaste.prototype.createTree = function(elements) {
     return children;
   });
 
-  elements = map$3(elementsData, function(elementData) {
+  elements = map$2(elementsData, function(elementData) {
     return elementData.element;
   });
 
   // (2) copy elements
-  elementsData = map$3(elementsData, function(elementData) {
+  elementsData = map$2(elementsData, function(elementData) {
     elementData.descriptor = {};
 
     self._eventBus.fire('copyPaste.copyElement', {
@@ -40433,12 +40466,12 @@ CopyPaste.prototype.createTree = function(elements) {
     return elementData.descriptor.priority;
   });
 
-  elements = map$3(elementsData, function(elementData) {
+  elements = map$2(elementsData, function(elementData) {
     return elementData.element;
   });
 
   // (4) create tree
-  forEach$7(elementsData, function(elementData) {
+  forEach$6(elementsData, function(elementData) {
     var depth = elementData.depth;
 
     if (!self.hasRelations(elementData.element, elements)) {
@@ -40470,7 +40503,7 @@ function isAttacher$2(element) {
 }
 
 function copyWaypoints$1(element) {
-  return map$3(element.waypoints, function(waypoint) {
+  return map$2(element.waypoints, function(waypoint) {
 
     waypoint = copyWaypoint$1(waypoint);
 
@@ -40517,12 +40550,12 @@ var CopyPasteModule$1 = {
  */
 
 function copyProperties$1(source, target, properties) {
-  if (!isArray$7(properties)) {
+  if (!isArray$6(properties)) {
     properties = [ properties ];
   }
 
-  forEach$6(properties, function(property) {
-    if (!isUndefined$7(source[property])) {
+  forEach$5(properties, function(property) {
+    if (!isUndefined$6(source[property])) {
       target[property] = source[property];
     }
   });
@@ -40676,7 +40709,7 @@ function BpmnCopyPaste(bpmnFactory, eventBus, moddleCopy) {
 
     // add TextAnnotations to copy the closure,
     // since by default they are children of a global process, not subprocess
-    forEach$6(collectElementsAnnotations(children), (entry) => {
+    forEach$5(collectElementsAnnotations(children), (entry) => {
       children.push(entry.annotation);
     });
   });
@@ -40816,7 +40849,7 @@ ModdleCopy.$inject = [
  * @return {ModdleElement}
  */
 ModdleCopy.prototype.copyElement = function(sourceElement, targetElement, propertyNames, clone = false) {
-  if (propertyNames && !isArray$7(propertyNames)) {
+  if (propertyNames && !isArray$6(propertyNames)) {
     propertyNames = [ propertyNames ];
   }
 
@@ -40833,15 +40866,15 @@ ModdleCopy.prototype.copyElement = function(sourceElement, targetElement, proper
     return targetElement;
   }
 
-  if (isArray$7(canCopyProperties)) {
+  if (isArray$6(canCopyProperties)) {
     propertyNames = canCopyProperties;
   }
 
   // copy properties
-  forEach$6(propertyNames, (propertyName) => {
+  forEach$5(propertyNames, (propertyName) => {
     let sourceProperty;
 
-    if (has$6(sourceElement, propertyName)) {
+    if (has$5(sourceElement, propertyName)) {
       sourceProperty = sourceElement.get(propertyName);
     }
 
@@ -40915,7 +40948,7 @@ ModdleCopy.prototype.copyProperty = function(property, parent, propertyName, clo
   }
 
   // copy arrays
-  if (isArray$7(property)) {
+  if (isArray$6(property)) {
     return reduce$1(property, (childProperties, childProperty) => {
 
       // recursion
@@ -41133,12 +41166,12 @@ var ReplaceModule$1 = {
  */
 
 function copyProperties(source, target, properties) {
-  if (!isArray$7(properties)) {
+  if (!isArray$6(properties)) {
     properties = [ properties ];
   }
 
-  forEach$6(properties, function(property) {
-    if (!isUndefined$7(source[property])) {
+  forEach$5(properties, function(property) {
+    if (!isUndefined$6(source[property])) {
       target[property] = source[property];
     }
   });
@@ -41159,16 +41192,16 @@ var CUSTOM_PROPERTIES = [
 function shouldToggleCollapsed(element, targetElement) {
 
   var oldCollapsed = (
-    element && has$6(element, 'collapsed') ? element.collapsed : !isExpanded(element)
+    element && has$5(element, 'collapsed') ? element.collapsed : !isExpanded(element)
   );
 
   var targetCollapsed;
 
-  if (targetElement && (has$6(targetElement, 'collapsed') || has$6(targetElement, 'isExpanded'))) {
+  if (targetElement && (has$5(targetElement, 'collapsed') || has$5(targetElement, 'isExpanded'))) {
 
     // property is explicitly set so use it
     targetCollapsed = (
-      has$6(targetElement, 'collapsed') ? targetElement.collapsed : !targetElement.isExpanded
+      has$5(targetElement, 'collapsed') ? targetElement.collapsed : !targetElement.isExpanded
     );
   } else {
 
@@ -41259,7 +41292,7 @@ function BpmnReplace(
     // initialize special properties defined in target definition
     assign$5(newBusinessObject, pick$1(targetElement, CUSTOM_PROPERTIES));
 
-    var properties = filter$2(copyProps, function(propertyName) {
+    var properties = filter$1(copyProps, function(propertyName) {
 
       // copying event definitions, unless we replace
       if (propertyName === 'eventDefinitions') {
@@ -41273,7 +41306,7 @@ function BpmnReplace(
       }
 
       // so the applied properties from 'target' don't get lost
-      if (has$6(newBusinessObject, propertyName)) {
+      if (has$5(newBusinessObject, propertyName)) {
         return false;
       }
 
@@ -41319,7 +41352,7 @@ function BpmnReplace(
       }
 
       // else if property is explicitly set, use it
-      else if (targetElement && has$6(targetElement, 'isExpanded')) {
+      else if (targetElement && has$5(targetElement, 'isExpanded')) {
         newElement.isExpanded = targetElement.isExpanded;
 
         // assign default size of new expanded element
@@ -41554,7 +41587,7 @@ ToolManager.prototype.bindEvents = function(name, events) {
   }, this);
 
   // TODO: add test cases
-  forEach$7(events, function(event) {
+  forEach$6(events, function(event) {
     eventsToRegister.push(event + '.ended');
     eventsToRegister.push(event + '.canceled');
   });
@@ -41660,11 +41693,11 @@ function getDirection(axis, delta) {
 function getWaypointsUpdatingConnections(movingShapes, resizingShapes) {
   var waypointsUpdatingConnections = [];
 
-  forEach$7(movingShapes.concat(resizingShapes), function(shape) {
+  forEach$6(movingShapes.concat(resizingShapes), function(shape) {
     var incoming = shape.incoming,
         outgoing = shape.outgoing;
 
-    forEach$7(incoming.concat(outgoing), function(connection) {
+    forEach$6(incoming.concat(outgoing), function(connection) {
       var source = connection.source,
           target = connection.target;
 
@@ -42027,7 +42060,7 @@ SpaceTool.prototype.calculateAdjustments = function(elements, axis, delta, start
     }
   }
 
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     if (!element.parent || isLabel(element)) {
       return;
     }
@@ -42071,11 +42104,11 @@ SpaceTool.prototype.calculateAdjustments = function(elements, axis, delta, start
   });
 
   // move attacher if its host is moving
-  forEach$7(movingShapes, function(shape) {
+  forEach$6(movingShapes, function(shape) {
     var attachers = shape.attachers;
 
     if (attachers) {
-      forEach$7(attachers, function(attacher) {
+      forEach$6(attachers, function(attacher) {
         moveShape(attacher);
       });
     }
@@ -42084,7 +42117,7 @@ SpaceTool.prototype.calculateAdjustments = function(elements, axis, delta, start
   var allShapes = movingShapes.concat(resizingShapes);
 
   // move attacher if its mid is after space tool and its host is moving or resizing
-  forEach$7(attachers, function(attacher) {
+  forEach$6(attachers, function(attacher) {
     var host = attacher.host;
 
     if (includes$2(allShapes, host)) {
@@ -42095,7 +42128,7 @@ SpaceTool.prototype.calculateAdjustments = function(elements, axis, delta, start
   allShapes = movingShapes.concat(resizingShapes);
 
   // move external label if its label target's (connection) source and target are moving
-  forEach$7(connections, function(connection) {
+  forEach$6(connections, function(connection) {
     var source = connection.source,
         target = connection.target,
         label = connection.label;
@@ -42196,14 +42229,14 @@ function getSpaceToolConstraints(elements, axis, direction, start, minDimensions
       min,
       max;
 
-  forEach$7(resizingShapes, function(resizingShape) {
+  forEach$6(resizingShapes, function(resizingShape) {
     var attachers = resizingShape.attachers,
         children = resizingShape.children;
 
     var resizingShapeBBox = asTRBL(resizingShape);
 
     // find children that are not moving or resizing
-    var nonMovingResizingChildren = filter$3(children, function(child) {
+    var nonMovingResizingChildren = filter$2(children, function(child) {
       return !isConnection(child) &&
         !isLabel(child) &&
         !includes$2(movingShapes, child) &&
@@ -42211,7 +42244,7 @@ function getSpaceToolConstraints(elements, axis, direction, start, minDimensions
     });
 
     // find children that are moving
-    var movingChildren = filter$3(children, function(child) {
+    var movingChildren = filter$2(children, function(child) {
       return !isConnection(child) && !isLabel(child) && includes$2(movingShapes, child);
     });
 
@@ -42374,7 +42407,7 @@ function SpaceToolPreview(
     styles, previewSupport) {
 
   function addPreviewGfx(collection, dragGroup) {
-    forEach$7(collection, function(element) {
+    forEach$6(collection, function(element) {
       previewSupport.addDragger(element, dragGroup);
 
       canvas.addMarker(element, MARKER_DRAGGING);
@@ -42466,8 +42499,8 @@ function SpaceToolPreview(
       var movingConnections = context.movingConnections = elementRegistry.filter(function(element) {
         var sourceIsMoving = false;
 
-        forEach$7(movingShapes, function(shape) {
-          forEach$7(shape.outgoing, function(connection) {
+        forEach$6(movingShapes, function(shape) {
+          forEach$6(shape.outgoing, function(connection) {
             if (element === connection) {
               sourceIsMoving = true;
             }
@@ -42476,8 +42509,8 @@ function SpaceToolPreview(
 
         var targetIsMoving = false;
 
-        forEach$7(movingShapes, function(shape) {
-          forEach$7(shape.incoming, function(connection) {
+        forEach$6(movingShapes, function(shape) {
+          forEach$6(shape.incoming, function(connection) {
             if (element === connection) {
               targetIsMoving = true;
             }
@@ -42486,8 +42519,8 @@ function SpaceToolPreview(
 
         var sourceIsResizing = false;
 
-        forEach$7(resizingShapes, function(shape) {
-          forEach$7(shape.outgoing, function(connection) {
+        forEach$6(resizingShapes, function(shape) {
+          forEach$6(shape.outgoing, function(connection) {
             if (element === connection) {
               sourceIsResizing = true;
             }
@@ -42496,8 +42529,8 @@ function SpaceToolPreview(
 
         var targetIsResizing = false;
 
-        forEach$7(resizingShapes, function(shape) {
-          forEach$7(shape.incoming, function(connection) {
+        forEach$6(resizingShapes, function(shape) {
+          forEach$6(shape.incoming, function(connection) {
             if (element === connection) {
               targetIsResizing = true;
             }
@@ -42523,7 +42556,7 @@ function SpaceToolPreview(
 
       var frames = [];
 
-      forEach$7(resizingShapes, function(shape) {
+      forEach$6(resizingShapes, function(shape) {
         var frame = previewSupport.addFrame(shape, frameGroup);
 
         var initialBounds = frame.getBBox();
@@ -42555,7 +42588,7 @@ function SpaceToolPreview(
     translate$1(context.dragGroup, delta.x, delta.y);
 
     // update resize previews
-    forEach$7(context.frames, function(frame) {
+    forEach$6(context.frames, function(frame) {
       var element = frame.element,
           initialBounds = frame.initialBounds,
           width,
@@ -42602,12 +42635,12 @@ function SpaceToolPreview(
         frameGroup = context.frameGroup;
 
     // moving shapes
-    forEach$7(movingShapes, function(shape) {
+    forEach$6(movingShapes, function(shape) {
       canvas.removeMarker(shape, MARKER_DRAGGING);
     });
 
     // moving connections
-    forEach$7(movingConnections, function(connection) {
+    forEach$6(movingConnections, function(connection) {
       canvas.removeMarker(connection, MARKER_DRAGGING);
     });
 
@@ -42616,7 +42649,7 @@ function SpaceToolPreview(
       remove(dragGroup);
     }
 
-    forEach$7(resizingShapes, function(shape) {
+    forEach$6(resizingShapes, function(shape) {
       canvas.removeMarker(shape, MARKER_RESIZING);
     });
 
@@ -43239,7 +43272,7 @@ CommandStack.prototype._popAction = function() {
   actions.pop();
 
   if (!actions.length) {
-    this._eventBus.fire('elements.changed', { elements: uniqueBy$1('id', dirty.reverse()) });
+    this._eventBus.fire('elements.changed', { elements: uniqueBy('id', dirty.reverse()) });
 
     dirty.length = 0;
 
@@ -43257,7 +43290,7 @@ CommandStack.prototype._markDirty = function(elements) {
     return;
   }
 
-  elements = isArray$9(elements) ? elements : [ elements ];
+  elements = isArray$8(elements) ? elements : [ elements ];
 
   execution.dirty = execution.dirty.concat(elements);
 };
@@ -43381,9 +43414,9 @@ function LabelSupport(injector, eventBus, modeling) {
 
     var labels = [];
 
-    forEach$7(shapes, function(element) {
+    forEach$6(shapes, function(element) {
 
-      forEach$7(element.labels, function(label) {
+      forEach$6(element.labels, function(label) {
 
         if (!label.hidden && context.shapes.indexOf(label) === -1) {
           labels.push(label);
@@ -43395,7 +43428,7 @@ function LabelSupport(injector, eventBus, modeling) {
       });
     });
 
-    forEach$7(labels, function(label) {
+    forEach$6(labels, function(label) {
       movePreview.makeDraggable(context, label, true);
     });
 
@@ -43411,8 +43444,8 @@ function LabelSupport(injector, eventBus, modeling) {
 
     // find labels that are not part of
     // move closure yet and add them
-    forEach$7(enclosedElements, function(element) {
-      forEach$7(element.labels, function(label) {
+    forEach$6(enclosedElements, function(element) {
+      forEach$6(element.labels, function(label) {
 
         if (!enclosedElements[label.id]) {
           enclosedLabels.push(label);
@@ -43490,7 +43523,7 @@ LabelSupport.$inject = [
  */
 function removeLabels(elements) {
 
-  return filter$3(elements, function(element) {
+  return filter$2(elements, function(element) {
 
     // filter out labels that are move together
     // with their label targets
@@ -43565,10 +43598,10 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
         shapes = context.shapes,
         attachers = getAttachers(shapes);
 
-    forEach$7(attachers, function(attacher) {
+    forEach$6(attachers, function(attacher) {
       movePreview.makeDraggable(context, attacher, true);
 
-      forEach$7(attacher.labels, function(label) {
+      forEach$6(attacher.labels, function(label) {
         movePreview.makeDraggable(context, label, true);
       });
     });
@@ -43606,7 +43639,7 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
         shapes = context.shapes,
         attachers = getAttachers(shapes);
 
-    forEach$7(attachers, function(attacher) {
+    forEach$6(attachers, function(attacher) {
       closure.add(attacher, closure.topLevel[attacher.host.id]);
     });
   });
@@ -43630,14 +43663,14 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
     } else {
 
       // find attachers moved without host
-      attachers = filter$3(shapes, function(shape) {
+      attachers = filter$2(shapes, function(shape) {
         var host = shape.host;
 
         return isAttacher(shape) && !includes$1(shapes, host);
       });
     }
 
-    forEach$7(attachers, function(attacher) {
+    forEach$6(attachers, function(attacher) {
       modeling.updateAttachment(attacher, newHost);
     });
   });
@@ -43647,12 +43680,12 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
 
     var shapes = e.context.shapes;
 
-    forEach$7(shapes, function(shape) {
+    forEach$6(shapes, function(shape) {
 
-      forEach$7(shape.attachers, function(attacher) {
+      forEach$6(shape.attachers, function(attacher) {
 
         // remove invalid outgoing connections
-        forEach$7(attacher.outgoing.slice(), function(connection) {
+        forEach$6(attacher.outgoing.slice(), function(connection) {
           var allowed = rules.allowed('connection.reconnect', {
             connection: connection,
             source: connection.source,
@@ -43665,7 +43698,7 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
         });
 
         // remove invalid incoming connections
-        forEach$7(attacher.incoming.slice(), function(connection) {
+        forEach$6(attacher.incoming.slice(), function(connection) {
           var allowed = rules.allowed('connection.reconnect', {
             connection: connection,
             source: connection.source,
@@ -43714,7 +43747,7 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
     // move attachers if new host has different size
     if (newShape.attachers.length) {
 
-      forEach$7(newShape.attachers, function(attacher) {
+      forEach$6(newShape.attachers, function(attacher) {
         var delta = getNewAttachShapeDelta(attacher, oldShape, newShape);
         modeling.moveShape(attacher, delta, attacher.parent);
       });
@@ -43735,12 +43768,12 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
       return;
     }
 
-    forEach$7(attachers, function(attacher) {
+    forEach$6(attachers, function(attacher) {
       var delta = getNewAttachShapeDelta(attacher, oldBounds, newBounds);
 
       modeling.moveShape(attacher, delta, attacher.parent);
 
-      forEach$7(attacher.labels, function(label) {
+      forEach$6(attacher.labels, function(label) {
         modeling.moveShape(label, delta, label.parent);
       });
     });
@@ -43779,7 +43812,7 @@ AttachSupport.$inject = [
  * @return {Element[]}
  */
 function getAttachers(shapes) {
-  return flatten(map$3(shapes, function(s) {
+  return flatten(map$2(shapes, function(s) {
     return s.attachers || [];
   }));
 }
@@ -43808,9 +43841,9 @@ function addAttached(elements) {
  */
 function removeAttached(elements) {
 
-  var ids = groupBy$1(elements, 'id');
+  var ids = groupBy(elements, 'id');
 
-  return filter$3(elements, function(element) {
+  return filter$2(elements, function(element) {
     while (element) {
 
       // host in selection
@@ -44051,7 +44084,7 @@ BpmnFactory.prototype.createDiBounds = function(bounds) {
 BpmnFactory.prototype.createDiWaypoints = function(waypoints) {
   var self = this;
 
-  return map$2(waypoints, function(pos) {
+  return map$1(waypoints, function(pos) {
     return self.createDiWaypoint(pos);
   });
 };
@@ -44201,7 +44234,7 @@ function BpmnUpdater(
         oldRoot = context.oldRoot,
         children = oldRoot.children;
 
-    forEach$6(children, function(child) {
+    forEach$5(children, function(child) {
       if (is$1(child, 'bpmn:BaseElement')) {
         self.updateParent(child);
       }
@@ -45590,7 +45623,7 @@ var DI_ERROR_MESSAGE = 'Tried to access di from the businessObject. The di is av
 function ensureCompatDiRef(businessObject) {
 
   // bpmnElement can have multiple independent DIs
-  if (!has$6(businessObject, 'di')) {
+  if (!has$5(businessObject, 'di')) {
     Object.defineProperty(businessObject, 'di', {
       enumerable: false,
       get: function() {
@@ -45777,7 +45810,7 @@ ElementFactory.prototype.createElement = function(elementType, attrs) {
   }
 
   if (is$1(businessObject, 'bpmn:ExclusiveGateway')) {
-    if (has$6(di, 'isMarkerVisible')) {
+    if (has$5(di, 'isMarkerVisible')) {
       if (di.isMarkerVisible === undefined) {
         di.isMarkerVisible = false;
       }
@@ -45938,7 +45971,7 @@ ElementFactory.prototype.createParticipantShape = function(attrs) {
  */
 function applyAttributes(element, attrs, attributeNames) {
 
-  forEach$6(attributeNames, function(property) {
+  forEach$5(attributeNames, function(property) {
     attrs = applyAttribute(element, attrs, property);
   });
 
@@ -46004,7 +46037,7 @@ AlignElements.prototype.preExecute = function(context) {
       alignment = context.alignment;
 
 
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     var delta = {
       x: 0,
       y: 0
@@ -46220,7 +46253,7 @@ CreateElementsHandler.prototype.preExecute = function(context) {
   var modeling = this._modeling;
 
   // make sure each element has x and y
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     if (!isNumber$1(element.x)) {
       element.x = 0;
     }
@@ -46230,16 +46263,16 @@ CreateElementsHandler.prototype.preExecute = function(context) {
     }
   });
 
-  var visibleElements = filter$3(elements, function(element) {
+  var visibleElements = filter$2(elements, function(element) {
     return !element.hidden;
   });
 
   var bbox = getBBox(visibleElements);
 
   // center elements around position
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     if (isConnection(element)) {
-      element.waypoints = map$3(element.waypoints, function(waypoint) {
+      element.waypoints = map$2(element.waypoints, function(waypoint) {
         return {
           x: round$3(waypoint.x - bbox.x - bbox.width / 2 + position.x),
           y: round$3(waypoint.y - bbox.y - bbox.height / 2 + position.y)
@@ -46257,7 +46290,7 @@ CreateElementsHandler.prototype.preExecute = function(context) {
 
   var cache = {};
 
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     if (isConnection(element)) {
       cache[ element.id ] = isNumber$1(parentIndex) ?
         modeling.createConnection(
@@ -46570,7 +46603,7 @@ DeleteElementsHandler.prototype.postExecute = function(context) {
       elementRegistry = this._elementRegistry,
       elements = context.elements;
 
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
 
     // element may have been removed with previous
     // remove operations already (e.g. in case of nesting)
@@ -46742,7 +46775,7 @@ DistributeElements.prototype.preExecute = function(context) {
       spaceInBetween,
       groupsSize = 0; // the size of each range
 
-  forEach$7(groups, function(group, idx) {
+  forEach$6(groups, function(group, idx) {
     var sortedElements,
         refElem,
         refCenter;
@@ -46769,7 +46802,7 @@ DistributeElements.prototype.preExecute = function(context) {
     // wanna update the ranges after the shapes have been centered
     group.range = null;
 
-    forEach$7(sortedElements, function(element) {
+    forEach$6(sortedElements, function(element) {
 
       centerElement(refCenter, element);
 
@@ -46799,7 +46832,7 @@ DistributeElements.prototype.preExecute = function(context) {
     return;
   }
 
-  forEach$7(groups, function(group, groupIdx) {
+  forEach$6(groups, function(group, groupIdx) {
     var delta = {},
         prevGroup;
 
@@ -46811,7 +46844,7 @@ DistributeElements.prototype.preExecute = function(context) {
 
     group.range.max = 0;
 
-    forEach$7(group.elements, function(element, idx) {
+    forEach$6(group.elements, function(element, idx) {
       delta[OFF_AXIS[axis]] = 0;
       delta[axis] = (prevGroup.range.max - element[axis]) + margin;
 
@@ -46903,7 +46936,7 @@ MoveConnectionHandler.prototype.execute = function(context) {
   connection.parent = newParent;
 
   // update waypoint positions
-  forEach$7(connection.waypoints, function(p) {
+  forEach$6(connection.waypoints, function(p) {
     p.x += delta.x;
     p.y += delta.y;
 
@@ -46934,7 +46967,7 @@ MoveConnectionHandler.prototype.revert = function(context) {
   connection.parent = oldParent;
 
   // revert to old waypoint positions
-  forEach$7(connection.waypoints, function(p) {
+  forEach$6(connection.waypoints, function(p) {
     p.x -= delta.x;
     p.y -= delta.y;
 
@@ -47069,7 +47102,7 @@ MoveHelper.prototype.moveClosure = function(closure, delta, newParent, newHost, 
   }
 
   // move all shapes
-  forEach$7(allShapes, function(shape) {
+  forEach$6(allShapes, function(shape) {
 
     // move the element according to the given delta
     modeling.moveShape(shape, delta, topLevel[shape.id] && !keepParent && newParent, {
@@ -47079,7 +47112,7 @@ MoveHelper.prototype.moveClosure = function(closure, delta, newParent, newHost, 
   });
 
   // move all child connections / layout external connections
-  forEach$7(allConnections, function(c) {
+  forEach$6(allConnections, function(c) {
 
     var sourceMoved = !!allShapes[c.source.id],
         targetMoved = !!allShapes[c.target.id];
@@ -47199,13 +47232,13 @@ MoveShapeHandler.prototype.postExecute = function(context) {
 
   if (hints.layout !== false) {
 
-    forEach$7(shape.incoming, function(c) {
+    forEach$6(shape.incoming, function(c) {
       modeling.layoutConnection(c, {
         connectionEnd: getMovedTargetAnchor(c, shape, delta)
       });
     });
 
-    forEach$7(shape.outgoing, function(c) {
+    forEach$6(shape.outgoing, function(c) {
       modeling.layoutConnection(c, {
         connectionStart: getMovedSourceAnchor(c, shape, delta)
       });
@@ -47274,7 +47307,7 @@ ReconnectConnectionHandler.prototype.execute = function(context) {
     throw new Error('newSource or newTarget required');
   }
 
-  if (isArray$9(dockingOrPoints)) {
+  if (isArray$8(dockingOrPoints)) {
     context.oldWaypoints = connection.waypoints;
     connection.waypoints = dockingOrPoints;
   }
@@ -47315,12 +47348,12 @@ ReconnectConnectionHandler.prototype.postExecute = function(context) {
 
   if (newSource && (!newTarget || hints.docking === 'source')) {
     layoutConnectionHints.connectionStart = layoutConnectionHints.connectionStart
-      || getDocking(isArray$9(dockingOrPoints) ? dockingOrPoints[ 0 ] : dockingOrPoints);
+      || getDocking(isArray$8(dockingOrPoints) ? dockingOrPoints[ 0 ] : dockingOrPoints);
   }
 
   if (newTarget && (!newSource || hints.docking === 'target')) {
     layoutConnectionHints.connectionEnd = layoutConnectionHints.connectionEnd
-      || getDocking(isArray$9(dockingOrPoints) ? dockingOrPoints[ dockingOrPoints.length - 1 ] : dockingOrPoints);
+      || getDocking(isArray$8(dockingOrPoints) ? dockingOrPoints[ dockingOrPoints.length - 1 ] : dockingOrPoints);
   }
 
   if (hints.newWaypoints) {
@@ -47448,7 +47481,7 @@ ReplaceShapeHandler.prototype.preExecute = function(context) {
   var incoming = oldShape.incoming.slice(),
       outgoing = oldShape.outgoing.slice();
 
-  forEach$7(incoming, function(connection) {
+  forEach$6(incoming, function(connection) {
     var source = connection.source,
         allowed = canReconnect(source, newShape, connection);
 
@@ -47461,7 +47494,7 @@ ReplaceShapeHandler.prototype.preExecute = function(context) {
     }
   });
 
-  forEach$7(outgoing, function(connection) {
+  forEach$6(outgoing, function(connection) {
     var target = connection.target,
         allowed = canReconnect(newShape, target, connection);
 
@@ -47581,13 +47614,13 @@ ResizeShapeHandler.prototype.postExecute = function(context) {
     return;
   }
 
-  forEach$7(shape.incoming, function(c) {
+  forEach$6(shape.incoming, function(c) {
     modeling.layoutConnection(c, {
       connectionEnd: getResizedTargetAnchor(c, shape, oldBounds)
     });
   });
 
-  forEach$7(shape.outgoing, function(c) {
+  forEach$6(shape.outgoing, function(c) {
     modeling.layoutConnection(c, {
       connectionStart: getResizedSourceAnchor(c, shape, oldBounds)
     });
@@ -47638,7 +47671,7 @@ SpaceToolHandler.prototype.preExecute = function(context) {
   this.moveShapes(movingShapes, delta);
 
   // (2a) save old bounds of resized shapes
-  forEach$7(resizingShapes, function(shape) {
+  forEach$6(resizingShapes, function(shape) {
     oldBounds[shape.id] = getBounds$1(shape);
   });
 
@@ -47663,7 +47696,7 @@ SpaceToolHandler.prototype.revert = function() {};
 SpaceToolHandler.prototype.moveShapes = function(shapes, delta) {
   var self = this;
 
-  forEach$7(shapes, function(element) {
+  forEach$6(shapes, function(element) {
     self._modeling.moveShape(element, delta, null, {
       autoResize: false,
       layout: false,
@@ -47675,7 +47708,7 @@ SpaceToolHandler.prototype.moveShapes = function(shapes, delta) {
 SpaceToolHandler.prototype.resizeShapes = function(shapes, delta, direction) {
   var self = this;
 
-  forEach$7(shapes, function(shape) {
+  forEach$6(shapes, function(shape) {
     var newBounds = resizeBounds(shape, direction, delta);
 
     self._modeling.resizeShape(shape, newBounds, null, {
@@ -47703,7 +47736,7 @@ SpaceToolHandler.prototype.updateConnectionWaypoints = function(
   var self = this,
       affectedShapes = movingShapes.concat(resizingShapes);
 
-  forEach$7(connections, function(connection) {
+  forEach$6(connections, function(connection) {
     var source = connection.source,
         target = connection.target,
         waypoints = copyWaypoints(connection),
@@ -47713,7 +47746,7 @@ SpaceToolHandler.prototype.updateConnectionWaypoints = function(
     if (includes(affectedShapes, source) && includes(affectedShapes, target)) {
 
       // move waypoints
-      waypoints = map$3(waypoints, function(waypoint) {
+      waypoints = map$2(waypoints, function(waypoint) {
         if (shouldMoveWaypoint(waypoint, start, direction)) {
 
           // move waypoint
@@ -47762,7 +47795,7 @@ function copyWaypoint(waypoint) {
 }
 
 function copyWaypoints(connection) {
-  return map$3(connection.waypoints, function(waypoint) {
+  return map$2(connection.waypoints, function(waypoint) {
 
     waypoint = copyWaypoint(waypoint);
 
@@ -47877,7 +47910,7 @@ function getElementsVisibilityRecursive(elements) {
 
   var result = {};
 
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     result[element.id] = element.hidden;
 
     if (element.children) {
@@ -47891,7 +47924,7 @@ function getElementsVisibilityRecursive(elements) {
 
 function setHiddenRecursive(elements, newHidden) {
   var result = [];
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     element.hidden = newHidden;
 
     result = result.concat(element);
@@ -47906,7 +47939,7 @@ function setHiddenRecursive(elements, newHidden) {
 
 function restoreVisibilityRecursive(elements, lastState) {
   var result = [];
-  forEach$7(elements, function(element) {
+  forEach$6(elements, function(element) {
     element.hidden = lastState[element.id];
 
     result = result.concat(element);
@@ -48147,7 +48180,7 @@ Modeling$1.prototype.getHandlers = function() {
  * @param {CommandStack} commandStack
  */
 Modeling$1.prototype.registerHandlers = function(commandStack) {
-  forEach$7(this.getHandlers(), function(handler, id) {
+  forEach$6(this.getHandlers(), function(handler, id) {
     commandStack.registerHandler(id, handler);
   });
 };
@@ -48398,7 +48431,7 @@ Modeling$1.prototype.createShape = function(shape, position, target, parentIndex
  * @return {U[]}
  */
 Modeling$1.prototype.createElements = function(elements, position, parent, parentIndex, hints) {
-  if (!isArray$9(elements)) {
+  if (!isArray$8(elements)) {
     elements = [ elements ];
   }
 
@@ -48811,7 +48844,7 @@ function getModdleProperties(moddleElement, propertyNames) {
 }
 
 function setModdleProperties(moddleElement, properties) {
-  forEach$6(properties, function(value, key) {
+  forEach$5(properties, function(value, key) {
     moddleElement.set(key, value);
   });
 }
@@ -49030,7 +49063,7 @@ function setProperties(element, properties) {
   var businessObject = element.businessObject,
       di = getDi(element);
 
-  forEach$6(properties, function(value, key) {
+  forEach$5(properties, function(value, key) {
 
     if (key !== DI) {
       businessObject.set(key, value);
@@ -49046,7 +49079,7 @@ function setProperties(element, properties) {
 
 
 function setDiProperties(di, properties) {
-  forEach$6(properties, function(value, key) {
+  forEach$5(properties, function(value, key) {
     di.set(key, value);
   });
 }
@@ -49267,7 +49300,7 @@ AddLaneHandler.prototype.preExecute = function(context) {
       return [];
     }
 
-    return filter$2(element.children, function(c) {
+    return filter$1(element.children, function(c) {
       return c !== shape;
     });
   });
@@ -49876,7 +49909,7 @@ SetColorHandler.prototype.postExecute = function(context) {
     });
   }
 
-  forEach$6(elements, function(element) {
+  forEach$5(elements, function(element) {
     var assignedDi = isConnection(element) ? pick$1(di, [ 'border-color' ]) : di,
         elementDi = getDi(element);
 
@@ -50755,7 +50788,7 @@ function connectRectangles(source, target, start, end, hints) {
  */
 function repairConnection(source, target, start, end, waypoints, hints) {
 
-  if (isArray$9(start)) {
+  if (isArray$8(start)) {
     waypoints = start;
     hints = end;
 
@@ -52077,7 +52110,7 @@ function getBounds(bounds, overrides = {}) {
  * @returns {number}
  */
 function getWidth(bounds, overrides = {}) {
-  return has$6(overrides, 'width') ? overrides.width : bounds.width;
+  return has$5(overrides, 'width') ? overrides.width : bounds.width;
 }
 
 /**
@@ -52089,7 +52122,7 @@ function getWidth(bounds, overrides = {}) {
  * @returns {number}
  */
 function getHeight(bounds, overrides = {}) {
-  return has$6(overrides, 'height') ? overrides.height : bounds.height;
+  return has$5(overrides, 'height') ? overrides.height : bounds.height;
 }
 
 function getDefaultExportFromCjs (x) {
@@ -53234,7 +53267,7 @@ function BpmnRenderer(
       });
     }
 
-    forEach$6(taskMarkers, function(marker) {
+    forEach$5(taskMarkers, function(marker) {
       renderTaskMarker(marker, parentGfx, element, attrs);
     });
   }
@@ -55024,7 +55057,7 @@ Text.prototype.layoutText = function(text, options) {
 
   // layout each line taking into account that parent
   // shape might resize to fit text size
-  forEach$7(layouted, function(line) {
+  forEach$6(layouted, function(line) {
 
     var x;
 
@@ -56334,12 +56367,12 @@ Overlays.prototype.get = function(search) {
 
     // return a list of overlays when searching by element (+type)
     if (container) {
-      return search.type ? filter$3(container.overlays, matchPattern$2({ type: search.type })) : container.overlays.slice();
+      return search.type ? filter$2(container.overlays, matchPattern$2({ type: search.type })) : container.overlays.slice();
     } else {
       return [];
     }
   } else if (search.type) {
-    return filter$3(this._overlays, matchPattern$2({ type: search.type }));
+    return filter$2(this._overlays, matchPattern$2({ type: search.type }));
   } else {
 
     // return single element when searching by id
@@ -56405,13 +56438,13 @@ Overlays.prototype.remove = function(filter) {
 
   var overlays = this.get(filter) || [];
 
-  if (!isArray$9(overlays)) {
+  if (!isArray$8(overlays)) {
     overlays = [ overlays ];
   }
 
   var self = this;
 
-  forEach$7(overlays, function(overlay) {
+  forEach$6(overlays, function(overlay) {
 
     var container = self._getOverlayContainer(overlay.element, true);
 
@@ -56699,7 +56732,7 @@ Overlays.prototype._updateOverlaysVisibilty = function(viewbox) {
 
   var self = this;
 
-  forEach$7(this._overlays, function(overlay) {
+  forEach$6(this._overlays, function(overlay) {
     self._updateOverlayVisibilty(overlay, viewbox);
   });
 };
@@ -56736,7 +56769,7 @@ Overlays.prototype._init = function() {
     var element = e.element;
     var overlays = self.get({ element: element });
 
-    forEach$7(overlays, function(o) {
+    forEach$6(overlays, function(o) {
       self.remove(o.id);
     });
 
@@ -56760,7 +56793,7 @@ Overlays.prototype._init = function() {
     var container = self._getOverlayContainer(element, true);
 
     if (container) {
-      forEach$7(container.overlays, function(overlay) {
+      forEach$6(container.overlays, function(overlay) {
         self._updateOverlay(overlay);
       });
 
@@ -57669,7 +57702,7 @@ function isClass(fn) {
  *
  * @return {boolean}
  */
-function isArray$5(obj) {
+function isArray$4(obj) {
   return Array.isArray(obj);
 }
 
@@ -57696,7 +57729,7 @@ function hasOwnProp(obj, prop) {
  */
 function annotate(...args) {
 
-  if (args.length === 1 && isArray$5(args[0])) {
+  if (args.length === 1 && isArray$4(args[0])) {
     args = args[0];
   }
 
@@ -57841,7 +57874,7 @@ function Injector(modules, _parent) {
     }
 
     if (typeof fn !== 'function') {
-      if (isArray$5(fn)) {
+      if (isArray$4(fn)) {
         fn = annotate(fn.slice());
       } else {
         throw error(`Cannot invoke "${ fn }". Expected a function!`);
@@ -58140,7 +58173,7 @@ function Injector(modules, _parent) {
 // helpers ///////////////
 
 function arrayUnwrap(type, value) {
-  if (type !== 'value' && isArray$5(value)) {
+  if (type !== 'value' && isArray$4(value)) {
     value = annotate(value.slice());
   }
 
@@ -58306,7 +58339,7 @@ function Styles() {
    */
   this.style = function(traits, additionalAttrs) {
 
-    if (!isArray$9(traits) && !additionalAttrs) {
+    if (!isArray$8(traits) && !additionalAttrs) {
       additionalAttrs = traits;
       traits = [];
     }
@@ -58330,7 +58363,7 @@ function Styles() {
    * @return {Object} the style definition
    */
   this.computeStyle = function(custom, traits, defaultStyles) {
-    if (!isArray$9(traits)) {
+    if (!isArray$8(traits)) {
       defaultStyles = traits;
       traits = [];
     }
@@ -58954,7 +58987,7 @@ Canvas.prototype._updateMarker = function(element, marker, add) {
     return;
   }
 
-  forEach$7([ container.gfx, container.secondaryGfx ], function(gfx) {
+  forEach$6([ container.gfx, container.secondaryGfx ], function(gfx) {
     if (gfx) {
 
       // invoke either addClass or removeClass based on mode
@@ -60345,9 +60378,9 @@ function EventBus() {
  */
 EventBus.prototype.on = function(events, priority, callback, that) {
 
-  events = isArray$9(events) ? events : [ events ];
+  events = isArray$8(events) ? events : [ events ];
 
-  if (isFunction$4(priority)) {
+  if (isFunction$3(priority)) {
     that = callback;
     callback = priority;
     priority = DEFAULT_PRIORITY$1;
@@ -60404,7 +60437,7 @@ EventBus.prototype.on = function(events, priority, callback, that) {
 EventBus.prototype.once = function(events, priority, callback, that) {
   var self = this;
 
-  if (isFunction$4(priority)) {
+  if (isFunction$3(priority)) {
     that = callback;
     callback = priority;
     priority = DEFAULT_PRIORITY$1;
@@ -60443,7 +60476,7 @@ EventBus.prototype.once = function(events, priority, callback, that) {
  */
 EventBus.prototype.off = function(events, callback) {
 
-  events = isArray$9(events) ? events : [ events ];
+  events = isArray$8(events) ? events : [ events ];
 
   var self = this;
 
@@ -60939,7 +60972,7 @@ GraphicsFactory.prototype.updateContainments = function(elements) {
 
   // update all parents of changed and reorganized their children
   // in the correct order (as indicated in our model)
-  forEach$7(parents, function(parent) {
+  forEach$6(parents, function(parent) {
 
     var children = parent.children;
 
@@ -60949,7 +60982,7 @@ GraphicsFactory.prototype.updateContainments = function(elements) {
 
     var childrenGfx = self._getChildrenContainer(parent);
 
-    forEach$7(children.slice().reverse(), function(child) {
+    forEach$6(children.slice().reverse(), function(child) {
       var childGfx = elementRegistry.getGraphics(child);
 
       prependTo(childGfx.parentNode, childrenGfx);
@@ -61329,10 +61362,10 @@ Diagram.prototype.clear = function() {
  * @return {T[]}
  */
 
-const nativeToString$5 = Object.prototype.toString;
+const nativeToString$4 = Object.prototype.toString;
 
 function isString$2(obj) {
-  return nativeToString$5.call(obj) === '[object String]';
+  return nativeToString$4.call(obj) === '[object String]';
 }
 
 /**
@@ -61357,10 +61390,10 @@ function assign$3(target, ...others) {
  * @return {T[]}
  */
 
-const nativeToString$4 = Object.prototype.toString;
-const nativeHasOwnProperty$4 = Object.prototype.hasOwnProperty;
+const nativeToString$3 = Object.prototype.toString;
+const nativeHasOwnProperty$3 = Object.prototype.hasOwnProperty;
 
-function isUndefined$5(obj) {
+function isUndefined$4(obj) {
   return obj === undefined;
 }
 
@@ -61368,20 +61401,20 @@ function isDefined$1(obj) {
   return obj !== undefined;
 }
 
-function isNil$3(obj) {
+function isNil$2(obj) {
   return obj == null;
 }
 
-function isArray$4(obj) {
-  return nativeToString$4.call(obj) === '[object Array]';
+function isArray$3(obj) {
+  return nativeToString$3.call(obj) === '[object Array]';
 }
 
 function isObject$1(obj) {
-  return nativeToString$4.call(obj) === '[object Object]';
+  return nativeToString$3.call(obj) === '[object Object]';
 }
 
 function isString$1(obj) {
-  return nativeToString$4.call(obj) === '[object String]';
+  return nativeToString$3.call(obj) === '[object String]';
 }
 
 /**
@@ -61392,8 +61425,8 @@ function isString$1(obj) {
  *
  * @return {Boolean}
  */
-function has$4(target, key) {
-  return !isNil$3(target) && nativeHasOwnProperty$4.call(target, key);
+function has$3(target, key) {
+  return !isNil$2(target) && nativeHasOwnProperty$3.call(target, key);
 }
 
 
@@ -61407,20 +61440,20 @@ function has$4(target, key) {
  *
  * @return {T} return result that stopped the iteration
  */
-function forEach$4(collection, iterator) {
+function forEach$3(collection, iterator) {
 
   let val,
       result;
 
-  if (isUndefined$5(collection)) {
+  if (isUndefined$4(collection)) {
     return;
   }
 
-  const convertKey = isArray$4(collection) ? toNum$4 : identity$4;
+  const convertKey = isArray$3(collection) ? toNum$3 : identity$3;
 
   for (let key in collection) {
 
-    if (has$4(collection, key)) {
+    if (has$3(collection, key)) {
       val = collection[key];
 
       result = iterator(val, convertKey(key));
@@ -61433,11 +61466,11 @@ function forEach$4(collection, iterator) {
 }
 
 
-function identity$4(arg) {
+function identity$3(arg) {
   return arg;
 }
 
-function toNum$4(arg) {
+function toNum$3(arg) {
   return Number(arg);
 }
 
@@ -61482,7 +61515,7 @@ function set(target, path, value) {
 
   let currentTarget = target;
 
-  forEach$4(path, function(key, idx) {
+  forEach$3(path, function(key, idx) {
 
     if (typeof key !== 'number' && typeof key !== 'string') {
       throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
@@ -61499,12 +61532,12 @@ function set(target, path, value) {
     let nextKey = path[idx + 1];
     let nextTarget = currentTarget[key];
 
-    if (isDefined$1(nextKey) && isNil$3(nextTarget)) {
+    if (isDefined$1(nextKey) && isNil$2(nextTarget)) {
       nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
     }
 
-    if (isUndefined$5(nextKey)) {
-      if (isUndefined$5(value)) {
+    if (isUndefined$4(nextKey)) {
+      if (isUndefined$4(value)) {
         delete currentTarget[key];
       } else {
         currentTarget[key] = value;
@@ -61534,7 +61567,7 @@ function pick(target, properties) {
 
   let obj = Object(target);
 
-  forEach$4(properties, function(prop) {
+  forEach$3(properties, function(prop) {
 
     if (prop in obj) {
       result[prop] = target[prop];
@@ -61684,7 +61717,7 @@ Factory.prototype.createType = function(descriptor) {
       prototype = Object.create(Base.prototype);
 
   // initialize default values
-  forEach$4(descriptor.properties, function(p) {
+  forEach$3(descriptor.properties, function(p) {
     if (!p.isMany && p.default !== undefined) {
       prototype[p.name] = p.default;
     }
@@ -61705,7 +61738,7 @@ Factory.prototype.createType = function(descriptor) {
     props.define(this, '$attrs', { value: {} });
     props.define(this, '$parent', { writable: true });
 
-    forEach$4(attrs, bind(function(val, key) {
+    forEach$3(attrs, bind(function(val, key) {
       this.set(key, val);
     }, this));
   }
@@ -62190,7 +62223,7 @@ DescriptorBuilder.prototype.addTrait = function(t, inherited) {
     return;
   }
 
-  forEach$4(t.properties, bind(function(p) {
+  forEach$3(t.properties, bind(function(p) {
 
     // clone property to allow extensions
     p = assign$2({}, p, {
@@ -62289,7 +62322,7 @@ function Registry(packages, properties) {
    */
   this.properties = properties;
 
-  forEach$4(packages, bind(this.registerPackage, this));
+  forEach$3(packages, bind(this.registerPackage, this));
 }
 
 /**
@@ -62322,7 +62355,7 @@ Registry.prototype.registerPackage = function(pkg) {
   ensureAvailable(pkgMap, pkg, 'uri');
 
   // register types
-  forEach$4(pkg.types, bind(function(descriptor) {
+  forEach$3(pkg.types, bind(function(descriptor) {
     this.registerType(descriptor, pkg);
   }, this));
 
@@ -62349,7 +62382,7 @@ Registry.prototype.registerType = function(type, pkg) {
       /** @type {Record<string, RegisteredPropertyDef>} */ propertiesByName = {};
 
   // parse properties
-  forEach$4(type.properties, bind(function(p) {
+  forEach$3(type.properties, bind(function(p) {
 
     // namespace property names
     var propertyNs = parseName(p.name, ns.prefix),
@@ -62375,7 +62408,7 @@ Registry.prototype.registerType = function(type, pkg) {
     propertiesByName: propertiesByName
   });
 
-  forEach$4(type.extends, bind(function(extendsName) {
+  forEach$3(type.extends, bind(function(extendsName) {
     var extendsNameNs = parseName(extendsName, ns.prefix);
 
     var extended = this.typeMap[extendsNameNs.name];
@@ -62446,12 +62479,12 @@ Registry.prototype.mapTypes = function(nsName, iterator, trait) {
     throw new Error('unknown type <' + nsName.name + '>');
   }
 
-  forEach$4(type.superClass, trait ? traverseTrait : traverseSuper);
+  forEach$3(type.superClass, trait ? traverseTrait : traverseSuper);
 
   // call iterator with (type, inherited=!trait)
   iterator(type, !trait);
 
-  forEach$4(type.traits, traverseTrait);
+  forEach$3(type.traits, traverseTrait);
 };
 
 /**
@@ -62540,7 +62573,7 @@ Properties.prototype.set = function(target, name, value) {
 
   var propertyName = property && property.name;
 
-  if (isUndefined$4(value)) {
+  if (isUndefined$3(value)) {
 
     // unset the property, if the specified value is undefined;
     // delete from $attrs (for extensions) or the target itself
@@ -62674,7 +62707,7 @@ Properties.prototype.getProperty = function(target, name) {
   return null;
 };
 
-function isUndefined$4(val) {
+function isUndefined$3(val) {
   return typeof val === 'undefined';
 }
 
@@ -62932,7 +62965,7 @@ Moddle.prototype.createAny = function(name, nsUri, properties) {
   this.properties.define(element, '$parent', { enumerable: false, writable: true });
   this.properties.define(element, '$instanceOf', { enumerable: false, writable: true });
 
-  forEach$4(properties, function(a, key) {
+  forEach$3(properties, function(a, key) {
     if (isObject$1(a) && a.value !== undefined) {
       element[a.name] = a.value;
     } else {
@@ -63023,19 +63056,19 @@ Moddle.prototype.getTypeDescriptor = function(type) {
  * @return {T[]}
  */
 
-const nativeToString$3 = Object.prototype.toString;
-const nativeHasOwnProperty$3 = Object.prototype.hasOwnProperty;
+const nativeToString$2 = Object.prototype.toString;
+const nativeHasOwnProperty$2 = Object.prototype.hasOwnProperty;
 
-function isUndefined$3(obj) {
+function isUndefined$2(obj) {
   return obj === undefined;
 }
 
-function isNil$2(obj) {
+function isNil$1(obj) {
   return obj == null;
 }
 
-function isArray$3(obj) {
-  return nativeToString$3.call(obj) === '[object Array]';
+function isArray$2(obj) {
+  return nativeToString$2.call(obj) === '[object Array]';
 }
 
 /**
@@ -63043,8 +63076,8 @@ function isArray$3(obj) {
  *
  * @return {boolean}
  */
-function isFunction$2(obj) {
-  const tag = nativeToString$3.call(obj);
+function isFunction$1(obj) {
+  const tag = nativeToString$2.call(obj);
 
   return (
     tag === '[object Function]' ||
@@ -63056,7 +63089,7 @@ function isFunction$2(obj) {
 }
 
 function isString(obj) {
-  return nativeToString$3.call(obj) === '[object String]';
+  return nativeToString$2.call(obj) === '[object String]';
 }
 
 /**
@@ -63067,8 +63100,8 @@ function isString(obj) {
  *
  * @return {Boolean}
  */
-function has$3(target, key) {
-  return !isNil$2(target) && nativeHasOwnProperty$3.call(target, key);
+function has$2(target, key) {
+  return !isNil$1(target) && nativeHasOwnProperty$2.call(target, key);
 }
 
 /**
@@ -63133,11 +63166,11 @@ function has$3(target, key) {
  */
 function find$1(collection, matcher) {
 
-  const matchFn = toMatcher$2(matcher);
+  const matchFn = toMatcher$1(matcher);
 
   let match;
 
-  forEach$3(collection, function(val, key) {
+  forEach$2(collection, function(val, key) {
     if (matchFn(val, key)) {
       match = val;
 
@@ -63161,11 +63194,11 @@ function find$1(collection, matcher) {
  */
 function findIndex(collection, matcher) {
 
-  const matchFn = toMatcher$2(matcher);
+  const matchFn = toMatcher$1(matcher);
 
-  let idx = isArray$3(collection) ? -1 : undefined;
+  let idx = isArray$2(collection) ? -1 : undefined;
 
-  forEach$3(collection, function(val, key) {
+  forEach$2(collection, function(val, key) {
     if (matchFn(val, key)) {
       idx = key;
 
@@ -63186,13 +63219,13 @@ function findIndex(collection, matcher) {
  *
  * @return {T[]} result
  */
-function filter$1(collection, matcher) {
+function filter(collection, matcher) {
 
-  const matchFn = toMatcher$2(matcher);
+  const matchFn = toMatcher$1(matcher);
 
   let result = [];
 
-  forEach$3(collection, function(val, key) {
+  forEach$2(collection, function(val, key) {
     if (matchFn(val, key)) {
       result.push(val);
     }
@@ -63212,20 +63245,20 @@ function filter$1(collection, matcher) {
  *
  * @return {T} return result that stopped the iteration
  */
-function forEach$3(collection, iterator) {
+function forEach$2(collection, iterator) {
 
   let val,
       result;
 
-  if (isUndefined$3(collection)) {
+  if (isUndefined$2(collection)) {
     return;
   }
 
-  const convertKey = isArray$3(collection) ? toNum$3 : identity$3;
+  const convertKey = isArray$2(collection) ? toNum$2 : identity$2;
 
   for (let key in collection) {
 
-    if (has$3(collection, key)) {
+    if (has$2(collection, key)) {
       val = collection[key];
 
       result = iterator(val, convertKey(key));
@@ -63244,18 +63277,18 @@ function forEach$3(collection, iterator) {
  *
  * @return {MatchFn<T>}
  */
-function toMatcher$2(matcher) {
-  return isFunction$2(matcher) ? matcher : (e) => {
+function toMatcher$1(matcher) {
+  return isFunction$1(matcher) ? matcher : (e) => {
     return e === matcher;
   };
 }
 
 
-function identity$3(arg) {
+function identity$2(arg) {
   return arg;
 }
 
-function toNum$3(arg) {
+function toNum$2(arg) {
   return Number(arg);
 }
 
@@ -64638,7 +64671,7 @@ ElementHandler.prototype.createElement = function(node) {
       model = this.model,
       propNameNs;
 
-  forEach$3(attributes, function(value, name) {
+  forEach$2(attributes, function(value, name) {
 
     var prop = descriptor.propertiesByName[name],
         values;
@@ -64656,7 +64689,7 @@ ElementHandler.prototype.createElement = function(node) {
         // IDREFS: parse references as whitespace-separated list
         values = value.split(' ');
 
-        forEach$3(values, function(v) {
+        forEach$2(values, function(v) {
           context.addReference({
             element: instance,
             property: prop.ns.name,
@@ -65404,7 +65437,7 @@ function getPropertyNs(ns, descriptor) {
 function getSerializableProperties(element) {
   var descriptor = element.$descriptor;
 
-  return filter$1(descriptor.properties, function(p) {
+  return filter(descriptor.properties, function(p) {
     var name = p.name;
 
     if (p.isVirtual) {
@@ -65412,7 +65445,7 @@ function getSerializableProperties(element) {
     }
 
     // do not serialize defaults
-    if (!has$3(element, name)) {
+    if (!has$2(element, name)) {
       return false;
     }
 
@@ -65473,11 +65506,11 @@ function escapeBody(str) {
 }
 
 function filterAttributes(props) {
-  return filter$1(props, function(p) { return p.isAttr; });
+  return filter(props, function(p) { return p.isAttr; });
 }
 
 function filterContained(props) {
-  return filter$1(props, function(p) { return !p.isAttr; });
+  return filter(props, function(p) { return !p.isAttr; });
 }
 
 
@@ -65655,7 +65688,7 @@ ElementSerializer.prototype.parseGenericContainments = function(element) {
   var children = element.$children;
 
   if (children) {
-    forEach$3(children, child => {
+    forEach$2(children, child => {
       this.body.push(new ElementSerializer(this).build(child));
     });
   }
@@ -65715,7 +65748,7 @@ ElementSerializer.prototype.parseNsAttributes = function(element) {
   // parse namespace attributes first
   // and log them. push non namespace attributes to a list
   // and process them later
-  forEach$3(genericAttrs, function(value, name) {
+  forEach$2(genericAttrs, function(value, name) {
 
     var nonNsAttr = self.parseNsAttribute(element, name, value);
 
@@ -65731,7 +65764,7 @@ ElementSerializer.prototype.parseGenericAttributes = function(element, attribute
 
   var self = this;
 
-  forEach$3(attributes, function(attr) {
+  forEach$2(attributes, function(attr) {
 
     try {
       self.addAttribute(self.nsAttributeName(attr.name), attr.value);
@@ -65753,7 +65786,7 @@ ElementSerializer.prototype.parseContainments = function(properties) {
       body = this.body,
       element = this.element;
 
-  forEach$3(properties, function(p) {
+  forEach$2(properties, function(p) {
     var value = element.get(p.name),
         isReference = p.isReference,
         isMany = p.isMany;
@@ -65765,11 +65798,11 @@ ElementSerializer.prototype.parseContainments = function(properties) {
     if (p.isBody) {
       body.push(new BodySerializer().build(p, value[0]));
     } else if (isSimple(p.type)) {
-      forEach$3(value, function(v) {
+      forEach$2(value, function(v) {
         body.push(new ValueSerializer(self.addTagName(self.nsPropertyTagName(p))).build(p, v));
       });
     } else if (isReference) {
-      forEach$3(value, function(v) {
+      forEach$2(value, function(v) {
         body.push(new ReferenceSerializer(self.addTagName(self.nsPropertyTagName(p))).build(v));
       });
     } else {
@@ -65778,7 +65811,7 @@ ElementSerializer.prototype.parseContainments = function(properties) {
       // rather than element name
       var serialization = getSerialization(p);
 
-      forEach$3(value, function(v) {
+      forEach$2(value, function(v) {
         var serializer;
 
         if (serialization) {
@@ -65890,7 +65923,7 @@ ElementSerializer.prototype.parseAttributes = function(properties) {
   var self = this,
       element = this.element;
 
-  forEach$3(properties, function(p) {
+  forEach$2(properties, function(p) {
 
     var value = element.get(p.name);
 
@@ -65900,7 +65933,7 @@ ElementSerializer.prototype.parseAttributes = function(properties) {
         value = value.id;
       } else {
         var values = [];
-        forEach$3(value, function(v) {
+        forEach$2(value, function(v) {
           values.push(v.id);
         });
 
@@ -65956,7 +65989,7 @@ ElementSerializer.prototype.serializeAttributes = function(writer) {
     attrs = getNsAttrs(namespaces).concat(attrs);
   }
 
-  forEach$3(attrs, function(a) {
+  forEach$2(attrs, function(a) {
     writer
       .append(' ')
       .append(nsName(a.name)).append('="').append(a.value).append('"');
@@ -65983,7 +66016,7 @@ ElementSerializer.prototype.serializeTo = function(writer) {
         .indent();
     }
 
-    forEach$3(this.body, function(b) {
+    forEach$2(this.body, function(b) {
       b.serializeTo(writer);
     });
 
@@ -70029,7 +70062,7 @@ function BpmnTreeWalker(handler) {
   function handlePlane(plane) {
     registerDi(plane);
 
-    forEach$6(plane.planeElement, handlePlaneElement);
+    forEach$5(plane.planeElement, handlePlaneElement);
   }
 
   function handlePlaneElement(planeElement) {
@@ -70147,7 +70180,7 @@ function BpmnTreeWalker(handler) {
     // walk through all processes that have not yet been drawn and draw them
     // if they contain lanes with DI information.
     // we do this to pass the free-floating lane test cases in the MIWG test suite
-    var processes = filter$2(rootElements, function(e) {
+    var processes = filter$1(rootElements, function(e) {
       return !isHandled(e) && is(e, 'bpmn:Process') && e.laneSets;
     });
 
@@ -70159,7 +70192,7 @@ function BpmnTreeWalker(handler) {
   }
 
   function handleMessageFlows(messageFlows, context) {
-    forEach$6(messageFlows, contextual(handleMessageFlow, context));
+    forEach$5(messageFlows, contextual(handleMessageFlow, context));
   }
 
   function handleDataAssociation(association, context) {
@@ -70185,7 +70218,7 @@ function BpmnTreeWalker(handler) {
 
   function handleArtifacts(artifacts, context) {
 
-    forEach$6(artifacts, function(e) {
+    forEach$5(artifacts, function(e) {
       if (is(e, 'bpmn:Association')) {
         deferred.push(function() {
           handleArtifact(e, context);
@@ -70202,8 +70235,8 @@ function BpmnTreeWalker(handler) {
       return;
     }
 
-    forEach$6(ioSpecification.dataInputs, contextual(handleDataInput, context));
-    forEach$6(ioSpecification.dataOutputs, contextual(handleDataOutput, context));
+    forEach$5(ioSpecification.dataInputs, contextual(handleDataInput, context));
+    forEach$5(ioSpecification.dataOutputs, contextual(handleDataOutput, context));
   }
 
   var handleSubProcess = this.handleSubProcess = function handleSubProcess(subProcess, context) {
@@ -70230,8 +70263,8 @@ function BpmnTreeWalker(handler) {
     //   * bpmn:CatchEvent
     //
     deferred.push(function() {
-      forEach$6(flowNode.dataInputAssociations, contextual(handleDataAssociation, context));
-      forEach$6(flowNode.dataOutputAssociations, contextual(handleDataAssociation, context));
+      forEach$5(flowNode.dataInputAssociations, contextual(handleDataAssociation, context));
+      forEach$5(flowNode.dataOutputAssociations, contextual(handleDataAssociation, context));
     });
   }
 
@@ -70258,11 +70291,11 @@ function BpmnTreeWalker(handler) {
   }
 
   function handleLaneSet(laneSet, context) {
-    forEach$6(laneSet.lanes, contextual(handleLane, context));
+    forEach$5(laneSet.lanes, contextual(handleLane, context));
   }
 
   function handleLaneSets(laneSets, context) {
-    forEach$6(laneSets, contextual(handleLaneSet, context));
+    forEach$5(laneSets, contextual(handleLaneSet, context));
   }
 
   function handleFlowElementsContainer(container, context) {
@@ -70274,7 +70307,7 @@ function BpmnTreeWalker(handler) {
   }
 
   function handleFlowElements(flowElements, context) {
-    forEach$6(flowElements, function(flowElement) {
+    forEach$5(flowElements, function(flowElement) {
       if (is(flowElement, 'bpmn:SequenceFlow')) {
         deferred.push(function() {
           handleSequenceFlow(flowElement, context);
@@ -70312,7 +70345,7 @@ function BpmnTreeWalker(handler) {
 
   function handleCollaboration(collaboration, context) {
 
-    forEach$6(collaboration.participants, contextual(handleParticipant, context));
+    forEach$5(collaboration.participants, contextual(handleParticipant, context));
 
     deferred.push(function() {
       handleMessageFlows(collaboration.messageFlows, context);
@@ -70325,7 +70358,7 @@ function BpmnTreeWalker(handler) {
   function wireFlowNodeRefs(lane) {
 
     // wire the virtual flowNodeRefs <-> relationship
-    forEach$6(lane.flowNodeRef, function(flowNode) {
+    forEach$5(lane.flowNodeRef, function(flowNode) {
       var lanes = flowNode.get('lanes');
 
       if (lanes) {
@@ -70403,7 +70436,7 @@ function importBpmnDiagram(diagram, definitions, bpmnDiagram) {
 
     // traverse BPMN 2.0 document model,
     // starting at definitions
-    forEach$6(diagramsToImport, function(diagram) {
+    forEach$5(diagramsToImport, function(diagram) {
       walker.handleDefinitions(definitions, diagram);
     });
 
@@ -70484,7 +70517,7 @@ function getDiagramsToImport(definitions, bpmnDiagram) {
 
   // all collaboration processes can contain sub-diagrams
   if (collaboration) {
-    rootElements = map$2(collaboration.participants, function(participant) {
+    rootElements = map$1(collaboration.participants, function(participant) {
       return participant.processRef;
     });
 
@@ -70498,7 +70531,7 @@ function getDiagramsToImport(definitions, bpmnDiagram) {
   var diagramsToImport = [ bpmnDiagram ];
   var handledElements = [ bpmnElement ];
 
-  forEach$6(definitions.diagrams, function(diagram) {
+  forEach$5(definitions.diagrams, function(diagram) {
 
     if (!diagram.plane) {
       return;
@@ -70522,7 +70555,7 @@ function getDiagramsToImport(definitions, bpmnDiagram) {
 function selfAndAllFlowElements(elements) {
   var result = [];
 
-  forEach$6(elements, function(element) {
+  forEach$5(elements, function(element) {
     if (!element) {
       return;
     }
@@ -71723,7 +71756,7 @@ Keyboard.prototype._fire = function(event) {
  * @param {string} [type='keyboard.keydown']
  */
 Keyboard.prototype.addListener = function(priority, listener, type) {
-  if (isFunction$4(priority)) {
+  if (isFunction$3(priority)) {
     type = listener;
     listener = priority;
     priority = DEFAULT_PRIORITY;
@@ -72530,10 +72563,10 @@ NavigatedViewer.prototype._modules = [].concat(
  * @return {T[]}
  */
 
-const nativeToString$2 = Object.prototype.toString;
-const nativeHasOwnProperty$2 = Object.prototype.hasOwnProperty;
+const nativeToString$1 = Object.prototype.toString;
+const nativeHasOwnProperty$1 = Object.prototype.hasOwnProperty;
 
-function isUndefined$2(obj) {
+function isUndefined$1(obj) {
   return obj === undefined;
 }
 
@@ -72541,16 +72574,16 @@ function isDefined(obj) {
   return obj !== undefined;
 }
 
-function isNil$1(obj) {
+function isNil(obj) {
   return obj == null;
 }
 
-function isArray$2(obj) {
-  return nativeToString$2.call(obj) === '[object Array]';
+function isArray$1(obj) {
+  return nativeToString$1.call(obj) === '[object Array]';
 }
 
 function isObject(obj) {
-  return nativeToString$2.call(obj) === '[object Object]';
+  return nativeToString$1.call(obj) === '[object Object]';
 }
 
 /**
@@ -72558,8 +72591,8 @@ function isObject(obj) {
  *
  * @return {boolean}
  */
-function isFunction$1(obj) {
-  const tag = nativeToString$2.call(obj);
+function isFunction(obj) {
+  const tag = nativeToString$1.call(obj);
 
   return (
     tag === '[object Function]' ||
@@ -72578,8 +72611,8 @@ function isFunction$1(obj) {
  *
  * @return {Boolean}
  */
-function has$2(target, key) {
-  return !isNil$1(target) && nativeHasOwnProperty$2.call(target, key);
+function has$1(target, key) {
+  return !isNil(target) && nativeHasOwnProperty$1.call(target, key);
 }
 
 /**
@@ -72644,11 +72677,11 @@ function has$2(target, key) {
  */
 function find(collection, matcher) {
 
-  const matchFn = toMatcher$1(matcher);
+  const matchFn = toMatcher(matcher);
 
   let match;
 
-  forEach$2(collection, function(val, key) {
+  forEach$1(collection, function(val, key) {
     if (matchFn(val, key)) {
       match = val;
 
@@ -72671,20 +72704,20 @@ function find(collection, matcher) {
  *
  * @return {T} return result that stopped the iteration
  */
-function forEach$2(collection, iterator) {
+function forEach$1(collection, iterator) {
 
   let val,
       result;
 
-  if (isUndefined$2(collection)) {
+  if (isUndefined$1(collection)) {
     return;
   }
 
-  const convertKey = isArray$2(collection) ? toNum$2 : identity$2;
+  const convertKey = isArray$1(collection) ? toNum$1 : identity$1;
 
   for (let key in collection) {
 
-    if (has$2(collection, key)) {
+    if (has$1(collection, key)) {
       val = collection[key];
 
       result = iterator(val, convertKey(key));
@@ -72711,7 +72744,7 @@ function forEach$2(collection, iterator) {
  */
 function reduce(collection, iterator, result) {
 
-  forEach$2(collection, function(value, idx) {
+  forEach$1(collection, function(value, idx) {
     result = iterator(result, value, idx);
   });
 
@@ -72786,18 +72819,18 @@ function matchPattern(pattern) {
  *
  * @return {MatchFn<T>}
  */
-function toMatcher$1(matcher) {
-  return isFunction$1(matcher) ? matcher : (e) => {
+function toMatcher(matcher) {
+  return isFunction(matcher) ? matcher : (e) => {
     return e === matcher;
   };
 }
 
 
-function identity$2(arg) {
+function identity$1(arg) {
   return arg;
 }
 
-function toNum$2(arg) {
+function toNum$1(arg) {
   return Number(arg);
 }
 
@@ -73184,7 +73217,7 @@ function getExtensionElementsList(element, type = undefined) {
  * @param {CommandStack} commandStack
  */
 function removeExtensionElements(element, businessObject, extensionElementsToRemove, commandStack) {
-  if (!isArray$2(extensionElementsToRemove)) {
+  if (!isArray$1(extensionElementsToRemove)) {
     extensionElementsToRemove = [ extensionElementsToRemove ];
   }
 
@@ -73688,7 +73721,7 @@ class UpdateResultVariableBehavior extends CommandInterceptor {
       if (
         is$1(element, 'camunda:DmnCapable')
         && is$1(businessObject, 'camunda:DmnCapable')
-        && has$2(properties, 'camunda:resultVariable')
+        && has$1(properties, 'camunda:resultVariable')
         && isEmpty(properties[ 'camunda:resultVariable' ])
       ) {
         properties[ 'camunda:mapDecisionResult' ] = undefined;
@@ -73733,32 +73766,32 @@ let UserTaskFormsBehavior$1 = class UserTaskFormsBehavior extends CommandInterce
 
       const businessObject = moddleElement || getBusinessObject(element);
 
-      if (has$2(properties, 'camunda:formKey')) {
+      if (has$1(properties, 'camunda:formKey')) {
         Object.assign(properties, {
           'camunda:formRef': undefined,
           'camunda:formRefBinding': undefined,
           'camunda:formRefVersion': undefined
         });
-      } else if (has$2(properties, 'camunda:formRef')) {
+      } else if (has$1(properties, 'camunda:formRef')) {
         Object.assign(properties, {
           'camunda:formKey': undefined
         });
 
-        if (isUndefined$2(properties[ 'camunda:formRef' ])) {
+        if (isUndefined$1(properties[ 'camunda:formRef' ])) {
           Object.assign(properties, {
             'camunda:formRefBinding': undefined,
             'camunda:formRefVersion': undefined
           });
         }
 
-        if (!has$2(properties, 'camunda:formRefBinding') && isUndefined$2(businessObject.get('camunda:formRefBinding'))) {
+        if (!has$1(properties, 'camunda:formRefBinding') && isUndefined$1(businessObject.get('camunda:formRefBinding'))) {
           Object.assign(properties, {
             'camunda:formRefBinding': 'latest'
           });
         }
       }
 
-      if (has$2(properties, 'camunda:formRefBinding') && properties[ 'camunda:formRefBinding' ] !== 'version') {
+      if (has$1(properties, 'camunda:formRefBinding') && properties[ 'camunda:formRefBinding' ] !== 'version') {
         Object.assign(properties, {
           'camunda:formRefVersion': undefined
         });
@@ -73814,7 +73847,7 @@ class UserTaskFormsBehavior extends CommandInterceptor {
       } = context;
 
       if (!is$1(moddleElement, 'camunda:FormField')
-        || (!has$2(properties, 'id') && !has$2(properties, 'camunda:id'))
+        || (!has$1(properties, 'id') && !has$1(properties, 'camunda:id'))
       ) {
         return;
       }
@@ -73829,7 +73862,7 @@ class UserTaskFormsBehavior extends CommandInterceptor {
 
       if (isBusinessKey(moddleElement, formData)) {
         modeling.updateModdleProperties(element, formData, {
-          'camunda:businessKey': has$2(properties, 'id') ? properties.id : properties[ 'camunda:id' ]
+          'camunda:businessKey': has$1(properties, 'id') ? properties.id : properties[ 'camunda:id' ]
         });
       }
     }, true);
@@ -73844,7 +73877,7 @@ class UserTaskFormsBehavior extends CommandInterceptor {
         properties
       } = context;
 
-      if (!is$1(moddleElement, 'camunda:FormData') || !has$2(properties, 'fields')) {
+      if (!is$1(moddleElement, 'camunda:FormData') || !has$1(properties, 'fields')) {
         return;
       }
 
@@ -75435,7 +75468,7 @@ Tooltips.prototype._updateTooltip = function(tooltip) {
 
 Tooltips.prototype._updateTooltipVisibilty = function(viewbox) {
 
-  forEach$7(this._tooltips, function(tooltip) {
+  forEach$6(this._tooltips, function(tooltip) {
     var show = tooltip.show,
         htmlContainer = tooltip.htmlContainer,
         visible = true;
@@ -75508,6 +75541,15 @@ var DEFAULT_PAGE_SIZE = 50;
 // =============================================================================
 /** Zoom increment step for BPMN viewer controls */
 var ZOOM_INCREMENT = 0.1;
+// =============================================================================
+// Executed Path Constants
+// =============================================================================
+/** Stroke width of an executed sequence flow that was traversed once */
+var EXECUTED_PATH_STROKE_WIDTH = 4;
+/** Stroke width added per doubling of the traversal count */
+var EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
+/** Upper bound on the stroke width of an executed sequence flow */
+var EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
 
 var img = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 202.4325 202.34125' height='202.34125' width='202.4325' xml:space='preserve' version='1.1' id='svg2'%3e%3cmetadata id='metadata8'%3e%3crdf:RDF%3e%3ccc:Work rdf:about=''%3e%3cdc:format%3eimage/svg%2bxml%3c/dc:format%3e%3cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3e%3c/cc:Work%3e%3c/rdf:RDF%3e%3c/metadata%3e%3cdefs id='defs6'%3e%3cclipPath id='clipPath16' clipPathUnits='userSpaceOnUse'%3e%3cpath id='path18' d='m 0%2c161.873 161.946%2c0 L 161.946%2c0 0%2c0 0%2c161.873 Z' /%3e%3c/clipPath%3e%3c/defs%3e%3cg transform='matrix(1.25%2c0%2c0%2c-1.25%2c0%2c202.34125)' id='g10'%3e%3cg id='g12'%3e%3cg clip-path='url(%23clipPath16)' id='g14'%3e%3cg transform='translate(52.4477%2c88.1268)' id='g20'%3e%3cpath id='path22' style='fill:black%3bfill-opacity:1%3bfill-rule:nonzero%3bstroke:none' d='m 0%2c0 c 0%2c7.6 6.179%2c13.779 13.77%2c13.779 7.6%2c0 13.779%2c-6.179 13.779%2c-13.779 0%2c-2.769 -2.238%2c-5.007 -4.998%2c-5.007 -2.761%2c0 -4.999%2c2.238 -4.999%2c5.007 0%2c2.078 -1.695%2c3.765 -3.782%2c3.765 C 11.693%2c3.765 9.997%2c2.078 9.997%2c0 9.997%2c-2.769 7.76%2c-5.007 4.999%2c-5.007 2.238%2c-5.007 0%2c-2.769 0%2c0 m 57.05%2c-23.153 c 0%2c-2.771 -2.237%2c-5.007 -4.998%2c-5.007 l -46.378%2c0 c -2.761%2c0 -4.999%2c2.236 -4.999%2c5.007 0%2c2.769 2.238%2c5.007 4.999%2c5.007 l 46.378%2c0 c 2.761%2c0 4.998%2c-2.238 4.998%2c-5.007 M 35.379%2c-2.805 c -1.545%2c2.291 -0.941%2c5.398 1.35%2c6.943 l 11.594%2c7.83 c 2.273%2c1.58 5.398%2c0.941 6.943%2c-1.332 1.545%2c-2.29 0.941%2c-5.398 -1.35%2c-6.943 l -11.594%2c-7.83 c -0.852%2c-0.586 -1.829%2c-0.87 -2.788%2c-0.87 -1.607%2c0 -3.187%2c0.781 -4.155%2c2.202 m 31.748%2c-30.786 c 0%2c-0.945 -0.376%2c-1.852 -1.045%2c-2.522 l -8.617%2c-8.617 c -0.669%2c-0.668 -1.576%2c-1.045 -2.523%2c-1.045 l -52.833%2c0 c -0.947%2c0 -1.854%2c0.377 -2.523%2c1.045 l -8.617%2c8.617 c -0.669%2c0.67 -1.045%2c1.577 -1.045%2c2.522 l 0%2c52.799 c 0%2c0.947 0.376%2c1.854 1.045%2c2.522 l 8.617%2c8.619 c 0.669%2c0.668 1.576%2c1.044 2.523%2c1.044 l 52.833%2c0 c 0.947%2c0 1.854%2c-0.376 2.523%2c-1.044 l 8.617%2c-8.619 c 0.669%2c-0.668 1.045%2c-1.575 1.045%2c-2.522 l 0%2c-52.799 z m 7.334%2c61.086 -11.25%2c11.25 c -1.705%2c1.705 -4.018%2c2.663 -6.428%2c2.663 l -56.523%2c0 c -2.412%2c0 -4.725%2c-0.959 -6.43%2c-2.665 L -17.412%2c27.494 c -1.704%2c-1.705 -2.661%2c-4.016 -2.661%2c-6.427 l 0%2c-56.515 c 0%2c-2.411 0.958%2c-4.725 2.663%2c-6.428 l 11.25%2c-11.25 c 1.705%2c-1.705 4.017%2c-2.662 6.428%2c-2.662 l 56.515%2c0 c 2.41%2c0 4.723%2c0.957 6.428%2c2.662 l 11.25%2c11.25 c 1.705%2c1.703 2.663%2c4.017 2.663%2c6.428 l 0%2c56.514 c 0%2c2.412 -0.958%2c4.724 -2.663%2c6.429' /%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
 
@@ -75555,226 +75597,6 @@ var RobotModule = {
 };
 
 /**
- * Flatten array, one level deep.
- *
- * @template T
- *
- * @param {T[][] | T[] | null} [arr]
- *
- * @return {T[]}
- */
-
-const nativeToString$1 = Object.prototype.toString;
-const nativeHasOwnProperty$1 = Object.prototype.hasOwnProperty;
-
-function isUndefined$1(obj) {
-  return obj === undefined;
-}
-
-function isNil(obj) {
-  return obj == null;
-}
-
-function isArray$1(obj) {
-  return nativeToString$1.call(obj) === '[object Array]';
-}
-
-/**
- * @param {any} obj
- *
- * @return {boolean}
- */
-function isFunction(obj) {
-  const tag = nativeToString$1.call(obj);
-
-  return (
-    tag === '[object Function]' ||
-    tag === '[object AsyncFunction]' ||
-    tag === '[object GeneratorFunction]' ||
-    tag === '[object AsyncGeneratorFunction]' ||
-    tag === '[object Proxy]'
-  );
-}
-
-/**
- * Return true, if target owns a property with the given key.
- *
- * @param {Object} target
- * @param {String} key
- *
- * @return {Boolean}
- */
-function has$1(target, key) {
-  return !isNil(target) && nativeHasOwnProperty$1.call(target, key);
-}
-
-
-/**
- * Filter elements in collection.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param {Matcher<T>} matcher
- *
- * @return {T[]} result
- */
-function filter(collection, matcher) {
-
-  const matchFn = toMatcher(matcher);
-
-  let result = [];
-
-  forEach$1(collection, function(val, key) {
-    if (matchFn(val, key)) {
-      result.push(val);
-    }
-  });
-
-  return result;
-}
-
-
-/**
- * Iterate over collection; returning something
- * (non-undefined) will stop iteration.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
- *
- * @return {T} return result that stopped the iteration
- */
-function forEach$1(collection, iterator) {
-
-  let val,
-      result;
-
-  if (isUndefined$1(collection)) {
-    return;
-  }
-
-  const convertKey = isArray$1(collection) ? toNum$1 : identity$1;
-
-  for (let key in collection) {
-
-    if (has$1(collection, key)) {
-      val = collection[key];
-
-      result = iterator(val, convertKey(key));
-
-      if (result === false) {
-        return val;
-      }
-    }
-  }
-}
-
-
-/**
- * Transform a collection into another collection
- * by piping each member through the given fn.
- *
- * @param  {Object|Array}   collection
- * @param  {Function} fn
- *
- * @return {Array} transformed collection
- */
-function map$1(collection, fn) {
-
-  let result = [];
-
-  forEach$1(collection, function(val, key) {
-    result.push(fn(val, key));
-  });
-
-  return result;
-}
-
-
-/**
- * Group collection members by attribute.
- *
- * @param {Object|Array} collection
- * @param {Extractor} extractor
- *
- * @return {Object} map with { attrValue => [ a, b, c ] }
- */
-function groupBy(collection, extractor, grouped = {}) {
-
-  extractor = toExtractor(extractor);
-
-  forEach$1(collection, function(val) {
-    let discriminator = extractor(val) || '_';
-
-    let group = grouped[discriminator];
-
-    if (!group) {
-      group = grouped[discriminator] = [];
-    }
-
-    group.push(val);
-  });
-
-  return grouped;
-}
-
-
-function uniqueBy(extractor, ...collections) {
-
-  extractor = toExtractor(extractor);
-
-  let grouped = {};
-
-  forEach$1(collections, (c) => groupBy(c, extractor, grouped));
-
-  let result = map$1(grouped, function(val, key) {
-    return val[0];
-  });
-
-  return result;
-}
-
-
-/**
- * @param {string | ((e: any) => any) } extractor
- *
- * @return { (e: any) => any }
- */
-function toExtractor(extractor) {
-
-  /**
-   * @satisfies { (e: any) => any }
-   */
-  return isFunction(extractor) ? extractor : (e) => {
-
-    // @ts-ignore: just works
-    return e[extractor];
-  };
-}
-
-
-/**
- * @template T
- * @param {Matcher<T>} matcher
- *
- * @return {MatchFn<T>}
- */
-function toMatcher(matcher) {
-  return isFunction(matcher) ? matcher : (e) => {
-    return e === matcher;
-  };
-}
-
-
-function identity$1(arg) {
-  return arg;
-}
-
-function toNum$1(arg) {
-  return Number(arg);
-}
-
-/**
  * Gets the midpoint of a BPMN shape.
  * @param shape - Shape bounds with x, y, width, height
  * @returns Center point coordinates
@@ -75788,154 +75610,266 @@ var getMid$1 = function (shape) {
 /** Types that should not have dotted connections drawn through them */
 var notDottedTypes = ['bpmn:SubProcess'];
 /**
- * Computes dotted connections between activities that share the same element.
- * These represent loops or repeated executions through the same node.
- * @param connections - Array of BPMN connections
- * @returns Array of dotted connection objects with waypoints
+ * Sentinel end time for an execution that is still running. Sorts after every ISO
+ * timestamp, so an unfinished activity reads as "ended last".
+ */
+/**
+ * Sentinel end time for an execution that is still running. Sorts after every numeric
+ * timestamp, so an unfinished activity reads as "ended last".
+ */
+var STILL_RUNNING = Number.POSITIVE_INFINITY;
+/**
+ * Converts an activity timestamp to epoch milliseconds.
+ * Returns STILL_RUNNING if null, undefined, or unparseable.
+ */
+function toTimestamp(val) {
+    if (val === null || val === undefined) {
+        return STILL_RUNNING;
+    }
+    if (typeof val === 'number') {
+        return val;
+    }
+    var parsed = Date.parse(val);
+    if (!Number.isNaN(parsed)) {
+        return parsed;
+    }
+    var num = Number(val);
+    return Number.isNaN(num) ? STILL_RUNNING : num;
+}
+/**
+ * Computes dotted connections through the nodes the executed path passes through.
+ *
+ * These bridge the gap inside a shape — from where an executed flow arrives to where
+ * the next executed flow leaves — so the highlighted path reads as continuous, and so
+ * loops back through the same node stay visible.
+ * @param connections - Executed connections to bridge
+ * @returns Array of dotted connection objects with waypoints and traversal counts
  */
 var getDottedConnections = function (connections) {
+    var _a;
     var dottedConnections = [];
-    connections.forEach(function (connection) {
-        var conn = connection;
-        var target = conn.target;
-        connections.forEach(function (c) {
-            var c2 = c;
-            var source = c2.source;
-            if (source === target && !notDottedTypes.includes(source.type)) {
-                dottedConnections.push({
-                    waypoints: [
-                        conn.waypoints[conn.waypoints.length - 1],
-                        getMid$1(target),
-                        c2.waypoints[0],
-                    ],
-                });
+    var seen = new Set();
+    for (var _i = 0, connections_1 = connections; _i < connections_1.length; _i++) {
+        var incoming = connections_1[_i];
+        var node = incoming.element.target;
+        if (notDottedTypes.includes((_a = node.type) !== null && _a !== void 0 ? _a : '')) {
+            continue;
+        }
+        for (var _b = 0, connections_2 = connections; _b < connections_2.length; _b++) {
+            var outgoing = connections_2[_b];
+            if (outgoing.element.source.id !== node.id) {
+                continue;
             }
-        });
-    });
+            var key = "".concat(incoming.element.id, "->").concat(outgoing.element.id);
+            if (seen.has(key)) {
+                continue;
+            }
+            seen.add(key);
+            var from = incoming.element.waypoints[incoming.element.waypoints.length - 1];
+            var to = outgoing.element.waypoints[0];
+            if (!from || !to) {
+                continue;
+            }
+            dottedConnections.push({
+                waypoints: [from, getMid$1(node), to],
+                count: Math.min(incoming.count, outgoing.count),
+            });
+        }
+    }
     return dottedConnections;
 };
 /**
- * Builds a map of activity IDs to their end times from historic activities.
- * @param activities - Historic activity instances
- * @returns Map of activity ID to array of end times
+ * Strips the execution scope suffix the engine appends to an activity id
+ * (`Task_1#multiInstanceBody`), leaving the diagram element id.
+ * @param activityId - Historic activity id
+ * @returns The BPMN element id
  */
-function buildEndTimesMap(activities) {
-    var _a, _b, _c, _d;
-    var endTimesById = new Map();
+var toElementId = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
+/**
+ * Multi-instance bodies wrap the real executions of an activity rather than being one
+ * of them, so counting them would inflate every multi-instance activity by one.
+ */
+var isMultiInstanceBody = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
+/**
+ * A canceled activity did not complete, so nothing flowed out of it. Gateways are the
+ * exception: cancelation is recorded on them even when the token passed through.
+ * @param activity - Historic activity instance
+ * @returns True when the activity was canceled and is not a gateway
+ */
+var isCanceled = function (activity) { var _a; return activity.canceled === true && !((_a = activity.activityType) !== null && _a !== void 0 ? _a : '').endsWith('Gateway'); };
+/**
+ * Appends a time to the array stored under an element id.
+ */
+function push(times, elementId, time) {
+    var existing = times.get(elementId);
+    if (existing) {
+        existing.push(time);
+    }
+    else {
+        times.set(elementId, [time]);
+    }
+}
+/**
+ * Indexes the execution times of every activity by diagram element id.
+ * @param activities - Historic activity instances
+ * @returns Sorted time index
+ */
+function buildActivityTimeIndex(activities) {
+    var _a;
+    var index = {
+        sourceEndTimes: new Map(),
+        targetEndTimes: new Map(),
+        startTimes: new Map(),
+        endTimes: new Map(),
+        executedElementIds: new Set(),
+    };
     for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
         var activity = activities_1[_i];
         var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        if (endTimesById.has(activityId)) {
-            var endTimes = (_b = endTimesById.get(activityId)) !== null && _b !== void 0 ? _b : [];
-            endTimes.push((_c = activity.endTime) !== null && _c !== void 0 ? _c : 'Z');
+        if (isMultiInstanceBody(activityId)) {
+            continue;
         }
-        else {
-            endTimesById.set(activityId, [(_d = activity.endTime) !== null && _d !== void 0 ? _d : 'Z']);
+        var elementId = toElementId(activityId);
+        var endTime = toTimestamp(activity.endTime);
+        index.executedElementIds.add(elementId);
+        push(index.startTimes, elementId, toTimestamp(activity.startTime));
+        push(index.endTimes, elementId, endTime);
+        if (isCanceled(activity)) {
+            continue;
+        }
+        push(index.targetEndTimes, elementId, endTime);
+        if (activity.endTime) {
+            push(index.sourceEndTimes, elementId, toTimestamp(activity.endTime));
         }
     }
-    return endTimesById;
+    for (var _b = 0, _c = [index.sourceEndTimes, index.targetEndTimes, index.startTimes, index.endTimes]; _b < _c.length; _b++) {
+        var times = _c[_b];
+        for (var _d = 0, _e = Array.from(times.values()); _d < _e.length; _d++) {
+            var values = _e[_d];
+            values.sort(function (a, b) { return a - b; });
+        }
+    }
+    return index;
 }
 /**
- * Builds a map of activity IDs to their start times from historic activities.
- * @param activities - Historic activity instances
- * @returns Map of activity ID to array of start times
+ * Counts how often a flow was traversed, by greedily pairing each source execution
+ * with the earliest later target execution.
+ *
+ * The pairing is one-to-one, so the count can never exceed either side's execution
+ * count: a task that ran three times downstream of a gateway that ran five times
+ * yields three traversals, not fifteen.
+ *
+ * @param sourceEndTimes - Ascending end times of the source's completed executions
+ * @param targetEndTimes - Ascending end times of the target's executions
+ * @returns Number of traversals, zero when the flow was never taken
  */
-function buildStartTimesMap(activities) {
+function countTraversals(sourceEndTimes, targetEndTimes) {
+    var source = 0;
+    var target = 0;
+    var traversals = 0;
+    while (source < sourceEndTimes.length && target < targetEndTimes.length) {
+        if (toTimestamp(targetEndTimes[target]) >= toTimestamp(sourceEndTimes[source])) {
+            traversals++;
+            source++;
+        }
+        target++;
+    }
+    return traversals;
+}
+/**
+ * Resolves the outgoing branch taken during a single execution of an exclusive gateway.
+ */
+function resolveTakenBranch(outgoing, execution, index, targetPointers) {
     var _a, _b, _c, _d;
-    var startTimesById = new Map();
-    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
-        var activity = activities_2[_i];
-        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        if (startTimesById.has(activityId)) {
-            var startTimes = (_b = startTimesById.get(activityId)) !== null && _b !== void 0 ? _b : [];
-            startTimes.push((_c = activity.startTime) !== null && _c !== void 0 ? _c : 'Z');
+    var bestConnection = null;
+    var bestDelta = Number.POSITIVE_INFINITY;
+    var bestTargetNextPtr = 0;
+    for (var _i = 0, outgoing_1 = outgoing; _i < outgoing_1.length; _i++) {
+        var connection = outgoing_1[_i];
+        var targetId = connection.target.id;
+        var targetTimes = (_a = index.startTimes.get(targetId)) !== null && _a !== void 0 ? _a : [];
+        var ptr = (_b = targetPointers.get(targetId)) !== null && _b !== void 0 ? _b : 0;
+        if (targetId === execution.elementId && ptr <= execution.executionIndex) {
+            ptr = execution.executionIndex + 1;
         }
-        else {
-            startTimesById.set(activityId, [(_d = activity.startTime) !== null && _d !== void 0 ? _d : 'Z']);
+        while (ptr < targetTimes.length && ((_c = targetTimes[ptr]) !== null && _c !== void 0 ? _c : 0) < execution.endTime) {
+            ptr++;
+        }
+        targetPointers.set(targetId, ptr);
+        if (ptr >= targetTimes.length) {
+            continue;
+        }
+        var delta = ((_d = targetTimes[ptr]) !== null && _d !== void 0 ? _d : STILL_RUNNING) - execution.endTime;
+        if (delta >= 0 && delta < bestDelta) {
+            bestDelta = delta;
+            bestConnection = connection;
+            bestTargetNextPtr = ptr + 1;
         }
     }
-    return startTimesById;
+    if (bestConnection) {
+        targetPointers.set(bestConnection.target.id, bestTargetNextPtr);
+    }
+    return bestConnection;
 }
 /**
- * Determines which activities are valid (completed and not canceled).
- * @param activities - Historic activity instances
- * @returns Map of activity ID to validity boolean
+ * Gateways narrowed to the single branch taken on each pass.
+ *
+ * Inclusive gateways are deliberately absent: they may fire several branches from one
+ * execution, and the generic traversal pairing already models that correctly — each
+ * fired branch pairs with the same gateway execution and scores one, while a branch
+ * that never ran has no target executions to pair with and is dropped.
+ *
+ * Event-based gateways are absent for a different reason. Exactly one of their
+ * branches wins, so narrowing looks right, but the branches all start at the same
+ * instant — their subscriptions are created together — so ranking by the target's
+ * start time cannot tell the winner from the losers and would pick by array order.
+ * Whether that matters depends on what history a losing catch event leaves: if the
+ * engine records it as canceled, the canceled-activity rule below already excludes it
+ * and nothing more is needed. That observation needs a live engine — see issue #66.
  */
-function buildValidActivityMap(activities) {
-    var _a, _b;
-    var validActivity = new Map();
-    for (var _i = 0, activities_3 = activities; _i < activities_3.length; _i++) {
-        var activity = activities_3[_i];
-        if (activity.endTime && !(activity.canceled && !((_a = activity.activityType) !== null && _a !== void 0 ? _a : '').endsWith('Gateway'))) {
-            validActivity.set((_b = activity.activityId) !== null && _b !== void 0 ? _b : '', true);
-        }
-    }
-    return validActivity;
-}
+var singleBranchGatewayTypes = ['exclusiveGateway'];
+/** Whether an activity record is a gateway narrowed to the single branch it took. */
+var isSingleBranchGateway = function (activity) { var _a; return singleBranchGatewayTypes.includes((_a = activity.activityType) !== null && _a !== void 0 ? _a : ''); };
 /**
- * Builds a deny list of connections that should not be highlighted for exclusive gateways.
- * For exclusive gateways, only the first taken path should be highlighted.
+ * Builds a deny list of connections that should not be highlighted for gateways that
+ * take a single branch. For each execution of the gateway only the branch that was
+ * taken is kept.
  * @param activities - Historic activity instances
  * @param elementRegistry - BPMN element registry
- * @param startTimesById - Map of activity ID to start times
- * @param endTimesById - Map of activity ID to end times
+ * @param index - Execution time index
  * @returns Set of connection IDs to exclude from highlighting
  */
-function buildConnectionDenyList(activities, elementRegistry, startTimesById, endTimesById) {
-    var _a, _b, _c, _d;
+function buildConnectionDenyList(activities, elementRegistry, index) {
+    var _a, _b, _c;
     var connectionDenyList = new Set();
-    for (var _i = 0, activities_4 = activities; _i < activities_4.length; _i++) {
-        var activity = activities_4[_i];
-        if (activity.activityType !== 'exclusiveGateway') {
+    var visited = new Set();
+    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
+        var activity = activities_2[_i];
+        if (!isSingleBranchGateway(activity)) {
             continue;
         }
-        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        var element = elementRegistry.get(activityId);
-        if (!(element === null || element === void 0 ? void 0 : element.outgoing) || element.outgoing.length === 0) {
+        var elementId = toElementId((_a = activity.activityId) !== null && _a !== void 0 ? _a : '');
+        if (visited.has(elementId)) {
             continue;
         }
-        var activeConnections = [];
-        var myEndTimes = (_b = endTimesById.get(activityId)) !== null && _b !== void 0 ? _b : [];
-        var _loop_1 = function (idx) {
-            var myEndTime = (_c = myEndTimes[idx]) !== null && _c !== void 0 ? _c : 'Z';
-            // Sort outgoing connections by their target's start time
-            element.outgoing.sort(function (a, b) {
-                var _a, _b, _c, _d;
-                var startTimesA = (_a = startTimesById.get(a.target.id)) !== null && _a !== void 0 ? _a : [];
-                var startTimesB = (_b = startTimesById.get(b.target.id)) !== null && _b !== void 0 ? _b : [];
-                var startA = (_c = startTimesA[idx]) !== null && _c !== void 0 ? _c : 'Z';
-                var startB = (_d = startTimesB[idx]) !== null && _d !== void 0 ? _d : 'Z';
-                if (startTimesA.length <= idx) {
-                    return 1;
-                }
-                else if (startTimesB.length <= idx) {
-                    return -1;
-                }
-                else if (startA < myEndTime) {
-                    return 1;
-                }
-                else if (startB < myEndTime) {
-                    return -1;
-                }
-                else if (startA > startB) {
-                    return 1;
-                }
-                else if (startA < startB) {
-                    return -1;
-                }
-                return 0;
-            });
-            if (element.outgoing[0]) {
-                activeConnections.push(element.outgoing[0].id);
+        visited.add(elementId);
+        var element = elementRegistry.get(elementId);
+        var outgoing = element === null || element === void 0 ? void 0 : element.outgoing;
+        if (!outgoing || outgoing.length === 0) {
+            continue;
+        }
+        var activeConnections = new Set();
+        var gatewayEndTimes = (_b = index.endTimes.get(elementId)) !== null && _b !== void 0 ? _b : [];
+        var targetPointers = new Map();
+        for (var idx = 0; idx < gatewayEndTimes.length; idx++) {
+            var taken = resolveTakenBranch(outgoing, { elementId: elementId, executionIndex: idx, endTime: (_c = gatewayEndTimes[idx]) !== null && _c !== void 0 ? _c : STILL_RUNNING }, index, targetPointers);
+            if (taken) {
+                activeConnections.add(taken.id);
             }
-        };
-        for (var idx = 0; idx < myEndTimes.length; idx++) {
-            _loop_1(idx);
         }
-        for (var _e = 0, _f = element.outgoing; _e < _f.length; _e++) {
-            var connection = _f[_e];
-            var connWithTarget = connection;
-            if (!activeConnections.includes(connection.id) && ((_d = connWithTarget.target) === null || _d === void 0 ? void 0 : _d.type) !== 'bpmn:ParallelGateway') {
+        for (var _d = 0, outgoing_2 = outgoing; _d < outgoing_2.length; _d++) {
+            var connection = outgoing_2[_d];
+            if (!activeConnections.has(connection.id) && connection.target.type !== 'bpmn:ParallelGateway') {
                 connectionDenyList.add(connection.id);
             }
         }
@@ -75943,76 +75877,50 @@ function buildConnectionDenyList(activities, elementRegistry, startTimesById, en
     return connectionDenyList;
 }
 /**
- * Extracts connected BPMN elements based on historic activities.
+ * Resolves the sequence flows an instance actually took, with traversal counts.
  *
- * This function analyzes historic activity instances and determines which
- * sequence flows were actually executed, handling special cases like:
+ * Analyzes historic activity instances and determines which sequence flows were
+ * executed, handling special cases like:
  * - Exclusive gateways (only highlighting the taken path)
- * - Canceled activities
- * - Multiple executions of the same activity
+ * - Canceled activities (nothing flows out of them, and nothing flows into them)
+ * - Multiple executions of the same activity (counted, so loops can be weighted)
  *
  * @param activities - Historic activity instances to analyze
  * @param elementRegistry - BPMN element registry from viewer
- * @returns Array of connected BPMN activity elements representing executed flows
+ * @returns Executed connections with the number of times each was traversed
  */
-var getConnections = function (activities, elementRegistry) {
-    var validActivity = buildValidActivityMap(activities);
-    var startTimesById = buildStartTimesMap(activities);
-    var endTimesById = buildEndTimesMap(activities);
-    var connectionDenyList = buildConnectionDenyList(activities, elementRegistry, startTimesById, endTimesById);
-    // Build element map
-    var elementById = new Map(map$1(activities, function (activity) {
-        var _a;
-        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        var element = elementRegistry.get(activityId);
-        return [activityId, element];
-    }));
-    /**
-     * Gets valid connections for a single activity.
-     */
-    var getActivityConnections = function (activityId) {
-        var current = elementById.get(activityId);
-        var currentEndTimesResult = endTimesById.get(activityId);
-        var currentEndTimes = currentEndTimesResult !== null && currentEndTimesResult !== void 0 ? currentEndTimesResult : [];
-        if (!current || !validActivity.get(activityId)) {
-            return [];
+var getExecutedConnections = function (activities, elementRegistry) {
+    var _a, _b, _c, _d;
+    var index = buildActivityTimeIndex(activities);
+    var connectionDenyList = buildConnectionDenyList(activities, elementRegistry, index);
+    // Every flow touching an executed element is a candidate, scored once below.
+    var candidates = new Map();
+    for (var _i = 0, _e = Array.from(index.executedElementIds); _i < _e.length; _i++) {
+        var elementId = _e[_i];
+        var element = elementRegistry.get(elementId);
+        if (!element) {
+            continue;
         }
-        // Extract connections before filtering to satisfy type narrowing
-        // Use Array.isArray to force TypeScript to narrow the type correctly
-        var rawIncoming = current.incoming;
-        var rawOutgoing = current.outgoing;
-        var incomingList = Array.isArray(rawIncoming) ? rawIncoming : [];
-        var outgoingList = Array.isArray(rawOutgoing) ? rawOutgoing : [];
-        var incoming = filter(incomingList, function (connection) {
-            if (connectionDenyList.has(connection.id)) {
-                return false;
-            }
-            var sourceEndTimes = endTimesById.get(connection.source.id);
-            var incomingEndTimes = [];
-            if (validActivity.get(connection.source.id)) {
-                incomingEndTimes = sourceEndTimes !== null && sourceEndTimes !== void 0 ? sourceEndTimes : [];
-            }
-            return incomingEndTimes.reduce(function (acc, iET) {
-                return acc || currentEndTimes.reduce(function (acc_, cET) { return acc_ || iET <= cET; }, false);
-            }, false);
-        });
-        var outgoing = filter(outgoingList, function (connection) {
-            if (connectionDenyList.has(connection.id)) {
-                return false;
-            }
-            var targetEndTimes = endTimesById.get(connection.target.id);
-            var outgoingEndTimes = targetEndTimes !== null && targetEndTimes !== void 0 ? targetEndTimes : [];
-            return outgoingEndTimes.reduce(function (acc, oET) {
-                return acc || currentEndTimes.reduce(function (acc_, cET) { return acc_ || oET >= cET; }, false);
-            }, false);
-        });
-        return __spreadArray$1(__spreadArray$1([], incoming, true), outgoing, true);
-    };
-    var connections = [];
-    forEach$1(Array.from(elementById.keys()), function (activityId) {
-        connections = uniqueBy('id', __spreadArray$1(__spreadArray$1([], connections, true), getActivityConnections(activityId), true));
-    });
-    return connections;
+        for (var _f = 0, _g = __spreadArray$1(__spreadArray$1([], ((_a = element.incoming) !== null && _a !== void 0 ? _a : []), true), ((_b = element.outgoing) !== null && _b !== void 0 ? _b : []), true); _f < _g.length; _f++) {
+            var connection = _g[_f];
+            candidates.set(connection.id, connection);
+        }
+    }
+    var executed = [];
+    for (var _h = 0, _j = Array.from(candidates.values()); _h < _j.length; _h++) {
+        var connection = _j[_h];
+        if (connectionDenyList.has(connection.id)) {
+            continue;
+        }
+        var sourceTimes = (_c = index.sourceEndTimes.get(connection.source.id)) !== null && _c !== void 0 ? _c : [];
+        var rawTargetTimes = (_d = index.targetEndTimes.get(connection.target.id)) !== null && _d !== void 0 ? _d : [];
+        var targetTimes = connection.source.id === connection.target.id ? rawTargetTimes.slice(1) : rawTargetTimes;
+        var count = countTraversals(sourceTimes, targetTimes);
+        if (count > 0) {
+            executed.push({ element: connection, count: count });
+        }
+    }
+    return executed;
 };
 
 /**
@@ -76512,17 +76420,12 @@ function getMid(a, b) {
   };
 }
 
-/**
- * BPMN SVG rendering utilities.
- *
- * Handles rendering sequence flow paths and other SVG elements on the BPMN diagram.
- * @module
- */
 /** Fill color for sequence flow highlighting */
 var FILL = '#52B415';
+/** Class set on every path this module draws, so the overlay stays identifiable */
+var EXECUTED_PATH_CLASS = 'executed-sequence-flow';
 /** Marker SVG attributes configuration */
 var MARKER_ATTRS = {
-    id: 'arrow',
     viewBox: '0 0 10 10',
     refX: 7,
     refY: 5,
@@ -76538,60 +76441,116 @@ var ARROW_PATH_ATTRS = {
     strokeWidth: 0,
 };
 /**
+ * Counter behind the per-render marker id. Two viewers can share a document — the
+ * instance diagram and the history route — so a fixed id would make one steal the
+ * other's arrowheads.
+ */
+var markerSequence = 0;
+/**
+ * Scales the stroke width with the number of traversals, logarithmically so that a
+ * long-running loop stays a line rather than becoming a slab.
+ * @param count - Number of times the flow was traversed
+ * @returns Stroke width in diagram units, capped at EXECUTED_PATH_STROKE_WIDTH_MAX
+ */
+var getStrokeWidth = function (count) {
+    if (count <= 1) {
+        return EXECUTED_PATH_STROKE_WIDTH;
+    }
+    var width = EXECUTED_PATH_STROKE_WIDTH + EXECUTED_PATH_STROKE_WIDTH_STEP * Math.log2(count);
+    return Math.min(EXECUTED_PATH_STROKE_WIDTH_MAX, Math.round(width));
+};
+/**
+ * Adds a native tooltip naming the traversal count, since the stroke width only shows
+ * it approximately and saturates at the cap.
+ * @param path - The path element to describe
+ * @param count - Number of times the flow was traversed
+ * @param truncated - Whether the history it was counted from was cut short, making
+ *   every count a lower bound rather than the real figure
+ */
+function appendTraversalTitle(path, count, truncated) {
+    var title = create$2('title');
+    if (truncated) {
+        title.textContent = count === 1 ? 'Executed at least once' : "Executed at least ".concat(count, " times");
+    }
+    else {
+        title.textContent = count === 1 ? 'Executed once' : "Executed ".concat(count, " times");
+    }
+    append(path, title);
+}
+/**
  * Creates and appends the arrow marker definition to the SVG defs element.
  * @param defs - The defs element to append to
+ * @param id - Unique id to reference the marker by
  * @returns The created marker element
  */
-function createArrowMarker(defs) {
+function createArrowMarker(defs, id) {
     var marker = create$2('marker');
     var path = create$2('path');
-    attr$1(marker, MARKER_ATTRS);
+    attr$1(marker, __assign(__assign({}, MARKER_ATTRS), { id: id }));
     attr$1(path, ARROW_PATH_ATTRS);
     append(marker, path);
     append(defs, marker);
     return marker;
 }
 /**
+ * Finds the SVG's defs element, creating it when the diagram has none yet.
+ * @param canvas - The viewer canvas
+ * @returns The defs element to hold marker definitions
+ */
+function resolveDefs(canvas) {
+    // Cast SVG to HTMLElement for domQuery, which expects HTMLElement
+    var existing = query('defs', canvas._svg);
+    if (existing !== null) {
+        return existing;
+    }
+    var defs = create$2('defs');
+    append(canvas._svg, defs);
+    return defs;
+}
+/**
  * Renders sequence flow highlighting on the BPMN diagram based on historic activities.
- * Draws colored arrows showing the execution path through the process.
+ * Draws colored arrows showing the execution path through the process, weighted by how
+ * often each flow was traversed.
  * @param viewer - The BPMN viewer instance
  * @param activities - Historic activity instances to visualize
+ * @param options - Rendering options
  * @returns Array of SVG elements that were added (for later cleanup)
  */
-var renderSequenceFlow = function (viewer, activities) {
+var renderSequenceFlow = function (viewer, activities, options) {
+    if (options === void 0) { options = {}; }
+    var isTruncated = options.truncated === true;
     var registry = viewer.get('elementRegistry');
     var canvas = viewer.get('canvas');
     var layer = canvas.getLayer('processInstance', 1);
-    var connections = getConnections(activities, registry);
+    var connections = getExecutedConnections(activities, registry);
     var paths = [];
-    // Query for existing defs element - cast SVG to HTMLElement for domQuery which expects HTMLElement
-    var defs = query('defs', canvas._svg);
-    if (defs === null) {
-        defs = create$2('defs');
-        append(canvas._svg, defs);
-    }
-    var marker = createArrowMarker(defs);
+    var markerId = "executed-path-arrow-".concat(markerSequence++);
+    var marker = createArrowMarker(resolveDefs(canvas), markerId);
     paths.push(marker);
     for (var _i = 0, connections_1 = connections; _i < connections_1.length; _i++) {
-        var connection = connections_1[_i];
-        var connWithWaypoints = connection;
-        var curve = createCurve(connWithWaypoints.waypoints, {
-            markerEnd: 'url(#arrow)',
+        var _a = connections_1[_i], element = _a.element, count = _a.count;
+        // The arrowhead inherits strokeWidth units, so it grows with the line.
+        var curve = createCurve(element.waypoints, {
+            markerEnd: "url(#".concat(markerId, ")"),
             stroke: FILL,
-            strokeWidth: 4,
+            strokeWidth: getStrokeWidth(count),
         });
+        attr$1(curve, { class: EXECUTED_PATH_CLASS });
+        appendTraversalTitle(curve, count, isTruncated);
         append(layer, curve);
         paths.push(curve);
     }
     var dottedConnections = getDottedConnections(connections);
-    for (var _a = 0, dottedConnections_1 = dottedConnections; _a < dottedConnections_1.length; _a++) {
-        var connection = dottedConnections_1[_a];
-        var curve = createCurve(connection.waypoints, {
+    for (var _b = 0, dottedConnections_1 = dottedConnections; _b < dottedConnections_1.length; _b++) {
+        var _c = dottedConnections_1[_b], waypoints = _c.waypoints, count = _c.count;
+        var curve = createCurve(waypoints, {
             strokeDasharray: '1 8',
             strokeLinecap: 'round',
             stroke: FILL,
-            strokeWidth: 4,
+            strokeWidth: getStrokeWidth(count),
         });
+        attr$1(curve, { class: EXECUTED_PATH_CLASS });
+        appendTraversalTitle(curve, count, isTruncated);
         append(layer, curve);
         paths.push(curve);
     }
@@ -76661,17 +76620,20 @@ function GiStrikingArrows (props) {
   return GenIcon({"attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M136.564 31.01l239.67 149.595c-12.418 21.234-20.756 28.302-45.027 46.936l156.3-26.33-85.603-125.474c4.936 24.85 8.85 38.5.75 60.49L136.568 31.01h-.004zM21.524 42.75l83.13 325.893c-21.017 5.232-30.98 3.262-58.875-3.96l124.046 113.45 13.426-166.844c-10.836 23.322-15.94 37.197-34.342 46.82L21.523 42.75zm64.353.215l252.2 353.16c-23.285 16.947-36.38 19.583-73.83 24.9l200.66 71.74L407.7 286.944c-2.477 33.743-2.313 53.14-20.37 74.09L85.877 42.965z"},"child":[]}]})(props);
 }
 
+/** Colour of the icon when the path was drawn from a truncated history */
+var PARTIAL_PATH_COLOR = '#b8860b';
 /**
  * Toggle button for showing/hiding sequence flow on BPMN diagrams.
  * Persists the user's preference in localStorage.
  *
  * @param props - Component props
  * @param props.onToggleSequenceFlow - Callback invoked when visibility changes
+ * @param props.partial - Whether the path was drawn from a truncated history
  * @returns Toggle button component
  */
 var ToggleSequenceFlowButton = function (_a) {
-    var onToggleSequenceFlow = _a.onToggleSequenceFlow;
-    var _b = reactExports.useState(loadSettings().showSequenceFlow), showSequenceFlow = _b[0], setShowSequenceFlow = _b[1];
+    var onToggleSequenceFlow = _a.onToggleSequenceFlow, _b = _a.partial, partial = _b === void 0 ? false : _b;
+    var _c = reactExports.useState(loadSettings().showSequenceFlow), showSequenceFlow = _c[0], setShowSequenceFlow = _c[1];
     reactExports.useEffect(function () {
         onToggleSequenceFlow(showSequenceFlow);
         saveSettings(__assign(__assign({}, loadSettings()), { showSequenceFlow: showSequenceFlow }));
@@ -76679,8 +76641,11 @@ var ToggleSequenceFlowButton = function (_a) {
     var handleClick = reactExports.useCallback(function () {
         setShowSequenceFlow(function (prev) { return !prev; });
     }, []);
-    return (React.createElement("button", { className: "toggle-sequence-flow-button", title: !showSequenceFlow ? 'Show sequence flow' : 'Hide sequence flow', "aria-label": !showSequenceFlow ? 'Show sequence flow' : 'Hide sequence flow', onClick: handleClick },
-        React.createElement(GiStrikingArrows, { style: { opacity: !showSequenceFlow ? '0.33' : '1.0', fontSize: '133%' } })));
+    // The label carries the warning, not just the colour, so it reaches screen readers too.
+    var action = !showSequenceFlow ? 'Show sequence flow' : 'Hide sequence flow';
+    var label = partial ? "".concat(action, " (history truncated \u2014 path may be incomplete)") : action;
+    return (React.createElement("button", { className: "toggle-sequence-flow-button", title: label, "aria-label": label, onClick: handleClick },
+        React.createElement(GiStrikingArrows, { style: __assign({ opacity: !showSequenceFlow ? '0.33' : '1.0', fontSize: '133%' }, (partial ? { color: PARTIAL_PATH_COLOR } : {})) })));
 };
 
 /**
@@ -76757,11 +76722,11 @@ var createBPMNViewer = function (diagram) { return __awaiter(void 0, void 0, voi
  * Renders a navigable BPMN diagram with zoom controls and optional history overlays.
  */
 var BPMNViewer = function (_a) {
-    var activities = _a.activities, className = _a.className, diagramXML = _a.diagramXML, style = _a.style, showRuntimeToggle = _a.showRuntimeToggle;
+    var activities = _a.activities, className = _a.className, diagramXML = _a.diagramXML, style = _a.style, showRuntimeToggle = _a.showRuntimeToggle, _b = _a.activitiesTruncated, activitiesTruncated = _b === void 0 ? false : _b;
     var ref = reactExports.useRef(null);
     reactExports.useEffect(function () {
         var executeViewerSetup = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var viewer_1, canvas_1, resetZoom, buttons, sequenceFlow_1;
+            var viewer_1, canvas_1, resetZoom, buttons, sequenceFlow_1, handleToggleSequenceFlow;
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -76787,20 +76752,19 @@ var BPMNViewer = function (_a) {
                         buttons.style.cssText = "\n            display: flex;\n            flex-direction: column;\n            position: absolute;\n            right: 15px;\n            top: 15px;\n            bottom: 45px;\n          ";
                         viewer_1._container.appendChild(buttons);
                         sequenceFlow_1 = [];
+                        handleToggleSequenceFlow = function (value) {
+                            if (!value) {
+                                clearSequenceFlow(sequenceFlow_1);
+                                sequenceFlow_1.length = 0;
+                                return;
+                            }
+                            if (sequenceFlow_1.length === 0) {
+                                var drawn = renderSequenceFlow(viewer_1, activities !== null && activities !== void 0 ? activities : [], { truncated: activitiesTruncated });
+                                sequenceFlow_1.splice.apply(sequenceFlow_1, __spreadArray$1([0, sequenceFlow_1.length], drawn, false));
+                            }
+                        };
                         clientExports.createRoot(buttons).render(React.createElement(React.StrictMode, null,
-                            React.createElement(ToggleSequenceFlowButton, { onToggleSequenceFlow: function (value) {
-                                    if (value) {
-                                        if (sequenceFlow_1.length === 0) {
-                                            sequenceFlow_1.splice.apply(sequenceFlow_1, __spreadArray$1([0, sequenceFlow_1.length], renderSequenceFlow(viewer_1, activities !== null && activities !== void 0 ? activities : []), false));
-                                        }
-                                    }
-                                    else {
-                                        if (sequenceFlow_1.length > 0) {
-                                            clearSequenceFlow(sequenceFlow_1);
-                                            sequenceFlow_1.length = 0;
-                                        }
-                                    }
-                                } }),
+                            React.createElement(ToggleSequenceFlowButton, { partial: activitiesTruncated, onToggleSequenceFlow: handleToggleSequenceFlow }),
                             showRuntimeToggle ? (React.createElement(ToggleHistoryViewButton, { onToggleHistoryView: function (value) {
                                     var _a;
                                     if (!value) {
@@ -79666,21 +79630,21 @@ var TABS_HEIGHT_THRESHOLD = 200;
  */
 var HistoryViewLayout = function (_a) {
     var _b, _c, _d, _e;
-    var instance = _a.instance, historicInstance = _a.historicInstance, definition = _a.definition, diagramXML = _a.diagramXML, activities = _a.activities, variables = _a.variables, activityById = _a.activityById, decisionByActivity = _a.decisionByActivity, api = _a.api;
+    var instance = _a.instance, historicInstance = _a.historicInstance, definition = _a.definition, diagramXML = _a.diagramXML, activities = _a.activities, _f = _a.activitiesTruncated, activitiesTruncated = _f === void 0 ? false : _f, variables = _a.variables, activityById = _a.activityById, decisionByActivity = _a.decisionByActivity, api = _a.api;
     var settings = loadSettings();
     var horizontalRef = reactExports.useRef(null);
     var verticalRef = reactExports.useRef(null);
     var containerRef = reactExports.useRef(null);
-    var _f = reactExports.useState(typeof settings.leftPaneSize === 'number' ? settings.leftPaneSize : INFO_EXPANDED_SIZE), infoPaneSize = _f[0], setInfoPaneSize = _f[1];
+    var _g = reactExports.useState(typeof settings.leftPaneSize === 'number' ? settings.leftPaneSize : INFO_EXPANDED_SIZE), infoPaneSize = _g[0], setInfoPaneSize = _g[1];
     // Track bottom tabs pane size (derived from container height - top pane size)
-    var _g = reactExports.useState(function () {
+    var _h = reactExports.useState(function () {
         if (typeof settings.topPaneSize === 'number') {
             // topPaneSize is the BPMN viewer height; tabs height = container - topPaneSize
             var containerHeight = 600;
             return containerHeight - settings.topPaneSize;
         }
         return 300; // Default: 50% of 600px container
-    }), tabsPaneSize = _g[0], setTabsPaneSize = _g[1];
+    }), tabsPaneSize = _h[0], setTabsPaneSize = _h[1];
     /** Get container height for calculations */
     var getContainerHeight = function () {
         var _a, _b;
@@ -79775,7 +79739,7 @@ var HistoryViewLayout = function (_a) {
                         } },
                         React.createElement(Ve.Pane, { preferredSize: (_c = settings.topPaneSize) !== null && _c !== void 0 ? _c : '66%' },
                             React.createElement("div", { style: { height: '100%', position: 'relative' } },
-                                React.createElement(BPMNViewer, { activities: activities, diagramXML: diagramXML, className: "ctn-content", style: { width: '100%', height: '100%' }, showRuntimeToggle: instance.state === 'ACTIVE' }),
+                                React.createElement(BPMNViewer, { activities: activities, activitiesTruncated: activitiesTruncated, diagramXML: diagramXML, className: "ctn-content", style: { width: '100%', height: '100%' }, showRuntimeToggle: instance.state === 'ACTIVE' }),
                                 React.createElement("button", { type: "button", onClick: toggleTabsPanel, style: {
                                         position: 'absolute',
                                         left: '10px',
@@ -80521,7 +80485,7 @@ var instanceRouteHistory = [
             var processInstanceId = (_c = (_b = match === null || match === void 0 ? void 0 : match[1]) === null || _b === void 0 ? void 0 : _b.split('?')[0]) !== null && _c !== void 0 ? _c : null;
             if (processInstanceId !== null) {
                 void (function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var instance, _a, versionData, definition, diagram, activitiesData, variablesData, decisions, decisionByActivity, activityById, activities, variables, processInstance;
+                    var instance, _a, versionData, definition, diagram, activityHistory, variablesData, decisions, decisionByActivity, activityById, activities, variables, processInstance;
                     var _b, _c, _d, _e, _f, _g;
                     return __generator(this, function (_h) {
                         switch (_h.label) {
@@ -80532,15 +80496,15 @@ var instanceRouteHistory = [
                                         getVersion(api),
                                         getProcessDefinition(api, (_b = instance.processDefinitionId) !== null && _b !== void 0 ? _b : ''),
                                         getProcessDefinitionXml(api, (_c = instance.processDefinitionId) !== null && _c !== void 0 ? _c : ''),
-                                        getActivities(api, processInstanceId),
+                                        getActivityHistoryPage(api, processInstanceId, loadSettings().maxResults),
                                         getVariables(api, processInstanceId),
                                         getDecisions(api, processInstanceId),
                                     ])];
                             case 2:
-                                _a = _h.sent(), versionData = _a[0], definition = _a[1], diagram = _a[2], activitiesData = _a[3], variablesData = _a[4], decisions = _a[5];
+                                _a = _h.sent(), versionData = _a[0], definition = _a[1], diagram = _a[2], activityHistory = _a[3], variablesData = _a[4], decisions = _a[5];
                                 decisionByActivity = mapDecisionsByActivity(decisions);
-                                activityById = new Map(activitiesData.map(function (activity) { var _a; return [(_a = activity.id) !== null && _a !== void 0 ? _a : '', activity]; }));
-                                activities = sortActivitiesByEndTime(activitiesData);
+                                activityById = new Map(activityHistory.activities.map(function (activity) { var _a; return [(_a = activity.id) !== null && _a !== void 0 ? _a : '', activity]; }));
+                                activities = sortActivitiesByEndTime(activityHistory.activities);
                                 variables = sortByName(variablesData);
                                 processInstance = __assign(__assign({ id: (_d = instance.id) !== null && _d !== void 0 ? _d : processInstanceId, processDefinitionId: (_e = instance.processDefinitionId) !== null && _e !== void 0 ? _e : '', processDefinitionKey: instance.processDefinitionKey, processDefinitionVersion: instance.processDefinitionVersion, businessKey: instance.businessKey, tenantId: instance.tenantId, superProcessInstanceId: instance.superProcessInstanceId }, (instance.processDefinitionName !== null &&
                                     instance.processDefinitionName !== undefined && {
@@ -80549,7 +80513,7 @@ var instanceRouteHistory = [
                                 clientExports.createRoot(node).render(React.createElement(React.StrictMode, null,
                                     React.createElement(Page, { version: versionData.version, api: api },
                                         React.createElement(BreadcrumbsPanel, { processDefinitionId: (_f = instance.processDefinitionId) !== null && _f !== void 0 ? _f : '', processDefinitionName: (_g = instance.processDefinitionName) !== null && _g !== void 0 ? _g : undefined, processInstanceId: processInstanceId }),
-                                        React.createElement(HistoryViewLayout, { instance: processInstance, historicInstance: instance, definition: definition, diagramXML: diagram.bpmn20Xml, activities: activities, variables: variables, activityById: activityById, decisionByActivity: decisionByActivity, api: api }))));
+                                        React.createElement(HistoryViewLayout, { instance: processInstance, historicInstance: instance, definition: definition, diagramXML: diagram.bpmn20Xml, activities: activities, activitiesTruncated: activityHistory.truncated, variables: variables, activityById: activityById, decisionByActivity: decisionByActivity, api: api }))));
                                 return [2 /*return*/];
                         }
                     });

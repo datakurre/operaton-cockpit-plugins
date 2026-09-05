@@ -25,7 +25,7 @@ import {
   getVersion,
   getProcessDefinition,
   getProcessDefinitionXml,
-  getActivities,
+  getActivityHistoryPage,
   getVariables,
   getDecisions,
 } from './utils/api';
@@ -446,17 +446,17 @@ export default [
       if (processInstanceId !== null) {
         void (async () => {
           const instance = await getHistoricProcessInstance(api, processInstanceId);
-          const [versionData, definition, diagram, activitiesData, variablesData, decisions] = await Promise.all([
+          const [versionData, definition, diagram, activityHistory, variablesData, decisions] = await Promise.all([
             getVersion(api),
             getProcessDefinition(api, instance.processDefinitionId ?? ''),
             getProcessDefinitionXml(api, instance.processDefinitionId ?? ''),
-            getActivities(api, processInstanceId),
+            getActivityHistoryPage(api, processInstanceId, loadSettings().maxResults),
             getVariables(api, processInstanceId),
             getDecisions(api, processInstanceId),
           ]);
           const decisionByActivity = mapDecisionsByActivity(decisions);
-          const activityById = new Map(activitiesData.map(activity => [activity.id ?? '', activity]));
-          const activities = sortActivitiesByEndTime(activitiesData);
+          const activityById = new Map(activityHistory.activities.map(activity => [activity.id ?? '', activity]));
+          const activities = sortActivitiesByEndTime(activityHistory.activities);
           const variables = sortByName(variablesData);
           // Build the process instance object for display components
           const processInstance = {
@@ -487,6 +487,7 @@ export default [
                   definition={definition}
                   diagramXML={diagram.bpmn20Xml}
                   activities={activities}
+                  activitiesTruncated={activityHistory.truncated}
                   variables={variables}
                   activityById={activityById}
                   decisionByActivity={decisionByActivity}
