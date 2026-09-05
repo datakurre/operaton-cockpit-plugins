@@ -103,9 +103,9 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 
 ### BPMN utilities (`src/utils/bpmn/`)
 - [index.ts](src/utils/bpmn/index.ts): Module exports for BPMN utilities
-- [connections.ts](src/utils/bpmn/connections.ts): Connection and flow analysis utilities (sequence flows, dotted connections)
+- [connections.ts](src/utils/bpmn/connections.ts): Resolves which sequence flows an instance took, and how often. The engine never reports taken flows, so `getExecutedConnections()` infers them from activity timestamps: each candidate flow is scored once by pairing the source's completed executions with later target executions (`countTraversals()`), exclusive gateways are narrowed to the branch taken, and canceled activities are excluded on both ends. Also builds the dotted stubs that bridge the path through a node
 - [overlays.ts](src/utils/bpmn/overlays.ts): Overlay rendering (activity count badges)
-- [svg.ts](src/utils/bpmn/svg.ts): SVG sequence flow path rendering with arrow markers
+- [svg.ts](src/utils/bpmn/svg.ts): Draws the resolved path onto the diagram's `processInstance` layer as `svg-curves` curves, weighted by traversal count via `getStrokeWidth()` (logarithmic, capped by `EXECUTED_PATH_STROKE_WIDTH_MAX`) with the exact count in an SVG `<title>`. Each render gets its own arrow marker id, so two viewers on one page do not share one
 
 ### Custom hooks (`src/hooks/`)
 - [useData.ts](src/hooks/useData.ts): Data fetching hooks (`useActivities`, `useVariables`, `useBpmnElements`, `useSettings`)
