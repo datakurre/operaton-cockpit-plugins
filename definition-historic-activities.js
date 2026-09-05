@@ -3413,7 +3413,7 @@ function extract(input) {
 	return input.slice(queryStart + 1);
 }
 
-function parse$1(query, options) {
+function parse$2(query, options) {
 	options = {
 		decode: true,
 		sort: true,
@@ -3582,7 +3582,7 @@ function parseUrl(url, options) {
 
 	return {
 		url: url_?.split('?')?.[0] ?? '',
-		query: parse$1(extract(url), options),
+		query: parse$2(extract(url), options),
 		...(options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}),
 	};
 }
@@ -3599,7 +3599,7 @@ function stringifyUrl(object, options) {
 	const queryFromUrl = extract(object.url);
 
 	const query = {
-		...parse$1(queryFromUrl, {sort: false, ...options}),
+		...parse$2(queryFromUrl, {sort: false, ...options}),
 		...object.query,
 	};
 
@@ -3642,7 +3642,7 @@ var queryString = /*#__PURE__*/Object.freeze({
     __proto__: null,
     exclude: exclude,
     extract: extract,
-    parse: parse$1,
+    parse: parse$2,
     parseUrl: parseUrl,
     pick: pick,
     stringify: stringify,
@@ -3779,12 +3779,14 @@ var loadSettings = function () {
     var autoRefreshParam = parsed['autoRefresh'];
     var showHistoricBadgesParam = parsed['showHistoricBadges'];
     var showSequenceFlowParam = parsed['showSequenceFlow'];
+    var showHeatmapParam = parsed['showHeatmap'];
     var maxResultsParam = parsed['maxResults'];
     var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
     return {
         autoRefresh: raw.autoRefresh === true || autoRefreshParam !== undefined,
         showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
         showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
+        showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
         leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
         topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
         maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
@@ -10432,7 +10434,7 @@ const unescapedLatinCharacterRegExp = /[a-zA-Z]/;
  * })
  * //=> Sun Feb 28 2010 00:00:00
  */
-function parse(dateStr, formatStr, referenceDate, options) {
+function parse$1(dateStr, formatStr, referenceDate, options) {
   const invalidDate = () => constructFrom(options?.in || referenceDate, NaN);
   const defaultOptions = getDefaultOptions();
   const locale = options?.locale ?? defaultOptions.locale ?? enUS;
@@ -13792,7 +13794,7 @@ function parseDate(value, dateFormat, locale, strictParsing, refDate) {
     var formats = Array.isArray(dateFormat) ? dateFormat : [dateFormat];
     for (var _i = 0, formats_1 = formats; _i < formats_1.length; _i++) {
         var format_1 = formats_1[_i];
-        var parsedDate = parse(value, format_1, refDate, {
+        var parsedDate = parse$1(value, format_1, refDate, {
             locale: localeObject});
         if (isValid(parsedDate) &&
             (!strictParsing || value === formatDate$1(parsedDate, format_1, locale))) {
@@ -21149,29 +21151,58 @@ var StatisticsTable = function (_a) {
 };
 
 // THIS FILE IS AUTO GENERATED
-function FaHistory (props) {
+function FaFire (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 384 512"},"child":[{"tag":"path","attr":{"d":"M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-21.7-26.47-32.23-41.43-16.5C27.8 213.16 0 261.33 0 320c0 105.87 86.13 192 192 192s192-86.13 192-192c0-170.29-168-193-168-296.14z"},"child":[]}]})(props);
+}function FaHistory (props) {
   return GenIcon({"attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M504 255.531c.253 136.64-111.18 248.372-247.82 248.468-59.015.042-113.223-20.53-155.822-54.911-11.077-8.94-11.905-25.541-1.839-35.607l11.267-11.267c8.609-8.609 22.353-9.551 31.891-1.984C173.062 425.135 212.781 440 256 440c101.705 0 184-82.311 184-184 0-101.705-82.311-184-184-184-48.814 0-93.149 18.969-126.068 49.932l50.754 50.754c10.08 10.08 2.941 27.314-11.313 27.314H24c-8.837 0-16-7.163-16-16V38.627c0-14.254 17.234-21.393 27.314-11.314l49.372 49.372C129.209 34.136 189.552 8 256 8c136.81 0 247.747 110.78 248 247.531zm-180.912 78.784l9.823-12.63c8.138-10.463 6.253-25.542-4.21-33.679L288 256.349V152c0-13.255-10.745-24-24-24h-16c-13.255 0-24 10.745-24 24v135.651l65.409 50.874c10.463 8.137 25.541 6.253 33.679-4.21z"},"child":[]}]})(props);
 }
 
+/** The cycle the button walks on each click. */
+var MODE_CYCLE = ['off', 'counts', 'heat'];
+var MODE_LABEL = {
+    off: 'Show history instance statistics',
+    counts: 'Show time heatmap',
+    heat: 'Hide history instance statistics',
+};
+/** Colour of the icon in heat mode, taken from the hot end of the heatmap ramp. */
+var HEAT_ICON_COLOR = '#d82c20';
 /**
- * Toggle button for showing/hiding history statistics badges on BPMN diagrams.
- * Persists the user's preference in localStorage.
+ * Reads the stored mode. It is kept as two booleans rather than one string so that
+ * settings and URL parameters written before the heatmap existed still mean what they
+ * did: `showHistoricBadges` still turns badges on, `showHeatmap` adds the layer.
+ * @returns The mode the stored settings describe
+ */
+function loadMode() {
+    var settings = loadSettings();
+    if (!settings.showHistoricBadges && !settings.showHeatmap) {
+        return 'off';
+    }
+    return settings.showHeatmap ? 'heat' : 'counts';
+}
+/**
+ * Three-state toggle for the statistics overlays on a process definition diagram:
+ * off, execution counts, then a heatmap of cumulative time. Persists the mode.
  *
  * @param props - Component props
- * @param props.onToggleHistoryStatistics - Callback invoked when visibility changes
+ * @param props.onToggleHistoryStatistics - Callback invoked when the mode changes
  * @returns Toggle button component
  */
 var ToggleHistoryStatisticsButton = function (_a) {
     var onToggleHistoryStatistics = _a.onToggleHistoryStatistics;
-    var _b = reactExports.useState(loadSettings().showHistoricBadges), showHistoricBadges = _b[0], setShowHistoricBadges = _b[1];
+    var _b = reactExports.useState(loadMode), mode = _b[0], setMode = _b[1];
     reactExports.useEffect(function () {
-        onToggleHistoryStatistics(showHistoricBadges);
-        saveSettings(__assign(__assign({}, loadSettings()), { showHistoricBadges: showHistoricBadges }));
-    }, [showHistoricBadges, onToggleHistoryStatistics]);
-    return (React.createElement("button", { className: "toggle-history-statistics-button", title: !showHistoricBadges ? 'Show history instance statistics' : 'Hide history instance statistics', "aria-label": !showHistoricBadges ? 'Show history instance statistics' : 'Hide history instance statistics', onClick: function () {
-            setShowHistoricBadges(!showHistoricBadges);
-        } },
-        React.createElement(FaHistory, { style: { opacity: !showHistoricBadges ? '0.33' : '1.0', fontSize: '133%' } })));
+        onToggleHistoryStatistics(mode);
+        saveSettings(__assign(__assign({}, loadSettings()), { showHistoricBadges: mode !== 'off', showHeatmap: mode === 'heat' }));
+    }, [mode, onToggleHistoryStatistics]);
+    var handleClick = reactExports.useCallback(function () {
+        setMode(function (current) { var _a; return (_a = MODE_CYCLE[(MODE_CYCLE.indexOf(current) + 1) % MODE_CYCLE.length]) !== null && _a !== void 0 ? _a : 'off'; });
+    }, []);
+    // The label names what the next click does, so the third state is discoverable
+    // rather than something you find by clicking twice.
+    var label = MODE_LABEL[mode];
+    var Icon = mode === 'heat' ? FaFire : FaHistory;
+    return (React.createElement("button", { className: "toggle-history-statistics-button", title: label, "aria-label": label, onClick: handleClick },
+        React.createElement(Icon, { style: __assign({ opacity: mode === 'off' ? '0.33' : '1.0', fontSize: '133%' }, (mode === 'heat' ? { color: HEAT_ICON_COLOR } : {})) })));
 };
 
 /**
@@ -21369,6 +21400,611 @@ function createHistoryService(api) {
 /** Modal overlay z-index to ensure modals appear above other content */
 /** Default maximum results for history API queries */
 var DEFAULT_MAX_RESULTS = 1000;
+// =============================================================================
+// Heatmap Constants
+// =============================================================================
+/** Layer index of the heatmap, above the diagram and the executed path */
+var HEATMAP_LAYER_INDEX = 2;
+/** Opacity of the heatmap layer, low enough to keep labels readable through it */
+var HEATMAP_OPACITY = 0.7;
+/** Gaussian blur applied to the whole heatmap group, in diagram units */
+var HEATMAP_BLUR = 12;
+/** Blob radius as a multiple of half the element's longest side */
+var HEATMAP_RADIUS_SCALE = 2.1;
+/** Smallest blob radius, so events and gateways still register */
+var HEATMAP_MIN_RADIUS = 46;
+/** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
+var HEATMAP_GAMMA = 0.5;
+/** Opacity weight of the coldest element, so quiet parts stay faint rather than loud */
+var HEATMAP_MIN_ALPHA = 0.22;
+/** How much of a blob's radius follows intensity rather than the element's size */
+var HEATMAP_BLOOM = 0.35;
+/**
+ * Falloff exponent for the colour within a blob. Below 1 the hot colour holds further
+ * out, so a single centre stop does not get blurred away into the cooler ring.
+ */
+var HEATMAP_CORE = 0.55;
+
+var componentEvent = {};
+
+var hasRequiredComponentEvent;
+
+function requireComponentEvent () {
+	if (hasRequiredComponentEvent) return componentEvent;
+	hasRequiredComponentEvent = 1;
+	var bind, unbind, prefix;
+
+	function detect () {
+	  bind = window.addEventListener ? 'addEventListener' : 'attachEvent';
+	  unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
+	  prefix = bind !== 'addEventListener' ? 'on' : '';
+	}
+
+	/**
+	 * Bind `el` event `type` to `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	componentEvent.bind = function(el, type, fn, capture){
+	  if (!bind) detect();
+	  el[bind](prefix + type, fn, capture || false);
+	  return fn;
+	};
+
+	/**
+	 * Unbind `el` event `type`'s callback `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	componentEvent.unbind = function(el, type, fn, capture){
+	  if (!unbind) detect();
+	  el[unbind](prefix + type, fn, capture || false);
+	  return fn;
+	};
+	return componentEvent;
+}
+
+requireComponentEvent();
+
+function query(selector, el) {
+  el = el || document;
+
+  return el.querySelector(selector);
+}
+
+function ensureImported(element, target) {
+
+  if (element.ownerDocument !== target.ownerDocument) {
+    try {
+
+      // may fail on webkit
+      return target.ownerDocument.importNode(element, true);
+    } catch (e) {
+
+      // ignore
+    }
+  }
+
+  return element;
+}
+
+/**
+ * appendTo utility
+ */
+
+
+/**
+ * Append a node to a target element and return the appended node.
+ *
+ * @param  {SVGElement} element
+ * @param  {SVGElement} target
+ *
+ * @return {SVGElement} the appended node
+ */
+function appendTo(element, target) {
+  return target.appendChild(ensureImported(element, target));
+}
+
+/**
+ * append utility
+ */
+
+
+/**
+ * Append a node to an element
+ *
+ * @param  {SVGElement} element
+ * @param  {SVGElement} node
+ *
+ * @return {SVGElement} the element
+ */
+function append(target, node) {
+  appendTo(node, target);
+  return target;
+}
+
+/**
+ * attribute accessor utility
+ */
+
+var LENGTH_ATTR = 2;
+
+var CSS_PROPERTIES = {
+  'alignment-baseline': 1,
+  'baseline-shift': 1,
+  'clip': 1,
+  'clip-path': 1,
+  'clip-rule': 1,
+  'color': 1,
+  'color-interpolation': 1,
+  'color-interpolation-filters': 1,
+  'color-profile': 1,
+  'color-rendering': 1,
+  'cursor': 1,
+  'direction': 1,
+  'display': 1,
+  'dominant-baseline': 1,
+  'enable-background': 1,
+  'fill': 1,
+  'fill-opacity': 1,
+  'fill-rule': 1,
+  'filter': 1,
+  'flood-color': 1,
+  'flood-opacity': 1,
+  'font': 1,
+  'font-family': 1,
+  'font-size': LENGTH_ATTR,
+  'font-size-adjust': 1,
+  'font-stretch': 1,
+  'font-style': 1,
+  'font-variant': 1,
+  'font-weight': 1,
+  'glyph-orientation-horizontal': 1,
+  'glyph-orientation-vertical': 1,
+  'image-rendering': 1,
+  'kerning': 1,
+  'letter-spacing': 1,
+  'lighting-color': 1,
+  'marker': 1,
+  'marker-end': 1,
+  'marker-mid': 1,
+  'marker-start': 1,
+  'mask': 1,
+  'opacity': 1,
+  'overflow': 1,
+  'pointer-events': 1,
+  'shape-rendering': 1,
+  'stop-color': 1,
+  'stop-opacity': 1,
+  'stroke': 1,
+  'stroke-dasharray': 1,
+  'stroke-dashoffset': 1,
+  'stroke-linecap': 1,
+  'stroke-linejoin': 1,
+  'stroke-miterlimit': 1,
+  'stroke-opacity': 1,
+  'stroke-width': LENGTH_ATTR,
+  'text-anchor': 1,
+  'text-decoration': 1,
+  'text-rendering': 1,
+  'unicode-bidi': 1,
+  'visibility': 1,
+  'word-spacing': 1,
+  'writing-mode': 1
+};
+
+
+function getAttribute(node, name) {
+  if (CSS_PROPERTIES[name]) {
+    return node.style[name];
+  } else {
+    return node.getAttributeNS(null, name);
+  }
+}
+
+function setAttribute(node, name, value) {
+  var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+  var type = CSS_PROPERTIES[hyphenated];
+
+  if (type) {
+
+    // append pixel unit, unless present
+    if (type === LENGTH_ATTR && typeof value === 'number') {
+      value = String(value) + 'px';
+    }
+
+    node.style[hyphenated] = value;
+  } else {
+    node.setAttributeNS(null, name, value);
+  }
+}
+
+function setAttributes(node, attrs) {
+
+  var names = Object.keys(attrs), i, name;
+
+  for (i = 0, name; (name = names[i]); i++) {
+    setAttribute(node, name, attrs[name]);
+  }
+}
+
+/**
+ * Gets or sets raw attributes on a node.
+ *
+ * @param  {SVGElement} node
+ * @param  {Object} [attrs]
+ * @param  {String} [name]
+ * @param  {String} [value]
+ *
+ * @return {String}
+ */
+function attr(node, name, value) {
+  if (typeof name === 'string') {
+    {
+      return getAttribute(node, name);
+    }
+  } else {
+    setAttributes(node, name);
+  }
+
+  return node;
+}
+
+var ns = {
+  svg: 'http://www.w3.org/2000/svg'
+};
+
+/**
+ * DOM parsing utility
+ */
+
+
+var SVG_START = '<svg xmlns="' + ns.svg + '"';
+
+function parse(svg) {
+
+  var unwrap = false;
+
+  // ensure we import a valid svg document
+  if (svg.substring(0, 4) === '<svg') {
+    if (svg.indexOf(ns.svg) === -1) {
+      svg = SVG_START + svg.substring(4);
+    }
+  } else {
+
+    // namespace svg
+    svg = SVG_START + '>' + svg + '</svg>';
+    unwrap = true;
+  }
+
+  var parsed = parseDocument(svg);
+
+  if (!unwrap) {
+    return parsed;
+  }
+
+  var fragment = document.createDocumentFragment();
+
+  var parent = parsed.firstChild;
+
+  while (parent.firstChild) {
+    fragment.appendChild(parent.firstChild);
+  }
+
+  return fragment;
+}
+
+function parseDocument(svg) {
+
+  var parser;
+
+  // parse
+  parser = new DOMParser();
+  parser.async = false;
+
+  return parser.parseFromString(svg, 'text/xml');
+}
+
+/**
+ * Create utility for SVG elements
+ */
+
+
+
+/**
+ * Create a specific type from name or SVG markup.
+ *
+ * @param {String} name the name or markup of the element
+ * @param {Object} [attrs] attributes to set on the element
+ *
+ * @returns {SVGElement}
+ */
+function create(name, attrs) {
+  var element;
+
+  name = name.trim();
+
+  if (name.charAt(0) === '<') {
+    element = parse(name).firstChild;
+    element = document.importNode(element, true);
+  } else {
+    element = document.createElementNS(ns.svg, name);
+  }
+
+  return element;
+}
+
+function remove(element) {
+  var parent = element.parentNode;
+
+  if (parent) {
+    parent.removeChild(element);
+  }
+
+  return element;
+}
+
+/**
+ * Finds the SVG's defs element, creating it when the diagram has none yet.
+ * Shared with the heatmap, which needs the same place for its gradients and filter.
+ * @param canvas - The viewer canvas
+ * @returns The defs element to hold marker definitions
+ */
+function resolveDefs(canvas) {
+    // Cast SVG to HTMLElement for domQuery, which expects HTMLElement
+    var existing = query('defs', canvas._svg);
+    if (existing !== null) {
+        return existing;
+    }
+    var defs = create('defs');
+    append(canvas._svg, defs);
+    return defs;
+}
+
+/**
+ * BPMN heatmap rendering.
+ *
+ * Shades the diagram by how much cumulative time each element consumed, so the parts
+ * of a process that cost the most are visible at a glance rather than having to be
+ * read out of a table.
+ * @module
+ */
+/**
+ * Colour ramp, cold to hot. Chosen to read as heat rather than as status: it avoids
+ * the executed path's green at both ends, so the two overlays can be on together.
+ */
+/* eslint-disable no-magic-numbers -- channel values of a colour ramp are data */
+var HEAT_RAMP = [
+    { stop: 0, rgb: [43, 92, 214] },
+    { stop: 0.35, rgb: [38, 190, 198] },
+    { stop: 0.6, rgb: [122, 201, 67] },
+    { stop: 0.8, rgb: [240, 196, 42] },
+    { stop: 1, rgb: [216, 44, 32] },
+];
+/* eslint-enable no-magic-numbers */
+/** Counter behind per-render ids, so two diagrams on one page cannot share defs. */
+var heatmapSequence = 0;
+/**
+ * Strips the execution scope suffix the engine appends to an activity id.
+ */
+var toElementId = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
+/**
+ * Multi-instance bodies span their instances, so counting both double-counts the time.
+ */
+var isMultiInstanceBody = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
+/**
+ * Milliseconds an activity occupied, preferring the engine's own figure and falling
+ * back to the timestamps when it is absent.
+ * @param activity - Historic activity instance
+ * @returns Duration in milliseconds, or 0 when it cannot be determined
+ */
+function durationOf(activity) {
+    if (typeof activity.durationInMillis === 'number') {
+        return activity.durationInMillis;
+    }
+    if (!activity.startTime || !activity.endTime) {
+        return 0;
+    }
+    var elapsed = Date.parse(activity.endTime) - Date.parse(activity.startTime);
+    return Number.isNaN(elapsed) ? 0 : elapsed;
+}
+/**
+ * Sums the time spent per diagram element.
+ *
+ * Still-running activities contribute nothing: they have no duration yet, and guessing
+ * one would make the hottest spot of a diagram the thing that simply has not finished.
+ *
+ * @param activities - Historic activity instances to aggregate
+ * @returns One cell per element that consumed time, hottest first
+ */
+function aggregateDurations(activities) {
+    var _a, _b;
+    var totals = new Map();
+    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
+        var activity = activities_1[_i];
+        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
+        if (activityId === '' || isMultiInstanceBody(activityId)) {
+            continue;
+        }
+        var elementId = toElementId(activityId);
+        totals.set(elementId, ((_b = totals.get(elementId)) !== null && _b !== void 0 ? _b : 0) + durationOf(activity));
+    }
+    var cells = [];
+    for (var _c = 0, _d = Array.from(totals.entries()); _c < _d.length; _c++) {
+        var entry = _d[_c];
+        if (entry[1] > 0) {
+            cells.push({ elementId: entry[0], totalMillis: entry[1] });
+        }
+    }
+    cells.sort(function (a, b) { return b.totalMillis - a.totalMillis; });
+    return cells;
+}
+/**
+ * Maps a 0..1 intensity onto the ramp.
+ * @param intensity - Normalised heat, clamped to 0..1
+ * @returns An `rgb()` colour string
+ */
+function getHeatColor(intensity) {
+    var t = Math.min(1, Math.max(0, intensity));
+    var lower = HEAT_RAMP[0];
+    var upper = HEAT_RAMP[HEAT_RAMP.length - 1];
+    for (var i = 0; i < HEAT_RAMP.length - 1; i++) {
+        var a = HEAT_RAMP[i];
+        var b = HEAT_RAMP[i + 1];
+        if (t >= a.stop && t <= b.stop) {
+            lower = a;
+            upper = b;
+            break;
+        }
+    }
+    var span = upper.stop - lower.stop;
+    var ratio = span === 0 ? 0 : (t - lower.stop) / span;
+    var channel = function (index) { var _a, _b, _c; return Math.round(((_a = lower.rgb[index]) !== null && _a !== void 0 ? _a : 0) + (((_b = upper.rgb[index]) !== null && _b !== void 0 ? _b : 0) - ((_c = lower.rgb[index]) !== null && _c !== void 0 ? _c : 0)) * ratio); };
+    return "rgb(".concat(channel(0), ", ").concat(channel(1), ", ").concat(channel(2), ")");
+}
+/**
+ * Normalises a total against the hottest element.
+ *
+ * Time per activity is heavy-tailed — one waiting user task can dwarf every service
+ * task in the process — so a straight ratio would leave everything but the worst
+ * offender uniformly cold. The gamma lifts the middle without reordering anything.
+ *
+ * @param totalMillis - This element's total
+ * @param maxMillis - The hottest element's total
+ * @returns Intensity in 0..1
+ */
+function getIntensity(totalMillis, maxMillis) {
+    if (maxMillis <= 0) {
+        return 0;
+    }
+    return Math.pow(Math.min(1, totalMillis / maxMillis), HEATMAP_GAMMA);
+}
+/** Gradient stops per blob, from the hot core out to the transparent rim. */
+var BLOB_STOPS = 6;
+/** Decimal places kept on a stop's opacity. */
+var ALPHA_PRECISION = 3;
+/**
+ * Builds the radial gradient a single blob is painted with.
+ *
+ * The ramp is walked *within* each blob rather than one flat hue per element: the core
+ * sits at the element's own intensity and cools outwards through the ramp to a
+ * transparent rim. That is what makes a hot element read as a hot spot — a red core
+ * inside a yellow-green halo — instead of a uniformly tinted disc.
+ *
+ * @param defs - The defs element to append to
+ * @param id - Unique gradient id
+ * @param intensity - The element's normalised heat
+ * @returns The created gradient
+ */
+function createBlobGradient(defs, id, intensity) {
+    var gradient = create('radialGradient');
+    attr(gradient, { id: id });
+    // Alpha carries intensity as well as the colour does. Without it a barely-used
+    // element paints just as solidly as the worst offender, only in blue, and the
+    // diagram reads as uniformly busy instead of pointing at the slow parts.
+    var weight = HEATMAP_MIN_ALPHA + (1 - HEATMAP_MIN_ALPHA) * intensity;
+    for (var step = 0; step < BLOB_STOPS; step++) {
+        var along = step / (BLOB_STOPS - 1);
+        var stop_1 = create('stop');
+        attr(stop_1, {
+            offset: "".concat(Math.round(along * 100), "%"),
+            'stop-color': getHeatColor(intensity * Math.pow(1 - along, HEATMAP_CORE)),
+            'stop-opacity': ((1 - along) * weight).toFixed(ALPHA_PRECISION),
+        });
+        append(gradient, stop_1);
+    }
+    append(defs, gradient);
+    return gradient;
+}
+/**
+ * Renders the heatmap layer over the diagram.
+ *
+ * Blobs are drawn in diagram coordinates on their own canvas layer, so panning and
+ * zooming carry them along without any redraw, and the whole group is blurred as one
+ * so neighbouring hot spots merge instead of reading as separate discs.
+ *
+ * @param viewer - The BPMN viewer instance
+ * @param activities - Historic activity instances to visualise
+ * @returns The SVG nodes added, for later cleanup
+ */
+var renderHeatmap = function (viewer, activities) {
+    var _a, _b;
+    var registry = viewer.get('elementRegistry');
+    var canvas = viewer.get('canvas');
+    var cells = aggregateDurations(activities);
+    var added = [];
+    if (cells.length === 0) {
+        return added;
+    }
+    var maxMillis = (_b = (_a = cells[0]) === null || _a === void 0 ? void 0 : _a.totalMillis) !== null && _b !== void 0 ? _b : 0;
+    var defs = resolveDefs(canvas);
+    var sequence = heatmapSequence++;
+    var filterId = "history-heatmap-blur-".concat(sequence);
+    var filterEl = create('filter');
+    attr(filterEl, { id: filterId, x: '-50%', y: '-50%', width: '200%', height: '200%' });
+    var blur = create('feGaussianBlur');
+    attr(blur, { stdDeviation: HEATMAP_BLUR });
+    append(filterEl, blur);
+    append(defs, filterEl);
+    added.push(filterEl);
+    var group = create('g');
+    attr(group, {
+        class: 'history-heatmap',
+        filter: "url(#".concat(filterId, ")"),
+        opacity: HEATMAP_OPACITY,
+        'pointer-events': 'none',
+    });
+    cells.forEach(function (cell, index) {
+        var _a, _b;
+        var element = registry.get(cell.elementId);
+        var width = element === null || element === void 0 ? void 0 : element.width;
+        var height = element === null || element === void 0 ? void 0 : element.height;
+        if (element === undefined || width === undefined || height === undefined) {
+            return;
+        }
+        var intensity = getIntensity(cell.totalMillis, maxMillis);
+        var gradientId = "history-heatmap-blob-".concat(sequence, "-").concat(index);
+        added.push(createBlobGradient(defs, gradientId, intensity));
+        // Hot spots bloom a little wider as well as brighter, so they read first.
+        var spread = 1 - HEATMAP_BLOOM + HEATMAP_BLOOM * intensity;
+        var radius = Math.max(HEATMAP_MIN_RADIUS, (Math.max(width, height) / 2) * HEATMAP_RADIUS_SCALE) * spread;
+        var blob = create('ellipse');
+        attr(blob, {
+            cx: ((_a = element.x) !== null && _a !== void 0 ? _a : 0) + width / 2,
+            cy: ((_b = element.y) !== null && _b !== void 0 ? _b : 0) + height / 2,
+            rx: radius,
+            ry: radius,
+            fill: "url(#".concat(gradientId, ")"),
+        });
+        append(group, blob);
+    });
+    append(canvas.getLayer('historyHeatmap', HEATMAP_LAYER_INDEX), group);
+    added.push(group);
+    return added;
+};
+/**
+ * Removes heatmap nodes previously added to the diagram.
+ * @param nodes - The nodes returned by renderHeatmap
+ */
+var clearHeatmap = function (nodes) {
+    for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
+        var node = nodes_1[_i];
+        remove(node);
+    }
+};
 
 var initialState = {
     viewer: null,
@@ -21382,6 +22018,48 @@ var hooks = {
         initialState.statistics = node;
     },
 };
+/**
+ * Draws one badge per activity: how many times it ran in `counts` mode, and how long it
+ * took in total in `heat` mode, where the badge is what makes the colour readable.
+ * @param overlays - The viewer's overlay manager
+ * @param activities - Historic activity instances to summarise
+ * @param mode - Which figure the badge should carry
+ * @returns The overlay ids created, so they can be removed again
+ */
+function renderBadges(overlays, activities, mode) {
+    var _a, _b, _c, _d, _e;
+    var counts = {};
+    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
+        var activity = activities_1[_i];
+        var id = activity.activityId;
+        if (id !== null && id !== undefined) {
+            counts[(_a = id.split('#')[0]) !== null && _a !== void 0 ? _a : ''] = ((_c = counts[(_b = id.split('#')[0]) !== null && _b !== void 0 ? _b : '']) !== null && _c !== void 0 ? _c : 0) + 1;
+        }
+    }
+    var durations = new Map(aggregateDurations(activities).map(function (cell) { return [cell.elementId, cell.totalMillis]; }));
+    var ids = [];
+    for (var _f = 0, _g = Object.keys(counts); _f < _g.length; _f++) {
+        var elementId = _g[_f];
+        var overlay = document.createElement('span');
+        overlay.className = 'badge';
+        overlay.style.cssText = 'background: lightgray;';
+        if (mode === 'heat') {
+            var total = (_d = durations.get(elementId)) !== null && _d !== void 0 ? _d : 0;
+            overlay.innerText = asctime(total);
+            overlay.title = "Cumulative time in this element: ".concat(asctime(total));
+        }
+        else {
+            overlay.innerText = String((_e = counts[elementId]) !== null && _e !== void 0 ? _e : 0);
+        }
+        try {
+            ids.push(overlays.add(elementId, { position: { bottom: 17, right: 10 }, html: overlay }));
+        }
+        catch (_h) {
+            // Silently skip elements that can't have overlays
+        }
+    }
+    return ids;
+}
 /**
  * Plugin component for displaying historic activity statistics on process definitions.
  * Manages filter state, diagram overlays, and statistics table rendering.
@@ -21398,8 +22076,12 @@ var Plugin = function (_a) {
     hooks.setViewer = setViewer;
     hooks.setStatistics = setStatistics;
     var _h = reactExports.useState([]), activities = _h[0], setActivities = _h[1];
-    var _j = reactExports.useState([]), tokens = _j[0], setTokens = _j[1];
-    var _k = reactExports.useState(false), showTokens = _k[0], setShowTokens = _k[1];
+    // Overlay ids, not elements: bpmn-js keeps a container per overlay that only
+    // overlays.remove() takes down, so tracking the HTML leaks one container per
+    // activity on every filter change.
+    var _j = reactExports.useState([]), overlayIds = _j[0], setOverlayIds = _j[1];
+    var _k = reactExports.useState([]), heatmapNodes = _k[0], setHeatmapNodes = _k[1];
+    var _l = reactExports.useState('off'), mode = _l[0], setMode = _l[1];
     // Create history service instance (memoized to avoid recreation on each render)
     var historyService = reactExports.useMemo(function () { return createHistoryService(api); }, [api]);
     // Create filter schema with API for autocomplete (memoized to avoid recreation)
@@ -21487,63 +22169,30 @@ var Plugin = function (_a) {
             toggleHistoryStatisticsButton.className = 'viewer-button-container viewer-button-container--top-60';
             viewer._container.appendChild(toggleHistoryStatisticsButton);
             clientExports.createRoot(toggleHistoryStatisticsButton).render(React.createElement(React.StrictMode, null,
-                React.createElement(ToggleHistoryStatisticsButton, { onToggleHistoryStatistics: function (value) {
-                        setShowTokens(value);
+                React.createElement(ToggleHistoryStatisticsButton, { onToggleHistoryStatistics: function (next) {
+                        setMode(next);
                     } })));
         }
     }, [viewer]);
-    /* eslint-disable complexity, max-statements, react-hooks/exhaustive-deps */
-    // Note: tokens is intentionally excluded from deps to prevent infinite loop (effect creates new tokens)
+    /* eslint-disable react-hooks/exhaustive-deps */
+    // Note: overlayIds and heatmapNodes are intentionally excluded from deps — the effect
+    // replaces them, so including them would loop.
     reactExports.useEffect(function () {
-        var _a, _b, _c;
-        for (var _i = 0, tokens_1 = tokens; _i < tokens_1.length; _i++) {
-            var token = tokens_1[_i];
-            (_a = token.parentElement) === null || _a === void 0 ? void 0 : _a.removeChild(token);
+        var overlays = viewer === null || viewer === void 0 ? void 0 : viewer.get('overlays');
+        for (var _i = 0, overlayIds_1 = overlayIds; _i < overlayIds_1.length; _i++) {
+            var id = overlayIds_1[_i];
+            overlays === null || overlays === void 0 ? void 0 : overlays.remove(id);
         }
-        if (showTokens && viewer !== null && activities.length > 0) {
-            var overlays = viewer.get('overlays');
-            var update = [];
-            var counter = {};
-            for (var _d = 0, activities_1 = activities; _d < activities_1.length; _d++) {
-                var activity = activities_1[_d];
-                var id = activity.activityId;
-                if (id !== null && id !== undefined) {
-                    counter[id] = ((_b = counter[id]) !== null && _b !== void 0 ? _b : 0) + 1;
-                }
-            }
-            var seen = {};
-            for (var _e = 0, activities_2 = activities; _e < activities_2.length; _e++) {
-                var activity = activities_2[_e];
-                var id = activity.activityId;
-                if (id === null || id === undefined || seen[id]) {
-                    continue;
-                }
-                seen[id] = true;
-                var overlay = document.createElement('span');
-                overlay.innerText = String((_c = counter[id]) !== null && _c !== void 0 ? _c : 0);
-                overlay.className = 'badge';
-                overlay.style.cssText = "\n          background: lightgray;\n        ";
-                try {
-                    var elementId = id.split('#')[0];
-                    if (elementId !== undefined) {
-                        overlays.add(elementId, {
-                            position: {
-                                bottom: 17,
-                                right: 10,
-                            },
-                            html: overlay,
-                        });
-                        update.push(overlay);
-                    }
-                }
-                catch (_f) {
-                    // Silently skip elements that can't have overlays
-                }
-            }
-            setTokens(update);
+        clearHeatmap(heatmapNodes);
+        if (mode === 'off' || viewer === null || activities.length === 0) {
+            setOverlayIds([]);
+            setHeatmapNodes([]);
+            return;
         }
-    }, [viewer, activities, showTokens]);
-    /* eslint-enable complexity, max-statements, react-hooks/exhaustive-deps */
+        setOverlayIds(overlays ? renderBadges(overlays, activities, mode) : []);
+        setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, activities) : []);
+    }, [viewer, activities, mode]);
+    /* eslint-enable react-hooks/exhaustive-deps */
     // Hack to ensure long living HTML node for filter box
     if (statistics && !Array.from(statistics.children).includes(root)) {
         statistics.appendChild(root);
