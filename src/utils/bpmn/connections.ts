@@ -333,8 +333,31 @@ function resolveTakenBranch(
 }
 
 /**
- * Builds a deny list of connections that should not be highlighted for exclusive gateways.
- * For each execution of the gateway only the branch that was taken is kept.
+ * Gateways narrowed to the single branch taken on each pass.
+ *
+ * Inclusive gateways are deliberately absent: they may fire several branches from one
+ * execution, and the generic traversal pairing already models that correctly — each
+ * fired branch pairs with the same gateway execution and scores one, while a branch
+ * that never ran has no target executions to pair with and is dropped.
+ *
+ * Event-based gateways are absent for a different reason. Exactly one of their
+ * branches wins, so narrowing looks right, but the branches all start at the same
+ * instant — their subscriptions are created together — so ranking by the target's
+ * start time cannot tell the winner from the losers and would pick by array order.
+ * Whether that matters depends on what history a losing catch event leaves: if the
+ * engine records it as canceled, the canceled-activity rule below already excludes it
+ * and nothing more is needed. That observation needs a live engine — see issue #66.
+ */
+const singleBranchGatewayTypes = ['exclusiveGateway'];
+
+/** Whether an activity record is a gateway narrowed to the single branch it took. */
+const isSingleBranchGateway = (activity: HistoricActivityInstance): boolean =>
+  singleBranchGatewayTypes.includes(activity.activityType ?? '');
+
+/**
+ * Builds a deny list of connections that should not be highlighted for gateways that
+ * take a single branch. For each execution of the gateway only the branch that was
+ * taken is kept.
  * @param activities - Historic activity instances
  * @param elementRegistry - BPMN element registry
  * @param index - Execution time index
@@ -349,7 +372,7 @@ function buildConnectionDenyList(
   const visited = new Set<string>();
 
   for (const activity of activities) {
-    if (activity.activityType !== 'exclusiveGateway') {
+    if (!isSingleBranchGateway(activity)) {
       continue;
     }
 
