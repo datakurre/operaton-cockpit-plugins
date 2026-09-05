@@ -14,6 +14,7 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [tasklist-nologin-config.js](tasklist-nologin-config.js): Tasklist no-login plugin configuration
 - [admin-config.js](admin-config.js): Admin no-login plugin configuration
 - [welcome-config.js](welcome-config.js): Welcome no-login plugin configuration
+- [Dockerfile](Dockerfile): Standalone Operaton Docker image build (context-free)
 
 ### Build pipeline
 - [rollup.config.mjs](rollup.config.mjs): Compiles each plugin entrypoint in `src/` to a top-level `*.js` bundle
