@@ -9,7 +9,7 @@
 import { createCurve } from 'svg-curves';
 import { create as svgCreate } from 'tiny-svg';
 
-import { renderSequenceFlow, clearSequenceFlow, getStrokeWidth, renderActivities } from '../bpmn';
+import { renderSequenceFlow, clearSequenceFlow, getStrokeWidth, renderActivities, renderRunningTokens } from '../bpmn';
 import { EXECUTED_PATH_STROKE_WIDTH, EXECUTED_PATH_STROKE_WIDTH_MAX } from '../constants';
 
 describe('utils/bpmn', () => {
@@ -358,6 +358,58 @@ describe('utils/bpmn', () => {
       const titles = titlesFrom(svgCreate as jest.Mock);
       expect(titles).toContain('Executed at least once');
       expect(titles).not.toContain('Executed once');
+    });
+  });
+
+  describe('renderRunningTokens', () => {
+    const finished = { activityId: 'Task_A', endTime: '2024-01-01T10:00:00.000+0000' };
+    const running = { activityId: 'Task_B', endTime: null };
+
+    it('draws nothing for an instance that has finished', () => {
+      const mockViewer = createMockViewer();
+
+      expect(renderRunningTokens(mockViewer, [finished])).toEqual([]);
+      expect(mockViewer.overlaysMock.add).not.toHaveBeenCalled();
+    });
+
+    it("uses Cockpit's own token markup so it matches the runtime view", () => {
+      const mockViewer = createMockViewer();
+
+      renderRunningTokens(mockViewer, [finished, running]);
+
+      expect(mockViewer.overlaysMock.add).toHaveBeenCalledTimes(1);
+      const [elementId, config] = mockViewer.overlaysMock.add.mock.calls[0];
+      expect(elementId).toBe('Task_B');
+      expect(config.position).toEqual({ bottom: 0, left: 0 });
+      // The classes are what pick up Cockpit's blue styling; inline colours would not
+      // follow its theming.
+      expect(config.html.className).toBe('activity-bottom-left-position instances-overlay');
+      expect(config.html.querySelector('.badge.instance-count')?.innerText).toBe('1');
+    });
+
+    it('counts concurrent tokens on the same activity', () => {
+      const mockViewer = createMockViewer();
+
+      renderRunningTokens(mockViewer, [running, { activityId: 'Task_B', endTime: null }]);
+
+      const [, config] = mockViewer.overlaysMock.add.mock.calls[0];
+      expect(config.html.querySelector('.badge.instance-count')?.innerText).toBe('2');
+    });
+
+    it('ignores an unfinished activity that was canceled', () => {
+      const mockViewer = createMockViewer();
+
+      renderRunningTokens(mockViewer, [{ activityId: 'Task_C', endTime: null, canceled: true }]);
+
+      expect(mockViewer.overlaysMock.add).not.toHaveBeenCalled();
+    });
+
+    it('folds scope-suffixed ids onto their diagram element', () => {
+      const mockViewer = createMockViewer();
+
+      renderRunningTokens(mockViewer, [{ activityId: 'Task_D#scope', endTime: null }]);
+
+      expect(mockViewer.overlaysMock.add.mock.calls[0][0]).toBe('Task_D');
     });
   });
 
