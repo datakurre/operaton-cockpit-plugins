@@ -62,7 +62,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [src/dashboard-favourites.tsx](src/dashboard-favourites.tsx): Process definition favorites plugin. Adds a star button on process definition runtime views to favorite/unfavorite definitions, and provides a dashboard table showing favorited process definitions with version info and direct links.
 - [src/dashboard-integrations.tsx](src/dashboard-integrations.tsx): Cockpit dashboard section listing external tasks that carry an incident or are held by a worker (process, task, topic, worker, lock time, retries), with retry and unlock actions for individual tasks and batches. Loads in three bounded requests — the favourites filter goes into the external task query, definitions come back in one `processDefinitionIdIn` lookup and incidents in one `processDefinitionKeyIn` lookup. Reuses the favourites stored by `dashboard-favourites` (`minimal-history-plugin-favourites`) to offer a favourites-only filter, on by default.
 - [src/decisions-dashboard.tsx](src/decisions-dashboard.tsx): **Abandoned.** DMN "Decision Simulator" dashboard (`cockpit.decisions.dashboard`). See [Abandoned plugins](#abandoned-plugins) before touching it.
-- [src/definition-historic-activities.tsx](src/definition-historic-activities.tsx): Adds a runtime tab and diagram overlay for historic activity statistics with a filter UI and badge overlays.
+- [src/definition-historic-activities.tsx](src/definition-historic-activities.tsx): Adds a runtime tab and diagram overlay for historic activity statistics with a filter UI and badge overlays. Three plugin points, one component: the diagram and tab points only stash their handles in a module-level `hooks` object, and the component mounting at `runtime.action` adopts the tab node (`statistics.appendChild(root)`) and portals into it. That is why one fetch feeds the filter box, the table, the badges and the heatmap alike — editing the filter moves all of them.
 - [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition "Modify" tab hosting three batch operations against a definition: `BatchModifyForm` (Batch Modify), `BatchMessageForm` (Message) and `BatchSignalForm` (Signal). All three target instances through the shared helpers in
 [src/utils/batchOperations.ts](src/utils/batchOperations.ts) and preview the request they would send — see
 [Dangerous operations and dry runs](#dangerous-operations-and-dry-runs).
@@ -105,6 +105,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [index.ts](src/utils/bpmn/index.ts): Module exports for BPMN utilities
 - [connections.ts](src/utils/bpmn/connections.ts): Resolves which sequence flows an instance took, and how often. The engine never reports taken flows, so `getExecutedConnections()` infers them from activity timestamps: each candidate flow is scored once by pairing the source's completed executions with later target executions (`countTraversals()`), exclusive gateways are narrowed to the branch taken, and canceled activities are excluded on both ends. Also builds the dotted stubs that bridge the path through a node
 - [overlays.ts](src/utils/bpmn/overlays.ts): Overlay rendering (activity count badges)
+- [heatmap.ts](src/utils/bpmn/heatmap.ts): Time heatmap for a definition diagram. `aggregateDurations()` sums `durationInMillis` per element (scope suffixes folded in, multi-instance bodies skipped so their span is not double-counted, still-running activities contributing nothing), `getIntensity()` normalises against the slowest element through `HEATMAP_GAMMA`, and `renderHeatmap()` paints blurred radial blobs on their own canvas layer so pan and zoom carry them for free. The ramp is walked *within* each blob, and alpha carries intensity too, so a quiet element stays faint rather than merely blue
 - [svg.ts](src/utils/bpmn/svg.ts): Draws the resolved path onto the diagram's `processInstance` layer as `svg-curves` curves, weighted by traversal count via `getStrokeWidth()` (logarithmic, capped by `EXECUTED_PATH_STROKE_WIDTH_MAX`) with the exact count in an SVG `<title>`. Each render gets its own arrow marker id, so two viewers on one page do not share one
 
 ### Custom hooks (`src/hooks/`)
@@ -153,7 +154,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 
 **Toggle buttons:**
 - [ToggleAutoRefreshButton.tsx](src/Components/ToggleAutoRefreshButton.tsx): Auto-refresh toggle
-- [ToggleHistoryStatisticsButton.tsx](src/Components/ToggleHistoryStatisticsButton.tsx): History statistics toggle
+- [ToggleHistoryStatisticsButton.tsx](src/Components/ToggleHistoryStatisticsButton.tsx): Three-state statistics toggle — off, execution counts, then time heatmap. Stored as the two booleans `showHistoricBadges` and `showHeatmap` so settings and URLs written before the heatmap existed keep their meaning
 - [ToggleHistoryViewButton.tsx](src/Components/ToggleHistoryViewButton.tsx): History view toggle
 - [ToggleSequenceFlowButton.tsx](src/Components/ToggleSequenceFlowButton.tsx): Sequence flow highlighting toggle
 
