@@ -191,6 +191,55 @@ describe('StatisticsTable', () => {
       expect(screen.getByText('1')).toBeInTheDocument(); // Instance count
     });
 
+    it('should not turn an unfinished activity into a vast negative duration', () => {
+      // Subtracting the raw timestamps read a missing endTime as the epoch, so one
+      // still-running execution dragged its activity's total to about minus fifty
+      // years and took every figure in the row with it.
+      const activities = [
+        createMockActivity('Long Task', '2024-01-01T10:00:00.000Z', '2024-01-01T10:00:01.000Z'),
+        { ...createMockActivity('Long Task', '2024-01-01T11:00:00.000Z', ''), endTime: null },
+      ];
+
+      render(<StatisticsTable activities={activities as never} />);
+
+      expect(screen.getByText('2')).toBeInTheDocument();
+      // 1s from the finished run, nothing from the running one — never a negative.
+      expect(screen.getByText('00:00:01.0')).toBeInTheDocument();
+      expect(screen.queryByText(/-/)).not.toBeInTheDocument();
+    });
+
+    it('should fall back to the element id when an activity has no name', () => {
+      // Gateways and most events are unnamed. Keying on the name alone dropped them all
+      // into one nameless row that summed unrelated elements together.
+      const activities = [
+        { ...createMockActivity('', '2024-01-01T10:00:00.000Z', '2024-01-01T10:00:01.000Z'), activityId: 'Gateway_1' },
+        { ...createMockActivity('', '2024-01-01T10:00:00.000Z', '2024-01-01T10:00:02.000Z'), activityId: 'Gateway_2' },
+      ];
+
+      render(<StatisticsTable activities={activities as never} />);
+
+      expect(screen.getByText('Gateway_1')).toBeInTheDocument();
+      expect(screen.getByText('Gateway_2')).toBeInTheDocument();
+    });
+
+    it('should prefer the engine duration over the timestamps', () => {
+      // The engine reports durationInMillis directly; the heatmap already trusts it, and
+      // the table has to agree or the colours and the numbers tell different stories.
+      const activities = [
+        {
+          ...createMockActivity('Timed', '2024-01-01T10:00:00.000Z', '2024-01-01T10:00:09.000Z'),
+          durationInMillis: 2500,
+        },
+      ];
+
+      render(<StatisticsTable activities={activities as never} />);
+
+      // One execution, so total, average and median all read the engine's figure —
+      // 2.5s, not the nine seconds the timestamps span.
+      expect(screen.getAllByText('00:00:02.5')).toHaveLength(3);
+      expect(screen.queryByText('00:00:09.0')).not.toBeInTheDocument();
+    });
+
     it('should handle activities with same name but different durations', () => {
       const activities = [
         createMockActivity('Variable Task', '2024-01-01T10:00:00.000Z', '2024-01-01T10:01:00.000Z'),

@@ -8,6 +8,7 @@ import {
   get,
   post,
   getActivityHistoryPage,
+  capToLimit,
   setFetchFunction,
   resetFetchFunction,
   getFetchFunction,
@@ -448,5 +449,34 @@ describe('ApiError prototype', () => {
     }
     expect(caught instanceof ApiError).toBe(true);
     expect((caught as ApiError).status).toBe(404);
+  });
+});
+
+describe('capToLimit', () => {
+  it('reports truncation when the probe record comes back', () => {
+    // Over-fetch by one: the extra record is the only evidence the engine had more,
+    // short of a second counting request.
+    expect(capToLimit([1, 2, 3, 4], 3)).toEqual({ activities: [1, 2, 3], truncated: true });
+  });
+
+  it('does not cry truncation on an exactly full page', () => {
+    // Three back for a limit of three means the engine had exactly three, not more.
+    expect(capToLimit([1, 2, 3], 3)).toEqual({ activities: [1, 2, 3], truncated: false });
+  });
+
+  it('passes a short page through untouched', () => {
+    expect(capToLimit([1], 3)).toEqual({ activities: [1], truncated: false });
+  });
+
+  it('handles an empty result', () => {
+    expect(capToLimit([], 3)).toEqual({ activities: [], truncated: false });
+  });
+
+  it('keeps everything when the limit is not a usable number', () => {
+    // A filter box can hand us a maxResults that does not parse; dropping every record
+    // would be a worse answer than ignoring the cap.
+    expect(capToLimit([1, 2], Number.NaN)).toEqual({ activities: [1, 2], truncated: false });
+    expect(capToLimit([1, 2], 0)).toEqual({ activities: [1, 2], truncated: false });
+    expect(capToLimit([1, 2], -5)).toEqual({ activities: [1, 2], truncated: false });
   });
 });

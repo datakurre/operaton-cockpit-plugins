@@ -66,7 +66,7 @@ const isMultiInstanceBody = (activityId: string): boolean => activityId.endsWith
  * @param activity - Historic activity instance
  * @returns Duration in milliseconds, or 0 when it cannot be determined
  */
-function durationOf(activity: HistoricActivityInstance): number {
+export function durationOf(activity: HistoricActivityInstance): number {
   if (typeof activity.durationInMillis === 'number') {
     return activity.durationInMillis;
   }
