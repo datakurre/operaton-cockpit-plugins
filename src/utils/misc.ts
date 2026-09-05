@@ -117,6 +117,7 @@ export interface PluginSettings {
   autoRefresh: boolean;
   showHistoricBadges: boolean;
   showSequenceFlow: boolean;
+  showHeatmap: boolean;
   leftPaneSize: number | null;
   topPaneSize: number | null;
   maxResults: number;
@@ -127,6 +128,7 @@ interface StoredSettings {
   autoRefresh?: boolean;
   showHistoricBadges?: boolean;
   showSequenceFlow?: boolean;
+  showHeatmap?: boolean;
   leftPaneSize?: number;
   topPaneSize?: number;
   maxResults?: number;
@@ -142,6 +144,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
   autoRefresh: false,
   showHistoricBadges: false,
   showSequenceFlow: false,
+  showHeatmap: false,
   leftPaneSize: null,
   topPaneSize: null,
   maxResults: DEFAULT_MAX_RESULTS,
@@ -177,6 +180,7 @@ export const loadSettings = (): PluginSettings => {
   const autoRefreshParam = parsed['autoRefresh'];
   const showHistoricBadgesParam = parsed['showHistoricBadges'];
   const showSequenceFlowParam = parsed['showSequenceFlow'];
+  const showHeatmapParam = parsed['showHeatmap'];
 
   const maxResultsParam = parsed['maxResults'];
   const maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
@@ -185,6 +189,7 @@ export const loadSettings = (): PluginSettings => {
     autoRefresh: raw.autoRefresh === true || autoRefreshParam !== undefined,
     showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
     showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
+    showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
     leftPaneSize: raw.leftPaneSize ?? DEFAULT_SETTINGS.leftPaneSize,
     topPaneSize: raw.topPaneSize ?? DEFAULT_SETTINGS.topPaneSize,
     maxResults: maxResultsValue ?? raw.maxResults ?? DEFAULT_SETTINGS.maxResults,
