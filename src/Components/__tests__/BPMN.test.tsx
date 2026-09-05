@@ -65,11 +65,13 @@ jest.mock('../../RobotModule', () => ({}));
 const mockRenderSequenceFlow = jest.fn().mockReturnValue([]);
 const mockClearSequenceFlow = jest.fn();
 const mockRenderActivities = jest.fn();
+const mockRenderRunningTokens = jest.fn().mockReturnValue([]);
 
 jest.mock('../../utils/bpmn', () => ({
   renderSequenceFlow: (...args: unknown[]) => mockRenderSequenceFlow(...args),
   clearSequenceFlow: (...args: unknown[]) => mockClearSequenceFlow(...args),
   renderActivities: (...args: unknown[]) => mockRenderActivities(...args),
+  renderRunningTokens: (...args: unknown[]) => mockRenderRunningTokens(...args),
 }));
 
 // Mock the misc utilities
@@ -233,6 +235,9 @@ describe('BPMN Component', () => {
       await waitFor(() => {
         expect(mockOverlaysClear).toHaveBeenCalled();
         expect(mockRenderActivities).toHaveBeenLastCalledWith(mockViewer, updatedActivities);
+        // The running tokens follow the same redraw, so a task that finished between
+        // refreshes loses its token instead of keeping a stale one.
+        expect(mockRenderRunningTokens).toHaveBeenLastCalledWith(mockViewer, updatedActivities);
         expect(mockClearSequenceFlow).toHaveBeenCalled();
         expect(mockRenderSequenceFlow).toHaveBeenLastCalledWith(mockViewer, updatedActivities, { truncated: true });
       });
