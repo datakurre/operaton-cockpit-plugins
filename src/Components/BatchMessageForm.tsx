@@ -1,14 +1,19 @@
 /**
- * Batch message correlation form component.
- * Allows correlating messages to multiple process instances.
+ * Definition-level message form.
+ *
+ * A message carried by a start event starts one new process instance and takes a business
+ * key; any other message is correlated asynchronously to a selected set of running
+ * instances. Both paths preview the request they would send before it is sent.
  *
  * @module
  */
 import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
+import DryRunResultPreview, { type DryRunResult } from './DryRunResultPreview';
 import ErrorMessage from './ErrorMessage';
 import FormButton from './FormButton';
+import InstanceSelectionFields from './InstanceSelectionFields';
 import LoadingSpinner from './LoadingSpinner';
 import SuccessMessage from './SuccessMessage';
 import VariableBuilder from './VariableBuilder';
@@ -16,21 +21,37 @@ import WarningBox from './WarningBox';
 import type { API } from '../types';
 import { ProcessInstance } from '../types';
 import { get, post } from '../utils/api';
-import { getBpmnElements, BpmnMessage } from '../utils/bpmnParsing';
-import { transformVariables as transformVariablesUtil, VariableInput } from '../utils/variables';
+import {
+  buildInstanceLookupParams,
+  buildMessageRequest,
+  type BatchRequest,
+  type MessageRequestInput,
+} from '../utils/batchOperations';
+import { getBpmnElements, BpmnElement, BpmnMessage } from '../utils/bpmnParsing';
 
 /** Maximum number of instances to show in dry-run preview */
 const MAX_PREVIEW_INSTANCES = 10;
 
-interface MessageFormData {
-  messageName: string;
-  processVariables: VariableInput[];
+/** Radix used when deriving a business key from the clock */
+const BUSINESS_KEY_RADIX = 36;
+
+/** Length of the random suffix in a generated business key */
+const BUSINESS_KEY_SUFFIX_LENGTH = 8;
+
+/**
+ * Generate a business key for an instance started from a message.
+ *
+ * Without a business key an instance started here cannot be found again afterwards, so
+ * the field is pre-filled rather than left empty.
+ * @returns A generated business key
+ */
+function generateBusinessKey(): string {
+  const stamp = Date.now().toString(BUSINESS_KEY_RADIX);
+  const random = Math.random().toString(BUSINESS_KEY_RADIX).slice(2, BUSINESS_KEY_SUFFIX_LENGTH);
+  return `message-${stamp}-${random}`;
 }
 
-interface DryRunResult {
-  count: number;
-  instances: ProcessInstance[];
-}
+type MessageFormData = MessageRequestInput;
 
 interface BatchMessageFormProps {
   api: API;
@@ -38,36 +59,46 @@ interface BatchMessageFormProps {
 }
 
 /**
- * Batch message correlation form component.
- * Allows correlating messages to multiple process instances.
+ * Form for sending a BPMN message from a process definition.
  */
+// eslint-disable-next-line max-lines-per-function -- Two message paths with targeting, dry run and validation
 const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinitionId }) => {
   const [messages, setMessages] = useState<BpmnMessage[]>([]);
+  const [activities, setActivities] = useState<BpmnElement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDryRun, setIsDryRun] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
+  const [dryRunRequest, setDryRunRequest] = useState<BatchRequest | null>(null);
 
   const methods = useForm<MessageFormData>({
     defaultValues: {
       messageName: '',
+      isStartEvent: false,
+      businessKey: '',
       processVariables: [],
+      instanceSelectionMode: 'all',
+      specificInstanceIds: '',
+      queryActivityId: '',
+      queryState: 'active',
     },
   });
 
-  const { handleSubmit, reset, watch } = methods;
+  const { handleSubmit, reset, watch, setValue } = methods;
 
   const selectedMessageName = watch('messageName');
   const selectedMessage = messages.find(m => m.name === selectedMessageName);
+  const isStartEvent = selectedMessage?.isStartEvent === true;
 
   useEffect(() => {
-    const loadMessages = async (): Promise<void> => {
+    const loadDefinition = async (): Promise<void> => {
       try {
         setIsLoading(true);
-        const { messages: allMessages } = await getBpmnElements(processDefinitionId, api);
+        const { messages: allMessages, activities: allActivities } = await getBpmnElements(processDefinitionId, api);
         setMessages(allMessages);
+        setActivities(allActivities);
         setError(null);
       } catch (_err) {
         console.error('Error loading messages:', _err);
@@ -78,24 +109,51 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
       }
     };
 
-    void loadMessages();
+    void loadDefinition();
   }, [api, processDefinitionId]);
 
-  const transformVariables = (vars: VariableInput[]): Record<string, { value: unknown; type: string }> =>
-    transformVariablesUtil(vars, true);
+  // Keep the derived flag in form state so the request builders see it, and give a start
+  // message a business key to start with.
+  useEffect(() => {
+    setValue('isStartEvent', isStartEvent);
+    if (isStartEvent) {
+      setValue('businessKey', generateBusinessKey());
+    }
+    setDryRunResult(null);
+    setDryRunRequest(null);
+  }, [isStartEvent, setValue]);
 
   /**
-   * Run a dry-run query to show affected instances
+   * Preview the request, and for a correlation also the instances it would reach.
+   *
+   * The request comes from the same builder onSubmit uses, so the preview cannot drift
+   * from what is actually posted.
    */
-  const runDryRun = async (): Promise<void> => {
+  const runDryRun = async (data: MessageFormData): Promise<void> => {
     try {
       setIsDryRun(true);
       setError(null);
       setDryRunResult(null);
+      setDryRunRequest(null);
 
-      const instances = (await get(api, '/process-instance', {
-        processDefinitionId,
-      })) as ProcessInstance[];
+      const request = buildMessageRequest(data, processDefinitionId);
+      if (!request) {
+        setError(
+          data.messageName === ''
+            ? 'Please select a message to send.'
+            : 'Please select the instances to correlate the message to.'
+        );
+        return;
+      }
+      setDryRunRequest(request);
+
+      // A start message creates an instance rather than targeting existing ones.
+      if (data.isStartEvent) {
+        return;
+      }
+
+      const params = buildInstanceLookupParams(data, processDefinitionId);
+      const instances = params ? ((await get(api, '/process-instance', params)) as ProcessInstance[]) : [];
 
       setDryRunResult({
         count: instances.length,
@@ -103,7 +161,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
       });
 
       if (instances.length === 0) {
-        setError('No active instances found for this definition.');
+        setError('No instances found matching the selection criteria.');
       }
     } catch (err) {
       console.error('Dry run error:', err);
@@ -115,7 +173,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
   };
 
   /**
-   * Submit the message correlation request
+   * Send the message.
    */
   const onSubmit = async (data: MessageFormData): Promise<void> => {
     try {
@@ -123,49 +181,33 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
       setError(null);
       setSuccessMessage(null);
       setDryRunResult(null);
+      setDryRunRequest(null);
 
-      if (!data.messageName) {
-        setError('Please select a message to correlate.');
-        setIsSubmitting(false);
+      const request = buildMessageRequest(data, processDefinitionId);
+      if (!request) {
+        setError(
+          data.messageName === ''
+            ? 'Please select a message to send.'
+            : 'Please select the instances to correlate the message to.'
+        );
         return;
       }
 
-      const isStart = selectedMessage?.isStartEvent ?? false;
+      await post(api, request.path, {}, JSON.stringify(request.payload));
 
-      if (isStart) {
-        // Start a new process instance via message
-        const payload: Record<string, unknown> = {
-          messageName: data.messageName,
-          processVariables: data.processVariables.length > 0 ? transformVariables(data.processVariables) : undefined,
-        };
-
-        await post(api, '/message', {}, JSON.stringify(payload));
-
-        setSuccessMessage(`Message "${data.messageName}" sent successfully. A new process instance will be started.`);
+      if (data.isStartEvent) {
+        const startedWith = data.businessKey !== '' ? ` with business key "${data.businessKey}"` : '';
+        setSuccessMessage(`Message "${data.messageName}" sent. A new process instance was started${startedWith}.`);
       } else {
-        // Correlate to all active instances as a batch operation
-        const payload: Record<string, unknown> = {
-          messageName: data.messageName,
-          processInstanceQuery: {
-            processDefinitionId,
-          },
-        };
-
-        if (data.processVariables.length > 0) {
-          payload['variables'] = transformVariables(data.processVariables);
-        }
-
-        await post(api, '/process-instance/message-async', {}, JSON.stringify(payload));
-
         setSuccessMessage(
-          `Message "${data.messageName}" correlation submitted successfully as a batch operation! ` +
+          `Message "${data.messageName}" correlation submitted as a batch operation. ` +
             `Check the batch operations view for progress.`
         );
       }
     } catch (err) {
       console.error('Message correlation error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(`Failed to correlate message: ${errorMessage}. Check console for details.`);
+      setError(`Failed to send message: ${errorMessage}. Check console for details.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -179,6 +221,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
     setError(null);
     setSuccessMessage(null);
     setDryRunResult(null);
+    setDryRunRequest(null);
   };
 
   if (isLoading) {
@@ -190,7 +233,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
     );
   }
 
-  if (error && messages.length === 0) {
+  if (error !== null && messages.length === 0) {
     return (
       <div className="modify-form__error">
         <ErrorMessage message={error} />
@@ -198,7 +241,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
     );
   }
 
-  const submitLabel = selectedMessage?.isStartEvent === true ? 'Start Process' : 'Correlate Message';
+  const submitLabel = isStartEvent ? 'Start Process Instance' : 'Correlate Message';
 
   return (
     <FormProvider {...methods}>
@@ -211,8 +254,11 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
       >
         <div className="modify-form__header">
           <p className="modify-form__description">
-            Correlate a message asynchronously to all active instances of this process definition. The message will be
-            delivered as a batch operation.
+            {isStartEvent
+              ? 'This message is configured on a start event. Sending it starts one new process instance; ' +
+                'no running instances are involved.'
+              : 'Correlate a message asynchronously to running instances of this process definition. ' +
+                'Choose which instances below, then use dry run to check the request before sending it.'}
           </p>
         </div>
 
@@ -234,59 +280,63 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
             <p className="modify-form__hint">No message events found in this process definition.</p>
           )}
 
-          {selectedMessage?.isStartEvent !== true && (
-            <div className="modify-form__actions">
-              <FormButton
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  void runDryRun();
-                }}
-                disabled={isDryRun}
-                minWidth={120}
-              >
-                {isDryRun ? 'Querying...' : 'Preview Instances'}
-              </FormButton>
+          {isStartEvent ? (
+            <div className="modify-form__field">
+              <label htmlFor="businessKey">Business Key</label>
+              <input
+                id="businessKey"
+                type="text"
+                {...methods.register('businessKey')}
+                className="modify-form__input"
+                placeholder="Business key for the new instance"
+              />
+              <p className="modify-form__hint">
+                Identifies the instance this message starts. Pre-filled so the new instance can be found again; replace
+                it with your own if you have one.
+              </p>
             </div>
+          ) : (
+            <InstanceSelectionFields activities={activities} label="Correlate To" />
           )}
 
-          {dryRunResult && (
-            <div className="modify-form__dry-run-result">
-              <h5>
-                Found {dryRunResult.count} active instance{dryRunResult.count !== 1 ? 's' : ''}
-              </h5>
-              {dryRunResult.instances.length > 0 && (
-                <ul className="modify-form__instance-list">
-                  {dryRunResult.instances.map(inst => (
-                    <li key={inst.id}>
-                      {inst.id} {inst.businessKey ? `(${inst.businessKey})` : ''}
-                    </li>
-                  ))}
-                  {dryRunResult.count > MAX_PREVIEW_INSTANCES && (
-                    <li>...and {dryRunResult.count - MAX_PREVIEW_INSTANCES} more</li>
-                  )}
-                </ul>
-              )}
-            </div>
-          )}
+          <div className="modify-form__actions">
+            <FormButton
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                void handleSubmit(runDryRun)();
+              }}
+              disabled={isDryRun}
+              minWidth={120}
+            >
+              {isDryRun ? 'Querying...' : 'Dry Run'}
+            </FormButton>
+          </div>
+
+          <DryRunResultPreview
+            result={dryRunResult}
+            request={dryRunRequest}
+            maxInstances={MAX_PREVIEW_INSTANCES}
+            instanceLabel="active instance"
+          />
         </div>
 
         <h4>Process Variables</h4>
         <VariableBuilder name="processVariables" showLocalFlag={false} />
 
-        {selectedMessage?.isStartEvent === true ? (
+        {isStartEvent ? (
           <WarningBox>
             This message is configured on a start event. Sending it will start a new process instance.
           </WarningBox>
         ) : (
           <WarningBox>
-            This message will be correlated asynchronously to ALL active instances of this process definition as a batch
-            operation. Make sure the message name and variables are correct before submitting.
+            The message will be correlated asynchronously, as a batch operation, to every instance matching the
+            selection above. Run a dry run first and check both the instance list and the request.
           </WarningBox>
         )}
 
-        {error && <ErrorMessage message={error} />}
-        {successMessage && <SuccessMessage message={successMessage} />}
+        {error !== null && <ErrorMessage message={error} />}
+        {successMessage !== null && <SuccessMessage message={successMessage} />}
 
         <div className="modify-form__actions">
           <FormButton type="submit" disabled={isSubmitting} variant="primary" minWidth={160}>

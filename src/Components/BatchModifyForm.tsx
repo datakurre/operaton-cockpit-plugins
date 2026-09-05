@@ -7,8 +7,10 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray, FormProvider } from 'react-hook-form';
 
+import DryRunResultPreview, { type DryRunResult } from './DryRunResultPreview';
 import ErrorMessage from './ErrorMessage';
 import FormButton from './FormButton';
+import InstanceSelectionFields from './InstanceSelectionFields';
 import InstructionCard from './InstructionCard';
 import LoadingSpinner from './LoadingSpinner';
 import ModifyFormOptions from './ModifyFormOptions';
@@ -17,44 +19,18 @@ import WarningBox from './WarningBox';
 import type { API } from '../types';
 import { ProcessInstance } from '../types';
 import { get, post } from '../utils/api';
+import {
+  buildInstanceLookupParams,
+  buildModificationRequest,
+  type BatchRequest,
+  type ModificationRequestInput,
+} from '../utils/batchOperations';
 import { getBpmnElements, BpmnElement } from '../utils/bpmnParsing';
-import { transformVariables as transformVariablesUtil, VariableInput } from '../utils/variables';
 
 /** Maximum number of instances to show in dry-run preview */
 const MAX_PREVIEW_INSTANCES = 10;
 
-interface ModificationInstruction {
-  type: 'startBeforeActivity' | 'startAfterActivity' | 'startTransition' | 'cancel';
-  activityId?: string;
-  transitionId?: string;
-  variables?: VariableInput[];
-  cancelCurrentActiveActivityInstances?: boolean;
-}
-
-/** Type for the modification instruction payload to API */
-interface ModificationInstructionPayload {
-  type: string;
-  activityId?: string;
-  transitionId?: string;
-  variables?: Record<string, { value: unknown; type: string }>;
-  cancelCurrentActiveActivityInstances?: boolean;
-}
-
-interface ModifyFormData {
-  instructions: ModificationInstruction[];
-  annotation: string;
-  skipCustomListeners: boolean;
-  skipIoMappings: boolean;
-  instanceSelectionMode: 'all' | 'specific' | 'query';
-  specificInstanceIds: string;
-  queryActivityId: string;
-  queryState: string;
-}
-
-interface DryRunResult {
-  count: number;
-  instances: ProcessInstance[];
-}
+type ModifyFormData = ModificationRequestInput;
 
 interface BatchModifyFormProps {
   api: API;
@@ -75,6 +51,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
+  const [dryRunRequest, setDryRunRequest] = useState<BatchRequest | null>(null);
 
   const methods = useForm<ModifyFormData>({
     defaultValues: {
@@ -89,14 +66,12 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
     },
   });
 
-  const { control, handleSubmit, watch, reset } = methods;
+  const { control, handleSubmit, reset } = methods;
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'instructions',
   });
-
-  const instanceSelectionMode = watch('instanceSelectionMode');
 
   useEffect(() => {
     const loadActivities = async (): Promise<void> => {
@@ -118,64 +93,27 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
     void loadActivities();
   }, [api, processDefinitionId]);
 
-  const transformVariables = (vars: VariableInput[]): Record<string, { value: unknown; type: string }> =>
-    transformVariablesUtil(vars, true);
-
   /**
-   * Build the query object for instance selection
-   */
-  const buildInstanceQuery = (data: ModifyFormData): object | null => {
-    if (data.instanceSelectionMode === 'all') {
-      return { processDefinitionId };
-    } else if (data.instanceSelectionMode === 'query') {
-      const query: Record<string, unknown> = { processDefinitionId };
-      if (data.queryActivityId) {
-        query['activityIdIn'] = [data.queryActivityId];
-      }
-      if (data.queryState === 'active') {
-        query['active'] = true;
-      } else if (data.queryState === 'suspended') {
-        query['suspended'] = true;
-      }
-      return query;
-    }
-    return null;
-  };
-
-  /**
-   * Get specific instance IDs from form data
-   */
-  const getInstanceIds = (data: ModifyFormData): string[] | null => {
-    if (data.instanceSelectionMode === 'specific') {
-      return data.specificInstanceIds
-        .split(',')
-        .map(id => id.trim())
-        .filter(id => id.length > 0);
-    }
-    return null;
-  };
-
-  /**
-   * Run a dry-run query to show affected instances
+   * Run a dry run: read back the targeted instances and show the request that a real
+   * run would send. Both use the same builders as onSubmit, so the preview cannot drift
+   * from what is actually posted.
    */
   const runDryRun = async (data: ModifyFormData): Promise<void> => {
     try {
       setIsDryRun(true);
       setError(null);
       setDryRunResult(null);
+      setDryRunRequest(null);
 
-      const instanceIds = getInstanceIds(data);
-      const query = buildInstanceQuery(data);
-
-      let instances: ProcessInstance[] = [];
-
-      if (instanceIds) {
-        instances = (await get(api, '/process-instance', {
-          processInstanceIds: instanceIds.join(','),
-        })) as ProcessInstance[];
-      } else if (query) {
-        instances = (await get(api, '/process-instance', query as Record<string, string>)) as ProcessInstance[];
+      const request = buildModificationRequest(data, processDefinitionId);
+      if (!request) {
+        setError('Please select instances to modify.');
+        return;
       }
+      setDryRunRequest(request);
+
+      const params = buildInstanceLookupParams(data, processDefinitionId);
+      const instances = params ? ((await get(api, '/process-instance', params)) as ProcessInstance[]) : [];
 
       setDryRunResult({
         count: instances.length,
@@ -203,56 +141,16 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
       setError(null);
       setSuccessMessage(null);
       setDryRunResult(null);
+      setDryRunRequest(null);
 
-      const instanceIds = getInstanceIds(data);
-      const query = buildInstanceQuery(data);
-
-      if (!instanceIds && !query) {
+      const request = buildModificationRequest(data, processDefinitionId);
+      if (!request) {
         setError('Please select instances to modify.');
         setIsSubmitting(false);
         return;
       }
 
-      const payload: Record<string, unknown> = {
-        processDefinitionId,
-        skipCustomListeners: data.skipCustomListeners,
-        skipIoMappings: data.skipIoMappings,
-        instructions: data.instructions
-          .filter(inst => {
-            if (inst.type === 'startTransition') {
-              return inst.transitionId !== undefined && inst.transitionId !== '';
-            } else if (inst.type === 'cancel') {
-              return inst.activityId !== undefined && inst.activityId !== '';
-            } else {
-              return inst.activityId !== undefined && inst.activityId !== '';
-            }
-          })
-          .map((inst): ModificationInstructionPayload => {
-            const instruction: ModificationInstructionPayload = { type: inst.type };
-            if (inst.activityId !== undefined && inst.activityId !== '') {
-              instruction.activityId = inst.activityId;
-            }
-            if (inst.transitionId !== undefined && inst.transitionId !== '') {
-              instruction.transitionId = inst.transitionId;
-            }
-            if (inst.type === 'cancel' && inst.cancelCurrentActiveActivityInstances) {
-              instruction.cancelCurrentActiveActivityInstances = true;
-            }
-            if (inst.variables !== undefined && inst.variables.length > 0) {
-              instruction.variables = transformVariables(inst.variables);
-            }
-            return instruction;
-          }),
-        annotation: data.annotation !== '' ? data.annotation : 'Batch modified via Cockpit plugin',
-      };
-
-      if (instanceIds) {
-        payload['processInstanceIds'] = instanceIds;
-      } else if (query) {
-        payload['processInstanceQuery'] = query;
-      }
-
-      await post(api, '/modification/executeAsync', {}, JSON.stringify(payload));
+      await post(api, request.path, {}, JSON.stringify(request.payload));
 
       setSuccessMessage(
         `Batch modification submitted successfully! The modification will be executed asynchronously. ` +
@@ -275,6 +173,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
     setError(null);
     setSuccessMessage(null);
     setDryRunResult(null);
+    setDryRunRequest(null);
   };
 
   if (isLoading) {
@@ -306,61 +205,13 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
       >
         <div className="modify-form__header">
           <p className="modify-form__description">
-            Apply modification instructions to multiple process instances. Use dry-run mode to preview affected
-            instances before executing.
+            Apply modification instructions to multiple process instances. Use dry run to see which instances would be
+            affected and the exact request that would be sent.
           </p>
         </div>
 
         <div className="modify-form__section">
-          <div className="modify-form__field">
-            <label htmlFor="instanceSelectionMode">Select Instances By</label>
-            <select
-              id="instanceSelectionMode"
-              {...methods.register('instanceSelectionMode')}
-              className="modify-form__input"
-            >
-              <option value="all">All active instances of this definition</option>
-              <option value="query">Query (filter by activity/state)</option>
-              <option value="specific">Specific instance IDs</option>
-            </select>
-          </div>
-
-          {instanceSelectionMode === 'specific' && (
-            <div className="modify-form__field">
-              <label htmlFor="specificInstanceIds">Instance IDs (comma-separated)</label>
-              <textarea
-                id="specificInstanceIds"
-                {...methods.register('specificInstanceIds')}
-                placeholder="instance-id-1, instance-id-2, instance-id-3"
-                rows={3}
-                className="modify-form__textarea"
-              />
-            </div>
-          )}
-
-          {instanceSelectionMode === 'query' && (
-            <>
-              <div className="modify-form__field">
-                <label htmlFor="queryActivityId">Filter by Activity (optional)</label>
-                <select id="queryActivityId" {...methods.register('queryActivityId')} className="modify-form__input">
-                  <option value="">Any activity</option>
-                  {activities.map(a => (
-                    <option key={a.id} value={a.id}>
-                      {a.name ?? a.id} ({a.type})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="modify-form__field">
-                <label htmlFor="queryState">Instance State</label>
-                <select id="queryState" {...methods.register('queryState')} className="modify-form__input">
-                  <option value="active">Active</option>
-                  <option value="suspended">Suspended</option>
-                  <option value="any">Any</option>
-                </select>
-              </div>
-            </>
-          )}
+          <InstanceSelectionFields activities={activities} />
 
           <div className="modify-form__actions">
             <FormButton
@@ -376,25 +227,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
             </FormButton>
           </div>
 
-          {dryRunResult && (
-            <div className="modify-form__dry-run-result">
-              <h5>
-                Found {dryRunResult.count} instance{dryRunResult.count !== 1 ? 's' : ''}
-              </h5>
-              {dryRunResult.instances.length > 0 && (
-                <ul className="modify-form__instance-list">
-                  {dryRunResult.instances.map(inst => (
-                    <li key={inst.id}>
-                      {inst.id} {inst.businessKey ? `(${inst.businessKey})` : ''}
-                    </li>
-                  ))}
-                  {dryRunResult.count > MAX_PREVIEW_INSTANCES && (
-                    <li>...and {dryRunResult.count - MAX_PREVIEW_INSTANCES} more</li>
-                  )}
-                </ul>
-              )}
-            </div>
-          )}
+          <DryRunResultPreview result={dryRunResult} request={dryRunRequest} maxInstances={MAX_PREVIEW_INSTANCES} />
         </div>
 
         {fields.map((field, index) => (

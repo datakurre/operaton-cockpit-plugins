@@ -10,7 +10,7 @@ import { render, screen, waitFor, act, fireEvent, cleanup } from '@testing-libra
 import '@testing-library/jest-dom';
 
 import { mockApi } from '../__mocks__/api';
-import { simpleBpmnXml, bpmnWithMessages } from '../__fixtures__/bpmn-xml';
+import { simpleBpmnXml, bpmnWithMessages, bpmnWithStartEventMessage } from '../__fixtures__/bpmn-xml';
 
 // Mock the angular module to prevent reload issues
 jest.mock('../utils/angular', () => ({
@@ -285,6 +285,100 @@ describe('definition-tab-modify integration', () => {
         expect(optionValues).toContain('OrderReceived');
         expect(optionValues).toContain('CancelOrder');
       }
+    });
+  });
+
+  describe('Message targeting and request preview', () => {
+    /**
+     * Open the Message tab and pick a message by name.
+     */
+    async function openMessageTab(container: HTMLElement, messageName: string): Promise<void> {
+      await waitFor(() => {
+        expect(screen.getByText('Message')).toBeInTheDocument();
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByText('Message'));
+      });
+      await waitFor(() => {
+        expect(screen.getByLabelText('Message')).toBeInTheDocument();
+      });
+      const select = container.querySelector('select[name="messageName"]') as HTMLSelectElement;
+      await act(async () => {
+        fireEvent.change(select, { target: { value: messageName } });
+      });
+    }
+
+    it('offers instance targeting for a message that is correlated', async () => {
+      setupMockFetch({ bpmnXml: bpmnWithMessages });
+      const container = await renderPlugin();
+      await openMessageTab(container, 'OrderReceived');
+
+      // Correlation used to hit every active instance with no way to narrow it.
+      const modeSelect = container.querySelector('select[name="instanceSelectionMode"]') as HTMLSelectElement;
+      expect(modeSelect).not.toBeNull();
+      expect(Array.from(modeSelect.querySelectorAll('option')).map(o => o.value)).toEqual(['all', 'query', 'specific']);
+    });
+
+    it('previews the correlation request, narrowed to the chosen instances', async () => {
+      setupMockFetch({ bpmnXml: bpmnWithMessages });
+      const container = await renderPlugin();
+      await openMessageTab(container, 'OrderReceived');
+
+      const modeSelect = container.querySelector('select[name="instanceSelectionMode"]') as HTMLSelectElement;
+      await act(async () => {
+        fireEvent.change(modeSelect, { target: { value: 'specific' } });
+      });
+      const idsField = container.querySelector('textarea[name="specificInstanceIds"]') as HTMLTextAreaElement;
+      await act(async () => {
+        fireEvent.change(idsField, { target: { value: 'pi-1, pi-2' } });
+      });
+
+      const dryRun = Array.from(container.querySelectorAll('button')).find(b => /dry run/i.test(b.textContent ?? ''));
+      expect(dryRun).toBeDefined();
+      await act(async () => {
+        fireEvent.click(dryRun as HTMLButtonElement);
+      });
+
+      const preview = await waitFor(() => {
+        const el = container.querySelector('[aria-label="Request preview"]');
+        expect(el).not.toBeNull();
+        return el as HTMLElement;
+      });
+
+      expect(preview.textContent).toContain('POST /process-instance/message-async');
+      const body = JSON.parse((preview.textContent ?? '').slice((preview.textContent ?? '').indexOf('{')));
+      expect(body).toEqual({ messageName: 'OrderReceived', processInstanceIds: ['pi-1', 'pi-2'] });
+    });
+
+    it('offers a business key and previews the start request for a start message', async () => {
+      setupMockFetch({ bpmnXml: bpmnWithStartEventMessage });
+      const container = await renderPlugin();
+      await openMessageTab(container, 'StartOrder');
+
+      // A start message starts one instance, so it takes a business key instead of a target.
+      const businessKey = container.querySelector('input[name="businessKey"]') as HTMLInputElement;
+      expect(businessKey).not.toBeNull();
+      expect(businessKey.value).not.toBe('');
+      expect(container.querySelector('select[name="instanceSelectionMode"]')).toBeNull();
+
+      await act(async () => {
+        fireEvent.change(businessKey, { target: { value: 'order-7' } });
+      });
+
+      const dryRun = Array.from(container.querySelectorAll('button')).find(b => /dry run/i.test(b.textContent ?? ''));
+      await act(async () => {
+        fireEvent.click(dryRun as HTMLButtonElement);
+      });
+
+      const preview = await waitFor(() => {
+        const el = container.querySelector('[aria-label="Request preview"]');
+        expect(el).not.toBeNull();
+        return el as HTMLElement;
+      });
+
+      expect(preview.textContent).toContain('POST /message');
+      const body = JSON.parse((preview.textContent ?? '').slice((preview.textContent ?? '').indexOf('{')));
+      expect(body).toEqual({ messageName: 'StartOrder', businessKey: 'order-7' });
     });
   });
 
