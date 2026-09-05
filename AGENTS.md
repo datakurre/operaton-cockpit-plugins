@@ -285,9 +285,8 @@ The project uses strict static analysis optimized for LLM coding agent maintaina
 - `exactOptionalPropertyTypes` – Explicit undefined handling
 - `noImplicitReturns` – All code paths must return
 
-**Before committing**, run `npm run check` to validate all static analysis passes. Be aware that it
-currently fails at the first step for reasons unrelated to your change — see
-[Known issues and fixes](#known-issues-and-fixes).
+**Before committing**, run `npm run check` to validate all static analysis passes. It passes on `main`
+as of `e95c20b`, so a failure is yours.
 
 ### Build notes
 - Rollup compiles TypeScript + React with Babel
@@ -450,28 +449,31 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
 
 ## Known issues and fixes
 
-- **The repository does not typecheck, build, or fully test on a clean checkout of `main`.** Verified on
-  `33a3d6d`: `npm run typecheck` exits 2, `npm run build` fails on the very first bundle
-  (`robot-module.js`), and `npm test` reports 6 failed suites / 26 failed tests out of 1188. CI is red
-  for the same reason — the `Test` job fails at the typecheck step, so the `Build` job (`needs: test`)
-  never runs. Fix this before anything else; you cannot regenerate a bundle until you do. Two
-  independent causes, both from `bpmn-moddle`:
-  - *Typecheck and build.* `@types/bpmn-moddle@10` exports only named types and has **no default
-    export**, but three files do `import type BPMNModdle from 'bpmn-moddle'` and then reach through it
-    as a namespace (`BPMNModdle.Activity`), which is TS2613:
-    [src/RobotModule/renderer.ts:2](src/RobotModule/renderer.ts), [src/utils/bpmn/connections.ts:8](src/utils/bpmn/connections.ts),
-    [src/utils/bpmnParsing.ts:1](src/utils/bpmnParsing.ts). Commit `143f740` ("use default BPMNModdle types
-    (avoid named imports)") introduced it. `import type * as BPMNModdle from 'bpmn-moddle'` fixes the two
-    type-only sites; `bpmnParsing.ts` also uses the import as a *value* (`new BpmnModdle(...)`), so it
-    needs a typed shim for the constructor rather than the same one-line change.
-  - *Tests.* `bpmn-moddle@10` bundles a nested `min-dash@5` (ESM) while the project depends on a hoisted
-    `min-dash@4.2.3`. The `transformIgnorePatterns` in [jest.config.js](jest.config.js) matches only
-    `/node_modules/min-dash/`, not `/node_modules/bpmn-moddle/node_modules/min-dash/`, so the nested copy
-    is never transformed and every suite that reaches `src/utils/bpmnParsing.ts` dies with
-    `SyntaxError: Unexpected token 'export'`. The six suites are `bpmnParsing`, `HistoryViewLayout`,
-    `plugins.integration`, `instance-tab-modify.integration`, `definition-tab-modify.integration` and
-    `instance-route-history.integration` — note that this is exactly the code carrying the modify/message
-    feature gaps below, so those features currently have no working test coverage.
+- **`bpmn-moddle` imports must stay named — do not "fix" them to default imports.** This broke the
+  repository once (typecheck exit 2, no bundle could be built, 26 tests failing across 6 suites, CI red
+  at the typecheck step so the `Build` job never ran); fixed in `e95c20b`. `@types/bpmn-moddle@10` and
+  the package's own ESM build both expose **named** exports and no default:
+
+  ```
+  dist/index.js: export { SimpleBpmnModdle as BpmnModdle }
+  index.d.ts:    export const BpmnModdle: BPMNModdleConstructor
+  ```
+
+  So [src/RobotModule/renderer.ts](src/RobotModule/renderer.ts) and
+  [src/utils/bpmn/connections.ts](src/utils/bpmn/connections.ts) use `import type * as BPMNModdle` for
+  namespace-style type access, and [src/utils/bpmnParsing.ts](src/utils/bpmnParsing.ts) uses
+  `import { BpmnModdle }` for the constructor. A default import is TS2613 and fails `tsc` *and* the
+  rollup typescript plugin, which is what makes it fatal rather than cosmetic.
+
+  The matching Jest setup is load-bearing too. There is deliberately **no** `^bpmn-moddle$` module
+  mapping: the CJS build is `module.exports = SimpleBpmnModdle`, which a named import cannot read, and
+  it requires the ESM-only `moddle` and `moddle-xml` anyway. Jest loads the same ESM entry rollup does,
+  which is why `transformIgnorePatterns` in [jest.config.js](jest.config.js) allowlists the whole chain
+  (`bpmn-moddle`, `moddle`, `moddle-xml`, `saxen`, `min-dash`). That pattern is unanchored, so a nested
+  path such as `bpmn-moddle/node_modules/min-dash` — `bpmn-moddle@10` ships its own `min-dash@5` while
+  the project pins `4.2.3` — is only transformed when *every* `node_modules/` segment in it is followed
+  by an allowlisted name. Drop `bpmn-moddle` from that list and the nested copy silently stops being
+  transformed again.
 
 - **Definition-level message sending is half-broken.** In the `Message` tab of `definition-tab-modify`
   ([BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx)) the selected BPMN message drives two very
