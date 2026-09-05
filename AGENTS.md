@@ -508,26 +508,22 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
   matching signal catch event in every deployed definition, but the preview only lists instances of the
   current definition. The `WarningBox` says so in words; the preview still does not.
 
-- **`dashboard-favourites` asks for statistics it cannot filter.** It builds
-  `/process-definition/statistics?processDefinitionKeyIn=…&incidents=true`, but per
-  [src/operaton.json](src/operaton.json) that endpoint accepts only `failedJobs`, `incidents`,
-  `incidentsForType` and `rootIncidents`. The unknown parameter is ignored, so every dashboard load
-  pulls statistics for *all* deployed definitions and filters client-side. The numbers shown are right;
-  the request is not. Also note the row's `state`/`suspended` values are computed and then never used —
-  the State cell only branches on `incidents`, so a suspended definition renders as healthy green.
+- **`dashboard-integrations` fetches external tasks one instance at a time.** It calls
+  `/external-task` with no `maxResults` and no `processDefinitionKeyIn`, then loops one
+  `GET /process-definition/{id}` and one `GET /incident` per instance, sequentially. Both filters exist
+  on those endpoints (`/incident` even takes `processDefinitionKeyIn`), and `getProcessDefinition` in
+  [src/utils/api.ts](src/utils/api.ts) is already cached, so this could be two calls rather than N.
+  Unfixed.
 
-- **`dashboard-integrations` batch retry always falls back.** `handleBatchRetry` does
-  `post(api, '/external-task/retries', …)`, but that endpoint is **PUT-only**; the POST returns 405, the
-  bare `catch` swallows it, and the code silently degrades to one sequential PUT per task. Switching to
-  `put()` makes it a single request. The same plugin fetches `/external-task` with no `maxResults` and no
-  `processDefinitionKeyIn`, then loops one `GET /process-definition/{id}` and one `GET /incident` per
-  instance — both filters exist on those endpoints and would collapse the N+1 into two calls.
+- **Direct `fetch()` calls bypass the API helpers.** [src/utils/filterSchema.ts](src/utils/filterSchema.ts)
+  calls `fetch` directly in its four autocompleters. They send `Accept` and `X-XSRF-TOKEN` by hand but
+  skip `ApiError`, the `api.engine` normalisation in `get()`, and the `setFetchFunction` seam the tests
+  rely on. Unfixed.
 
-- **`instance-route-history` filters versions after paginating.** The version filter is applied
-  client-side to the current page, while `instancesCount` comes from an unfiltered
-  `countProcessInstances`, so the pager total is wrong and pages can render short or empty. Combining a
-  version filter with `useAllVersions !== true` is doubly broken: the query is already pinned to one
-  `processDefinitionId`.
+- **`instance-tab-modify` uses one state field for both success and failure.** `onSubmit` writes its
+  success text into `error`, and the render decides which alert to show with
+  `error.includes('successfully')`. The component already imports `SuccessMessage`; it wants a separate
+  state field. Unfixed.
 
 - **react-select-filter-box installed from git**: The package has no npm releases and is pinned to a commit
   of `github:jyukopla/react-select-filter-box` in [package.json](package.json). Bumping it means moving the
@@ -535,7 +531,4 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
 
 - **TypeScript warnings with react-select-filter-box**: The package bundles its own `@types/react` which conflicts with the project's React types. [src/Components/FilterBox.tsx](src/Components/FilterBox.tsx) casts the component to a local type to bypass this incompatibility. Jest sidesteps it entirely with a mock at [src/__mocks__/react-select-filter-box.tsx](src/__mocks__/react-select-filter-box.tsx).
 
-- **[README.md](README.md) `config.js` snippet is out of date**: it still lists `decisions-dashboard.js` and
-  omits `dashboard-favourites.js`, `dashboard-integrations.js` and `cockpit-custom-styles.js`. Treat the real
-  [config.js](config.js) and the [Dockerfile](Dockerfile) as the source of truth.
 

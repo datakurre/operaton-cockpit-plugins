@@ -22,6 +22,7 @@ import {
   ResourceValidationMap,
   ResolvedIdMap,
   ResourceUrlOptions,
+  resourceValidationKey,
 } from '../utils/authorization';
 
 /** ARIA sort direction value for accessible table headers */
@@ -118,11 +119,16 @@ const SortableAuthorizationsTable: React.FC<SortableAuthorizationsTableProps> = 
         accessor: 'resourceId',
         Cell: ({ row }: CellProps<AuthorizationRow, string>) => {
           const resourceId = row.original.original.resourceId;
-          const status = resourceId && validationState ? validationState[resourceId] : undefined;
+          // Validation results are keyed by resource type and id together, since the same
+          // id can name resources of different types.
+          const validationKey = resourceId
+            ? resourceValidationKey(row.original.original.resourceType, resourceId)
+            : null;
+          const status = validationKey && validationState ? validationState[validationKey] : undefined;
           const urlOptions: ResourceUrlOptions = {
             cockpitBaseUrl,
             tasklistBaseUrl,
-            resolvedId: resourceId && resolvedIds ? resolvedIds[resourceId] : undefined,
+            resolvedId: validationKey && resolvedIds ? resolvedIds[validationKey] : undefined,
           };
           return renderResourceIdDisplay(row.original.original.resourceType, resourceId, status, urlOptions);
         },

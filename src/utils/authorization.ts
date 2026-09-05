@@ -678,8 +678,25 @@ export type ResourceValidationStatus = 'valid' | 'invalid' | 'unknown';
 /** Map of resource IDs to their validation status */
 export type ResourceValidationMap = Record<string, ResourceValidationStatus>;
 
-/** Map of resource IDs to their resolved IDs (for keys -> latest version ID) */
+/** Map of resource validation keys to their resolved IDs (for keys -> latest version ID) */
 export type ResolvedIdMap = Record<string, string | null>;
+
+/** Resource type id for Process Definition, whose keys resolve to a latest version id */
+export const RESOURCE_TYPE_PROCESS_DEFINITION = 6;
+
+/**
+ * Build the key under which a resource's validation result is stored.
+ *
+ * A resource id is only unique within its resource type - the same id can name both a
+ * process definition and a decision definition - so both parts belong in the key.
+ * Keying on the id alone made two such authorizations share one validation result.
+ * @param resourceType - The resource type ID
+ * @param resourceId - The resource ID
+ * @returns Key combining the resource type and id
+ */
+export function resourceValidationKey(resourceType: number | null, resourceId: string): string {
+  return `${resourceType ?? 'null'}:${resourceId}`;
+}
 
 /**
  * Render resource ID display element with optional link and validation status.
