@@ -1103,6 +1103,687 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel renders correctly 1`
       <dd>
         ACTIVE
       </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Delete Reason:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Start Time:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          End Time:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Duration:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+    </dl>
+  </div>
+</div>
+`;
+
+exports[`Snapshot Tests Process Components ProcessInfoPanel renders the history-only fields of a terminated instance 1`] = `
+<div>
+  <div
+    class="ctn-column"
+  >
+    <dl
+      class="process-information"
+    >
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Instance ID:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        instance-789
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Business Key:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        ORDER-2024-002
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Version:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        3
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition ID:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <a
+          href="#/process-definition/orderProcess:3:ghi/runtime"
+        >
+          orderProcess:3:ghi
+        </a>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Key:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        orderProcess
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Definition Name:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        Order Process
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Tenant ID:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Deployment ID:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <a
+          href="#/repository?deployment=deploy-789&resourceName=order-process.bpmn&deploymentsQuery=%5B%7B%22type%22%3A%22id%22%2C%22operator%22%3A%22eq%22%2C%22value%22%3A%22deploy-789%22%7D%5D"
+        >
+          deploy-789
+        </a>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Super Process instance ID:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          State:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        EXTERNALLY_TERMINATED
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Delete Reason:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        Cancelled by operator
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Start Time:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        2024-01-01T10:00:00
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          End Time:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        2024-01-01T11:23:45
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Duration:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        01:23:45.6
+      </dd>
     </dl>
   </div>
 </div>
@@ -1487,6 +2168,158 @@ exports[`Snapshot Tests Process Components ProcessInfoPanel with null values ren
       </dt>
       <dd>
         COMPLETED
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Delete Reason:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Start Time:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          End Time:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
+      </dd>
+      <dt>
+        <span
+          role="group"
+          style="display: flex; align-items: center;"
+          tabindex="0"
+        >
+          Duration:
+          <button
+            aria-label="Copy to clipboard"
+            style="font-size: 120%; background: none; cursor: pointer; padding: 0px; visibility: hidden;"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="currentColor"
+              height="1em"
+              stroke="currentColor"
+              stroke-width="0"
+              style="display: flex;"
+              viewBox="0 0 20 20"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"
+              />
+              <path
+                d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z"
+              />
+            </svg>
+          </button>
+        </span>
+      </dt>
+      <dd>
+        <code>
+          null
+        </code>
       </dd>
     </dl>
   </div>

@@ -16,8 +16,9 @@ import {
 } from '../constants';
 import { getDottedConnections, getExecutedConnections } from './connections';
 
-/** Fill color for sequence flow highlighting */
-const FILL = '#52B415';
+/** Fill color for sequence flow highlighting. Darker than the diagram's own green
+ * so the executed path reads clearly against the white canvas it is drawn over. */
+const FILL = '#429111';
 
 /** Class set on every path this module draws, so the overlay stays identifiable */
 const EXECUTED_PATH_CLASS = 'executed-sequence-flow';

@@ -75819,13 +75819,16 @@ function resolveTakenBranch(outgoing, execution, index, targetPointers) {
  * fired branch pairs with the same gateway execution and scores one, while a branch
  * that never ran has no target executions to pair with and is dropped.
  *
- * Event-based gateways are absent for a different reason. Exactly one of their
- * branches wins, so narrowing looks right, but the branches all start at the same
- * instant — their subscriptions are created together — so ranking by the target's
- * start time cannot tell the winner from the losers and would pick by array order.
- * Whether that matters depends on what history a losing catch event leaves: if the
- * engine records it as canceled, the canceled-activity rule below already excludes it
- * and nothing more is needed. That observation needs a live engine — see issue #66.
+ * Event-based gateways need no narrowing either, confirmed against Operaton 2.2.0 in
+ * both directions (message wins, timer wins): the engine records nothing at all for
+ * the branches that lost. A losing branch therefore has no target executions to pair
+ * with and the generic rule drops it.
+ *
+ * That observation carries a trap worth naming. The gateway itself comes back with
+ * `canceled: true` even though the token passed through it, which is exactly what the
+ * gateway escape in `isCanceled` below exists for — without it the gateway would be
+ * excluded as a source and the *winning* branch would be dropped along with the
+ * losers.
  */
 var singleBranchGatewayTypes = ['exclusiveGateway'];
 /** Whether an activity record is a gateway narrowed to the single branch it took. */
@@ -76420,8 +76423,9 @@ function getMid(a, b) {
   };
 }
 
-/** Fill color for sequence flow highlighting */
-var FILL = '#52B415';
+/** Fill color for sequence flow highlighting. Darker than the diagram's own green
+ * so the executed path reads clearly against the white canvas it is drawn over. */
+var FILL = '#429111';
 /** Class set on every path this module draws, so the overlay stays identifiable */
 var EXECUTED_PATH_CLASS = 'executed-sequence-flow';
 /** Marker SVG attributes configuration */
@@ -76828,6 +76832,29 @@ var Container = function (_a) {
  * Displays key-value pairs with copy-to-clipboard functionality.
  */
 /**
+ * One label/value row whose value may be absent, rendered as `null` when it is.
+ * The clipboard carries the raw value, not the formatted one.
+ * @param props - Row props
+ * @param props.label - Field label
+ * @param props.raw - The raw value, or null/undefined when the field is not set
+ * @param props.format - Optional formatter for display
+ * @returns The dt/dd pair for the row
+ */
+function NullableRow(_a) {
+    var label = _a.label, raw = _a.raw, format = _a.format;
+    if (raw === null || raw === undefined) {
+        return (React.createElement(React.Fragment, null,
+            React.createElement("dt", null,
+                React.createElement(Clippy, { value: "null" }, label)),
+            React.createElement("dd", null,
+                React.createElement("code", null, "null"))));
+    }
+    return (React.createElement(React.Fragment, null,
+        React.createElement("dt", null,
+            React.createElement(Clippy, { value: String(raw) }, label)),
+        React.createElement("dd", null, format ? format(raw) : String(raw))));
+}
+/**
  * Renders a panel showing process instance information.
  * Each field includes a copy-to-clipboard button.
  */
@@ -76867,7 +76894,11 @@ var ProcessInfoPanel = function (_a) {
             React.createElement("dd", null, instance.superProcessInstanceId ? (React.createElement("a", { href: "#/history/process-instance/".concat(instance.superProcessInstanceId) }, instance.superProcessInstanceId)) : (React.createElement("code", null, "null"))),
             React.createElement("dt", null,
                 React.createElement(Clippy, { value: (_o = instance.state) !== null && _o !== void 0 ? _o : '' }, "State:")),
-            React.createElement("dd", null, instance.state))));
+            React.createElement("dd", null, instance.state),
+            React.createElement(NullableRow, { label: "Delete Reason:", raw: instance.deleteReason }),
+            React.createElement(NullableRow, { label: "Start Time:", raw: instance.startTime, format: formatDateTime }),
+            React.createElement(NullableRow, { label: "End Time:", raw: instance.endTime, format: formatDateTime }),
+            React.createElement(NullableRow, { label: "Duration:", raw: instance.durationInMillis, format: asctime }))));
 };
 
 /**
@@ -80506,7 +80537,7 @@ var instanceRouteHistory = [
                                 activityById = new Map(activityHistory.activities.map(function (activity) { var _a; return [(_a = activity.id) !== null && _a !== void 0 ? _a : '', activity]; }));
                                 activities = sortActivitiesByEndTime(activityHistory.activities);
                                 variables = sortByName(variablesData);
-                                processInstance = __assign(__assign({ id: (_d = instance.id) !== null && _d !== void 0 ? _d : processInstanceId, processDefinitionId: (_e = instance.processDefinitionId) !== null && _e !== void 0 ? _e : '', processDefinitionKey: instance.processDefinitionKey, processDefinitionVersion: instance.processDefinitionVersion, businessKey: instance.businessKey, tenantId: instance.tenantId, superProcessInstanceId: instance.superProcessInstanceId }, (instance.processDefinitionName !== null &&
+                                processInstance = __assign(__assign({ id: (_d = instance.id) !== null && _d !== void 0 ? _d : processInstanceId, processDefinitionId: (_e = instance.processDefinitionId) !== null && _e !== void 0 ? _e : '', processDefinitionKey: instance.processDefinitionKey, processDefinitionVersion: instance.processDefinitionVersion, businessKey: instance.businessKey, tenantId: instance.tenantId, superProcessInstanceId: instance.superProcessInstanceId, startTime: instance.startTime, endTime: instance.endTime, durationInMillis: instance.durationInMillis, deleteReason: instance.deleteReason }, (instance.processDefinitionName !== null &&
                                     instance.processDefinitionName !== undefined && {
                                     processDefinitionName: instance.processDefinitionName,
                                 })), (instance.state !== null && instance.state !== undefined && { state: instance.state }));

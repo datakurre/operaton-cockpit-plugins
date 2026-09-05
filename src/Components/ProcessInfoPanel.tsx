@@ -4,6 +4,8 @@
  */
 import React from 'react';
 import { Clippy } from './Clippy';
+import { formatDateTime } from '../utils/formatting';
+import { asctime } from '../utils/misc';
 
 /** Properties of a historic process instance for display. */
 interface ProcessInstance {
@@ -16,6 +18,10 @@ interface ProcessInstance {
   tenantId?: string | null | undefined;
   superProcessInstanceId?: string | null | undefined;
   state?: string | undefined;
+  startTime?: string | null | undefined;
+  endTime?: string | null | undefined;
+  durationInMillis?: number | null | undefined;
+  deleteReason?: string | null | undefined;
 }
 
 /** Properties of a process definition for display (supports nullable OpenAPI fields). */
@@ -30,6 +36,46 @@ interface ProcessInfoPanelProps {
   instance: ProcessInstance;
   /** The process definition data. */
   definition: ProcessDefinition;
+}
+
+/**
+ * One label/value row whose value may be absent, rendered as `null` when it is.
+ * The clipboard carries the raw value, not the formatted one.
+ * @param props - Row props
+ * @param props.label - Field label
+ * @param props.raw - The raw value, or null/undefined when the field is not set
+ * @param props.format - Optional formatter for display
+ * @returns The dt/dd pair for the row
+ */
+function NullableRow<T extends string | number>({
+  label,
+  raw,
+  format,
+}: {
+  label: string;
+  raw: T | null | undefined;
+  format?: (value: T) => string;
+}): React.ReactElement {
+  if (raw === null || raw === undefined) {
+    return (
+      <>
+        <dt>
+          <Clippy value="null">{label}</Clippy>
+        </dt>
+        <dd>
+          <code>null</code>
+        </dd>
+      </>
+    );
+  }
+  return (
+    <>
+      <dt>
+        <Clippy value={String(raw)}>{label}</Clippy>
+      </dt>
+      <dd>{format ? format(raw) : String(raw)}</dd>
+    </>
+  );
 }
 
 /**
@@ -96,6 +142,10 @@ const ProcessInfoPanel: React.FC<ProcessInfoPanelProps> = ({ instance, definitio
           <Clippy value={instance.state ?? ''}>State:</Clippy>
         </dt>
         <dd>{instance.state}</dd>
+        <NullableRow label="Delete Reason:" raw={instance.deleteReason} />
+        <NullableRow label="Start Time:" raw={instance.startTime} format={formatDateTime} />
+        <NullableRow label="End Time:" raw={instance.endTime} format={formatDateTime} />
+        <NullableRow label="Duration:" raw={instance.durationInMillis} format={asctime} />
       </dl>
     </div>
   );

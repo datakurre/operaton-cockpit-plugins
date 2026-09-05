@@ -1972,13 +1972,16 @@ function resolveTakenBranch(outgoing, execution, index, targetPointers) {
  * fired branch pairs with the same gateway execution and scores one, while a branch
  * that never ran has no target executions to pair with and is dropped.
  *
- * Event-based gateways are absent for a different reason. Exactly one of their
- * branches wins, so narrowing looks right, but the branches all start at the same
- * instant — their subscriptions are created together — so ranking by the target's
- * start time cannot tell the winner from the losers and would pick by array order.
- * Whether that matters depends on what history a losing catch event leaves: if the
- * engine records it as canceled, the canceled-activity rule below already excludes it
- * and nothing more is needed. That observation needs a live engine — see issue #66.
+ * Event-based gateways need no narrowing either, confirmed against Operaton 2.2.0 in
+ * both directions (message wins, timer wins): the engine records nothing at all for
+ * the branches that lost. A losing branch therefore has no target executions to pair
+ * with and the generic rule drops it.
+ *
+ * That observation carries a trap worth naming. The gateway itself comes back with
+ * `canceled: true` even though the token passed through it, which is exactly what the
+ * gateway escape in `isCanceled` below exists for — without it the gateway would be
+ * excluded as a source and the *winning* branch would be dropped along with the
+ * losers.
  */
 var singleBranchGatewayTypes = ['exclusiveGateway'];
 /** Whether an activity record is a gateway narrowed to the single branch it took. */
@@ -2923,8 +2926,9 @@ var EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
 /** Upper bound on the stroke width of an executed sequence flow */
 var EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
 
-/** Fill color for sequence flow highlighting */
-var FILL = '#52B415';
+/** Fill color for sequence flow highlighting. Darker than the diagram's own green
+ * so the executed path reads clearly against the white canvas it is drawn over. */
+var FILL = '#429111';
 /** Class set on every path this module draws, so the overlay stays identifiable */
 var EXECUTED_PATH_CLASS = 'executed-sequence-flow';
 /** Marker SVG attributes configuration */
