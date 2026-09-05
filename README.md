@@ -307,8 +307,17 @@ These are current gaps, not bugs to report:
 
 * **The executed path is inferred, not reported.** The engine records which activities ran, never which
   sequence flows were taken, so the green path is reconstructed from activity timestamps. Exclusive
-  gateways are resolved to the branch that was taken; inclusive and event-based gateways fall back to
-  the plain timestamp heuristic and may show more branches than were really taken.
+  gateways are resolved to the branch taken on each pass. Inclusive gateways use the plain rule, which
+  handles them correctly — every branch that fired is drawn, one that never ran is not. Event-based
+  gateways rely on the losing branches being recorded as canceled; where they are not, more branches
+  may be drawn than were really taken.
+
+* **A long instance is drawn from a partial history.** The activity history behind the diagram is
+  bounded by `maxResults`, oldest first, so an instance with more activity records than that is drawn
+  from a chronological prefix: the path is complete up to a point and then stops, and each traversal
+  count is a lower bound. The plugin says so rather than letting that read as the whole story — the
+  sequence flow toggle turns amber and its tooltip warns, and each path reads "Executed at least N
+  times". Raise `maxResults` to take in more.
 
 
 Requirements
