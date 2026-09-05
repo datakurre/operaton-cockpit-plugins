@@ -2926,8 +2926,9 @@ var EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
 /** Upper bound on the stroke width of an executed sequence flow */
 var EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
 
-/** Fill color for sequence flow highlighting */
-var FILL = '#52B415';
+/** Fill color for sequence flow highlighting. Darker than the diagram's own green
+ * so the executed path reads clearly against the white canvas it is drawn over. */
+var FILL = '#429111';
 /** Class set on every path this module draws, so the overlay stays identifiable */
 var EXECUTED_PATH_CLASS = 'executed-sequence-flow';
 /** Marker SVG attributes configuration */

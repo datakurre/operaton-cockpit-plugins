@@ -76423,8 +76423,9 @@ function getMid(a, b) {
   };
 }
 
-/** Fill color for sequence flow highlighting */
-var FILL = '#52B415';
+/** Fill color for sequence flow highlighting. Darker than the diagram's own green
+ * so the executed path reads clearly against the white canvas it is drawn over. */
+var FILL = '#429111';
 /** Class set on every path this module draws, so the overlay stays identifiable */
 var EXECUTED_PATH_CLASS = 'executed-sequence-flow';
 /** Marker SVG attributes configuration */
