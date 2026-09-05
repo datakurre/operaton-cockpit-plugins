@@ -32,32 +32,39 @@ describe('ToggleHistoryStatisticsButton', () => {
     expect(screen.getByRole('button', { name: 'Show history instance statistics' })).toBeInTheDocument();
   });
 
-  it('should call callback with initial state on mount', () => {
+  it('should call callback with the initial mode on mount', () => {
     const onToggle = jest.fn();
     render(<ToggleHistoryStatisticsButton onToggleHistoryStatistics={onToggle} />);
 
-    expect(onToggle).toHaveBeenCalledWith(false);
+    expect(onToggle).toHaveBeenCalledWith('off');
   });
 
-  it('should toggle state and call callback when clicked', async () => {
+  it('should cycle off, counts, heat and back to off', async () => {
     const user = userEvent.setup();
     const onToggle = jest.fn();
     render(<ToggleHistoryStatisticsButton onToggleHistoryStatistics={onToggle} />);
 
     const button = screen.getByRole('button');
     await user.click(button);
+    expect(onToggle).toHaveBeenLastCalledWith('counts');
 
-    expect(onToggle).toHaveBeenCalledWith(true);
+    await user.click(button);
+    expect(onToggle).toHaveBeenLastCalledWith('heat');
+
+    await user.click(button);
+    expect(onToggle).toHaveBeenLastCalledWith('off');
   });
 
-  it('should update aria-label when toggled on', async () => {
+  it('should name the next state in its label, so the heatmap is discoverable', async () => {
     const user = userEvent.setup();
     const onToggle = jest.fn();
     render(<ToggleHistoryStatisticsButton onToggleHistoryStatistics={onToggle} />);
 
     const button = screen.getByRole('button');
     await user.click(button);
+    expect(screen.getByRole('button', { name: 'Show time heatmap' })).toBeInTheDocument();
 
+    await user.click(button);
     expect(screen.getByRole('button', { name: 'Hide history instance statistics' })).toBeInTheDocument();
   });
 

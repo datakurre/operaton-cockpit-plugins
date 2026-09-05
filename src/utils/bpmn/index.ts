@@ -14,7 +14,11 @@ export { countTraversals, getDottedConnections, getExecutedConnections, getMid }
 export type { ConnectionElement, DottedConnection, ExecutedConnection, XY } from './connections';
 
 // Overlay rendering utilities
-export { renderActivities } from './overlays';
+export { renderActivities, renderRunningTokens } from './overlays';
 
 // SVG rendering utilities
 export { clearSequenceFlow, getStrokeWidth, renderSequenceFlow } from './svg';
+
+// Heatmap rendering utilities
+export { aggregateDurations, clearHeatmap, getHeatColor, getIntensity, renderHeatmap } from './heatmap';
+export type { HeatmapCell } from './heatmap';
