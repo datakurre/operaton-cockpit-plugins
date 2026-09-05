@@ -11,12 +11,15 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 // Mock bpmn-js NavigatedViewer
-const mockAttachTo = jest.fn();
+const mockAttachTo = jest.fn((element: HTMLElement) => {
+  element.appendChild(mockViewer._container);
+});
 const mockImportXML = jest.fn().mockResolvedValue({});
 const mockZoom = jest.fn().mockReturnValue(1);
 const mockScroll = jest.fn();
 const mockOverlaysAdd = jest.fn();
 const mockOverlaysRemove = jest.fn();
+const mockOverlaysClear = jest.fn();
 const mockElementRegistryGet = jest.fn();
 const mockCanvasGetLayer = jest.fn().mockReturnValue({
   appendChild: jest.fn(),
@@ -38,7 +41,7 @@ const mockViewer = {
           getLayer: mockCanvasGetLayer,
         };
       case 'overlays':
-        return { add: mockOverlaysAdd, remove: mockOverlaysRemove };
+        return { add: mockOverlaysAdd, remove: mockOverlaysRemove, clear: mockOverlaysClear };
       case 'elementRegistry':
         return { get: mockElementRegistryGet };
       default:
@@ -58,10 +61,15 @@ jest.mock('camunda-bpmn-moddle/resources/camunda.json', () => ({}), { virtual: t
 jest.mock('diagram-js/lib/features/tooltips', () => ({}));
 jest.mock('../../RobotModule', () => ({}));
 
-// Mock sequence flow utilities
+// Mock sequence flow and overlay utilities
+const mockRenderSequenceFlow = jest.fn().mockReturnValue([]);
+const mockClearSequenceFlow = jest.fn();
+const mockRenderActivities = jest.fn();
+
 jest.mock('../../utils/bpmn', () => ({
-  renderSequenceFlow: jest.fn().mockReturnValue([]),
-  clearSequenceFlow: jest.fn(),
+  renderSequenceFlow: (...args: unknown[]) => mockRenderSequenceFlow(...args),
+  clearSequenceFlow: (...args: unknown[]) => mockClearSequenceFlow(...args),
+  renderActivities: (...args: unknown[]) => mockRenderActivities(...args),
 }));
 
 // Mock the misc utilities
@@ -173,6 +181,88 @@ describe('BPMN Component', () => {
       render(<BPMNViewer diagramXML="<bpmn/>" showRuntimeToggle />);
 
       expect(document.querySelector('div')).toBeInTheDocument();
+    });
+  });
+
+  describe('dynamic activity and truncation updates', () => {
+    const sampleBpmnXml = `<?xml version="1.0" encoding="UTF-8"?>
+      <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL">
+        <bpmn:process id="Process_1" isExecutable="true">
+          <bpmn:startEvent id="StartEvent_1"/>
+        </bpmn:process>
+      </bpmn:definitions>`;
+
+    beforeAll(() => {
+      Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+        configurable: true,
+        value: 500,
+      });
+    });
+
+    it('should reactively clear and redraw overlays and active sequence flow when activities change', async () => {
+      const initialActivities = [{ activityId: 'StartEvent_1', activityName: 'Start' }];
+      const updatedActivities = [
+        { activityId: 'StartEvent_1', activityName: 'Start' },
+        { activityId: 'Task_1', activityName: 'Task' },
+      ];
+
+      const { rerender } = render(
+        <BPMNViewer diagramXML={sampleBpmnXml} activities={initialActivities} showRuntimeToggle={false} />
+      );
+
+      await waitFor(() => {
+        expect(mockRenderActivities).toHaveBeenCalledWith(mockViewer, initialActivities);
+      });
+
+      // Turn on sequence flow
+      const toggleButton = await screen.findByRole('button', { name: /sequence flow/i });
+      await userEvent.click(toggleButton);
+
+      expect(mockRenderSequenceFlow).toHaveBeenCalledWith(mockViewer, initialActivities, { truncated: false });
+
+      // Update activities prop with new activities and truncated flag
+      rerender(
+        <BPMNViewer
+          diagramXML={sampleBpmnXml}
+          activities={updatedActivities}
+          showRuntimeToggle={false}
+          activitiesTruncated={true}
+        />
+      );
+
+      await waitFor(() => {
+        expect(mockOverlaysClear).toHaveBeenCalled();
+        expect(mockRenderActivities).toHaveBeenLastCalledWith(mockViewer, updatedActivities);
+        expect(mockClearSequenceFlow).toHaveBeenCalled();
+        expect(mockRenderSequenceFlow).toHaveBeenLastCalledWith(mockViewer, updatedActivities, { truncated: true });
+      });
+    });
+
+    it('should update sequence flow toggle button label when activitiesTruncated changes', async () => {
+      const { rerender } = render(
+        <BPMNViewer diagramXML={sampleBpmnXml} showRuntimeToggle={false} activitiesTruncated={false} />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Show sequence flow' })).toBeInTheDocument();
+      });
+
+      rerender(<BPMNViewer diagramXML={sampleBpmnXml} showRuntimeToggle={false} activitiesTruncated={true} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /history truncated — path may be incomplete/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should clear sequence flows on unmount', async () => {
+      const { unmount } = render(<BPMNViewer diagramXML={sampleBpmnXml} showRuntimeToggle={false} />);
+
+      await waitFor(() => {
+        expect(mockViewer.attachTo).toHaveBeenCalled();
+      });
+
+      unmount();
+      expect(mockClearSequenceFlow).toHaveBeenCalled();
     });
   });
 });

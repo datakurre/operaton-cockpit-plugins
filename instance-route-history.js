@@ -75591,9 +75591,97 @@ function factory(eventBus, bpmnRenderer) {
     return instance;
 }
 
+/**
+ * Adjusts text options to ensure bounding box fits text.
+ *
+ * @param text - The text to render
+ * @param options - Layout options
+ * @returns Adjusted text options
+ */
+function adjustTextOptions(text, options) {
+    var _a, _b, _c, _d;
+    if (!(options === null || options === void 0 ? void 0 : options.box) || !text) {
+        return options;
+    }
+    var words = text.split(/\s+/);
+    var style = (_a = options.style) !== null && _a !== void 0 ? _a : {};
+    var fontSize = '11px';
+    if (typeof style.fontSize === 'number') {
+        fontSize = "".concat(style.fontSize, "px");
+    }
+    else if (typeof style.fontSize === 'string') {
+        fontSize = style.fontSize;
+    }
+    var fontFamily = (_b = style.fontFamily) !== null && _b !== void 0 ? _b : 'IBMPlexSans, open_sansregular, Helvetica, Arial, Verdana, sans-serif';
+    var canvas = null;
+    if (typeof document !== 'undefined') {
+        canvas = document.createElement('canvas');
+    }
+    var ctx = canvas ? canvas.getContext('2d') : null;
+    if (ctx) {
+        ctx.font = "".concat(fontSize, " ").concat(fontFamily);
+    }
+    var maxWordW = 0;
+    for (var _i = 0, words_1 = words; _i < words_1.length; _i++) {
+        var w = words_1[_i];
+        if (!w) {
+            continue;
+        }
+        var wLen = ctx ? ctx.measureText(w).width : w.length * 8;
+        if (wLen > maxWordW) {
+            maxWordW = wLen;
+        }
+    }
+    var pad = 0;
+    if (typeof options.padding === 'number') {
+        pad = options.padding * 2;
+    }
+    else if (options.padding && typeof options.padding === 'object') {
+        var p = options.padding;
+        pad = ((_c = p.left) !== null && _c !== void 0 ? _c : 0) + ((_d = p.right) !== null && _d !== void 0 ? _d : 0);
+    }
+    var neededW = Math.ceil(maxWordW + pad) + 4;
+    if (options.box.width < neededW) {
+        return __assign(__assign({}, options), { box: __assign(__assign({}, options.box), { width: neededW }) });
+    }
+    return options;
+}
+/**
+ * Custom text renderer extending bpmn-js TextRenderer to ensure proper box width.
+ */
+var CustomTextRenderer = /** @class */ (function (_super) {
+    __extends$1(CustomTextRenderer, _super);
+    function CustomTextRenderer() {
+        var _this = _super.call(this, {
+            defaultStyle: {
+                fontFamily: 'IBMPlexSans, open_sansregular, Helvetica, Arial, Verdana, sans-serif',
+                fontSize: 12,
+                lineHeight: 1.2,
+            },
+            externalStyle: {
+                fontFamily: 'IBMPlexSans, open_sansregular, Helvetica, Arial, Verdana, sans-serif',
+                fontSize: 11,
+                lineHeight: 1.2,
+            },
+        }) || this;
+        var origCreateText = _this.createText.bind(_this);
+        var origGetDimensions = _this.getDimensions.bind(_this);
+        _this.createText = function (text, options) {
+            var adjusted = adjustTextOptions(text, options);
+            return origCreateText(text, adjusted);
+        };
+        _this.getDimensions = function (text, options) {
+            var adjusted = adjustTextOptions(text, options);
+            return origGetDimensions(text, adjusted);
+        };
+        return _this;
+    }
+    return CustomTextRenderer;
+}(TextRenderer));
 var RobotModule = {
     __init__: ['RobotTaskRenderer'],
     RobotTaskRenderer: ['type', factory],
+    textRenderer: ['type', CustomTextRenderer],
 };
 
 /**
@@ -76653,6 +76741,86 @@ var ToggleSequenceFlowButton = function (_a) {
 };
 
 /**
+ * ViewerButtonsPortal component.
+ *
+ * Provides a testable abstraction for injecting buttons into the BPMN viewer container.
+ * Uses React portals to render content into DOM nodes, making testing easier.
+ *
+ * @module Components/ViewerButtonsPortal
+ */
+/**
+ * Creates a container element for viewer buttons
+ * @param position - Position configuration
+ * @returns The created container element
+ */
+function createButtonContainer(position) {
+    var container = document.createElement('div');
+    container.style.position = 'absolute';
+    if (position.top !== undefined) {
+        container.style.top = position.top;
+    }
+    if (position.bottom !== undefined) {
+        container.style.bottom = position.bottom;
+    }
+    if (position.left !== undefined) {
+        container.style.left = position.left;
+    }
+    if (position.right !== undefined) {
+        container.style.right = position.right;
+    }
+    return container;
+}
+/**
+ * ViewerButtonsPortal component.
+ *
+ * Renders children into a portal attached to the BPMN viewer container.
+ * This provides a clean abstraction that is easier to test than direct DOM manipulation.
+ *
+ * @param props - Component props
+ * @param props.viewer - The BPMN viewer instance
+ * @param props.position - Position configuration for the container
+ * @param props.children - Children to render in the portal
+ * @param props.className - Optional CSS class name
+ * @returns Portal with rendered children, or null if viewer is not available
+ *
+ * @example
+ * ```tsx
+ * <ViewerButtonsPortal
+ *   viewer={viewer}
+ *   position={{ right: '15px', top: '15px' }}
+ * >
+ *   <ToggleSequenceFlowButton onToggle={handleToggle} />
+ * </ViewerButtonsPortal>
+ * ```
+ */
+var ViewerButtonsPortal = function (_a) {
+    var viewer = _a.viewer, position = _a.position, children = _a.children, className = _a.className;
+    var _b = reactExports.useState(null), container = _b[0], setContainer = _b[1];
+    // Memoize position values to prevent infinite re-renders
+    var stablePosition = reactExports.useMemo(function () { return ({ top: position.top, bottom: position.bottom, left: position.left, right: position.right }); }, [position.top, position.bottom, position.left, position.right]);
+    reactExports.useEffect(function () {
+        if (!viewer) {
+            return;
+        }
+        var buttonContainer = createButtonContainer(stablePosition);
+        if (className) {
+            buttonContainer.className = className;
+        }
+        viewer._container.appendChild(buttonContainer);
+        setContainer(buttonContainer);
+        return function () {
+            if (buttonContainer.parentElement) {
+                buttonContainer.parentElement.removeChild(buttonContainer);
+            }
+        };
+    }, [viewer, stablePosition, className]);
+    if (!container) {
+        return null;
+    }
+    return ReactDOM.createPortal(children, container);
+};
+
+/**
  * Button to zoom in on BPMN diagram.
  * Memoized to prevent unnecessary re-renders.
  *
@@ -76723,25 +76891,40 @@ var createBPMNViewer = function (diagram) { return __awaiter(void 0, void 0, voi
 }); };
 /**
  * BPMN diagram viewer component.
- * Renders a navigable BPMN diagram with zoom controls and optional history overlays.
+ * Renders a navigable BPMN diagram with zoom controls, overlays, and sequence flow highlights.
+ * Reactively clears and redraws overlays and active sequence flows when activities change.
  */
 var BPMNViewer = function (_a) {
     var activities = _a.activities, className = _a.className, diagramXML = _a.diagramXML, style = _a.style, showRuntimeToggle = _a.showRuntimeToggle, _b = _a.activitiesTruncated, activitiesTruncated = _b === void 0 ? false : _b;
     var ref = reactExports.useRef(null);
+    var _c = reactExports.useState(null), viewer = _c[0], setViewer = _c[1];
+    var isSequenceFlowActiveRef = reactExports.useRef(false);
+    var sequenceFlowRef = reactExports.useRef([]);
+    var activitiesRef = reactExports.useRef(activities);
+    activitiesRef.current = activities;
+    var activitiesTruncatedRef = reactExports.useRef(activitiesTruncated);
+    activitiesTruncatedRef.current = activitiesTruncated;
     reactExports.useEffect(function () {
+        var isCancelled = false;
+        var currentElement = ref.current;
         var executeViewerSetup = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var viewer_1, canvas_1, resetZoom, buttons, sequenceFlow_1, handleToggleSequenceFlow;
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var newViewer, canvas_1, resetZoom;
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        if (!(((_a = ref.current) === null || _a === void 0 ? void 0 : _a.clientHeight) !== undefined && ref.current.clientHeight > 0)) return [3 /*break*/, 2];
+                        if (!(((_b = (_a = ref.current) === null || _a === void 0 ? void 0 : _a.clientHeight) !== null && _b !== void 0 ? _b : 0) > 0)) return [3 /*break*/, 2];
                         return [4 /*yield*/, createBPMNViewer(diagramXML)];
                     case 1:
-                        viewer_1 = _b.sent();
-                        ref.current.innerHTML = '';
-                        viewer_1.attachTo(ref.current);
-                        canvas_1 = viewer_1.get('canvas');
+                        newViewer = _c.sent();
+                        if (isCancelled) {
+                            return [2 /*return*/];
+                        }
+                        if (ref.current) {
+                            ref.current.innerHTML = '';
+                            newViewer.attachTo(ref.current);
+                        }
+                        canvas_1 = newViewer.get('canvas');
                         resetZoom = function () {
                             canvas_1.zoom('fit-viewport', { x: 0, y: 0 });
                             canvas_1.scroll({ dx: 0, dy: 0 });
@@ -76751,44 +76934,8 @@ var BPMNViewer = function (_a) {
                         requestAnimationFrame(resetZoom);
                         setTimeout(resetZoom, ZOOM_RESET_DELAY_INITIAL_MS);
                         setTimeout(resetZoom, ZOOM_RESET_DELAY_FINAL_MS);
-                        renderActivities(viewer_1, activities !== null && activities !== void 0 ? activities : []);
-                        buttons = document.createElement('div');
-                        buttons.style.cssText = "\n            display: flex;\n            flex-direction: column;\n            position: absolute;\n            right: 15px;\n            top: 15px;\n            bottom: 45px;\n          ";
-                        viewer_1._container.appendChild(buttons);
-                        sequenceFlow_1 = [];
-                        handleToggleSequenceFlow = function (value) {
-                            if (!value) {
-                                clearSequenceFlow(sequenceFlow_1);
-                                sequenceFlow_1.length = 0;
-                                return;
-                            }
-                            if (sequenceFlow_1.length === 0) {
-                                var drawn = renderSequenceFlow(viewer_1, activities !== null && activities !== void 0 ? activities : [], { truncated: activitiesTruncated });
-                                sequenceFlow_1.splice.apply(sequenceFlow_1, __spreadArray$1([0, sequenceFlow_1.length], drawn, false));
-                            }
-                        };
-                        clientExports.createRoot(buttons).render(React.createElement(React.StrictMode, null,
-                            React.createElement(ToggleSequenceFlowButton, { partial: activitiesTruncated, onToggleSequenceFlow: handleToggleSequenceFlow }),
-                            showRuntimeToggle ? (React.createElement(ToggleHistoryViewButton, { onToggleHistoryView: function (value) {
-                                    var _a;
-                                    if (!value) {
-                                        var hash = window.location.hash;
-                                        var hashPart = hash !== '' ? hash.split('?')[0] : '';
-                                        var basePath = (_a = window.location.href.split('#')[0]) !== null && _a !== void 0 ? _a : '';
-                                        var newHash = hashPart !== undefined && hashPart !== ''
-                                            ? hashPart.replace(/^#\/history\/process-instance/, '#/process-instance')
-                                            : '';
-                                        window.location.href = "".concat(basePath).concat(newHash);
-                                    }
-                                }, initial: true })) : null,
-                            React.createElement("div", { style: { marginTop: 'auto', display: 'flex', flexDirection: 'column' } },
-                                React.createElement(ResetZoomButton, { onResetZoom: function () {
-                                        canvas_1.zoom('fit-viewport', { x: 0, y: 0 });
-                                        canvas_1.scroll({ dx: 0, dy: 0 });
-                                    } }),
-                                React.createElement(ZoomInButton, { onZoomIn: function () { return canvas_1.zoom(canvas_1.zoom() + ZOOM_INCREMENT); } }),
-                                React.createElement(ZoomOutButton, { onZoomOut: function () { return canvas_1.zoom(canvas_1.zoom() - ZOOM_INCREMENT); } }))));
-                        _b.label = 2;
+                        setViewer(newViewer);
+                        _c.label = 2;
                     case 2: return [2 /*return*/];
                 }
             });
@@ -76796,29 +76943,90 @@ var BPMNViewer = function (_a) {
         var observer = new ResizeObserver(function () {
             var _a, _b;
             if (((_b = (_a = ref.current) === null || _a === void 0 ? void 0 : _a.clientHeight) !== null && _b !== void 0 ? _b : 0) > 0) {
-                void (function () { return __awaiter(void 0, void 0, void 0, function () {
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, executeViewerSetup()];
-                            case 1:
-                                _a.sent();
-                                return [2 /*return*/];
-                        }
-                    });
-                }); })();
+                void executeViewerSetup();
                 if (ref.current) {
                     observer.unobserve(ref.current);
                 }
             }
         });
-        if (ref.current) {
-            observer.observe(ref.current);
+        if (currentElement) {
+            observer.observe(currentElement);
+            if (currentElement.clientHeight > 0) {
+                void executeViewerSetup();
+                observer.unobserve(currentElement);
+            }
         }
-        // Note: activities and showRuntimeToggle are intentionally excluded from deps
-        // as we only want to set up the viewer when diagramXML changes
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        return function () {
+            isCancelled = true;
+            if (currentElement) {
+                observer.unobserve(currentElement);
+            }
+        };
     }, [diagramXML]);
-    return React.createElement("div", { className: className, ref: ref, style: style });
+    // Clean up sequence flow when viewer changes or unmounts
+    reactExports.useEffect(function () {
+        return function () {
+            clearSequenceFlow(sequenceFlowRef.current);
+            sequenceFlowRef.current = [];
+        };
+    }, [viewer]);
+    // Re-render overlays and sequence flows whenever viewer, activities, or activitiesTruncated changes
+    reactExports.useEffect(function () {
+        if (!viewer) {
+            return;
+        }
+        var overlays = viewer.get('overlays');
+        overlays === null || overlays === void 0 ? void 0 : overlays.clear();
+        renderActivities(viewer, activities !== null && activities !== void 0 ? activities : []);
+        if (isSequenceFlowActiveRef.current) {
+            clearSequenceFlow(sequenceFlowRef.current);
+            sequenceFlowRef.current = renderSequenceFlow(viewer, activities !== null && activities !== void 0 ? activities : [], { truncated: activitiesTruncated });
+        }
+    }, [viewer, activities, activitiesTruncated]);
+    var handleToggleSequenceFlow = reactExports.useCallback(function (value) {
+        var _a;
+        isSequenceFlowActiveRef.current = value;
+        if (!value) {
+            clearSequenceFlow(sequenceFlowRef.current);
+            sequenceFlowRef.current = [];
+            return;
+        }
+        if (viewer && sequenceFlowRef.current.length === 0) {
+            sequenceFlowRef.current = renderSequenceFlow(viewer, (_a = activitiesRef.current) !== null && _a !== void 0 ? _a : [], {
+                truncated: activitiesTruncatedRef.current,
+            });
+        }
+    }, [viewer]);
+    return (React.createElement("div", { className: className, ref: ref, style: style }, viewer !== null ? (React.createElement(ViewerButtonsPortal, { viewer: viewer, position: { right: '15px', top: '15px', bottom: '45px' } },
+        React.createElement("div", { style: { display: 'flex', flexDirection: 'column', height: '100%', pointerEvents: 'none' } },
+            React.createElement("div", { style: { display: 'flex', flexDirection: 'column', pointerEvents: 'auto' } },
+                React.createElement(ToggleSequenceFlowButton, { partial: activitiesTruncated, onToggleSequenceFlow: handleToggleSequenceFlow }),
+                showRuntimeToggle ? (React.createElement(ToggleHistoryViewButton, { onToggleHistoryView: function (value) {
+                        var _a;
+                        if (!value) {
+                            var hash = window.location.hash;
+                            var hashPart = hash !== '' ? hash.split('?')[0] : '';
+                            var basePath = (_a = window.location.href.split('#')[0]) !== null && _a !== void 0 ? _a : '';
+                            var newHash = hashPart !== undefined && hashPart !== ''
+                                ? hashPart.replace(/^#\/history\/process-instance/, '#/process-instance')
+                                : '';
+                            window.location.href = "".concat(basePath).concat(newHash);
+                        }
+                    }, initial: true })) : null),
+            React.createElement("div", { style: { marginTop: 'auto', display: 'flex', flexDirection: 'column', pointerEvents: 'auto' } },
+                React.createElement(ResetZoomButton, { onResetZoom: function () {
+                        var canvas = viewer.get('canvas');
+                        canvas.zoom('fit-viewport', { x: 0, y: 0 });
+                        canvas.scroll({ dx: 0, dy: 0 });
+                    } }),
+                React.createElement(ZoomInButton, { onZoomIn: function () {
+                        var canvas = viewer.get('canvas');
+                        return canvas.zoom(canvas.zoom() + ZOOM_INCREMENT);
+                    } }),
+                React.createElement(ZoomOutButton, { onZoomOut: function () {
+                        var canvas = viewer.get('canvas');
+                        return canvas.zoom(canvas.zoom() - ZOOM_INCREMENT);
+                    } }))))) : null));
 };
 
 var Container = function (_a) {
@@ -79896,86 +80104,6 @@ var Pagination = function (_a) {
 var Portal = function (_a) {
     var children = _a.children, node = _a.node;
     return ReactDOM.createPortal(children, node);
-};
-
-/**
- * ViewerButtonsPortal component.
- *
- * Provides a testable abstraction for injecting buttons into the BPMN viewer container.
- * Uses React portals to render content into DOM nodes, making testing easier.
- *
- * @module Components/ViewerButtonsPortal
- */
-/**
- * Creates a container element for viewer buttons
- * @param position - Position configuration
- * @returns The created container element
- */
-function createButtonContainer(position) {
-    var container = document.createElement('div');
-    container.style.position = 'absolute';
-    if (position.top !== undefined) {
-        container.style.top = position.top;
-    }
-    if (position.bottom !== undefined) {
-        container.style.bottom = position.bottom;
-    }
-    if (position.left !== undefined) {
-        container.style.left = position.left;
-    }
-    if (position.right !== undefined) {
-        container.style.right = position.right;
-    }
-    return container;
-}
-/**
- * ViewerButtonsPortal component.
- *
- * Renders children into a portal attached to the BPMN viewer container.
- * This provides a clean abstraction that is easier to test than direct DOM manipulation.
- *
- * @param props - Component props
- * @param props.viewer - The BPMN viewer instance
- * @param props.position - Position configuration for the container
- * @param props.children - Children to render in the portal
- * @param props.className - Optional CSS class name
- * @returns Portal with rendered children, or null if viewer is not available
- *
- * @example
- * ```tsx
- * <ViewerButtonsPortal
- *   viewer={viewer}
- *   position={{ right: '15px', top: '15px' }}
- * >
- *   <ToggleSequenceFlowButton onToggle={handleToggle} />
- * </ViewerButtonsPortal>
- * ```
- */
-var ViewerButtonsPortal = function (_a) {
-    var viewer = _a.viewer, position = _a.position, children = _a.children, className = _a.className;
-    var _b = reactExports.useState(null), container = _b[0], setContainer = _b[1];
-    // Memoize position values to prevent infinite re-renders
-    var stablePosition = reactExports.useMemo(function () { return ({ top: position.top, bottom: position.bottom, left: position.left, right: position.right }); }, [position.top, position.bottom, position.left, position.right]);
-    reactExports.useEffect(function () {
-        if (!viewer) {
-            return;
-        }
-        var buttonContainer = createButtonContainer(stablePosition);
-        if (className) {
-            buttonContainer.className = className;
-        }
-        viewer._container.appendChild(buttonContainer);
-        setContainer(buttonContainer);
-        return function () {
-            if (buttonContainer.parentElement) {
-                buttonContainer.parentElement.removeChild(buttonContainer);
-            }
-        };
-    }, [viewer, stablePosition, className]);
-    if (!container) {
-        return null;
-    }
-    return ReactDOM.createPortal(children, container);
 };
 
 /**

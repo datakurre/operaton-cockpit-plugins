@@ -2997,6 +2997,39 @@ function getActivities(api, processInstanceId, params) {
     });
 }
 /**
+ * Fetches a bounded page of historic activity instances, oldest first, reporting
+ * whether the instance had more than fit.
+ *
+ * Ordering matters here, not just the bound: an unordered truncated response leaves
+ * the executed path with holes scattered through it, while a chronological prefix
+ * leaves a path that is simply complete up to a point.
+ *
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @param maxResults - Maximum records to keep
+ * @returns The records and whether the history was truncated
+ */
+function getActivityHistoryPage(api, processInstanceId, maxResults) {
+    return __awaiter(this, void 0, void 0, function () {
+        var records;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, getActivities(api, processInstanceId, {
+                        sortBy: 'startTime',
+                        sortOrder: 'asc',
+                        maxResults: String(maxResults + 1),
+                    })];
+                case 1:
+                    records = _a.sent();
+                    return [2 /*return*/, {
+                            activities: records.slice(0, maxResults),
+                            truncated: records.length > maxResults,
+                        }];
+            }
+        });
+    });
+}
+/**
  * Fetches historic variable instances for a process instance.
  * @param api - The API configuration object
  * @param processInstanceId - The process instance ID
@@ -3337,6 +3370,7 @@ var api = /*#__PURE__*/Object.freeze({
     evaluateDecision: evaluateDecision,
     get: get,
     getActivities: getActivities,
+    getActivityHistoryPage: getActivityHistoryPage,
     getDecisionDefinition: getDecisionDefinition,
     getDecisionDefinitionXml: getDecisionDefinitionXml,
     getDecisionDefinitions: getDecisionDefinitions,
