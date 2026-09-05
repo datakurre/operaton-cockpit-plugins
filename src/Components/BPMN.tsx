@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import RobotModule from '../RobotModule';
 import { Canvas, OverlayManager } from '../services/ViewerService';
 import { HistoricActivityInstance } from '../types';
-import { clearSequenceFlow, renderSequenceFlow, renderActivities } from '../utils/bpmn';
+import { clearSequenceFlow, renderSequenceFlow, renderActivities, renderRunningTokens } from '../utils/bpmn';
 import { ZOOM_INCREMENT, ZOOM_RESET_DELAY_INITIAL_MS, ZOOM_RESET_DELAY_FINAL_MS } from '../utils/constants';
 import ResetZoomButton from './ResetZoomButton';
 import { ToggleHistoryViewButton } from './ToggleHistoryViewButton';
@@ -168,6 +168,9 @@ const BPMNViewer: React.FC<Props> = ({
     const overlays = viewer.get('overlays') as OverlayManager | undefined;
     overlays?.clear();
     renderActivities(viewer, activities ?? []);
+    // A still-running instance gets Cockpit's blue token on whatever it is sitting on,
+    // the same as the runtime view shows. Inside this effect so it follows activities.
+    renderRunningTokens(viewer, activities ?? []);
 
     if (isSequenceFlowActiveRef.current) {
       clearSequenceFlow(sequenceFlowRef.current);
@@ -192,8 +195,13 @@ const BPMNViewer: React.FC<Props> = ({
     [viewer]
   );
 
+  // Cockpit scopes its diagram styling to a `process-diagram` ancestor — badge colours
+  // and the activity-*-position overlay classes all key off it. This container really is
+  // a process diagram, so wearing the attribute gets the webapp's own look for the
+  // running-token badges instead of a lookalike built from hardcoded hexes, and keeps
+  // them following its theming.
   return (
-    <div className={className} ref={ref} style={style}>
+    <div className={className} ref={ref} style={style} {...{ 'process-diagram': '' }}>
       {viewer !== null ? (
         <ViewerButtonsPortal viewer={viewer} position={{ right: '15px', top: '15px', bottom: '45px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%', pointerEvents: 'none' }}>

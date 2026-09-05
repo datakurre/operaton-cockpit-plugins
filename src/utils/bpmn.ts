@@ -19,6 +19,7 @@ export {
   getExecutedConnections,
   getStrokeWidth,
   renderActivities,
+  renderRunningTokens,
   renderSequenceFlow,
 } from './bpmn/index';
 export type { ConnectionElement, DottedConnection, ExecutedConnection, HeatmapCell, XY } from './bpmn/index';
