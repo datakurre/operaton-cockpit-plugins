@@ -3,17 +3,17 @@ import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
 import camundaPlatformBehaviors from 'camunda-bpmn-js-behaviors/lib/camunda-platform';
 import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 import tooltips from 'diagram-js/lib/features/tooltips';
-import React, { useEffect, useRef } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import RobotModule from '../RobotModule';
-import { Canvas } from '../services/ViewerService';
+import { Canvas, OverlayManager } from '../services/ViewerService';
 import { HistoricActivityInstance } from '../types';
 import { clearSequenceFlow, renderSequenceFlow, renderActivities } from '../utils/bpmn';
 import { ZOOM_INCREMENT, ZOOM_RESET_DELAY_INITIAL_MS, ZOOM_RESET_DELAY_FINAL_MS } from '../utils/constants';
 import ResetZoomButton from './ResetZoomButton';
 import { ToggleHistoryViewButton } from './ToggleHistoryViewButton';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';
+import { ViewerButtonsPortal } from './ViewerButtonsPortal';
 import ZoomInButton from './ZoomInButton';
 import ZoomOutButton from './ZoomOutButton';
 
@@ -73,7 +73,8 @@ interface Props {
 
 /**
  * BPMN diagram viewer component.
- * Renders a navigable BPMN diagram with zoom controls and optional history overlays.
+ * Renders a navigable BPMN diagram with zoom controls, overlays, and sequence flow highlights.
+ * Reactively clears and redraws overlays and active sequence flows when activities change.
  */
 const BPMNViewer: React.FC<Props> = ({
   activities,
@@ -84,15 +85,30 @@ const BPMNViewer: React.FC<Props> = ({
   activitiesTruncated = false,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
+  const [viewer, setViewer] = useState<BpmnViewerInstance | null>(null);
+  const isSequenceFlowActiveRef = useRef(false);
+  const sequenceFlowRef = useRef<SVGElement[]>([]);
+  const activitiesRef = useRef(activities);
+  activitiesRef.current = activities;
+  const activitiesTruncatedRef = useRef(activitiesTruncated);
+  activitiesTruncatedRef.current = activitiesTruncated;
 
   useEffect(() => {
-    const executeViewerSetup = async (): Promise<void> => {
-      if (ref.current?.clientHeight !== undefined && ref.current.clientHeight > 0) {
-        const viewer = await createBPMNViewer(diagramXML);
-        ref.current.innerHTML = '';
-        viewer.attachTo(ref.current);
+    let isCancelled = false;
+    const currentElement = ref.current;
 
-        const canvas = viewer.get('canvas') as Canvas;
+    const executeViewerSetup = async (): Promise<void> => {
+      if ((ref.current?.clientHeight ?? 0) > 0) {
+        const newViewer = await createBPMNViewer(diagramXML);
+        if (isCancelled) {
+          return;
+        }
+        if (ref.current) {
+          ref.current.innerHTML = '';
+          newViewer.attachTo(ref.current);
+        }
+
+        const canvas = newViewer.get('canvas') as Canvas;
         // Reset zoom multiple times to handle rendering timing issues:
         // Once immediately, once after microtask, once with requestAnimationFrame,
         // and twice more with delays to ensure proper fit after all rendering completes
@@ -106,87 +122,127 @@ const BPMNViewer: React.FC<Props> = ({
         setTimeout(resetZoom, ZOOM_RESET_DELAY_INITIAL_MS);
         setTimeout(resetZoom, ZOOM_RESET_DELAY_FINAL_MS);
 
-        renderActivities(viewer as unknown as BpmnViewerInstance, activities ?? []);
-
-        const buttons = document.createElement('div');
-        buttons.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            bottom: 45px;
-          `;
-        viewer._container.appendChild(buttons);
-        // Mutated synchronously so the toggle sees its own last write, StrictMode's
-        // double effect run included.
-        const sequenceFlow: SVGElement[] = [];
-        const handleToggleSequenceFlow = (value: boolean): void => {
-          if (!value) {
-            clearSequenceFlow(sequenceFlow);
-            sequenceFlow.length = 0;
-            return;
-          }
-          if (sequenceFlow.length === 0) {
-            const drawn = renderSequenceFlow(viewer, activities ?? [], { truncated: activitiesTruncated });
-            sequenceFlow.splice(0, sequenceFlow.length, ...drawn);
-          }
-        };
-        createRoot(buttons).render(
-          <React.StrictMode>
-            <ToggleSequenceFlowButton partial={activitiesTruncated} onToggleSequenceFlow={handleToggleSequenceFlow} />
-            {showRuntimeToggle ? (
-              <ToggleHistoryViewButton
-                onToggleHistoryView={(value: boolean): void => {
-                  if (!value) {
-                    const hash = window.location.hash;
-                    const hashPart = hash !== '' ? hash.split('?')[0] : '';
-                    const basePath = window.location.href.split('#')[0] ?? '';
-                    const newHash =
-                      hashPart !== undefined && hashPart !== ''
-                        ? hashPart.replace(/^#\/history\/process-instance/, '#/process-instance')
-                        : '';
-                    window.location.href = `${basePath}${newHash}`;
-                  }
-                }}
-                initial
-              />
-            ) : null}
-            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column' }}>
-              <ResetZoomButton
-                onResetZoom={(): void => {
-                  canvas.zoom('fit-viewport', { x: 0, y: 0 });
-                  canvas.scroll({ dx: 0, dy: 0 });
-                }}
-              />
-              <ZoomInButton onZoomIn={(): number => canvas.zoom(canvas.zoom() + ZOOM_INCREMENT)} />
-              <ZoomOutButton onZoomOut={(): number => canvas.zoom(canvas.zoom() - ZOOM_INCREMENT)} />
-            </div>
-          </React.StrictMode>
-        );
+        setViewer(newViewer);
       }
     };
 
     const observer = new ResizeObserver(() => {
       if ((ref.current?.clientHeight ?? 0) > 0) {
-        void (async () => {
-          await executeViewerSetup();
-        })();
+        void executeViewerSetup();
         if (ref.current) {
           observer.unobserve(ref.current);
         }
       }
     });
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (currentElement) {
+      observer.observe(currentElement);
+      if (currentElement.clientHeight > 0) {
+        void executeViewerSetup();
+        observer.unobserve(currentElement);
+      }
     }
-    // Note: activities and showRuntimeToggle are intentionally excluded from deps
-    // as we only want to set up the viewer when diagramXML changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return () => {
+      isCancelled = true;
+      if (currentElement) {
+        observer.unobserve(currentElement);
+      }
+    };
   }, [diagramXML]);
 
-  return <div className={className} ref={ref} style={style} />;
+  // Clean up sequence flow when viewer changes or unmounts
+  useEffect(() => {
+    return () => {
+      clearSequenceFlow(sequenceFlowRef.current);
+      sequenceFlowRef.current = [];
+    };
+  }, [viewer]);
+
+  // Re-render overlays and sequence flows whenever viewer, activities, or activitiesTruncated changes
+  useEffect(() => {
+    if (!viewer) {
+      return;
+    }
+
+    const overlays = viewer.get('overlays') as OverlayManager | undefined;
+    overlays?.clear();
+    renderActivities(viewer, activities ?? []);
+
+    if (isSequenceFlowActiveRef.current) {
+      clearSequenceFlow(sequenceFlowRef.current);
+      sequenceFlowRef.current = renderSequenceFlow(viewer, activities ?? [], { truncated: activitiesTruncated });
+    }
+  }, [viewer, activities, activitiesTruncated]);
+
+  const handleToggleSequenceFlow = useCallback(
+    (value: boolean): void => {
+      isSequenceFlowActiveRef.current = value;
+      if (!value) {
+        clearSequenceFlow(sequenceFlowRef.current);
+        sequenceFlowRef.current = [];
+        return;
+      }
+      if (viewer && sequenceFlowRef.current.length === 0) {
+        sequenceFlowRef.current = renderSequenceFlow(viewer, activitiesRef.current ?? [], {
+          truncated: activitiesTruncatedRef.current,
+        });
+      }
+    },
+    [viewer]
+  );
+
+  return (
+    <div className={className} ref={ref} style={style}>
+      {viewer !== null ? (
+        <ViewerButtonsPortal viewer={viewer} position={{ right: '15px', top: '15px', bottom: '45px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', height: '100%', pointerEvents: 'none' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', pointerEvents: 'auto' }}>
+              <ToggleSequenceFlowButton partial={activitiesTruncated} onToggleSequenceFlow={handleToggleSequenceFlow} />
+              {showRuntimeToggle ? (
+                <ToggleHistoryViewButton
+                  onToggleHistoryView={(value: boolean): void => {
+                    if (!value) {
+                      const hash = window.location.hash;
+                      const hashPart = hash !== '' ? hash.split('?')[0] : '';
+                      const basePath = window.location.href.split('#')[0] ?? '';
+                      const newHash =
+                        hashPart !== undefined && hashPart !== ''
+                          ? hashPart.replace(/^#\/history\/process-instance/, '#/process-instance')
+                          : '';
+                      window.location.href = `${basePath}${newHash}`;
+                    }
+                  }}
+                  initial
+                />
+              ) : null}
+            </div>
+            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', pointerEvents: 'auto' }}>
+              <ResetZoomButton
+                onResetZoom={(): void => {
+                  const canvas = viewer.get('canvas') as Canvas;
+                  canvas.zoom('fit-viewport', { x: 0, y: 0 });
+                  canvas.scroll({ dx: 0, dy: 0 });
+                }}
+              />
+              <ZoomInButton
+                onZoomIn={(): number => {
+                  const canvas = viewer.get('canvas') as Canvas;
+                  return canvas.zoom(canvas.zoom() + ZOOM_INCREMENT);
+                }}
+              />
+              <ZoomOutButton
+                onZoomOut={(): number => {
+                  const canvas = viewer.get('canvas') as Canvas;
+                  return canvas.zoom(canvas.zoom() - ZOOM_INCREMENT);
+                }}
+              />
+            </div>
+          </div>
+        </ViewerButtonsPortal>
+      ) : null}
+    </div>
+  );
 };
 
 export default BPMNViewer;

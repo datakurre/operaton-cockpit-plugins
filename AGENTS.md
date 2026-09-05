@@ -380,7 +380,7 @@ Used in: `definition-historic-activities.tsx`, `instance-route-history.tsx`
   <ToggleButton onToggle={handleToggle} />
 </ViewerButtonsPortal>
 ```
-Used in: `instance-historic-activities.tsx` via `InstanceDiagramHistoricActivities`
+Used in: `instance-historic-activities.tsx` via `InstanceDiagramHistoricActivities`, and `Components/BPMN.tsx`
 
 ## Dangerous operations and dry runs
 
@@ -476,10 +476,9 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
   it requires the ESM-only `moddle` and `moddle-xml` anyway. Jest loads the same ESM entry rollup does,
   which is why `transformIgnorePatterns` in [jest.config.js](jest.config.js) allowlists the whole chain
   (`bpmn-moddle`, `moddle`, `moddle-xml`, `saxen`, `min-dash`). That pattern is unanchored, so a nested
-  path such as `bpmn-moddle/node_modules/min-dash` — `bpmn-moddle@10` ships its own `min-dash@5` while
-  the project pins `4.2.3` — is only transformed when *every* `node_modules/` segment in it is followed
-  by an allowlisted name. Drop `bpmn-moddle` from that list and the nested copy silently stops being
-  transformed again.
+  path such as `bpmn-moddle/node_modules/min-dash` is only transformed when *every* `node_modules/` segment
+  in it is followed by an allowlisted name. Drop `bpmn-moddle` from that list and the nested copy silently
+  stops being transformed again.
 
 - **`BatchSignalForm`'s instance preview cannot show the full blast radius.** `POST /signal` reaches every
   matching signal catch event in every deployed definition, but the engine offers no way to query that
