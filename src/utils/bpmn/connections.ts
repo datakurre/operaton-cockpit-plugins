@@ -78,7 +78,30 @@ const notDottedTypes = ['bpmn:SubProcess'];
  * Sentinel end time for an execution that is still running. Sorts after every ISO
  * timestamp, so an unfinished activity reads as "ended last".
  */
-const STILL_RUNNING = 'Z';
+/**
+ * Sentinel end time for an execution that is still running. Sorts after every numeric
+ * timestamp, so an unfinished activity reads as "ended last".
+ */
+const STILL_RUNNING = Number.POSITIVE_INFINITY;
+
+/**
+ * Converts an activity timestamp to epoch milliseconds.
+ * Returns STILL_RUNNING if null, undefined, or unparseable.
+ */
+function toTimestamp(val: number | string | null | undefined): number {
+  if (val === null || val === undefined) {
+    return STILL_RUNNING;
+  }
+  if (typeof val === 'number') {
+    return val;
+  }
+  const parsed = Date.parse(val);
+  if (!Number.isNaN(parsed)) {
+    return parsed;
+  }
+  const num = Number(val);
+  return Number.isNaN(num) ? STILL_RUNNING : num;
+}
 
 /**
  * Computes dotted connections through the nodes the executed path passes through.
@@ -156,13 +179,13 @@ const isCanceled = (activity: HistoricActivityInstance): boolean =>
  */
 interface ActivityTimeIndex {
   /** End times of completed, uncanceled executions. A flow's source must be one of these. */
-  sourceEndTimes: Map<string, string[]>;
+  sourceEndTimes: Map<string, number[]>;
   /** End times of uncanceled executions, still-running ones included. A flow's target. */
-  targetEndTimes: Map<string, string[]>;
+  targetEndTimes: Map<string, number[]>;
   /** Start times of every execution, used to rank exclusive gateway branches. */
-  startTimes: Map<string, string[]>;
+  startTimes: Map<string, number[]>;
   /** End times of every execution, used to rank exclusive gateway branches. */
-  endTimes: Map<string, string[]>;
+  endTimes: Map<string, number[]>;
   /** Elements with at least one recorded execution. */
   executedElementIds: Set<string>;
 }
@@ -170,7 +193,7 @@ interface ActivityTimeIndex {
 /**
  * Appends a time to the array stored under an element id.
  */
-function push(times: Map<string, string[]>, elementId: string, time: string): void {
+function push(times: Map<string, number[]>, elementId: string, time: number): void {
   const existing = times.get(elementId);
   if (existing) {
     existing.push(time);
@@ -200,10 +223,10 @@ function buildActivityTimeIndex(activities: HistoricActivityInstance[]): Activit
     }
 
     const elementId = toElementId(activityId);
-    const endTime = activity.endTime ?? STILL_RUNNING;
+    const endTime = toTimestamp(activity.endTime);
 
     index.executedElementIds.add(elementId);
-    push(index.startTimes, elementId, activity.startTime ?? STILL_RUNNING);
+    push(index.startTimes, elementId, toTimestamp(activity.startTime));
     push(index.endTimes, elementId, endTime);
 
     if (isCanceled(activity)) {
@@ -213,13 +236,13 @@ function buildActivityTimeIndex(activities: HistoricActivityInstance[]): Activit
     push(index.targetEndTimes, elementId, endTime);
 
     if (activity.endTime) {
-      push(index.sourceEndTimes, elementId, activity.endTime);
+      push(index.sourceEndTimes, elementId, toTimestamp(activity.endTime));
     }
   }
 
   for (const times of [index.sourceEndTimes, index.targetEndTimes, index.startTimes, index.endTimes]) {
     for (const values of Array.from(times.values())) {
-      values.sort();
+      values.sort((a, b) => a - b);
     }
   }
 
@@ -238,13 +261,13 @@ function buildActivityTimeIndex(activities: HistoricActivityInstance[]): Activit
  * @param targetEndTimes - Ascending end times of the target's executions
  * @returns Number of traversals, zero when the flow was never taken
  */
-export function countTraversals(sourceEndTimes: string[], targetEndTimes: string[]): number {
+export function countTraversals(sourceEndTimes: (number | string)[], targetEndTimes: (number | string)[]): number {
   let source = 0;
   let target = 0;
   let traversals = 0;
 
   while (source < sourceEndTimes.length && target < targetEndTimes.length) {
-    if ((targetEndTimes[target] ?? '') >= (sourceEndTimes[source] ?? '')) {
+    if (toTimestamp(targetEndTimes[target]) >= toTimestamp(sourceEndTimes[source])) {
       traversals++;
       source++;
     }
@@ -252,6 +275,61 @@ export function countTraversals(sourceEndTimes: string[], targetEndTimes: string
   }
 
   return traversals;
+}
+
+/**
+ * Execution parameters for evaluating an exclusive gateway pass.
+ */
+interface GatewayExecution {
+  elementId: string;
+  executionIndex: number;
+  endTime: number;
+}
+
+/**
+ * Resolves the outgoing branch taken during a single execution of an exclusive gateway.
+ */
+function resolveTakenBranch(
+  outgoing: ConnectionElement[],
+  execution: GatewayExecution,
+  index: ActivityTimeIndex,
+  targetPointers: Map<string, number>
+): ConnectionElement | null {
+  let bestConnection: ConnectionElement | null = null;
+  let bestDelta = Number.POSITIVE_INFINITY;
+  let bestTargetNextPtr = 0;
+
+  for (const connection of outgoing) {
+    const targetId = connection.target.id;
+    const targetTimes = index.startTimes.get(targetId) ?? [];
+    let ptr = targetPointers.get(targetId) ?? 0;
+
+    if (targetId === execution.elementId && ptr <= execution.executionIndex) {
+      ptr = execution.executionIndex + 1;
+    }
+
+    while (ptr < targetTimes.length && (targetTimes[ptr] ?? 0) < execution.endTime) {
+      ptr++;
+    }
+    targetPointers.set(targetId, ptr);
+
+    if (ptr >= targetTimes.length) {
+      continue;
+    }
+
+    const delta = (targetTimes[ptr] ?? STILL_RUNNING) - execution.endTime;
+    if (delta >= 0 && delta < bestDelta) {
+      bestDelta = delta;
+      bestConnection = connection;
+      bestTargetNextPtr = ptr + 1;
+    }
+  }
+
+  if (bestConnection) {
+    targetPointers.set(bestConnection.target.id, bestTargetNextPtr);
+  }
+
+  return bestConnection;
 }
 
 /**
@@ -283,42 +361,21 @@ function buildConnectionDenyList(
 
     const element = elementRegistry.get(elementId) as unknown as ConnectionHost | undefined;
     const outgoing = element?.outgoing;
-
     if (!outgoing || outgoing.length === 0) {
       continue;
     }
 
     const activeConnections = new Set<string>();
     const gatewayEndTimes = index.endTimes.get(elementId) ?? [];
+    const targetPointers = new Map<string, number>();
 
     for (let idx = 0; idx < gatewayEndTimes.length; idx++) {
-      const gatewayEndTime = gatewayEndTimes[idx] ?? STILL_RUNNING;
-
-      // Rank a copy of the outgoing flows by their target's start time. Sorting the
-      // registry's own array would reorder the shared bpmn-js model.
-      const ranked = [...outgoing].sort((a, b): number => {
-        const startTimesA = index.startTimes.get(a.target.id) ?? [];
-        const startTimesB = index.startTimes.get(b.target.id) ?? [];
-        const startA = startTimesA[idx] ?? STILL_RUNNING;
-        const startB = startTimesB[idx] ?? STILL_RUNNING;
-
-        if (startTimesA.length <= idx) {
-          return 1;
-        } else if (startTimesB.length <= idx) {
-          return -1;
-        } else if (startA < gatewayEndTime) {
-          return 1;
-        } else if (startB < gatewayEndTime) {
-          return -1;
-        } else if (startA > startB) {
-          return 1;
-        } else if (startA < startB) {
-          return -1;
-        }
-        return 0;
-      });
-
-      const taken = ranked[0];
+      const taken = resolveTakenBranch(
+        outgoing,
+        { elementId, executionIndex: idx, endTime: gatewayEndTimes[idx] ?? STILL_RUNNING },
+        index,
+        targetPointers
+      );
       if (taken) {
         activeConnections.add(taken.id);
       }
@@ -372,10 +429,11 @@ export const getExecutedConnections = (
       continue;
     }
 
-    const count = countTraversals(
-      index.sourceEndTimes.get(connection.source.id) ?? [],
-      index.targetEndTimes.get(connection.target.id) ?? []
-    );
+    const sourceTimes = index.sourceEndTimes.get(connection.source.id) ?? [];
+    const rawTargetTimes = index.targetEndTimes.get(connection.target.id) ?? [];
+    const targetTimes = connection.source.id === connection.target.id ? rawTargetTimes.slice(1) : rawTargetTimes;
+
+    const count = countTraversals(sourceTimes, targetTimes);
 
     if (count > 0) {
       executed.push({ element: connection, count });

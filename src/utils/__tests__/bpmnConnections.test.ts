@@ -131,6 +131,16 @@ describe('utils/bpmn/connections', () => {
       expect(countTraversals([], ['1'])).toBe(0);
       expect(countTraversals(['1'], [])).toBe(0);
     });
+
+    it('compares timestamps numerically across mixed timezone offsets', () => {
+      // 02:45+0200 = 00:45 UTC (earlier in time)
+      // 02:00+0100 = 01:00 UTC (later in time)
+      // Lexicographically: "02:45" > "02:00", but in UTC: 00:45 < 01:00
+      const sourceEndTimes = ['2024-03-31T02:45:00.000+0200'];
+      const targetEndTimes = ['2024-03-31T02:00:00.000+0100'];
+
+      expect(countTraversals(sourceEndTimes, targetEndTimes)).toBe(1);
+    });
   });
 
   describe('getExecutedConnections', () => {
@@ -166,6 +176,98 @@ describe('utils/bpmn/connections', () => {
       );
 
       expect(countsById(connections)).toEqual({ Flow_Approved: 1 });
+    });
+
+    it('correctly tracks exclusive gateway branches in a loop taking different paths', () => {
+      // Loop sequence: Gateway -> Task_A -> Gateway -> Task_B -> Gateway -> Task_A -> Gateway -> Task_Exit
+      // Task_Never is a branch never taken.
+      const { registry } = buildGraph(
+        [
+          { id: 'Gateway_1', type: 'bpmn:ExclusiveGateway' },
+          { id: 'Task_A' },
+          { id: 'Task_B' },
+          { id: 'Task_Exit' },
+          { id: 'Task_Never' },
+        ],
+        [
+          { id: 'Flow_GW_A', source: 'Gateway_1', target: 'Task_A' },
+          { id: 'Flow_GW_B', source: 'Gateway_1', target: 'Task_B' },
+          { id: 'Flow_GW_Exit', source: 'Gateway_1', target: 'Task_Exit' },
+          { id: 'Flow_GW_Never', source: 'Gateway_1', target: 'Task_Never' },
+          { id: 'Flow_A_GW', source: 'Task_A', target: 'Gateway_1' },
+          { id: 'Flow_B_GW', source: 'Task_B', target: 'Gateway_1' },
+        ]
+      );
+
+      const gw = (startMinute: number, endMinute: number): HistoricActivityInstance =>
+        activity('Gateway_1', startMinute, endMinute, { activityType: 'exclusiveGateway' });
+
+      const connections = getExecutedConnections(
+        [
+          gw(1, 1),
+          activity('Task_A', 2, 2),
+          gw(3, 3),
+          activity('Task_B', 4, 4),
+          gw(5, 5),
+          activity('Task_A', 6, 6),
+          gw(7, 7),
+          activity('Task_Exit', 8, 8),
+        ],
+        registry
+      );
+
+      const counts = countsById(connections);
+      expect(counts['Flow_GW_A']).toBe(2);
+      expect(counts['Flow_GW_B']).toBe(1);
+      expect(counts['Flow_GW_Exit']).toBe(1);
+      expect(counts['Flow_A_GW']).toBe(2);
+      expect(counts['Flow_B_GW']).toBe(1);
+      expect(counts['Flow_GW_Never']).toBeUndefined();
+    });
+
+    it('handles direct self-loops on exclusive gateways', () => {
+      const { registry } = buildGraph(
+        [{ id: 'Gateway_1', type: 'bpmn:ExclusiveGateway' }, { id: 'Task_Exit' }],
+        [
+          { id: 'Flow_Self', source: 'Gateway_1', target: 'Gateway_1' },
+          { id: 'Flow_Exit', source: 'Gateway_1', target: 'Task_Exit' },
+        ]
+      );
+
+      const gw = (startMinute: number, endMinute: number): HistoricActivityInstance =>
+        activity('Gateway_1', startMinute, endMinute, { activityType: 'exclusiveGateway' });
+
+      const connections = getExecutedConnections([gw(1, 1), gw(2, 2), gw(3, 3), activity('Task_Exit', 4, 4)], registry);
+
+      const counts = countsById(connections);
+      expect(counts['Flow_Self']).toBe(2);
+      expect(counts['Flow_Exit']).toBe(1);
+    });
+
+    it('resolves timestamps across daylight saving time transition correctly', () => {
+      const { registry } = buildGraph(
+        [{ id: 'Task_1' }, { id: 'Task_2' }],
+        [{ id: 'Flow_1', source: 'Task_1', target: 'Task_2' }]
+      );
+
+      // Task 1 ends at 00:45 UTC (represented as +0200)
+      // Task 2 starts at 01:00 UTC (represented as +0100)
+      // String compare: "2024-03-31T02:45:00.000+0200" > "2024-03-31T02:00:00.000+0100"
+      const t1: HistoricActivityInstance = {
+        activityId: 'Task_1',
+        activityType: 'userTask',
+        startTime: '2024-03-31T02:40:00.000+0200',
+        endTime: '2024-03-31T02:45:00.000+0200',
+      };
+      const t2: HistoricActivityInstance = {
+        activityId: 'Task_2',
+        activityType: 'userTask',
+        startTime: '2024-03-31T02:00:00.000+0100',
+        endTime: '2024-03-31T02:10:00.000+0100',
+      };
+
+      const connections = getExecutedConnections([t1, t2], registry);
+      expect(countsById(connections)).toEqual({ Flow_1: 1 });
     });
 
     it('does not reorder the outgoing flows of the shared bpmn-js model', () => {
