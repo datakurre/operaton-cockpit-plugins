@@ -80339,6 +80339,40 @@ function toApiQuery(params) {
     }
     return result;
 }
+/* eslint-enable complexity, max-statements */
+/**
+ * Test an instance's definition version against a version filter.
+ *
+ * The version is read from the process definition id, which the engine formats as
+ * `key:version:deploymentId`.
+ * @param processDefinitionId - Process definition id of the historic instance
+ * @param versionFilter - Operator and version to compare against
+ * @returns True when the instance's version satisfies the filter
+ */
+function matchesVersionFilter(processDefinitionId, versionFilter) {
+    if (processDefinitionId === null || processDefinitionId === undefined || processDefinitionId === '') {
+        return false;
+    }
+    var versionPart = processDefinitionId.split(':')[1];
+    var instanceVersion = versionPart !== undefined ? parseInt(versionPart, 10) : NaN;
+    if (isNaN(instanceVersion)) {
+        return false;
+    }
+    switch (versionFilter.operator) {
+        case 'eq':
+            return instanceVersion === versionFilter.value;
+        case 'lt':
+            return instanceVersion < versionFilter.value;
+        case 'lte':
+            return instanceVersion <= versionFilter.value;
+        case 'gt':
+            return instanceVersion > versionFilter.value;
+        case 'gte':
+            return instanceVersion >= versionFilter.value;
+        default:
+            return true;
+    }
+}
 var initialState = {
     historyTabNode: null,
 };
@@ -80372,9 +80406,9 @@ var Plugin = function (_a) {
     // FETCH
     reactExports.useEffect(function () {
         void (function () { return __awaiter(void 0, void 0, void 0, function () {
-            var useAllVersions, versionFilter, restQuery, baseQuery, count, fetchedInstances;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var useAllVersions, versionFilter, restQuery, baseQuery, windowed, matching, count, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         useAllVersions = query.useAllVersions, versionFilter = query.versionFilter, restQuery = __rest(query, ["useAllVersions", "versionFilter"]);
                         baseQuery = __assign({ sortBy: 'endTime', sortOrder: 'desc' }, toApiQuery(restQuery));
@@ -80385,54 +80419,40 @@ var Plugin = function (_a) {
                         else {
                             baseQuery.processDefinitionId = processDefinitionId;
                         }
-                        return [4 /*yield*/, historyService.countProcessInstances(baseQuery)];
+                        if (!versionFilter) return [3 /*break*/, 2];
+                        return [4 /*yield*/, historyService.queryProcessInstances(baseQuery, {
+                                maxResults: loadSettings().maxResults,
+                                firstResult: 0,
+                            })];
                     case 1:
-                        count = _a.sent();
+                        windowed = _b.sent();
+                        matching = windowed.filter(function (instance) { return matchesVersionFilter(instance.processDefinitionId, versionFilter); });
+                        setInstancesCount(matching.length);
+                        setInstances(matching.slice(firstResult, firstResult + perPage));
+                        return [2 /*return*/];
+                    case 2: return [4 /*yield*/, historyService.countProcessInstances(baseQuery)];
+                    case 3:
+                        count = _b.sent();
                         setInstancesCount(count);
+                        _a = setInstances;
                         return [4 /*yield*/, historyService.queryProcessInstances(baseQuery, {
                                 maxResults: perPage,
                                 firstResult: firstResult,
                             })];
-                    case 2:
-                        fetchedInstances = _a.sent();
-                        // Apply version filter client-side if specified (API doesn't support version operators)
-                        if (versionFilter) {
-                            fetchedInstances = fetchedInstances.filter(function (instance) {
-                                var defId = instance.processDefinitionId;
-                                if (!defId) {
-                                    return false;
-                                }
-                                // Extract version from processDefinitionId (format: key:version:deploymentId)
-                                var versionPart = defId.split(':')[1];
-                                var instanceVersion = versionPart !== undefined ? parseInt(versionPart, 10) : NaN;
-                                if (isNaN(instanceVersion)) {
-                                    return false;
-                                }
-                                switch (versionFilter.operator) {
-                                    case 'eq':
-                                        return instanceVersion === versionFilter.value;
-                                    case 'lt':
-                                        return instanceVersion < versionFilter.value;
-                                    case 'lte':
-                                        return instanceVersion <= versionFilter.value;
-                                    case 'gt':
-                                        return instanceVersion > versionFilter.value;
-                                    case 'gte':
-                                        return instanceVersion >= versionFilter.value;
-                                    default:
-                                        return true;
-                                }
-                            });
-                        }
-                        setInstances(fetchedInstances);
+                    case 4:
+                        _a.apply(void 0, [_b.sent()]);
                         return [2 /*return*/];
                 }
             });
         }); })();
     }, [historyService, processDefinitionId, processDefinitionKey, perPage, query, firstResult]);
-    // Parse filter expressions using extracted utility function
+    // Parse filter expressions using extracted utility function. Changing the filter changes
+    // the size of the result set, so return to the first page rather than leaving the pager
+    // pointing past the end of it.
     reactExports.useEffect(function () {
         setQuery(parseProcessInstanceExpressions(expressions));
+        setCurrentPage(1);
+        setFirstResult(0);
     }, [expressions]);
     // Hack to ensure long living HTML node for filter box
     if (historyTabNode !== null && !Array.from(historyTabNode.children).includes(root)) {
@@ -80547,4 +80567,4 @@ var instanceRouteHistory = [
     },
 ];
 
-export { instanceRouteHistory as default };
+export { instanceRouteHistory as default, matchesVersionFilter };

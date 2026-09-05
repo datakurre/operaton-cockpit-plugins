@@ -30,6 +30,20 @@ PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 /* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
+var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+    return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+    if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
 
 var __assign = function() {
     __assign = Object.assign || function __assign(t) {
@@ -213,7 +227,9 @@ function IconBase(props) {
 }
 
 // THIS FILE IS AUTO GENERATED
-function FaStar (props) {
+function FaPauseCircle (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm-16 328c0 8.8-7.2 16-16 16h-48c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16v160zm112 0c0 8.8-7.2 16-16 16h-48c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16v160z"},"child":[]}]})(props);
+}function FaStar (props) {
   return GenIcon({"attr":{"viewBox":"0 0 576 512"},"child":[{"tag":"path","attr":{"d":"M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"},"child":[]}]})(props);
 }function FaTimesCircle (props) {
   return GenIcon({"attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"},"child":[]}]})(props);
@@ -649,6 +665,730 @@ function requireClient () {
 
 var clientExports = requireClient();
 
+const token = '%[a-f0-9]{2}';
+const singleMatcher = new RegExp('(' + token + ')|([^%]+?)', 'gi');
+const multiMatcher = new RegExp('(' + token + ')+', 'gi');
+
+function decodeComponents(components, split) {
+	try {
+		// Try to decode the entire string first
+		return [decodeURIComponent(components.join(''))];
+	} catch {
+		// Do nothing
+	}
+
+	if (components.length === 1) {
+		return components;
+	}
+
+	split = split || 1;
+
+	// Split the array in 2 parts
+	const left = components.slice(0, split);
+	const right = components.slice(split);
+
+	return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
+}
+
+function decode$1(input) {
+	try {
+		return decodeURIComponent(input);
+	} catch {
+		let tokens = input.match(singleMatcher) || [];
+
+		for (let i = 1; i < tokens.length; i++) {
+			input = decodeComponents(tokens, i).join('');
+
+			tokens = input.match(singleMatcher) || [];
+		}
+
+		return input;
+	}
+}
+
+function customDecodeURIComponent(input) {
+	// Keep track of all the replacements and prefill the map with the `BOM`
+	const replaceMap = {
+		'%FE%FF': '\uFFFD\uFFFD',
+		'%FF%FE': '\uFFFD\uFFFD',
+	};
+
+	let match = multiMatcher.exec(input);
+	while (match) {
+		try {
+			// Decode as big chunks as possible
+			replaceMap[match[0]] = decodeURIComponent(match[0]);
+		} catch {
+			const result = decode$1(match[0]);
+
+			if (result !== match[0]) {
+				replaceMap[match[0]] = result;
+			}
+		}
+
+		match = multiMatcher.exec(input);
+	}
+
+	// Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
+	replaceMap['%C2'] = '\uFFFD';
+
+	const entries = Object.keys(replaceMap);
+
+	for (const key of entries) {
+		// Replace all decoded components
+		input = input.replace(new RegExp(key, 'g'), replaceMap[key]);
+	}
+
+	return input;
+}
+
+function decodeUriComponent(encodedURI) {
+	if (typeof encodedURI !== 'string') {
+		throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
+	}
+
+	try {
+		// Try the built in decoder first
+		return decodeURIComponent(encodedURI);
+	} catch {
+		// Fallback to a more advanced decoder
+		return customDecodeURIComponent(encodedURI);
+	}
+}
+
+function includeKeys(object, predicate) {
+	const result = {};
+
+	if (Array.isArray(predicate)) {
+		for (const key of predicate) {
+			const descriptor = Object.getOwnPropertyDescriptor(object, key);
+			if (descriptor?.enumerable) {
+				Object.defineProperty(result, key, descriptor);
+			}
+		}
+	} else {
+		// `Reflect.ownKeys()` is required to retrieve symbol properties
+		for (const key of Reflect.ownKeys(object)) {
+			const descriptor = Object.getOwnPropertyDescriptor(object, key);
+			if (descriptor.enumerable) {
+				const value = object[key];
+				if (predicate(key, value, object)) {
+					Object.defineProperty(result, key, descriptor);
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+function splitOnFirst(string, separator) {
+	if (!(typeof string === 'string' && typeof separator === 'string')) {
+		throw new TypeError('Expected the arguments to be of type `string`');
+	}
+
+	if (string === '' || separator === '') {
+		return [];
+	}
+
+	const separatorIndex = string.indexOf(separator);
+
+	if (separatorIndex === -1) {
+		return [];
+	}
+
+	return [
+		string.slice(0, separatorIndex),
+		string.slice(separatorIndex + separator.length)
+	];
+}
+
+const isNullOrUndefined = value => value === null || value === undefined;
+
+// eslint-disable-next-line unicorn/prefer-code-point
+const strictUriEncode = string => encodeURIComponent(string).replaceAll(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
+
+const encodeFragmentIdentifier = Symbol('encodeFragmentIdentifier');
+
+function encoderForArrayFormat(options) {
+	switch (options.arrayFormat) {
+		case 'index': {
+			return key => (result, value) => {
+				const index = result.length;
+
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result, [encode(key, options), '[', index, ']'].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '[', encode(index, options), ']=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'bracket': {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						[encode(key, options), '[]'].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '[]=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'colon-list-separator': {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						[encode(key, options), ':list='].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), ':list=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'comma':
+		case 'separator':
+		case 'bracket-separator': {
+			const keyValueSeparator = options.arrayFormat === 'bracket-separator'
+				? '[]='
+				: '=';
+
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				// Translate null to an empty string so that it doesn't serialize as 'null'
+				value = value === null ? '' : value;
+
+				if (result.length === 0) {
+					return [[encode(key, options), keyValueSeparator, encode(value, options)].join('')];
+				}
+
+				return [[result, encode(value, options)].join(options.arrayFormatSeparator)];
+			};
+		}
+
+		default: {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						encode(key, options),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '=', encode(value, options)].join(''),
+				];
+			};
+		}
+	}
+}
+
+function parserForArrayFormat(options) {
+	let result;
+
+	switch (options.arrayFormat) {
+		case 'index': {
+			return (key, value, accumulator) => {
+				result = /\[(\d*)]$/.exec(key);
+
+				key = key.replace(/\[\d*]$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = {};
+				}
+
+				accumulator[key][result[1]] = value;
+			};
+		}
+
+		case 'bracket': {
+			return (key, value, accumulator) => {
+				result = /(\[])$/.exec(key);
+				key = key.replace(/\[]$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = [value];
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], value];
+			};
+		}
+
+		case 'colon-list-separator': {
+			return (key, value, accumulator) => {
+				result = /(:list)$/.exec(key);
+				key = key.replace(/:list$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = [value];
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], value];
+			};
+		}
+
+		case 'comma':
+		case 'separator': {
+			return (key, value, accumulator) => {
+				const isArray = typeof value === 'string' && value.includes(options.arrayFormatSeparator);
+				const newValue = isArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : (value === null ? value : decode(value, options));
+				accumulator[key] = newValue;
+			};
+		}
+
+		case 'bracket-separator': {
+			return (key, value, accumulator) => {
+				const isArray = /(\[])$/.test(key);
+				key = key.replace(/\[]$/, '');
+
+				if (!isArray) {
+					accumulator[key] = value ? decode(value, options) : value;
+					return;
+				}
+
+				const arrayValue = value === null
+					? []
+					: decode(value, options).split(options.arrayFormatSeparator);
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = arrayValue;
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], ...arrayValue];
+			};
+		}
+
+		default: {
+			return (key, value, accumulator) => {
+				if (accumulator[key] === undefined) {
+					accumulator[key] = value;
+					return;
+				}
+
+				accumulator[key] = [...[accumulator[key]].flat(), value];
+			};
+		}
+	}
+}
+
+function validateArrayFormatSeparator(value) {
+	if (typeof value !== 'string' || value.length !== 1) {
+		throw new TypeError('arrayFormatSeparator must be single character string');
+	}
+}
+
+function encode(value, options) {
+	if (options.encode) {
+		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
+	}
+
+	return value;
+}
+
+function decode(value, options) {
+	if (options.decode) {
+		return decodeUriComponent(value);
+	}
+
+	return value;
+}
+
+function keysSorter(input) {
+	if (Array.isArray(input)) {
+		return input.sort();
+	}
+
+	if (typeof input === 'object') {
+		return keysSorter(Object.keys(input))
+			.sort((a, b) => Number(a) - Number(b))
+			.map(key => input[key]);
+	}
+
+	return input;
+}
+
+function removeHash(input) {
+	const hashStart = input.indexOf('#');
+	if (hashStart !== -1) {
+		input = input.slice(0, hashStart);
+	}
+
+	return input;
+}
+
+function getHash(url) {
+	let hash = '';
+	const hashStart = url.indexOf('#');
+	if (hashStart !== -1) {
+		hash = url.slice(hashStart);
+	}
+
+	return hash;
+}
+
+function parseValue(value, options, type) {
+	if (type === 'string' && typeof value === 'string') {
+		return value;
+	}
+
+	if (typeof type === 'function' && typeof value === 'string') {
+		return type(value);
+	}
+
+	if (type === 'boolean' && value === null) {
+		return true;
+	}
+
+	if (type === 'boolean' && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+		return value.toLowerCase() === 'true';
+	}
+
+	if (type === 'boolean' && value !== null && (value.toLowerCase() === '1' || value.toLowerCase() === '0')) {
+		return value.toLowerCase() === '1';
+	}
+
+	if (type === 'string[]' && options.arrayFormat !== 'none' && typeof value === 'string') {
+		return [value];
+	}
+
+	if (type === 'number[]' && options.arrayFormat !== 'none' && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+		return [Number(value)];
+	}
+
+	if (type === 'number' && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+		return Number(value);
+	}
+
+	if (options.parseBooleans && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+		return value.toLowerCase() === 'true';
+	}
+
+	if (options.parseNumbers && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+		return Number(value);
+	}
+
+	return value;
+}
+
+function extract(input) {
+	input = removeHash(input);
+	const queryStart = input.indexOf('?');
+	if (queryStart === -1) {
+		return '';
+	}
+
+	return input.slice(queryStart + 1);
+}
+
+function parse(query, options) {
+	options = {
+		decode: true,
+		sort: true,
+		arrayFormat: 'none',
+		arrayFormatSeparator: ',',
+		parseNumbers: false,
+		parseBooleans: false,
+		types: Object.create(null),
+		...options,
+	};
+
+	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+	const formatter = parserForArrayFormat(options);
+
+	// Create an object with no prototype
+	const returnValue = Object.create(null);
+
+	if (typeof query !== 'string') {
+		return returnValue;
+	}
+
+	query = query.trim().replace(/^[?#&]/, '');
+
+	if (!query) {
+		return returnValue;
+	}
+
+	for (const parameter of query.split('&')) {
+		if (parameter === '') {
+			continue;
+		}
+
+		const parameter_ = options.decode ? parameter.replaceAll('+', ' ') : parameter;
+
+		let [key, value] = splitOnFirst(parameter_, '=');
+
+		if (key === undefined) {
+			key = parameter_;
+		}
+
+		// Missing `=` should be `null`:
+		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
+		value = value === undefined ? null : (['comma', 'separator', 'bracket-separator'].includes(options.arrayFormat) ? value : decode(value, options));
+		formatter(decode(key, options), value, returnValue);
+	}
+
+	for (const [key, value] of Object.entries(returnValue)) {
+		if (typeof value === 'object' && value !== null && options.types[key] !== 'string') {
+			for (const [key2, value2] of Object.entries(value)) {
+				const typeOption = options.types[key];
+				const type = typeof typeOption === 'function' ? typeOption : (typeOption ? typeOption.replace('[]', '') : undefined);
+				value[key2] = parseValue(value2, options, type);
+			}
+		} else if (typeof value === 'object' && value !== null && options.types[key] === 'string') {
+			returnValue[key] = Object.values(value).join(options.arrayFormatSeparator);
+		} else {
+			returnValue[key] = parseValue(value, options, options.types[key]);
+		}
+	}
+
+	if (options.sort === false) {
+		return returnValue;
+	}
+
+	// TODO: Remove the use of `reduce`.
+	// eslint-disable-next-line unicorn/no-array-reduce
+	return (options.sort === true ? Object.keys(returnValue).sort() : Object.keys(returnValue).sort(options.sort)).reduce((result, key) => {
+		const value = returnValue[key];
+		result[key] = Boolean(value) && typeof value === 'object' && !Array.isArray(value) ? keysSorter(value) : value;
+		return result;
+	}, Object.create(null));
+}
+
+function stringify(object, options) {
+	if (!object) {
+		return '';
+	}
+
+	options = {
+		encode: true,
+		strict: true,
+		arrayFormat: 'none',
+		arrayFormatSeparator: ',',
+		...options,
+	};
+
+	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+	const shouldFilter = key => (
+		(options.skipNull && isNullOrUndefined(object[key]))
+		|| (options.skipEmptyString && object[key] === '')
+	);
+
+	const formatter = encoderForArrayFormat(options);
+
+	const objectCopy = {};
+
+	for (const [key, value] of Object.entries(object)) {
+		if (!shouldFilter(key)) {
+			objectCopy[key] = value;
+		}
+	}
+
+	const keys = Object.keys(objectCopy);
+
+	if (options.sort !== false) {
+		keys.sort(options.sort);
+	}
+
+	return keys.map(key => {
+		let value = object[key];
+
+		// Apply replacer function if provided
+		if (options.replacer) {
+			value = options.replacer(key, value);
+
+			// If replacer returns undefined, skip this key
+			if (value === undefined) {
+				return '';
+			}
+		}
+
+		if (value === undefined) {
+			return '';
+		}
+
+		if (value === null) {
+			return encode(key, options);
+		}
+
+		if (Array.isArray(value)) {
+			if (value.length === 0 && options.arrayFormat === 'bracket-separator') {
+				return encode(key, options) + '[]';
+			}
+
+			// Apply replacer to array elements if provided
+			// Note: We don't re-apply replacer to the array itself, only to elements
+			let processedArray = value;
+			if (options.replacer) {
+				processedArray = value.map((item, index) =>
+					options.replacer(`${key}[${index}]`, item),
+				).filter(item => item !== undefined);
+			}
+
+			return processedArray
+				.reduce(formatter(key), [])
+				.join('&');
+		}
+
+		return encode(key, options) + '=' + encode(value, options);
+	}).filter(x => x.length > 0).join('&');
+}
+
+function parseUrl(url, options) {
+	options = {
+		decode: true,
+		...options,
+	};
+
+	let [url_, hash] = splitOnFirst(url, '#');
+
+	if (url_ === undefined) {
+		url_ = url;
+	}
+
+	return {
+		url: url_?.split('?')?.[0] ?? '',
+		query: parse(extract(url), options),
+		...(options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}),
+	};
+}
+
+function stringifyUrl(object, options) {
+	options = {
+		encode: true,
+		strict: true,
+		[encodeFragmentIdentifier]: true,
+		...options,
+	};
+
+	const url = removeHash(object.url).split('?')[0] || '';
+	const queryFromUrl = extract(object.url);
+
+	const query = {
+		...parse(queryFromUrl, {sort: false, ...options}),
+		...object.query,
+	};
+
+	let queryString = stringify(query, options);
+	queryString &&= `?${queryString}`;
+
+	let hash = getHash(object.url);
+	if (typeof object.fragmentIdentifier === 'string') {
+		const urlObjectForFragmentEncode = new URL(url);
+		urlObjectForFragmentEncode.hash = object.fragmentIdentifier;
+		hash = options[encodeFragmentIdentifier] ? urlObjectForFragmentEncode.hash : `#${object.fragmentIdentifier}`;
+	}
+
+	return `${url}${queryString}${hash}`;
+}
+
+function pick(input, filter, options) {
+	options = {
+		parseFragmentIdentifier: true,
+		[encodeFragmentIdentifier]: false,
+		...options,
+	};
+
+	const {url, query, fragmentIdentifier} = parseUrl(input, options);
+
+	return stringifyUrl({
+		url,
+		query: includeKeys(query, filter),
+		fragmentIdentifier,
+	}, options);
+}
+
+function exclude(input, filter, options) {
+	const exclusionFilter = Array.isArray(filter) ? key => !filter.includes(key) : (key, value) => !filter(key, value);
+
+	return pick(input, exclusionFilter, options);
+}
+
+var queryString = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    exclude: exclude,
+    extract: extract,
+    parse: parse,
+    parseUrl: parseUrl,
+    pick: pick,
+    stringify: stringify,
+    stringifyUrl: stringifyUrl
+});
+
 /**
  * Storage abstraction for testable localStorage access
  *
@@ -698,6 +1438,213 @@ var currentStorage = new LocalStorageAdapter();
  */
 function getStorage() {
     return currentStorage;
+}
+
+var SETTINGS_KEY = 'minimal-history-plugin';
+/** Default maximum results for API queries */
+var DEFAULT_MAX_RESULTS = 1000;
+/** Default settings when none are stored */
+var DEFAULT_SETTINGS = {
+    leftPaneSize: null,
+    topPaneSize: null,
+    maxResults: DEFAULT_MAX_RESULTS,
+};
+/**
+ * Parse stored settings JSON safely
+ * @param jsonString - JSON string from localStorage
+ * @returns Parsed settings or empty object
+ */
+function parseStoredSettings(jsonString) {
+    if (jsonString === null) {
+        return {};
+    }
+    try {
+        return JSON.parse(jsonString);
+    }
+    catch (_a) {
+        return {};
+    }
+}
+/**
+ * Load plugin settings from localStorage and URL hash
+ * @returns Merged plugin settings
+ */
+var loadSettings = function () {
+    var _a, _b, _c;
+    var storage = getStorage();
+    var hashSplit = location.hash.split('?', 1)[0];
+    var parsed = queryString.parse(location.hash.substring((hashSplit !== null && hashSplit !== void 0 ? hashSplit : '').length + 1));
+    var raw = parseStoredSettings(storage.get(SETTINGS_KEY));
+    var autoRefreshParam = parsed['autoRefresh'];
+    var showHistoricBadgesParam = parsed['showHistoricBadges'];
+    var showSequenceFlowParam = parsed['showSequenceFlow'];
+    var maxResultsParam = parsed['maxResults'];
+    var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
+    return {
+        autoRefresh: raw.autoRefresh === true || autoRefreshParam !== undefined,
+        showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
+        showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
+        leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
+        topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
+        maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
+    };
+};
+
+/**
+ * Gets the configured max results setting as a string for API params.
+ * @returns The max results value from settings as a string
+ */
+function getMaxResultsParam() {
+    return String(loadSettings().maxResults);
+}
+/** Cache TTL duration in minutes */
+var CACHE_TTL_MINUTES = 5;
+/** Seconds per minute */
+var SECONDS_PER_MINUTE = 60;
+/** Default cache TTL in milliseconds (5 minutes) */
+var CACHE_TTL_MS = CACHE_TTL_MINUTES * SECONDS_PER_MINUTE * 1000;
+/** In-memory cache for process definitions */
+var processDefinitionCache = new Map();
+/**
+ * Checks if a cache entry is still valid.
+ * @param entry - The cache entry to check
+ * @returns True if the entry is valid and not expired
+ */
+function isCacheValid(entry) {
+    if (!entry) {
+        return false;
+    }
+    return Date.now() - entry.timestamp < CACHE_TTL_MS;
+}
+/**
+ * Custom error class for API errors with status code and response body.
+ */
+var ApiError = /** @class */ (function (_super) {
+    __extends(ApiError, _super);
+    /**
+     *
+     */
+    function ApiError(message, status, body, path) {
+        var _this = _super.call(this, message) || this;
+        _this.name = 'ApiError';
+        _this.status = status;
+        _this.body = body;
+        _this.path = path;
+        return _this;
+    }
+    return ApiError;
+}(Error));
+/**
+ * Injectable fetch function for testing purposes.
+ * Defaults to the global fetch.
+ */
+var fetchFn = fetch;
+/**
+ * Builds headers for API requests with CSRF token.
+ * @param api - The API configuration object
+ * @returns Headers object for fetch requests
+ */
+var headers = function (api) {
+    return {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-XSRF-TOKEN': api.CSRFToken,
+    };
+};
+/**
+ * Parses response body based on content type.
+ * @param res - The fetch Response object
+ * @returns Parsed JSON or text content
+ */
+function parseResponseBody(res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var contentType;
+        var _a;
+        return __generator(this, function (_b) {
+            contentType = (_a = res.headers.get('Content-Type')) !== null && _a !== void 0 ? _a : '';
+            if (contentType.startsWith('application/json')) {
+                return [2 /*return*/, res.json()];
+            }
+            return [2 /*return*/, res.text()];
+        });
+    });
+}
+/**
+ * Makes a GET request to the engine API.
+ * @param api - The API configuration object
+ * @param path - The API endpoint path
+ * @param params - Optional query parameters
+ * @returns Promise resolving to the response data
+ * @throws {ApiError} When the response status is not 2xx
+ */
+var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0, function () {
+    var splitResult, query, url, res, body, message;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                // XXX: Workaround a possible bug where engine api has been parsed wrong
+                if (/\/#\//.exec(api.engine)) {
+                    splitResult = api.engine.split('/#/')[0];
+                    api.engine = (splitResult !== null && splitResult !== void 0 ? splitResult : '').replace(/.*\//g, '');
+                    api.engineApi = "".concat(api.baseApi, "/engine/").concat(api.engine);
+                }
+                params = params !== null && params !== void 0 ? params : {};
+                if (['/history/activity-instance', '/history/variable-instance', '/history/decision-instance'].includes(path) &&
+                    !params['maxResults']) {
+                    params['maxResults'] = getMaxResultsParam();
+                }
+                query = new URLSearchParams(params).toString();
+                url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
+                return [4 /*yield*/, fetchFn(url, {
+                        method: 'get',
+                        headers: headers(api),
+                    })];
+            case 1:
+                res = _a.sent();
+                return [4 /*yield*/, parseResponseBody(res)];
+            case 2:
+                body = _a.sent();
+                if (res.ok) {
+                    return [2 /*return*/, body];
+                }
+                else {
+                    message = typeof body === 'object' && body !== null && 'message' in body
+                        ? String(body.message)
+                        : "API error: ".concat(res.status);
+                    throw new ApiError(message, res.status, body, path);
+                }
+        }
+    });
+}); };
+/**
+ * Fetches a process definition by ID.
+ * Results are cached for 5 minutes since process definitions rarely change.
+ * @param api - The API configuration object
+ * @param processDefinitionId - The process definition ID
+ * @returns Promise resolving to the process definition
+ */
+function getProcessDefinition(api, processDefinitionId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var cached, data;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    cached = processDefinitionCache.get(processDefinitionId);
+                    if (isCacheValid(cached)) {
+                        return [2 /*return*/, cached.data];
+                    }
+                    return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId))];
+                case 1:
+                    data = (_a.sent());
+                    // Store in cache
+                    processDefinitionCache.set(processDefinitionId, {
+                        data: data,
+                        timestamp: Date.now(),
+                    });
+                    return [2 /*return*/, data];
+            }
+        });
+    });
 }
 
 var Component = {};
@@ -1239,6 +2186,10 @@ var DashboardSection = function (_a) {
 // Storage utilities
 // =============================================================================
 var FAVOURITES_KEY = 'minimal-history-plugin-favourites';
+/** Row state, worst-first: incidents outrank suspension, suspension outranks healthy. */
+var STATE_HEALTHY = 0;
+var STATE_SUSPENDED = 1;
+var STATE_INCIDENTS = 2;
 /**
  * Load favourite process definitions from localStorage
  */
@@ -1298,35 +2249,31 @@ var StarButton = function (_a) {
     reactExports.useEffect(function () {
         // Load process definition details
         var fetchDefinition = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var response, data;
-            var _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var data, _err_1;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _c.trys.push([0, 4, 5, 6]);
-                        return [4 /*yield*/, fetch("".concat(api.engineApi, "/process-definition/").concat(processDefinitionId))];
+                        _b.trys.push([0, 2, 3, 4]);
+                        return [4 /*yield*/, getProcessDefinition(api, processDefinitionId)];
                     case 1:
-                        response = _c.sent();
-                        if (!response.ok) return [3 /*break*/, 3];
-                        return [4 /*yield*/, response.json()];
-                    case 2:
-                        data = (_c.sent());
+                        data = _b.sent();
                         setDefinition(data);
-                        setIsFav(isFavourite((_b = data.key) !== null && _b !== void 0 ? _b : ''));
-                        _c.label = 3;
-                    case 3: return [3 /*break*/, 6];
-                    case 4:
-                        _c.sent();
-                        return [3 /*break*/, 6];
-                    case 5:
+                        setIsFav(isFavourite((_a = data.key) !== null && _a !== void 0 ? _a : ''));
+                        return [3 /*break*/, 4];
+                    case 2:
+                        _err_1 = _b.sent();
+                        console.error('Error loading process definition:', _err_1);
+                        return [3 /*break*/, 4];
+                    case 3:
                         setIsLoading(false);
                         return [7 /*endfinally*/];
-                    case 6: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         }); };
         void fetchDefinition();
-    }, [api.engineApi, processDefinitionId]);
+    }, [api, processDefinitionId]);
     var handleToggle = function () {
         var _a, _b, _c;
         if (!definition) {
@@ -1376,51 +2323,49 @@ var DashboardTable = function (_a) {
     // Fetch statistics for all favourite definitions (aggregated by key)
     reactExports.useEffect(function () {
         var fetchStatistics = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var keys, response, data, statsMap, _i, data_1, stat, key, statsArray;
-            var _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var data, favouriteKeys, statsMap, _i, data_1, stat, key, statsArray, _err_2;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         if (favourites.length === 0) {
                             return [2 /*return*/];
                         }
-                        _c.label = 1;
+                        _b.label = 1;
                     case 1:
-                        _c.trys.push([1, 5, , 6]);
-                        keys = favourites.map(function (f) { return "processDefinitionKeyIn=".concat(encodeURIComponent(f.key)); }).join('&');
-                        return [4 /*yield*/, fetch("".concat(api.engineApi, "/process-definition/statistics?").concat(keys, "&incidents=true"))];
+                        _b.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, get(api, '/process-definition/statistics', {
+                                incidents: 'true',
+                            })];
                     case 2:
-                        response = _c.sent();
-                        if (!response.ok) return [3 /*break*/, 4];
-                        return [4 /*yield*/, response.json()];
-                    case 3:
-                        data = (_c.sent());
+                        data = (_b.sent());
+                        favouriteKeys = new Set(favourites.map(function (f) { return f.key; }));
                         statsMap = new Map();
                         for (_i = 0, data_1 = data; _i < data_1.length; _i++) {
                             stat = data_1[_i];
-                            key = (_b = stat.definition) === null || _b === void 0 ? void 0 : _b.key;
-                            if (key) {
-                                if (!statsMap.has(key)) {
-                                    statsMap.set(key, []);
-                                }
+                            key = (_a = stat.definition) === null || _a === void 0 ? void 0 : _a.key;
+                            if (key !== null && key !== undefined && favouriteKeys.has(key)) {
                                 statsArray = statsMap.get(key);
                                 if (statsArray) {
                                     statsArray.push(stat);
                                 }
+                                else {
+                                    statsMap.set(key, [stat]);
+                                }
                             }
                         }
                         setStatistics(statsMap);
-                        _c.label = 4;
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
-                        _c.sent();
-                        return [3 /*break*/, 6];
-                    case 6: return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 3:
+                        _err_2 = _b.sent();
+                        console.error('Error loading process definition statistics:', _err_2);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         }); };
         void fetchStatistics();
-    }, [api.engineApi, favourites]);
+    }, [api, favourites]);
     // Transform favourites and statistics into table rows (aggregated across all versions)
     var tableData = reactExports.useMemo(function () {
         return favourites.map(function (fav) {
@@ -1451,13 +2396,12 @@ var DashboardTable = function (_a) {
                 totalIncidents += ((_h = stat.incidents) !== null && _h !== void 0 ? _h : []).reduce(function (sum, inc) { var _a; return sum + ((_a = inc.incidentCount) !== null && _a !== void 0 ? _a : 0); }, 0);
                 totalInstances += (_j = stat.instances) !== null && _j !== void 0 ? _j : 0;
             }
-            // Calculate state: 0 = healthy, 1 = suspended, 2 = incidents
-            var state = 0;
+            var state = STATE_HEALTHY;
             if (totalIncidents > 0) {
-                state = 2;
+                state = STATE_INCIDENTS;
             }
             else if (anySuspended) {
-                state = 1;
+                state = STATE_SUSPENDED;
             }
             return {
                 latestVersionId: latestVersionId,
@@ -1489,12 +2433,18 @@ var DashboardTable = function (_a) {
                 disableSortBy: true,
                 Cell: function (_a) {
                     var row = _a.row;
-                    var incidents = row.original.incidents;
-                    if (incidents > 0) {
-                        return (React.createElement("div", { style: { display: 'flex', justifyContent: 'center', alignItems: 'center' } },
+                    var _b = row.original, incidents = _b.incidents, state = _b.state;
+                    var wrapperStyle = { display: 'flex', justifyContent: 'center', alignItems: 'center' };
+                    if (state === STATE_INCIDENTS) {
+                        return (React.createElement("div", { style: wrapperStyle },
                             React.createElement(FaTimesCircle, { style: { color: '#d9534f', fontSize: '20px' }, "aria-label": "Has incidents", title: "".concat(incidents, " incident").concat(incidents !== 1 ? 's' : '') })));
                     }
-                    return (React.createElement("div", { style: { display: 'flex', justifyContent: 'center', alignItems: 'center' } },
+                    // A suspended definition used to fall through to the healthy circle below.
+                    if (state === STATE_SUSPENDED) {
+                        return (React.createElement("div", { style: wrapperStyle },
+                            React.createElement(FaPauseCircle, { style: { color: '#999999', fontSize: '20px' }, "aria-label": "Suspended", title: "Suspended" })));
+                    }
+                    return (React.createElement("div", { style: wrapperStyle },
                         React.createElement("div", { className: "circle circle-green" })));
                 },
             },

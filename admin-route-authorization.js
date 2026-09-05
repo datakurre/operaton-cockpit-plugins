@@ -3809,6 +3809,21 @@ function getResourceValidationEndpoint(resourceType, resourceId) {
             return null;
     }
 }
+/** Resource type id for Process Definition, whose keys resolve to a latest version id */
+var RESOURCE_TYPE_PROCESS_DEFINITION$1 = 6;
+/**
+ * Build the key under which a resource's validation result is stored.
+ *
+ * A resource id is only unique within its resource type - the same id can name both a
+ * process definition and a decision definition - so both parts belong in the key.
+ * Keying on the id alone made two such authorizations share one validation result.
+ * @param resourceType - The resource type ID
+ * @param resourceId - The resource ID
+ * @returns Key combining the resource type and id
+ */
+function resourceValidationKey(resourceType, resourceId) {
+    return "".concat(resourceType !== null && resourceType !== void 0 ? resourceType : 'null', ":").concat(resourceId);
+}
 /**
  * Render resource ID display element with optional link and validation status.
  * Links resource IDs to their corresponding Cockpit pages when applicable.
@@ -8027,11 +8042,16 @@ var SortableAuthorizationsTable = function (_a) {
             Cell: function (_a) {
                 var row = _a.row;
                 var resourceId = row.original.original.resourceId;
-                var status = resourceId && validationState ? validationState[resourceId] : undefined;
+                // Validation results are keyed by resource type and id together, since the same
+                // id can name resources of different types.
+                var validationKey = resourceId
+                    ? resourceValidationKey(row.original.original.resourceType, resourceId)
+                    : null;
+                var status = validationKey && validationState ? validationState[validationKey] : undefined;
                 var urlOptions = {
                     cockpitBaseUrl: cockpitBaseUrl,
                     tasklistBaseUrl: tasklistBaseUrl,
-                    resolvedId: resourceId && resolvedIds ? resolvedIds[resourceId] : undefined,
+                    resolvedId: validationKey && resolvedIds ? resolvedIds[validationKey] : undefined,
                 };
                 return renderResourceIdDisplay(row.original.original.resourceType, resourceId, status, urlOptions);
             },
@@ -8306,7 +8326,7 @@ var AuthorizationsView = function (_a) {
      * Also resolves process definition keys to their latest version IDs.
      */
     var handleCheckResources = reactExports.useCallback(function () { return __awaiter(void 0, void 0, void 0, function () {
-        var resourcesToCheck, uniqueResources, total, newValidationState, newResolvedIds, current, _i, uniqueResources_1, resource, result, pdResult, err_2;
+        var resourcesToCheck, uniqueResources, total, newValidationState, newResolvedIds, current, _i, uniqueResources_1, resource, key, result, pdResult, err_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -8324,7 +8344,7 @@ var AuthorizationsView = function (_a) {
                         endpoint: getResourceValidationEndpoint(auth.resourceType, auth.resourceId),
                     }); })
                         .filter(function (item) { return item.endpoint !== null; });
-                    uniqueResources = Array.from(new Map(resourcesToCheck.map(function (item) { return [item.resourceId, item]; })).values());
+                    uniqueResources = Array.from(new Map(resourcesToCheck.map(function (item) { return [resourceValidationKey(item.resourceType, item.resourceId), item]; })).values());
                     total = uniqueResources.length;
                     setValidationProgress({ current: 0, total: total });
                     newValidationState = {};
@@ -8335,18 +8355,19 @@ var AuthorizationsView = function (_a) {
                 case 1:
                     if (!(_i < uniqueResources_1.length)) return [3 /*break*/, 7];
                     resource = uniqueResources_1[_i];
+                    key = resourceValidationKey(resource.resourceType, resource.resourceId);
                     _a.label = 2;
                 case 2:
                     _a.trys.push([2, 4, , 5]);
                     return [4 /*yield*/, get(api$1, resource.endpoint)];
                 case 3:
                     result = _a.sent();
-                    newValidationState[resource.resourceId] = 'valid';
+                    newValidationState[key] = 'valid';
                     // For process definitions with keys, extract the resolved ID
-                    if (resource.resourceType === 6 && isProcessDefinitionKey(resource.resourceId)) {
+                    if (resource.resourceType === RESOURCE_TYPE_PROCESS_DEFINITION$1 && isProcessDefinitionKey(resource.resourceId)) {
                         pdResult = result;
                         if (pdResult.id) {
-                            newResolvedIds[resource.resourceId] = pdResult.id;
+                            newResolvedIds[key] = pdResult.id;
                         }
                     }
                     return [3 /*break*/, 5];
@@ -8354,10 +8375,10 @@ var AuthorizationsView = function (_a) {
                     err_2 = _a.sent();
                     // 404 means resource doesn't exist, other errors are unknown
                     if (err_2 instanceof ApiError && err_2.status === 404) {
-                        newValidationState[resource.resourceId] = 'invalid';
+                        newValidationState[key] = 'invalid';
                     }
                     else {
-                        newValidationState[resource.resourceId] = 'unknown';
+                        newValidationState[key] = 'unknown';
                     }
                     return [3 /*break*/, 5];
                 case 5:

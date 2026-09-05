@@ -1530,7 +1530,7 @@ var post = function (api, path, params, payload) { return __awaiter(void 0, void
                     params['maxResults'] = getMaxResultsParam();
                 }
                 query = new URLSearchParams(params).toString();
-                body = payload !== null && payload !== void 0 ? payload : null;
+                body = payload ;
                 url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
                 return [4 /*yield*/, fetchFn(url, {
                         method: 'post',
@@ -2184,9 +2184,9 @@ var IntegrationsTable = function (_a) {
      * Batch retry selected tasks
      */
     var handleBatchRetry = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var taskIds, _loop_2, _i, taskIds_1, taskId, _b, taskIds_2, taskId, _err_4;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var taskIds, _loop_2, _i, taskIds_1, taskId, _err_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     if (selectedTasks.size === 0) {
                         return [2 /*return*/];
@@ -2199,53 +2199,42 @@ var IntegrationsTable = function (_a) {
                         taskId = taskIds_1[_i];
                         _loop_2(taskId);
                     }
-                    _c.label = 1;
+                    _a.label = 1;
                 case 1:
-                    _c.trys.push([1, 4, 12, 13]);
-                    // Use batch endpoint if available, otherwise retry individually
-                    return [4 /*yield*/, post(api, '/external-task/retries', {}, JSON.stringify({
+                    _a.trys.push([1, 4, 5, 6]);
+                    // /external-task/retries is PUT-only. It used to be called with POST here, which the
+                    // engine answered with 405 every time, so the batch never ran and a silent catch fell
+                    // back to one request per task while hiding real failures such as a denied permission.
+                    return [4 /*yield*/, put(api, '/external-task/retries', JSON.stringify({
                             externalTaskIds: taskIds,
                             retries: 1,
                         }))];
                 case 2:
-                    // Use batch endpoint if available, otherwise retry individually
-                    _c.sent();
+                    // /external-task/retries is PUT-only. It used to be called with POST here, which the
+                    // engine answered with 405 every time, so the batch never ran and a silent catch fell
+                    // back to one request per task while hiding real failures such as a denied permission.
+                    _a.sent();
                     setSelectedTasks(new Set());
                     return [4 /*yield*/, fetchTasks()];
                 case 3:
-                    _c.sent();
-                    return [3 /*break*/, 13];
+                    _a.sent();
+                    return [3 /*break*/, 6];
                 case 4:
-                    _c.sent();
-                    _b = 0, taskIds_2 = taskIds;
-                    _c.label = 5;
+                    _err_4 = _a.sent();
+                    console.error('Error retrying tasks:', _err_4);
+                    setError("Failed to retry ".concat(taskIds.length, " task").concat(taskIds.length !== 1 ? 's' : ''));
+                    return [3 /*break*/, 6];
                 case 5:
-                    if (!(_b < taskIds_2.length)) return [3 /*break*/, 10];
-                    taskId = taskIds_2[_b];
-                    _c.label = 6;
-                case 6:
-                    _c.trys.push([6, 8, , 9]);
-                    return [4 /*yield*/, put(api, "/external-task/".concat(taskId, "/retries"), JSON.stringify({ retries: 1 }))];
-                case 7:
-                    _c.sent();
-                    return [3 /*break*/, 9];
-                case 8:
-                    _err_4 = _c.sent();
-                    console.error('Error retrying task:', taskId, _err_4);
-                    return [3 /*break*/, 9];
-                case 9:
-                    _b++;
-                    return [3 /*break*/, 5];
-                case 10:
-                    setSelectedTasks(new Set());
-                    return [4 /*yield*/, fetchTasks()];
-                case 11:
-                    _c.sent();
-                    return [3 /*break*/, 13];
-                case 12:
-                    setActionLoading(new Set());
+                    setActionLoading(function (prev) {
+                        var next = new Set(prev);
+                        for (var _i = 0, taskIds_2 = taskIds; _i < taskIds_2.length; _i++) {
+                            var taskId = taskIds_2[_i];
+                            next.delete(taskId);
+                        }
+                        return next;
+                    });
                     return [7 /*endfinally*/];
-                case 13: return [2 /*return*/];
+                case 6: return [2 /*return*/];
             }
         });
     }); };
