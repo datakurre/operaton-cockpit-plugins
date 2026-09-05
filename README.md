@@ -19,6 +19,21 @@ Breaking changes
 Try it
 ------
 
+With Operaton (build image without needing any context directory):
+
+```bash
+# Build directly from GitHub without cloning:
+curl -fsSL https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile | docker build -t operaton-with-plugins -
+
+# Or build from a local clone without build context:
+docker build -t operaton-with-plugins - < Dockerfile
+
+# Run the container:
+docker run --rm -p 8080:8080 operaton-with-plugins
+```
+
+Access Cockpit at `http://localhost:8080/operaton/app/cockpit/` (credentials: `demo` / `demo`).
+
 With Camunda Platform 7.14.0 and 7.20.0 or later:
 
 ```bash
@@ -45,6 +60,36 @@ Note: Trying out the plugins with Camunda Platform 7.15.0 Docker image is more c
 
 Use it
 ------
+
+### Docker (Operaton)
+
+A multi-stage [Dockerfile](Dockerfile) is provided to build a ready-to-run Operaton image with all plugins for Cockpit, Admin, and Tasklist bundled into the internal webapp archives.
+
+Because all assets are fetched during the build stage, no local context directory is required.
+
+**Build directly from GitHub:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile | docker build -t operaton-with-plugins -
+```
+*(or `docker build -t operaton-with-plugins https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile`)*
+
+**Build from local file without context:**
+```bash
+docker build -t operaton-with-plugins - < Dockerfile
+```
+
+**Customizing build arguments:**
+```bash
+docker build \
+  --build-arg OPERATON_IMAGE=operaton/operaton:latest \
+  --build-arg PLUGINS_REF=main \
+  -t operaton-with-plugins - < Dockerfile
+```
+
+**Run:**
+```bash
+docker run --rm -p 8080:8080 operaton-with-plugins
+```
 
 ### Spring Boot
 
