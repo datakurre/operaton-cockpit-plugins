@@ -118,6 +118,7 @@ export interface PluginSettings {
   showHistoricBadges: boolean;
   showSequenceFlow: boolean;
   showHeatmap: boolean;
+  showInstanceHeatmap: boolean;
   leftPaneSize: number | null;
   topPaneSize: number | null;
   maxResults: number;
@@ -129,6 +130,7 @@ interface StoredSettings {
   showHistoricBadges?: boolean;
   showSequenceFlow?: boolean;
   showHeatmap?: boolean;
+  showInstanceHeatmap?: boolean;
   leftPaneSize?: number;
   topPaneSize?: number;
   maxResults?: number;
@@ -145,6 +147,7 @@ const DEFAULT_SETTINGS: PluginSettings = {
   showHistoricBadges: false,
   showSequenceFlow: false,
   showHeatmap: false,
+  showInstanceHeatmap: false,
   leftPaneSize: null,
   topPaneSize: null,
   maxResults: DEFAULT_MAX_RESULTS,
@@ -181,6 +184,7 @@ export const loadSettings = (): PluginSettings => {
   const showHistoricBadgesParam = parsed['showHistoricBadges'];
   const showSequenceFlowParam = parsed['showSequenceFlow'];
   const showHeatmapParam = parsed['showHeatmap'];
+  const showInstanceHeatmapParam = parsed['showInstanceHeatmap'];
 
   const maxResultsParam = parsed['maxResults'];
   const maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
@@ -190,6 +194,10 @@ export const loadSettings = (): PluginSettings => {
     showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
     showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
     showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
+    // Kept separate from showHeatmap: that one drives the definition diagram's
+    // statistics button, where it also implies the badges are on. Sharing it would
+    // mean switching heat on here silently switched badges on over there.
+    showInstanceHeatmap: raw.showInstanceHeatmap === true || showInstanceHeatmapParam !== undefined,
     leftPaneSize: raw.leftPaneSize ?? DEFAULT_SETTINGS.leftPaneSize,
     topPaneSize: raw.topPaneSize ?? DEFAULT_SETTINGS.topPaneSize,
     maxResults: maxResultsValue ?? raw.maxResults ?? DEFAULT_SETTINGS.maxResults,

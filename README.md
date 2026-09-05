@@ -33,7 +33,7 @@ deploy them without running the build.
 | `instance-auto-refresh.js` | Instance diagram | Toggle button for periodic auto-refresh of the instance view |
 | `instance-action-unlock.js` | Instance action button | Dialog listing the instance's locked external tasks, with batch unlock |
 | `instance-historic-activities.js` | Instance tab *Audit Log* + diagram | Audit log for the instance, activity overlays and executed sequence-flow highlighting. Flows taken more than once are drawn heavier, and hovering one names the exact traversal count |
-| `instance-route-history.js` | Definition tab *History*, instance diagram toggle, and the route `#/history/process-instance/:id` | Filterable, paginated list of historic instances, and a full history view with BPMN viewer, audit log and variables |
+| `instance-route-history.js` | Definition tab *History*, instance diagram toggle, and the route `#/history/process-instance/:id` | Filterable, paginated list of historic instances, and a full history view with BPMN viewer, audit log and variables. The diagram carries its own toggles for the executed path and for a time heatmap of where that one instance spent its time |
 | `instance-tab-modify.js` | Instance tab *Modify* | Modify a single running instance (start/cancel activities, transitions) and correlate a message to it |
 | `cockpit-custom-styles.js` | — | Injects [src/cockpit-custom-styles.scss](src/cockpit-custom-styles.scss); no JavaScript behaviour. Also backfills Bootstrap 3 `col-xs-*` classes that Operaton omits |
 | `robot-module.js` | `bpmnJs.additionalModules` | Draws a Robot Framework icon on service tasks whose id matches `/robot/i` |
@@ -268,6 +268,7 @@ Shared user preferences are stored under the key `minimal-history-plugin` as a s
 | `showHistoricBadges` | boolean | `false` | Show activity instance count badges on diagram |
 | `showSequenceFlow` | boolean | `false` | Highlight the executed path on the diagram |
 | `showHeatmap` | boolean | `false` | Show the time heatmap on a definition diagram (implies `showHistoricBadges`) |
+| `showInstanceHeatmap` | boolean | `false` | Show the time heatmap on a single instance's history diagram |
 | `leftPaneSize` | number | `null` | Left pane width in history view (pixels) |
 | `topPaneSize` | number | `null` | Top pane height in history view (pixels) |
 | `maxResults` | number | `1000` | Maximum results for history API queries |
@@ -285,7 +286,7 @@ Some plugins keep their own state under separate keys:
 ### URL query parameters
 
 The shared settings above can also be set from the URL. The parameters are read from the part of the
-**hash** after `?`. The three boolean parameters are enabled by their mere presence — any value,
+**hash** after `?`. The boolean parameters are enabled by their mere presence — any value,
 including none, turns them on. They can only turn a setting *on*: a setting already stored as `true` in
 localStorage stays on whether or not the parameter is in the URL.
 
@@ -295,6 +296,7 @@ localStorage stays on whether or not the parameter is in the URL.
 | `showHistoricBadges` | Show historic badges |
 | `showSequenceFlow` | Show executed sequence flows |
 | `showHeatmap` | Show the definition time heatmap |
+| `showInstanceHeatmap` | Show the instance time heatmap |
 | `maxResults=N` | Override max results (e.g. `maxResults=500`) |
 
 Example URL with parameters:
@@ -320,7 +322,15 @@ These are current gaps, not bugs to report:
   share of the slowest element's cumulative time, so the hottest spot is always red however fast the
   process is overall. It answers "where does this process spend its time", not "is this fast enough".
   Elements that consumed no measurable time — start and end events, and activities still running —
-  get no blob at all, since they have no duration to rank.
+  get no blob at all, since they have no duration to rank. On a single instance this has a visible
+  consequence: an instance whose only finished activity is an instant start event draws nothing at
+  all, so the button lights up but the diagram does not change.
+
+  The two heatmaps answer different questions and have separate toggles and separate settings. On a
+  definition diagram the heat is cumulative across every instance in the current filter, ranking the
+  process's own steps against each other. On an instance's history diagram it is that one run only,
+  which is where a single slow execution shows up that the average hides. Switching one on does not
+  switch on the other.
 
 * **The executed path is inferred, not reported.** The engine records which activities ran, never which
   sequence flows were taken, so the green path is reconstructed from activity timestamps. Exclusive
