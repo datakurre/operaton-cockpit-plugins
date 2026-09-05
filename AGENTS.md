@@ -34,6 +34,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [Makefile](Makefile): Development shortcuts (formatting, etc.)
 
 ### Built outputs (committed for convenience)
+- `admin-custom-styles.js` – Custom stylesheet plugin for Admin UI
 - `admin-nologin.js` – Admin no-login plugin (hides signin form via CSS)
 - `admin-route-authorization.js` – Admin authorization management route
 - `cockpit-custom-styles.js` – Custom stylesheet plugin for UI customization
@@ -50,11 +51,14 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - `instance-tab-modify.js` – Process modification and message correlation
 - `robot-module.js` – BPMN module utilities for diagram rendering
 - `tasklist-audit-log.js` – Tasklist audit log tab
+- `tasklist-custom-styles.js` – Custom stylesheet plugin for Tasklist UI
 - `tasklist-nologin.js` – Tasklist no-login plugin (hides signin form via CSS)
+- `welcome-custom-styles.js` – Custom stylesheet plugin for Welcome UI
 - `welcome-nologin.js` – Welcome no-login plugin (hides signin form via CSS)
 - `*.js.map` – Source maps (development builds only)
 
 ### Plugin entrypoints (`src/`)
+- [src/admin-custom-styles.tsx](src/admin-custom-styles.tsx): Minimal plugin that applies custom stylesheets (SCSS) for Admin UI customization.
 - [src/admin-nologin.tsx](src/admin-nologin.tsx): Admin no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
 - [src/admin-route-authorization.tsx](src/admin-route-authorization.tsx): Admin authorization management route. Two-panel layout with resource type list and authorization CRUD operations.
 - [src/cockpit-custom-styles.tsx](src/cockpit-custom-styles.tsx): Minimal plugin that only applies custom stylesheets (SCSS) for UI customization without any JavaScript functionality.
@@ -74,7 +78,9 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [src/nologin.scss](src/nologin.scss): Shared stylesheet for all no-login plugins. Hides `form[name="signinForm"]` across all Operaton/Camunda webapps.
 - [src/RobotModule/index.ts](src/RobotModule/index.ts): Additional BPMN module utilities for diagram rendering.
 - [src/tasklist-audit-log.tsx](src/tasklist-audit-log.tsx): Tasklist detail tab that loads the instance audit log.
+- [src/tasklist-custom-styles.tsx](src/tasklist-custom-styles.tsx): Minimal plugin that applies custom stylesheets (SCSS) for Tasklist UI customization.
 - [src/tasklist-nologin.tsx](src/tasklist-nologin.tsx): Tasklist no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
+- [src/welcome-custom-styles.tsx](src/welcome-custom-styles.tsx): Minimal plugin that applies custom stylesheets (SCSS) for Welcome UI customization.
 - [src/welcome-nologin.tsx](src/welcome-nologin.tsx): Welcome no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
 
 ### Services (`src/services/`)

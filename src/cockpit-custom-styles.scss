@@ -114,15 +114,82 @@
     td:first-child {
         text-align: center;
     }
-    th:nth-child(2), td:nth-child(2) {
-        width: 50px;
+    th:nth-child(2), td:nth-child(2),
+    th.incidents, td.incidents {
+        width: 105px !important;
+        min-width: 105px !important;
+        white-space: nowrap !important;
     }
-    th:nth-child(3), td:nth-child(3) {
-        width: 80px;
-        max-width: 11vw;
+    th:nth-child(2),
+    th.incidents {
+        .incidents-label {
+            white-space: nowrap !important;
+        }
+        a {
+            white-space: nowrap !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+    }
+
+    th:nth-child(3), td:nth-child(3),
+    th.instances, td.instances {
+        width: 110px !important;
+        max-width: 120px !important;
+    }
+    th:nth-child(3),
+    th.instances {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        position: relative !important;
+        padding-right: 22px !important;
+
+        .instances-label {
+            display: block !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+        }
+
+        a[ng-click], a.sortable, a {
+            position: absolute !important;
+            right: 5px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            margin: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            white-space: nowrap !important;
+        }
     }
     th:last-child, td:last-child {
         max-width: 3vw;
+    }
+}
+
+// Fix criteria search box controls: prevent dropdown-toggle button from overflowing search container
+[cam-widget-search] .controls,
+.search-field .controls {
+    top: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    right: 4px !important;
+
+    .stored-criteria {
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+
+    .stored-criteria .dropdown-toggle {
+        padding: 2px 6px !important;
+        font-size: 13px !important;
+        line-height: 1.2 !important;
+        height: 26px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 3px !important;
     }
 }
 

@@ -166,6 +166,42 @@ const allConfigs = [
       if (warning.code === 'THIS_IS_UNDEFINED') { return; }
       superOnWarn(warning);
     },
+    input: "src/admin-custom-styles.tsx",
+    output: {
+      file: "admin-custom-styles.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/tasklist-custom-styles.tsx",
+    output: {
+      file: "tasklist-custom-styles.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
+    input: "src/welcome-custom-styles.tsx",
+    output: {
+      file: "welcome-custom-styles.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
+    onwarn: function(warning, superOnWarn) {
+      if (warning.code === 'THIS_IS_UNDEFINED') { return; }
+      superOnWarn(warning);
+    },
     input: "src/dashboard-favourites.tsx",
     output: {
       file: "dashboard-favourites.js",
