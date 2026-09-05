@@ -4,17 +4,28 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 
 **Note:** Built JavaScript modules are committed to the repository for convenience. Users can deploy the plugins directly without running the build process.
 
+**Plugin status legend** used throughout this document:
+
+| Status | Meaning |
+|--------|---------|
+| **shipped** | Referenced from a `*config.js` and/or bundled by the [Dockerfile](Dockerfile). This is what users actually run. |
+| **optional** | Built and committed, but not referenced by the default configs. Users opt in by adding it to their own `config.js`. |
+| **abandoned** | Sources and bundle are kept for reference only. Not referenced by any config, not bundled by the Dockerfile, and not maintained. Do not invest in it. |
+
+A source file existing under `src/` does **not** mean the plugin is shipped — always cross-check
+[config.js](config.js), the other `*config.js` files, and the [Dockerfile](Dockerfile).
+
 ## Project map
 
 ### Configuration and deployment
 - [README.md](README.md): Usage and deployment instructions
 - [config.js](config.js): Cockpit plugin configuration (defines `customScripts` and `bpmnJs.additionalModules`)
-- [cockpit-nologin-config.js](cockpit-nologin-config.js): Cockpit no-login plugin configuration
-- [tasklist-config.js](tasklist-config.js): Tasklist plugin configuration
-- [tasklist-nologin-config.js](tasklist-nologin-config.js): Tasklist no-login plugin configuration
-- [admin-config.js](admin-config.js): Admin no-login plugin configuration
-- [welcome-config.js](welcome-config.js): Welcome no-login plugin configuration
-- [Dockerfile](Dockerfile): Standalone Operaton Docker image build (context-free)
+- [cockpit-nologin-config.js](cockpit-nologin-config.js): Alternative Cockpit configuration that only loads `cockpit-nologin.js`
+- [tasklist-config.js](tasklist-config.js): Tasklist configuration (`tasklist-nologin.js`, `tasklist-audit-log.js`)
+- [admin-config.js](admin-config.js): Admin configuration (`admin-nologin.js`, `admin-route-authorization.js`)
+- [welcome-config.js](welcome-config.js): Welcome configuration (`welcome-nologin.js`)
+- [Dockerfile](Dockerfile): Standalone Operaton Docker image build (context-free); its `cp` list is the
+  authoritative statement of which bundles ship
 
 ### Build pipeline
 - [rollup.config.mjs](rollup.config.mjs): Compiles each plugin entrypoint in `src/` to a top-level `*.js` bundle
@@ -28,7 +39,8 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - `cockpit-custom-styles.js` – Custom stylesheet plugin for UI customization
 - `cockpit-nologin.js` – Cockpit no-login plugin (hides signin form via CSS)
 - `dashboard-favourites.js` – Process definition favorites star button and dashboard table
-- `decisions-dashboard.js` – DMN decision table testing dashboard
+- `dashboard-integrations.js` – External task ("integrations") dashboard with retry/unlock actions
+- `decisions-dashboard.js` – **abandoned** DMN decision simulator (see [Abandoned plugins](#abandoned-plugins))
 - `definition-historic-activities.js` – Process definition statistics overlay
 - `definition-tab-modify.js` – Process definition modification template builder
 - `instance-action-unlock.js` – External task unlock action
@@ -48,9 +60,10 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [src/cockpit-custom-styles.tsx](src/cockpit-custom-styles.tsx): Minimal plugin that only applies custom stylesheets (SCSS) for UI customization without any JavaScript functionality.
 - [src/cockpit-nologin.tsx](src/cockpit-nologin.tsx): Cockpit no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
 - [src/dashboard-favourites.tsx](src/dashboard-favourites.tsx): Process definition favorites plugin. Adds a star button on process definition runtime views to favorite/unfavorite definitions, and provides a dashboard table showing favorited process definitions with version info and direct links.
-- [src/decisions-dashboard.tsx](src/decisions-dashboard.tsx): DMN decision table testing dashboard. Provides a UI for selecting deployed decision definitions, parsing DMN inputs, evaluating decisions via the API, displaying results, and highlighting matched rules on the rendered decision table.
+- [src/dashboard-integrations.tsx](src/dashboard-integrations.tsx): Cockpit dashboard section listing active external tasks (process, task, topic, worker, lock time, retries) with incident indicators and retry/unlock actions for individual tasks and batches. Reuses the favourites stored by `dashboard-favourites` (`minimal-history-plugin-favourites`) to offer a favourites-only filter, on by default.
+- [src/decisions-dashboard.tsx](src/decisions-dashboard.tsx): **Abandoned.** DMN "Decision Simulator" dashboard (`cockpit.decisions.dashboard`). See [Abandoned plugins](#abandoned-plugins) before touching it.
 - [src/definition-historic-activities.tsx](src/definition-historic-activities.tsx): Adds a runtime tab and diagram overlay for historic activity statistics with a filter UI and badge overlays.
-- [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition modification template builder tab for designing modification instructions that can be applied to specific process instances.
+- [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition "Modify" tab hosting three batch operations against a definition: `BatchModifyForm` (Batch Modify), `BatchMessageForm` (Message) and `BatchSignalForm` (Signal). The Message tab has a known half-broken feature — see [Known issues and fixes](#known-issues-and-fixes).
 - [src/instance-action-unlock.tsx](src/instance-action-unlock.tsx): Process instance action button that provides a dialog for unlocking external tasks that are locked by workers, with batch selection and individual retry capabilities.
 - [src/instance-auto-refresh.tsx](src/instance-auto-refresh.tsx): Diagram plugin exposing a toggle for auto-refresh on an instance view.
 - [src/instance-historic-activities.tsx](src/instance-historic-activities.tsx): Adds audit-log tab and diagram overlays for a process instance, including sequence-flow highlighting.
@@ -63,7 +76,10 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [src/welcome-nologin.tsx](src/welcome-nologin.tsx): Welcome no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
 
 ### Services (`src/services/`)
+- [AuthorizationService.ts](src/services/AuthorizationService.ts): Authorization CRUD API abstraction used by the admin authorization route
+- [ExternalTaskService.ts](src/services/ExternalTaskService.ts): External task API abstraction (query, retries, unlock) used by the integrations dashboard and unlock action
 - [HistoryService.ts](src/services/HistoryService.ts): History API abstraction for testability with typed interfaces for historic activities and variables
+- [ProcessInstanceService.ts](src/services/ProcessInstanceService.ts): Process instance API abstraction (query, modification, message/signal delivery)
 - [ViewerService.ts](src/services/ViewerService.ts): BPMN viewer abstraction with interfaces for overlays, element registry, and canvas operations
 
 ### Shared utilities (`src/utils/`)
@@ -73,6 +89,7 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [bpmn.ts](src/utils/bpmn.ts): Re-exports from `bpmn/` submodule for backwards compatibility
 - [bpmnParsing.ts](src/utils/bpmnParsing.ts): BPMN XML parsing for extracting activities, sequence flows, and message definitions
 - [constants.ts](src/utils/constants.ts): Centralized UI, timing, pagination, retry, and validation constants
+- [datePickerWidget.tsx](src/utils/datePickerWidget.tsx) / [datePickerWidget.scss](src/utils/datePickerWidget.scss): Date picker widget used inside FilterBox tokens
 - [filterExpressionParsers.ts](src/utils/filterExpressionParsers.ts): Pure functions for parsing FilterBox expressions to API query parameters. Provides `parseActivityInstanceExpressions()`, `parseProcessInstanceExpressions()`, `parseAuthorizationExpressions()` with typed interfaces for each query type.
 - [filterSchema.ts](src/utils/filterSchema.ts): Schema-based filter configuration using react-select-filter-box. Provides `createDefinitionFilterSchema()`, `createInstanceQuerySchema()`, `createAuthorizationFilterSchema()`, and legacy expression converters for backward compatibility.
 - [formatting.ts](src/utils/formatting.ts): Date formatting (`formatDateTime`, `formatDateForApi`) and URL building (`buildCockpitUrl`, `buildHistoryUrl`) utilities
@@ -89,6 +106,8 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 
 ### Custom hooks (`src/hooks/`)
 - [useData.ts](src/hooks/useData.ts): Data fetching hooks (`useActivities`, `useVariables`, `useBpmnElements`, `useSettings`)
+- [useFilterState.ts](src/hooks/useFilterState.ts): FilterBox expression state, query-parameter building, and URL/localStorage persistence
+- [usePagination.ts](src/hooks/usePagination.ts): Page navigation state and `firstResult` calculation
 
 ### Reusable UI components (`src/Components/`)
 
@@ -98,6 +117,8 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [Page.tsx](src/Components/Page.tsx): Page wrapper with API context provider
 - [Portal.tsx](src/Components/Portal.tsx): React portal for rendering into Cockpit DOM nodes
 - [Tabs.tsx](src/Components/Tabs.tsx): Tab navigation component with active state management
+- [DashboardSection.tsx](src/Components/DashboardSection.tsx): Collapsible dashboard section with title, loading/empty states, refresh button, and header actions
+- [ErrorBoundary.tsx](src/Components/ErrorBoundary.tsx): React error boundary with fallback UI, keeping a crashing plugin from taking down the surrounding Cockpit view
 - [HistoryViewLayout.tsx](src/Components/HistoryViewLayout.tsx): Resizable pane layout with BPMN viewer, info panel, and tabs (uses Allotment)
 - [ProcessInfoPanel.tsx](src/Components/ProcessInfoPanel.tsx): Process instance metadata display with copy-to-clipboard
 
@@ -137,11 +158,14 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [FilterBox.tsx](src/Components/FilterBox.tsx): Token-based filter builder using react-select-filter-box with schema-based configuration, saved searches persistence, and legacy expression conversion
 - [FilterBox.scss](src/Components/FilterBox.scss): Styles for FilterBox and saved searches dropdown
 - [VariableBuilder.tsx](src/Components/VariableBuilder.tsx): Dynamic variable input builder with type-specific controls (String, Integer, Boolean, JSON, Date, etc.) and form validation
-- [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Message correlation form with BPMN message parsing and variable configuration
+- [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Single-instance message correlation form with BPMN message parsing, variable configuration, and a business key field for message start events
+- [RestartProcessForm.tsx](src/Components/RestartProcessForm.tsx): Restart form for externally/internally terminated instances, either picking one from a list or targeting the instance currently open in the history view
 - [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx): Batch process modification form with instance selection, dry-run preview, and modification instructions
-- [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx): Batch message correlation form for correlating messages to multiple process instances
+- [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx): Definition-level message form — correlates asynchronously to all active instances of the definition, or starts a new instance when the selected message sits on a start event (see [Known issues and fixes](#known-issues-and-fixes))
 - [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx): Batch signal broadcast form for broadcasting signals globally
 - [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx): Dry-run result preview component showing affected process instances
+- [IdentityAutocomplete.tsx](src/Components/IdentityAutocomplete.tsx): Autocomplete input for users/groups in authorization forms
+- [ResourceAutocomplete.tsx](src/Components/ResourceAutocomplete.tsx): Autocomplete input for resource IDs in authorization forms
 - [AuthorizationFormModal.tsx](src/Components/AuthorizationFormModal.tsx): Modal form for creating/editing authorizations with type, identity, permissions, and resource ID selection
 - [AuthorizationDeleteModal.tsx](src/Components/AuthorizationDeleteModal.tsx): Confirmation modal for deleting authorization records
 - [SelectField.tsx](src/Components/SelectField.tsx): Reusable form select field with consistent styling
@@ -170,8 +194,8 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - [Button.scss](src/Components/Button.scss): Button styles
 - [Modal.scss](src/Components/Modal.scss): Modal dialog styles
 - [MessageCorrelationForm.scss](src/Components/MessageCorrelationForm.scss): Message correlation form styles
+- [icons.scss](src/Components/icons.scss): `react-icons` sizing/alignment helpers and spinner animation
 - [react-datepicker.scss](src/Components/react-datepicker.scss): Date picker overrides
-- [react-filter-box.scss](src/Components/react-filter-box.scss): Filter box overrides
 
 ### Type definitions
 - <a>src/operaton.json</a>: Camunda 7 / Operaton REST API OpenAPI 3.0 specification (~52k lines). Defines all REST endpoints, request/response schemas, and parameters for the process engine API.
@@ -180,6 +204,40 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 - <a>src/custom.d.ts</a>: Custom module declarations
 - <a>@types/</a>: Additional type definitions for external modules
 
+## Abandoned plugins
+
+### decisions-dashboard
+
+**Status: abandoned. Do not extend it, and do not add it back to a default config.**
+
+`decisions-dashboard` ([src/decisions-dashboard.tsx](src/decisions-dashboard.tsx), bundled to
+`decisions-dashboard.js`) was an attempt to bring DMN evaluation directly into Cockpit: pick a deployed
+decision definition, parse its DMN inputs into a form, evaluate it through the REST API, show the outputs,
+and highlight matched rules on the rendered decision table.
+
+It works, but the conclusion was that this simply does not belong in Cockpit. DMN authoring and evaluation
+belong in the modelling tool, next to the DMN file being edited — and there is already a better version of
+this idea in the **`datakurre.operaton-dmn-modeler` VS Code extension**. Cockpit is for operating running
+processes, not for iterating on decision logic.
+
+What that means concretely:
+
+- It is **not** listed in [config.js](config.js) and **not** copied by the [Dockerfile](Dockerfile), so it
+  does not ship. (Note that [README.md](README.md) still shows it in an older example `config.js` snippet;
+  that snippet is out of date.)
+- Sources, the committed bundle, its tests, and the DMN components it uses
+  ([DmnViewer.tsx](src/Components/DmnViewer.tsx), [DecisionSelector.tsx](src/Components/DecisionSelector.tsx),
+  [DecisionInputForm.tsx](src/Components/DecisionInputForm.tsx), [DecisionResults.tsx](src/Components/DecisionResults.tsx))
+  are kept so the code stays buildable and the history stays readable — it is still an entry in
+  [rollup.config.mjs](rollup.config.mjs) and still covered by
+  [src/__tests__/decisions-dashboard.integration.test.tsx](src/__tests__/decisions-dashboard.integration.test.tsx).
+- Keep it compiling and keep its tests green when you make repo-wide changes (dependency bumps, lint rules,
+  shared component refactors). That is the whole maintenance contract.
+- Do **not** spend effort on new features, UX work, or bug fixes here. If a user wants DMN evaluation, point
+  them at `datakurre.operaton-dmn-modeler` instead.
+- `dmn-js` remains a dependency only because of this plugin. If it is ever fully removed, that dependency and
+  the four DMN components above go with it.
+
 ## Development
 
 ### Setup
@@ -187,6 +245,11 @@ This repository bundles minimal history-oriented plugins for Operaton and Camund
 npm install
 npm run watch  # incremental bundles with sourcemaps
 ```
+
+For a full stack, [devenv.nix](devenv.nix) provisions Operaton + PostgreSQL and a Caddy reverse proxy on
+port 8000 that serves `*-config.js` and the bundles straight from the repository root, falling back to the
+webapp's own assets. With `make up` (`devenv up`) running alongside `npm run watch`, a page refresh picks up
+each rebuild.
 
 ### Scripts
 - `npm run watch` – Development build with file watching and sourcemaps
@@ -239,7 +302,18 @@ The project uses strict static analysis optimized for LLM coding agent maintaina
 
 ### Tasklist
 - Plugins listed in [tasklist-config.js](tasklist-config.js) are loaded by Tasklist
-- Copy `tasklist-config.js` and `tasklist-audit-log.js` into the scripts directory
+- Copy `tasklist-config.js` (as `config.js`) plus `tasklist-audit-log.js` and `tasklist-nologin.js` into the scripts directory
+
+### Admin and Welcome
+- [admin-config.js](admin-config.js) loads `admin-nologin.js` and `admin-route-authorization.js`
+- [welcome-config.js](welcome-config.js) loads `welcome-nologin.js`
+- Each is copied into the corresponding webapp's scripts directory as `config.js`
+
+### Docker
+- The [Dockerfile](Dockerfile) fetches this repository at `PLUGINS_REF`, lays the bundles and the four
+  configs into an overlay, and `zip -u`s them into Operaton's `operaton-webapp-webjar-*.jar` /
+  `operaton-webapp-*.war`. When you add or remove a shipped plugin, update **both** the relevant `*config.js`
+  **and** the Dockerfile's `cp` list, or the image and the config will disagree.
 
 ### Requirements
 - Plugins expect Operaton/Camunda REST endpoints available via `api.engineApi` and related fields passed by Cockpit
@@ -251,11 +325,14 @@ See [README.md](README.md) for detailed deployment instructions including Spring
 - History overlays and sequence-flow coloring rely on completed activities; gateways use a deny-list to avoid highlighting inactive branches.
 - User preferences (auto-refresh, badges, pane sizes, sequence-flow toggle) persist in `localStorage` under `minimal-history-plugin` and can also be influenced via URL query hash parameters.
 - Filtering UIs build REST queries; date filters use `startedAfter`/`finishedBefore` in UTC with millisecond precision.
+- Favourited definitions live in `localStorage` under `minimal-history-plugin-favourites` and are written by `dashboard-favourites` but also *read* by `dashboard-integrations` (favourites-only filter, on by default). Changing that key breaks both plugins.
 
 ## Extending safely
 - Follow the existing plugin export shape (array of `pluginPoint` definitions) and keep DOM side effects contained; several plugins reuse portals to ensure long-lived nodes.
 - Reuse helpers: fetch data with [src/utils/api.ts](src/utils/api.ts) to inherit CSRF handling and history pagination limits; render BPMN overlays through [src/utils/bpmn.ts](src/utils/bpmn.ts) when adding diagram visuals.
 - Keep UI pieces inside [src/Components/](src/Components/) to share styles and behavior; SCSS may be colocated and will be inlined by Rollup.
+- Adding a new shipped plugin means four places, not one: `src/`, [rollup.config.mjs](rollup.config.mjs), the relevant `*config.js`, and the [Dockerfile](Dockerfile) `cp` list.
+- Anything that mutates engine state at scale is subject to [Dangerous operations and dry runs](#dangerous-operations-and-dry-runs) — dry run, visible payload, and a `WarningBox` scoped honestly.
 
 ### Portal usage patterns
 
@@ -300,6 +377,46 @@ Used in: `definition-historic-activities.tsx`, `instance-route-history.tsx`
 ```
 Used in: `instance-historic-activities.tsx` via `InstanceDiagramHistoricActivities`
 
+## Dangerous operations and dry runs
+
+Several plugins fire operations that can affect thousands of running process instances at once and cannot be
+undone: batch modification, asynchronous message correlation, engine-wide signal broadcast, external task
+retry/unlock, process restart, and authorization changes. Treat every one of these as a destructive action.
+
+The rule for anything with such a blast radius:
+
+1. **It must have a dry run.** The user gets to look before they leap.
+2. **The dry run must show the request the real run would send** — HTTP method, endpoint, and the full JSON
+   body, exactly as it would be serialized — in addition to the affected instances. Showing only a count and a
+   sample of instance IDs is not enough: the payload is where the real damage is decided (which instructions,
+   which variables and their types, `skipCustomListeners` / `skipIoMappings`, whether the target is
+   `processInstanceIds` or an open-ended `processInstanceQuery`). A user cannot sanity-check an operation they
+   cannot see.
+3. **It must carry a `WarningBox`** stating the scope in plain words, especially when the scope is wider than
+   the view the user is standing in (e.g. `BatchSignalForm` broadcasts engine-wide, not just to this
+   definition).
+
+Current state, and the gap to close:
+
+| Form | Dry run | Shows affected instances | Shows POST payload |
+|------|---------|--------------------------|--------------------|
+| [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx) (`POST /modification/executeAsync`) | "Dry Run" button | yes | **no — to be added** |
+| [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx) (`POST /process-instance/message-async`, `POST /message`) | "Preview Instances" button | yes | **no — to be added** |
+| [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx) (`POST /signal`) | "Preview Instances" button | yes, but only for the current definition while the broadcast is engine-wide | **no — to be added** |
+
+The per-instance actions — external task retry/unlock ([instance-action-unlock.tsx](src/instance-action-unlock.tsx),
+[dashboard-integrations.tsx](src/dashboard-integrations.tsx)) and restart
+([RestartProcessForm.tsx](src/Components/RestartProcessForm.tsx)) — act on an explicit selection the user can
+see in a table, which satisfies rule 1 for them. They still send a body worth showing, so if you touch them,
+surface it too.
+
+When adding the payload preview, build it from the *same* code path that builds the real request body — do not
+write a second, parallel "what we would send" serializer, or the preview will drift from reality and become
+worse than no preview at all. Extract the body builder into a pure function, render it with
+`JSON.stringify(payload, null, 2)`, and pass the same value to `post()`. The natural home for the shared
+rendering is [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx), which today only renders the
+instance list and is not yet used by all three forms.
+
 ## Testing
 
 The project uses Jest with React Testing Library for unit and integration tests. Run tests with:
@@ -310,7 +427,9 @@ npm run test:coverage # Generate coverage report
 npm run test:ci       # Run in CI mode with coverage
 ```
 
-**Current coverage:** ~60% statements, ~40% branches, ~55% functions, ~60% lines (495 passing tests)
+Coverage moves with every change, so this document does not pin exact numbers — run `npm run test:coverage`
+for the current figures. The enforced floor lives in [jest.config.js](jest.config.js) (see
+[Coverage thresholds](#coverage-thresholds)); keep changes at or above it.
 
 ### Test organization
 - `src/__tests__/` – Integration tests for plugins and API
@@ -328,6 +447,47 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
 **Note:** End-to-end testing is intentionally skipped. The plugins integrate with Operaton/Camunda Cockpit's Angular-based runtime environment, making browser automation setup complex. The unit and integration tests provide sufficient coverage for the React components and API interactions.
 
 ## Known issues and fixes
-- **react-select-filter-box installed from git**: The package is installed from GitHub and built during postinstall because there are no npm releases. The postinstall script clones the repo, applies patches for TypeScript errors, builds the library, and creates a symlink for the CSS file.
-- **TypeScript warnings with react-select-filter-box**: The package bundles its own `@types/react` which conflicts with the project's React types. [src/Components/FilterBox.tsx](src/Components/FilterBox.tsx) casts the component to a local type to bypass this incompatibility.
+
+- **Definition-level message sending is half-broken.** In the `Message` tab of `definition-tab-modify`
+  ([BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx)) the selected BPMN message drives two very
+  different code paths, and only one of them is finished:
+  - *Intermediate/boundary message* — correlates asynchronously to **every** active instance of the
+    definition (`POST /process-instance/message-async` with `processInstanceQuery: { processDefinitionId }`).
+    The "Preview Instances" button queries the same set, but there is no way to narrow it: no filter, no
+    per-instance selection, no business-key or variable-based targeting. It is all instances of the
+    definition or nothing, even though the form presents itself as targeting a set.
+  - *Message start event* — falls back to `POST /message` with just `messageName` and `processVariables`,
+    starting a single new instance. The targeting UI is hidden but the surrounding "batch" framing still
+    applies, and unlike the single-instance
+    [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx) it offers **no business key**
+    field, so the caller cannot identify or later find the instance it just started.
+
+  Fixing this means deciding what the tab is for and making both paths honour it: real target selection
+  (instance query/selection reusing `BatchModifyForm`'s instance-selection UI) for correlation, and parity
+  with `MessageCorrelationForm` — business key included — for the start-event path. Until then, do not
+  describe this feature as working in user-facing docs.
+
+- **Dry runs do not show the request payload.** See
+  [Dangerous operations and dry runs](#dangerous-operations-and-dry-runs). All three batch forms preview
+  *which* instances would be hit but never *what* would be sent to them; the payload preview is the missing
+  half and should be added to each.
+
+- **`DryRunResultPreview` is not used consistently.** [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx)
+  exists as the shared preview component, but `BatchModifyForm`, `BatchMessageForm` and `BatchSignalForm`
+  each still inline their own near-identical copy of the same markup. Consolidate on the component when you
+  next touch these forms — it is also where the payload preview belongs.
+
+- **`BatchSignalForm` preview understates the blast radius.** `POST /signal` broadcasts engine-wide to every
+  matching signal catch event in every deployed definition, but the preview only lists instances of the
+  current definition. The `WarningBox` says so in words; the preview still does not.
+
+- **react-select-filter-box installed from git**: The package has no npm releases and is pinned to a commit
+  of `github:jyukopla/react-select-filter-box` in [package.json](package.json). Bumping it means moving the
+  commit hash, and there is no changelog to consult.
+
+- **TypeScript warnings with react-select-filter-box**: The package bundles its own `@types/react` which conflicts with the project's React types. [src/Components/FilterBox.tsx](src/Components/FilterBox.tsx) casts the component to a local type to bypass this incompatibility. Jest sidesteps it entirely with a mock at [src/__mocks__/react-select-filter-box.tsx](src/__mocks__/react-select-filter-box.tsx).
+
+- **[README.md](README.md) `config.js` snippet is out of date**: it still lists `decisions-dashboard.js` and
+  omits `dashboard-favourites.js`, `dashboard-integrations.js` and `cockpit-custom-styles.js`. Treat the real
+  [config.js](config.js) and the [Dockerfile](Dockerfile) as the source of truth.
 
