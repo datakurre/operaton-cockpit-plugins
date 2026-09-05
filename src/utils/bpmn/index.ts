@@ -10,11 +10,11 @@
  */
 
 // Connection analysis utilities
-export { getConnections, getDottedConnections, getMid } from './connections';
-export type { DottedConnection, XY } from './connections';
+export { countTraversals, getDottedConnections, getExecutedConnections, getMid } from './connections';
+export type { ConnectionElement, DottedConnection, ExecutedConnection, XY } from './connections';
 
 // Overlay rendering utilities
 export { renderActivities } from './overlays';
 
 // SVG rendering utilities
-export { clearSequenceFlow, renderSequenceFlow } from './svg';
+export { clearSequenceFlow, getStrokeWidth, renderSequenceFlow } from './svg';

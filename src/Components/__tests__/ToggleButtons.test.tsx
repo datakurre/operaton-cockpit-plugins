@@ -144,6 +144,16 @@ describe('ToggleSequenceFlowButton', () => {
     expect(onToggle).toHaveBeenCalledWith(false);
   });
 
+  it('should warn in its label when the path came from a truncated history', () => {
+    const onToggle = jest.fn();
+    render(<ToggleSequenceFlowButton onToggleSequenceFlow={onToggle} partial />);
+
+    // The warning has to reach screen readers, not only the icon colour.
+    expect(
+      screen.getByRole('button', { name: 'Show sequence flow (history truncated — path may be incomplete)' })
+    ).toBeInTheDocument();
+  });
+
   it('should toggle state and call callback when clicked', async () => {
     const user = userEvent.setup();
     const onToggle = jest.fn();
