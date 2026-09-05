@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ToggleSequenceFlowButton } from './ToggleSequenceFlowButton';
 import { BpmnViewerInstance, HistoricActivityInstance, InstancePluginParams } from '../types';
-import { get } from '../utils/api';
+import { getActivityHistoryPage } from '../utils/api';
+import { loadSettings } from '../utils/misc';
 import { clearSequenceFlow, renderActivities, renderSequenceFlow } from '../utils/bpmn';
 
 interface InstanceDiagramHistoricActivitiesProps extends InstancePluginParams {
@@ -18,6 +19,7 @@ export const InstanceDiagramHistoricActivities: React.FC<InstanceDiagramHistoric
   viewer,
 }) => {
   const [activities, setActivities] = useState<HistoricActivityInstance[]>([]);
+  const [isTruncated, setIsTruncated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   // The drawn paths live in a ref rather than in state: the toggle callback has to see
   // its own last write synchronously, or StrictMode's double effect run draws twice and
@@ -29,8 +31,9 @@ export const InstanceDiagramHistoricActivities: React.FC<InstanceDiagramHistoric
     const fetchActivities = async (): Promise<void> => {
       try {
         setIsLoading(true);
-        const data = await get(api, '/history/activity-instance', { processInstanceId });
-        setActivities(data as HistoricActivityInstance[]);
+        const page = await getActivityHistoryPage(api, processInstanceId, loadSettings().maxResults);
+        setActivities(page.activities);
+        setIsTruncated(page.truncated);
       } catch (err) {
         console.error('Failed to fetch historic activities:', err);
       } finally {
@@ -60,21 +63,21 @@ export const InstanceDiagramHistoricActivities: React.FC<InstanceDiagramHistoric
     (value: boolean): void => {
       if (value) {
         if (sequenceFlowRef.current.length === 0) {
-          sequenceFlowRef.current = renderSequenceFlow(viewer, activities);
+          sequenceFlowRef.current = renderSequenceFlow(viewer, activities, { truncated: isTruncated });
         }
       } else if (sequenceFlowRef.current.length > 0) {
         clearSequenceFlow(sequenceFlowRef.current);
         sequenceFlowRef.current = [];
       }
     },
-    [viewer, activities]
+    [viewer, activities, isTruncated]
   );
 
   if (isLoading) {
     return null;
   }
 
-  return <ToggleSequenceFlowButton onToggleSequenceFlow={handleToggleSequenceFlow} />;
+  return <ToggleSequenceFlowButton onToggleSequenceFlow={handleToggleSequenceFlow} partial={isTruncated} />;
 };
 
 export default InstanceDiagramHistoricActivities;

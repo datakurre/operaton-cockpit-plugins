@@ -62,14 +62,20 @@ export const getStrokeWidth = (count: number): number => {
 };
 
 /**
- * Adds a native tooltip naming the exact traversal count, since the stroke width only
- * shows it approximately and saturates at the cap.
+ * Adds a native tooltip naming the traversal count, since the stroke width only shows
+ * it approximately and saturates at the cap.
  * @param path - The path element to describe
  * @param count - Number of times the flow was traversed
+ * @param truncated - Whether the history it was counted from was cut short, making
+ *   every count a lower bound rather than the real figure
  */
-function appendTraversalTitle(path: SVGElement, count: number): void {
+function appendTraversalTitle(path: SVGElement, count: number, truncated: boolean): void {
   const title = svgCreate('title');
-  title.textContent = count === 1 ? 'Executed once' : `Executed ${count} times`;
+  if (truncated) {
+    title.textContent = count === 1 ? 'Executed at least once' : `Executed at least ${count} times`;
+  } else {
+    title.textContent = count === 1 ? 'Executed once' : `Executed ${count} times`;
+  }
   svgAppend(path, title);
 }
 
@@ -105,18 +111,30 @@ function resolveDefs(canvas: Canvas): SVGElement {
   return defs;
 }
 
+/** Options for rendering the executed path. */
+export interface RenderSequenceFlowOptions {
+  /**
+   * Whether the activity history was cut short. The path is then complete only up to
+   * the point the records stop, and every count is a lower bound.
+   */
+  truncated?: boolean;
+}
+
 /**
  * Renders sequence flow highlighting on the BPMN diagram based on historic activities.
  * Draws colored arrows showing the execution path through the process, weighted by how
  * often each flow was traversed.
  * @param viewer - The BPMN viewer instance
  * @param activities - Historic activity instances to visualize
+ * @param options - Rendering options
  * @returns Array of SVG elements that were added (for later cleanup)
  */
 export const renderSequenceFlow = (
   viewer: BpmnViewerInstance,
-  activities: HistoricActivityInstance[]
+  activities: HistoricActivityInstance[],
+  options: RenderSequenceFlowOptions = {}
 ): SVGElement[] => {
+  const isTruncated = options.truncated === true;
   const registry = viewer.get('elementRegistry') as ElementRegistry;
   const canvas = viewer.get('canvas') as Canvas;
   const layer = canvas.getLayer('processInstance', 1);
@@ -135,7 +153,7 @@ export const renderSequenceFlow = (
       strokeWidth: getStrokeWidth(count),
     });
     svgAttr(curve, { class: EXECUTED_PATH_CLASS });
-    appendTraversalTitle(curve, count);
+    appendTraversalTitle(curve, count, isTruncated);
     svgAppend(layer, curve);
     paths.push(curve);
   }
@@ -149,7 +167,7 @@ export const renderSequenceFlow = (
       strokeWidth: getStrokeWidth(count),
     });
     svgAttr(curve, { class: EXECUTED_PATH_CLASS });
-    appendTraversalTitle(curve, count);
+    appendTraversalTitle(curve, count, isTruncated);
     svgAppend(layer, curve);
     paths.push(curve);
   }
