@@ -287,29 +287,41 @@ describe('utils/bpmn/connections', () => {
       expect((shapes['Gateway_1'] as FakeShape).outgoing.map(flow => flow.id)).toEqual(['Flow_A', 'Flow_B']);
     });
 
-    it('drops a canceled event-based gateway branch and keeps the one that fired', () => {
-      // An event-based gateway's branches all start together, so their start times
-      // cannot tell the winner from the losers. What separates them is cancelation,
-      // which the canceled-activity rule already handles — no gateway-specific
-      // narrowing is applied. See issue #66.
+    it('draws only the winning branch of an event-based gateway, and draws it', () => {
+      // These records mirror what Operaton 2.2.0 actually writes: nothing at all for
+      // the branch that lost, and canceled: true on the gateway itself even though the
+      // token passed through it. The gateway escape in isCanceled is what keeps the
+      // winning branch from being dropped along with the loser.
       const { registry } = buildGraph(
-        [{ id: 'Gateway_1', type: 'bpmn:EventBasedGateway' }, { id: 'Event_Message' }, { id: 'Event_Timer' }],
         [
-          { id: 'Flow_Message', source: 'Gateway_1', target: 'Event_Message' },
+          { id: 'Start_1', type: 'bpmn:StartEvent' },
+          { id: 'Gateway_1', type: 'bpmn:EventBasedGateway' },
+          { id: 'Event_Msg' },
+          { id: 'Event_Timer' },
+          { id: 'End_Msg', type: 'bpmn:EndEvent' },
+          { id: 'End_Timer', type: 'bpmn:EndEvent' },
+        ],
+        [
+          { id: 'Flow_1', source: 'Start_1', target: 'Gateway_1' },
+          { id: 'Flow_Msg', source: 'Gateway_1', target: 'Event_Msg' },
           { id: 'Flow_Timer', source: 'Gateway_1', target: 'Event_Timer' },
+          { id: 'Flow_MsgEnd', source: 'Event_Msg', target: 'End_Msg' },
+          { id: 'Flow_TimerEnd', source: 'Event_Timer', target: 'End_Timer' },
         ]
       );
 
       const connections = getExecutedConnections(
         [
-          activity('Gateway_1', 1, 1, { activityType: 'eventBasedGateway' }),
-          activity('Event_Timer', 2, 3, { activityType: 'intermediateTimer' }),
-          activity('Event_Message', 2, 3, { activityType: 'intermediateMessageCatch', canceled: true }),
+          activity('Start_1', 1, 1, { activityType: 'startEvent' }),
+          activity('Gateway_1', 1, 1, { activityType: 'eventBasedGateway', canceled: true }),
+          activity('Event_Msg', 1, 1, { activityType: 'intermediateMessageCatch' }),
+          activity('End_Msg', 1, 1, { activityType: 'noneEndEvent' }),
+          // No record for Event_Timer: the engine writes none for the losing branch.
         ],
         registry
       );
 
-      expect(countsById(connections)).toEqual({ Flow_Timer: 1 });
+      expect(countsById(connections)).toEqual({ Flow_1: 1, Flow_Msg: 1, Flow_MsgEnd: 1 });
     });
 
     it('keeps every branch an inclusive gateway fired on one execution', () => {
