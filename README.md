@@ -43,6 +43,7 @@ deploy them without running the build.
 | Bundle | Where it appears | What it does |
 |--------|------------------|--------------|
 | `admin-route-authorization.js` | Admin route *Authorizations* | Two-panel authorization browser with create, edit and delete, filtering, and a "check resources" pass that flags authorizations pointing at resources that no longer exist |
+| `admin-custom-styles.js` | — | Injects custom stylesheets and Bootstrap regression patches for Admin UI |
 | `admin-nologin.js` | — | Hides the signin form (see [No-login plugins](#no-login-plugins)) |
 
 ### Tasklist
@@ -50,7 +51,15 @@ deploy them without running the build.
 | Bundle | Where it appears | What it does |
 |--------|------------------|--------------|
 | `tasklist-audit-log.js` | Task detail tab *Audit Log* | Audit log of the process instance the task belongs to |
+| `tasklist-custom-styles.js` | — | Injects custom stylesheets and Bootstrap regression patches for Tasklist UI |
 | `tasklist-nologin.js` | — | Hides the signin form |
+
+### Welcome
+
+| Bundle | Where it appears | What it does |
+|--------|------------------|--------------|
+| `welcome-custom-styles.js` | — | Injects custom stylesheets and Bootstrap regression patches for Welcome UI |
+| `welcome-nologin.js` | — | Hides the signin form |
 
 ### No-login plugins
 

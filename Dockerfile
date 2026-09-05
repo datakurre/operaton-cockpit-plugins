@@ -20,8 +20,8 @@ RUN curl -sL "${PLUGINS_REPO}/archive/refs/heads/${PLUGINS_REF}.tar.gz" \
 
 WORKDIR /overlay/META-INF/resources/webjars/operaton/app
 
-# 1. Copy plugin scripts for Cockpit, Admin, and Tasklist
-RUN mkdir -p cockpit/scripts admin/scripts tasklist/scripts && \
+# 1. Copy plugin scripts for Cockpit, Admin, Tasklist, and Welcome
+RUN mkdir -p cockpit/scripts admin/scripts tasklist/scripts welcome/scripts && \
     cp /tmp/plugins-src/cockpit-custom-styles.js \
        /tmp/plugins-src/dashboard-favourites.js \
        /tmp/plugins-src/dashboard-integrations.js \
@@ -36,14 +36,20 @@ RUN mkdir -p cockpit/scripts admin/scripts tasklist/scripts && \
        cockpit/scripts/ && \
     cp /tmp/plugins-src/admin-route-authorization.js \
        /tmp/plugins-src/admin-nologin.js \
+       /tmp/plugins-src/admin-custom-styles.js \
        admin/scripts/ && \
     cp /tmp/plugins-src/tasklist-audit-log.js \
        /tmp/plugins-src/tasklist-nologin.js \
-       tasklist/scripts/
+       /tmp/plugins-src/tasklist-custom-styles.js \
+       tasklist/scripts/ && \
+    cp /tmp/plugins-src/welcome-nologin.js \
+       /tmp/plugins-src/welcome-custom-styles.js \
+       welcome/scripts/
 
 # 2. Copy webapp configurations from repository
 RUN cp /tmp/plugins-src/admin-config.js admin/scripts/config.js && \
     cp /tmp/plugins-src/tasklist-config.js tasklist/scripts/config.js && \
+    cp /tmp/plugins-src/welcome-config.js welcome/scripts/config.js && \
     cp /tmp/plugins-src/config.js cockpit/scripts/config.js
 
 # Ensure Cockpit config strictly references plugins from operaton-cockpit-plugins
@@ -77,7 +83,8 @@ RUN cd /overlay && \
         zip -u "$jar" \
           META-INF/resources/webjars/operaton/app/cockpit/scripts/* \
           META-INF/resources/webjars/operaton/app/admin/scripts/* \
-          META-INF/resources/webjars/operaton/app/tasklist/scripts/*; \
+          META-INF/resources/webjars/operaton/app/tasklist/scripts/* \
+          META-INF/resources/webjars/operaton/app/welcome/scripts/*; \
       fi; \
     done && \
     for war in /operaton/internal/webapps/operaton-webapp-*.war; do \
@@ -86,7 +93,8 @@ RUN cd /overlay && \
         zip -u "$war" \
           app/cockpit/scripts/* \
           app/admin/scripts/* \
-          app/tasklist/scripts/*; \
+          app/tasklist/scripts/* \
+          app/welcome/scripts/*; \
       fi; \
     done && \
     rm -rf /overlay && \
