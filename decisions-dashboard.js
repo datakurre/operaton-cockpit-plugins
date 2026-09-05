@@ -46618,12 +46618,14 @@ var loadSettings = function () {
     var autoRefreshParam = parsed['autoRefresh'];
     var showHistoricBadgesParam = parsed['showHistoricBadges'];
     var showSequenceFlowParam = parsed['showSequenceFlow'];
+    var showHeatmapParam = parsed['showHeatmap'];
     var maxResultsParam = parsed['maxResults'];
     var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
     return {
         autoRefresh: raw.autoRefresh === true || autoRefreshParam !== undefined,
         showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
         showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
+        showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
         leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
         topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
         maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
