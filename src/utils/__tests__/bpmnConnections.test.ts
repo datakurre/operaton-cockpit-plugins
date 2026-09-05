@@ -287,6 +287,56 @@ describe('utils/bpmn/connections', () => {
       expect((shapes['Gateway_1'] as FakeShape).outgoing.map(flow => flow.id)).toEqual(['Flow_A', 'Flow_B']);
     });
 
+    it('drops a canceled event-based gateway branch and keeps the one that fired', () => {
+      // An event-based gateway's branches all start together, so their start times
+      // cannot tell the winner from the losers. What separates them is cancelation,
+      // which the canceled-activity rule already handles — no gateway-specific
+      // narrowing is applied. See issue #66.
+      const { registry } = buildGraph(
+        [{ id: 'Gateway_1', type: 'bpmn:EventBasedGateway' }, { id: 'Event_Message' }, { id: 'Event_Timer' }],
+        [
+          { id: 'Flow_Message', source: 'Gateway_1', target: 'Event_Message' },
+          { id: 'Flow_Timer', source: 'Gateway_1', target: 'Event_Timer' },
+        ]
+      );
+
+      const connections = getExecutedConnections(
+        [
+          activity('Gateway_1', 1, 1, { activityType: 'eventBasedGateway' }),
+          activity('Event_Timer', 2, 3, { activityType: 'intermediateTimer' }),
+          activity('Event_Message', 2, 3, { activityType: 'intermediateMessageCatch', canceled: true }),
+        ],
+        registry
+      );
+
+      expect(countsById(connections)).toEqual({ Flow_Timer: 1 });
+    });
+
+    it('keeps every branch an inclusive gateway fired on one execution', () => {
+      // Inclusive gateways may fire several branches at once, so they are deliberately
+      // left to the generic pairing rather than narrowed to a single branch.
+      const { registry } = buildGraph(
+        [{ id: 'Gateway_1', type: 'bpmn:InclusiveGateway' }, { id: 'Task_A' }, { id: 'Task_B' }, { id: 'Task_Never' }],
+        [
+          { id: 'Flow_A', source: 'Gateway_1', target: 'Task_A' },
+          { id: 'Flow_B', source: 'Gateway_1', target: 'Task_B' },
+          { id: 'Flow_Never', source: 'Gateway_1', target: 'Task_Never' },
+        ]
+      );
+
+      const connections = getExecutedConnections(
+        [
+          activity('Gateway_1', 1, 1, { activityType: 'inclusiveGateway' }),
+          activity('Task_A', 2, 3),
+          activity('Task_B', 2, 4),
+        ],
+        registry
+      );
+
+      // Both fired branches are drawn; the branch that never ran is not.
+      expect(countsById(connections)).toEqual({ Flow_A: 1, Flow_B: 1 });
+    });
+
     it('counts every traversal of a loop', () => {
       const { registry } = buildGraph(
         [{ id: 'Task_A' }, { id: 'Task_B' }],
