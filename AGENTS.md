@@ -85,7 +85,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [ViewerService.ts](src/services/ViewerService.ts): BPMN viewer abstraction with interfaces for overlays, element registry, and canvas operations
 
 ### Shared utilities (`src/utils/`)
-- [api.ts](src/utils/api.ts): API helpers and CSRF-aware fetch wrappers. Everything that talks to the engine goes through these — they carry the CSRF header, normalise `api.engine`, raise `ApiError`, and route through the injectable fetch the tests replace. `get` also takes an abort signal, for callers that supersede their own requests
+- [api.ts](src/utils/api.ts): API helpers and CSRF-aware fetch wrappers. `getActivityHistoryPage()` bounds the activity history the diagram is drawn from, asking for one record more than it keeps so it can report `truncated` without a second count request, and sorting oldest-first so a bounded response is a chronological prefix rather than an arbitrary subset. Everything that talks to the engine goes through these — they carry the CSRF header, normalise `api.engine`, raise `ApiError`, and route through the injectable fetch the tests replace. `get` also takes an abort signal, for callers that supersede their own requests
 - [angular.ts](src/utils/angular.ts): Angular service abstraction for testability (route reloading)
 - [authorization.ts](src/utils/authorization.ts): Authorization types, constants (AUTH_TYPES, RESOURCE_TYPES, PERMISSIONS_BY_RESOURCE), and helper functions for admin authorization management
 - [bpmn.ts](src/utils/bpmn.ts): Re-exports from `bpmn/` submodule for backwards compatibility
