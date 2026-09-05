@@ -5,7 +5,7 @@
  * @module
  */
 import { filter, forEach, map, uniqueBy } from 'min-dash';
-import type BPMNModdle from 'bpmn-moddle';
+import type * as BPMNModdle from 'bpmn-moddle';
 
 type Activity = BPMNModdle.Activity;
 type Bounds = BPMNModdle.Bounds;

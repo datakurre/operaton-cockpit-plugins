@@ -1,5 +1,5 @@
 import { is } from 'bpmn-js/lib/util/ModelUtil';
-import type BPMNModdle from 'bpmn-moddle';
+import type * as BPMNModdle from 'bpmn-moddle';
 import BaseRenderer from 'diagram-js/lib/draw/BaseRenderer';
 
 type BaseElement = BPMNModdle.BaseElement;

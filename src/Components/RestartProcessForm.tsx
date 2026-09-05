@@ -47,8 +47,12 @@ interface RestartProcessFormProps {
  * @returns The termination type category
  */
 function deriveTerminationType(state: string): 'external' | 'internal' | 'completed' {
-  if (state.includes('EXTERNALLY_TERMINATED')) { return 'external'; }
-  if (state.includes('INTERNALLY_TERMINATED')) { return 'internal'; }
+  if (state.includes('EXTERNALLY_TERMINATED')) {
+    return 'external';
+  }
+  if (state.includes('INTERNALLY_TERMINATED')) {
+    return 'internal';
+  }
   return 'completed';
 }
 
