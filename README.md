@@ -307,10 +307,10 @@ These are current gaps, not bugs to report:
 
 * **The executed path is inferred, not reported.** The engine records which activities ran, never which
   sequence flows were taken, so the green path is reconstructed from activity timestamps. Exclusive
-  gateways are resolved to the branch taken on each pass. Inclusive gateways use the plain rule, which
-  handles them correctly — every branch that fired is drawn, one that never ran is not. Event-based
-  gateways rely on the losing branches being recorded as canceled; where they are not, more branches
-  may be drawn than were really taken.
+  gateways are resolved to the branch taken on each pass. Inclusive and event-based gateways use the
+  plain rule, which handles them: an inclusive gateway draws every branch that fired and not the ones
+  that did not, and for an event-based gateway the engine records nothing at all for the branches that
+  lost, so only the winner is drawn.
 
 * **A long instance is drawn from a partial history.** The activity history behind the diagram is
   bounded by `maxResults`, oldest first, so an instance with more activity records than that is drawn
