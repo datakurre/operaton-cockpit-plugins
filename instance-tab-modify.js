@@ -4573,10 +4573,18 @@ function getMaxResultsParam() {
 var ApiError = /** @class */ (function (_super) {
     __extends(ApiError, _super);
     /**
-     *
+     * @param message - Human readable error message, from the engine where it sends one
+     * @param status - HTTP status code of the response
+     * @param body - Parsed response body
+     * @param path - API endpoint path that produced the error
      */
     function ApiError(message, status, body, path) {
         var _this = _super.call(this, message) || this;
+        // Required while the build targets ES5: the downlevel of `extends Error` loses the
+        // prototype link, which silently makes every `err instanceof ApiError` false. Without
+        // this line the status checks throughout the plugins never match. Safe to keep at any
+        // target, and harmless once the target is raised.
+        Object.setPrototypeOf(_this, ApiError.prototype);
         _this.name = 'ApiError';
         _this.status = status;
         _this.body = body;
@@ -4625,10 +4633,11 @@ function parseResponseBody(res) {
  * @param api - The API configuration object
  * @param path - The API endpoint path
  * @param params - Optional query parameters
+ * @param options - Optional per-request options, such as an abort signal
  * @returns Promise resolving to the response data
  * @throws {ApiError} When the response status is not 2xx
  */
-var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0, function () {
+var get = function (api, path, params, options) { return __awaiter(void 0, void 0, void 0, function () {
     var splitResult, query, url, res, body, message;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -4646,10 +4655,7 @@ var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0
                 }
                 query = new URLSearchParams(params).toString();
                 url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
-                return [4 /*yield*/, fetchFn(url, {
-                        method: 'get',
-                        headers: headers(api),
-                    })];
+                return [4 /*yield*/, fetchFn(url, __assign({ method: 'get', headers: headers(api) }, ({})))];
             case 1:
                 res = _a.sent();
                 return [4 /*yield*/, parseResponseBody(res)];
@@ -15089,7 +15095,8 @@ var ModifyForm = function (_a) {
     var _g = reactExports.useState(true), isLoading = _g[0], setIsLoading = _g[1];
     var _h = reactExports.useState(false), isSubmitted = _h[0], setIsSubmitted = _h[1];
     var _j = reactExports.useState(null), error = _j[0], setError = _j[1];
-    var _k = reactExports.useState(null), actualProcessDefId = _k[0], setActualProcessDefId = _k[1];
+    var _k = reactExports.useState(null), successMessage = _k[0], setSuccessMessage = _k[1];
+    var _l = reactExports.useState(null), actualProcessDefId = _l[0], setActualProcessDefId = _l[1];
     var methods = useForm({
         defaultValues: {
             instructions: [{ type: 'startBeforeActivity', activityId: '', variables: [] }],
@@ -15099,10 +15106,10 @@ var ModifyForm = function (_a) {
         },
     });
     var control = methods.control, handleSubmit = methods.handleSubmit;
-    var _l = useFieldArray({
+    var _m = useFieldArray({
         control: control,
         name: 'instructions',
-    }), fields = _l.fields, append = _l.append, remove = _l.remove;
+    }), fields = _m.fields, append = _m.append, remove = _m.remove;
     reactExports.useEffect(function () {
         var loadActivities = function () { return __awaiter(void 0, void 0, void 0, function () {
             var defId, instanceData, _a, activities_1, sequenceFlows_1, unfinishedActivityInstances, allActiveInstances, counts_1, _err_1, errorMessage;
@@ -15183,6 +15190,7 @@ var ModifyForm = function (_a) {
                     _a.trys.push([0, 2, , 3]);
                     setIsSubmitted(true);
                     setError(null);
+                    setSuccessMessage(null);
                     payload = {
                         skipCustomListeners: data.skipCustomListeners,
                         skipIoMappings: data.skipIoMappings,
@@ -15223,8 +15231,7 @@ var ModifyForm = function (_a) {
                     return [4 /*yield*/, post(api, "/process-instance/".concat(processInstanceId, "/modification"), {}, JSON.stringify(payload))];
                 case 1:
                     _a.sent();
-                    // Show success message instead of immediate refresh
-                    setError('Process instance modified successfully! The page will refresh to show updates.');
+                    setSuccessMessage('Process instance modified successfully! The page will refresh to show updates.');
                     setIsSubmitted(false);
                     // Delay refresh to allow user to see success message
                     setTimeout(function () {
@@ -15271,8 +15278,8 @@ var ModifyForm = function (_a) {
                     }, minWidth: 140 }, "Add Another Instruction")),
             React.createElement(ModifyFormOptions, null),
             React.createElement(WarningBox, null, "Process instance modification is a powerful operation that can lead to inconsistent process states. Use with extreme care and only if you understand the consequences."),
-            error &&
-                (error.includes('successfully') ? React.createElement(SuccessMessage, { message: error }) : React.createElement(ErrorMessage, { message: error })),
+            error !== null && React.createElement(ErrorMessage, { message: error }),
+            successMessage !== null && React.createElement(SuccessMessage, { message: successMessage }),
             React.createElement(FormButton, { type: "submit", disabled: isSubmitted, variant: "primary", minWidth: 160 }, isSubmitted ? 'Modifying...' : 'Apply Modifications'))));
 };
 var ModifyTab = function (props) {

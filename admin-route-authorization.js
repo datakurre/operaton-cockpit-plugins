@@ -2738,10 +2738,18 @@ function clearApiCache() {
 var ApiError = /** @class */ (function (_super) {
     __extends(ApiError, _super);
     /**
-     *
+     * @param message - Human readable error message, from the engine where it sends one
+     * @param status - HTTP status code of the response
+     * @param body - Parsed response body
+     * @param path - API endpoint path that produced the error
      */
     function ApiError(message, status, body, path) {
         var _this = _super.call(this, message) || this;
+        // Required while the build targets ES5: the downlevel of `extends Error` loses the
+        // prototype link, which silently makes every `err instanceof ApiError` false. Without
+        // this line the status checks throughout the plugins never match. Safe to keep at any
+        // target, and harmless once the target is raised.
+        Object.setPrototypeOf(_this, ApiError.prototype);
         _this.name = 'ApiError';
         _this.status = status;
         _this.body = body;
@@ -2810,10 +2818,11 @@ function parseResponseBody(res) {
  * @param api - The API configuration object
  * @param path - The API endpoint path
  * @param params - Optional query parameters
+ * @param options - Optional per-request options, such as an abort signal
  * @returns Promise resolving to the response data
  * @throws {ApiError} When the response status is not 2xx
  */
-var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0, function () {
+var get = function (api, path, params, options) { return __awaiter(void 0, void 0, void 0, function () {
     var splitResult, query, url, res, body, message;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -2831,10 +2840,7 @@ var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0
                 }
                 query = new URLSearchParams(params).toString();
                 url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
-                return [4 /*yield*/, fetchFn(url, {
-                        method: 'get',
-                        headers: headers(api),
-                    })];
+                return [4 /*yield*/, fetchFn(url, __assign({ method: 'get', headers: headers(api) }, ((options === null || options === void 0 ? void 0 : options.signal) ? { signal: options.signal } : {})))];
             case 1:
                 res = _a.sent();
                 return [4 /*yield*/, parseResponseBody(res)];
@@ -7126,6 +7132,41 @@ ___$insertStylesToHeader("/**\n * Date picker widget styles\n *\n * Styles for t
 
 /** HTTP status code for Forbidden */
 var HTTP_FORBIDDEN = 403;
+/**
+ * Run an autocomplete lookup, treating a denied permission as "no suggestions".
+ *
+ * Autocompletion is an optional convenience: a user who may not list groups should still
+ * be able to type a group id by hand rather than see an error.
+ * @param api - The API configuration object
+ * @param path - Engine API path to query
+ * @param params - Query parameters
+ * @param signal - Optional signal aborting a superseded lookup
+ * @param deniedMessage - Logged when the engine denies the lookup
+ * @returns The rows, or an empty array when the lookup is not permitted
+ */
+function lookup(api, path, params, signal, deniedMessage) {
+    return __awaiter(this, void 0, void 0, function () {
+        var rows, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, get(api, path, params, { signal: signal })];
+                case 1:
+                    rows = _a.sent();
+                    return [2 /*return*/, Array.isArray(rows) ? rows : []];
+                case 2:
+                    error_1 = _a.sent();
+                    if (error_1 instanceof ApiError && error_1.status === HTTP_FORBIDDEN) {
+                        console.warn(deniedMessage);
+                        return [2 /*return*/, []];
+                    }
+                    throw error_1;
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
 /** Default debounce delay in milliseconds for autocomplete searches */
 var DEFAULT_DEBOUNCE_MS = 300;
 /**
@@ -7182,11 +7223,13 @@ function createEnumField(key, label, operators, values) {
  * ```typescript
  * const userAutocompleter = createApiAutocompleter(
  *   async (query, api, signal) => {
- *     const response = await fetch(
- *       `${api.engineApi}/user?nameLike=${encodeURIComponent(query)}%`,
- *       { signal, headers: headers(api) }
+ *     const users = await lookup<UserProfileDto>(
+ *       api,
+ *       '/user',
+ *       { nameLike: `${query}%` },
+ *       signal,
+ *       'User search permission denied'
  *     );
- *     const users = await response.json();
  *     return users.map(u => ({ key: u.id, label: u.id }));
  *   },
  *   { api, minChars: 2, maxResults: 10 }
@@ -7264,49 +7307,31 @@ function createUserAutocompleter(api, options) {
     var _this = this;
     var _a, _b, _c, _d;
     return createApiAutocompleter(function (query, apiConfig, signal) { return __awaiter(_this, void 0, void 0, function () {
-        var encodedQuery, headers, searches, results, userMap, _i, results_1, userList, _a, userList_1, user;
+        var encodedQuery, searches, results, userMap, _i, results_1, userList, _a, userList_1, user;
         var _this = this;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     encodedQuery = encodeURIComponent(query);
-                    headers = {
-                        Accept: 'application/json',
-                        'X-XSRF-TOKEN': apiConfig.CSRFToken,
-                    };
                     searches = [
-                        "".concat(apiConfig.engineApi, "/user?firstNameLike=%").concat(encodedQuery, "%"),
-                        "".concat(apiConfig.engineApi, "/user?lastNameLike=%").concat(encodedQuery, "%"),
-                        "".concat(apiConfig.engineApi, "/user?emailLike=%").concat(encodedQuery, "%"),
+                        { firstNameLike: "%".concat(encodedQuery, "%") },
+                        { lastNameLike: "%".concat(encodedQuery, "%") },
+                        { emailLike: "%".concat(encodedQuery, "%") },
                     ];
-                    return [4 /*yield*/, Promise.all(searches.map(function (url) { return __awaiter(_this, void 0, void 0, function () {
-                            var response, error_1;
+                    return [4 /*yield*/, Promise.all(searches.map(function (params) { return __awaiter(_this, void 0, void 0, function () {
+                            var error_2;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        _a.trys.push([0, 3, , 4]);
-                                        return [4 /*yield*/, fetch(url, {
-                                                signal: signal !== null && signal !== void 0 ? signal : null,
-                                                headers: headers,
-                                            })];
-                                    case 1:
-                                        response = _a.sent();
-                                        // Handle permission denied gracefully
-                                        if (response.status === HTTP_FORBIDDEN) {
-                                            console.warn('User search permission denied');
-                                            return [2 /*return*/, []];
-                                        }
-                                        if (!response.ok) {
-                                            throw new Error("User search failed: ".concat(response.status));
-                                        }
-                                        return [4 /*yield*/, response.json()];
-                                    case 2: return [2 /*return*/, (_a.sent())];
-                                    case 3:
-                                        error_1 = _a.sent();
+                                        _a.trys.push([0, 2, , 3]);
+                                        return [4 /*yield*/, lookup(apiConfig, '/user', params, signal, 'User search permission denied')];
+                                    case 1: return [2 /*return*/, _a.sent()];
+                                    case 2:
+                                        error_2 = _a.sent();
                                         // If one search fails, continue with others
-                                        console.warn('User search request failed:', error_1);
+                                        console.warn('User search request failed:', error_2);
                                         return [2 /*return*/, []];
-                                    case 4: return [2 /*return*/];
+                                    case 3: return [2 /*return*/];
                                 }
                             });
                         }); }))];
@@ -7361,31 +7386,12 @@ function createGroupAutocompleter(api, options) {
     var _this = this;
     var _a, _b, _c, _d;
     return createApiAutocompleter(function (query, apiConfig, signal) { return __awaiter(_this, void 0, void 0, function () {
-        var url, response, groups;
+        var groups;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    url = "".concat(apiConfig.engineApi, "/group?nameLike=%").concat(encodeURIComponent(query), "%");
-                    return [4 /*yield*/, fetch(url, {
-                            signal: signal !== null && signal !== void 0 ? signal : null,
-                            headers: {
-                                Accept: 'application/json',
-                                'X-XSRF-TOKEN': apiConfig.CSRFToken,
-                            },
-                        })];
+                case 0: return [4 /*yield*/, lookup(apiConfig, '/group', { nameLike: "%".concat(query, "%") }, signal, 'Group search permission denied')];
                 case 1:
-                    response = _a.sent();
-                    // Handle permission denied gracefully
-                    if (response.status === HTTP_FORBIDDEN) {
-                        console.warn('Group search permission denied');
-                        return [2 /*return*/, []];
-                    }
-                    if (!response.ok) {
-                        throw new Error("Group search failed: ".concat(response.status));
-                    }
-                    return [4 /*yield*/, response.json()];
-                case 2:
-                    groups = (_a.sent());
+                    groups = _a.sent();
                     return [2 /*return*/, groups
                             .filter(function (g) { return g.id; })
                             .map(function (g) {

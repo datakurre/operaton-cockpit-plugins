@@ -3030,6 +3030,1226 @@ function wn(n, e = {}) {
 }
 reactExports.createContext(void 0);
 
+const token = '%[a-f0-9]{2}';
+const singleMatcher = new RegExp('(' + token + ')|([^%]+?)', 'gi');
+const multiMatcher = new RegExp('(' + token + ')+', 'gi');
+
+function decodeComponents(components, split) {
+	try {
+		// Try to decode the entire string first
+		return [decodeURIComponent(components.join(''))];
+	} catch {
+		// Do nothing
+	}
+
+	if (components.length === 1) {
+		return components;
+	}
+
+	split = split || 1;
+
+	// Split the array in 2 parts
+	const left = components.slice(0, split);
+	const right = components.slice(split);
+
+	return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
+}
+
+function decode$1(input) {
+	try {
+		return decodeURIComponent(input);
+	} catch {
+		let tokens = input.match(singleMatcher) || [];
+
+		for (let i = 1; i < tokens.length; i++) {
+			input = decodeComponents(tokens, i).join('');
+
+			tokens = input.match(singleMatcher) || [];
+		}
+
+		return input;
+	}
+}
+
+function customDecodeURIComponent(input) {
+	// Keep track of all the replacements and prefill the map with the `BOM`
+	const replaceMap = {
+		'%FE%FF': '\uFFFD\uFFFD',
+		'%FF%FE': '\uFFFD\uFFFD',
+	};
+
+	let match = multiMatcher.exec(input);
+	while (match) {
+		try {
+			// Decode as big chunks as possible
+			replaceMap[match[0]] = decodeURIComponent(match[0]);
+		} catch {
+			const result = decode$1(match[0]);
+
+			if (result !== match[0]) {
+				replaceMap[match[0]] = result;
+			}
+		}
+
+		match = multiMatcher.exec(input);
+	}
+
+	// Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
+	replaceMap['%C2'] = '\uFFFD';
+
+	const entries = Object.keys(replaceMap);
+
+	for (const key of entries) {
+		// Replace all decoded components
+		input = input.replace(new RegExp(key, 'g'), replaceMap[key]);
+	}
+
+	return input;
+}
+
+function decodeUriComponent(encodedURI) {
+	if (typeof encodedURI !== 'string') {
+		throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
+	}
+
+	try {
+		// Try the built in decoder first
+		return decodeURIComponent(encodedURI);
+	} catch {
+		// Fallback to a more advanced decoder
+		return customDecodeURIComponent(encodedURI);
+	}
+}
+
+function includeKeys(object, predicate) {
+	const result = {};
+
+	if (Array.isArray(predicate)) {
+		for (const key of predicate) {
+			const descriptor = Object.getOwnPropertyDescriptor(object, key);
+			if (descriptor?.enumerable) {
+				Object.defineProperty(result, key, descriptor);
+			}
+		}
+	} else {
+		// `Reflect.ownKeys()` is required to retrieve symbol properties
+		for (const key of Reflect.ownKeys(object)) {
+			const descriptor = Object.getOwnPropertyDescriptor(object, key);
+			if (descriptor.enumerable) {
+				const value = object[key];
+				if (predicate(key, value, object)) {
+					Object.defineProperty(result, key, descriptor);
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+function splitOnFirst(string, separator) {
+	if (!(typeof string === 'string' && typeof separator === 'string')) {
+		throw new TypeError('Expected the arguments to be of type `string`');
+	}
+
+	if (string === '' || separator === '') {
+		return [];
+	}
+
+	const separatorIndex = string.indexOf(separator);
+
+	if (separatorIndex === -1) {
+		return [];
+	}
+
+	return [
+		string.slice(0, separatorIndex),
+		string.slice(separatorIndex + separator.length)
+	];
+}
+
+const isNullOrUndefined = value => value === null || value === undefined;
+
+// eslint-disable-next-line unicorn/prefer-code-point
+const strictUriEncode = string => encodeURIComponent(string).replaceAll(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
+
+const encodeFragmentIdentifier = Symbol('encodeFragmentIdentifier');
+
+function encoderForArrayFormat(options) {
+	switch (options.arrayFormat) {
+		case 'index': {
+			return key => (result, value) => {
+				const index = result.length;
+
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result, [encode(key, options), '[', index, ']'].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '[', encode(index, options), ']=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'bracket': {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						[encode(key, options), '[]'].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '[]=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'colon-list-separator': {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						[encode(key, options), ':list='].join(''),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), ':list=', encode(value, options)].join(''),
+				];
+			};
+		}
+
+		case 'comma':
+		case 'separator':
+		case 'bracket-separator': {
+			const keyValueSeparator = options.arrayFormat === 'bracket-separator'
+				? '[]='
+				: '=';
+
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				// Translate null to an empty string so that it doesn't serialize as 'null'
+				value = value === null ? '' : value;
+
+				if (result.length === 0) {
+					return [[encode(key, options), keyValueSeparator, encode(value, options)].join('')];
+				}
+
+				return [[result, encode(value, options)].join(options.arrayFormatSeparator)];
+			};
+		}
+
+		default: {
+			return key => (result, value) => {
+				if (
+					value === undefined
+					|| (options.skipNull && value === null)
+					|| (options.skipEmptyString && value === '')
+				) {
+					return result;
+				}
+
+				if (value === null) {
+					return [
+						...result,
+						encode(key, options),
+					];
+				}
+
+				return [
+					...result,
+					[encode(key, options), '=', encode(value, options)].join(''),
+				];
+			};
+		}
+	}
+}
+
+function parserForArrayFormat(options) {
+	let result;
+
+	switch (options.arrayFormat) {
+		case 'index': {
+			return (key, value, accumulator) => {
+				result = /\[(\d*)]$/.exec(key);
+
+				key = key.replace(/\[\d*]$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = {};
+				}
+
+				accumulator[key][result[1]] = value;
+			};
+		}
+
+		case 'bracket': {
+			return (key, value, accumulator) => {
+				result = /(\[])$/.exec(key);
+				key = key.replace(/\[]$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = [value];
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], value];
+			};
+		}
+
+		case 'colon-list-separator': {
+			return (key, value, accumulator) => {
+				result = /(:list)$/.exec(key);
+				key = key.replace(/:list$/, '');
+
+				if (!result) {
+					accumulator[key] = value;
+					return;
+				}
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = [value];
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], value];
+			};
+		}
+
+		case 'comma':
+		case 'separator': {
+			return (key, value, accumulator) => {
+				const isArray = typeof value === 'string' && value.includes(options.arrayFormatSeparator);
+				const newValue = isArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : (value === null ? value : decode(value, options));
+				accumulator[key] = newValue;
+			};
+		}
+
+		case 'bracket-separator': {
+			return (key, value, accumulator) => {
+				const isArray = /(\[])$/.test(key);
+				key = key.replace(/\[]$/, '');
+
+				if (!isArray) {
+					accumulator[key] = value ? decode(value, options) : value;
+					return;
+				}
+
+				const arrayValue = value === null
+					? []
+					: decode(value, options).split(options.arrayFormatSeparator);
+
+				if (accumulator[key] === undefined) {
+					accumulator[key] = arrayValue;
+					return;
+				}
+
+				accumulator[key] = [...accumulator[key], ...arrayValue];
+			};
+		}
+
+		default: {
+			return (key, value, accumulator) => {
+				if (accumulator[key] === undefined) {
+					accumulator[key] = value;
+					return;
+				}
+
+				accumulator[key] = [...[accumulator[key]].flat(), value];
+			};
+		}
+	}
+}
+
+function validateArrayFormatSeparator(value) {
+	if (typeof value !== 'string' || value.length !== 1) {
+		throw new TypeError('arrayFormatSeparator must be single character string');
+	}
+}
+
+function encode(value, options) {
+	if (options.encode) {
+		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
+	}
+
+	return value;
+}
+
+function decode(value, options) {
+	if (options.decode) {
+		return decodeUriComponent(value);
+	}
+
+	return value;
+}
+
+function keysSorter(input) {
+	if (Array.isArray(input)) {
+		return input.sort();
+	}
+
+	if (typeof input === 'object') {
+		return keysSorter(Object.keys(input))
+			.sort((a, b) => Number(a) - Number(b))
+			.map(key => input[key]);
+	}
+
+	return input;
+}
+
+function removeHash(input) {
+	const hashStart = input.indexOf('#');
+	if (hashStart !== -1) {
+		input = input.slice(0, hashStart);
+	}
+
+	return input;
+}
+
+function getHash(url) {
+	let hash = '';
+	const hashStart = url.indexOf('#');
+	if (hashStart !== -1) {
+		hash = url.slice(hashStart);
+	}
+
+	return hash;
+}
+
+function parseValue(value, options, type) {
+	if (type === 'string' && typeof value === 'string') {
+		return value;
+	}
+
+	if (typeof type === 'function' && typeof value === 'string') {
+		return type(value);
+	}
+
+	if (type === 'boolean' && value === null) {
+		return true;
+	}
+
+	if (type === 'boolean' && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+		return value.toLowerCase() === 'true';
+	}
+
+	if (type === 'boolean' && value !== null && (value.toLowerCase() === '1' || value.toLowerCase() === '0')) {
+		return value.toLowerCase() === '1';
+	}
+
+	if (type === 'string[]' && options.arrayFormat !== 'none' && typeof value === 'string') {
+		return [value];
+	}
+
+	if (type === 'number[]' && options.arrayFormat !== 'none' && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+		return [Number(value)];
+	}
+
+	if (type === 'number' && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+		return Number(value);
+	}
+
+	if (options.parseBooleans && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
+		return value.toLowerCase() === 'true';
+	}
+
+	if (options.parseNumbers && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
+		return Number(value);
+	}
+
+	return value;
+}
+
+function extract(input) {
+	input = removeHash(input);
+	const queryStart = input.indexOf('?');
+	if (queryStart === -1) {
+		return '';
+	}
+
+	return input.slice(queryStart + 1);
+}
+
+function parse$3(query, options) {
+	options = {
+		decode: true,
+		sort: true,
+		arrayFormat: 'none',
+		arrayFormatSeparator: ',',
+		parseNumbers: false,
+		parseBooleans: false,
+		types: Object.create(null),
+		...options,
+	};
+
+	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+	const formatter = parserForArrayFormat(options);
+
+	// Create an object with no prototype
+	const returnValue = Object.create(null);
+
+	if (typeof query !== 'string') {
+		return returnValue;
+	}
+
+	query = query.trim().replace(/^[?#&]/, '');
+
+	if (!query) {
+		return returnValue;
+	}
+
+	for (const parameter of query.split('&')) {
+		if (parameter === '') {
+			continue;
+		}
+
+		const parameter_ = options.decode ? parameter.replaceAll('+', ' ') : parameter;
+
+		let [key, value] = splitOnFirst(parameter_, '=');
+
+		if (key === undefined) {
+			key = parameter_;
+		}
+
+		// Missing `=` should be `null`:
+		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
+		value = value === undefined ? null : (['comma', 'separator', 'bracket-separator'].includes(options.arrayFormat) ? value : decode(value, options));
+		formatter(decode(key, options), value, returnValue);
+	}
+
+	for (const [key, value] of Object.entries(returnValue)) {
+		if (typeof value === 'object' && value !== null && options.types[key] !== 'string') {
+			for (const [key2, value2] of Object.entries(value)) {
+				const typeOption = options.types[key];
+				const type = typeof typeOption === 'function' ? typeOption : (typeOption ? typeOption.replace('[]', '') : undefined);
+				value[key2] = parseValue(value2, options, type);
+			}
+		} else if (typeof value === 'object' && value !== null && options.types[key] === 'string') {
+			returnValue[key] = Object.values(value).join(options.arrayFormatSeparator);
+		} else {
+			returnValue[key] = parseValue(value, options, options.types[key]);
+		}
+	}
+
+	if (options.sort === false) {
+		return returnValue;
+	}
+
+	// TODO: Remove the use of `reduce`.
+	// eslint-disable-next-line unicorn/no-array-reduce
+	return (options.sort === true ? Object.keys(returnValue).sort() : Object.keys(returnValue).sort(options.sort)).reduce((result, key) => {
+		const value = returnValue[key];
+		result[key] = Boolean(value) && typeof value === 'object' && !Array.isArray(value) ? keysSorter(value) : value;
+		return result;
+	}, Object.create(null));
+}
+
+function stringify(object, options) {
+	if (!object) {
+		return '';
+	}
+
+	options = {
+		encode: true,
+		strict: true,
+		arrayFormat: 'none',
+		arrayFormatSeparator: ',',
+		...options,
+	};
+
+	validateArrayFormatSeparator(options.arrayFormatSeparator);
+
+	const shouldFilter = key => (
+		(options.skipNull && isNullOrUndefined(object[key]))
+		|| (options.skipEmptyString && object[key] === '')
+	);
+
+	const formatter = encoderForArrayFormat(options);
+
+	const objectCopy = {};
+
+	for (const [key, value] of Object.entries(object)) {
+		if (!shouldFilter(key)) {
+			objectCopy[key] = value;
+		}
+	}
+
+	const keys = Object.keys(objectCopy);
+
+	if (options.sort !== false) {
+		keys.sort(options.sort);
+	}
+
+	return keys.map(key => {
+		let value = object[key];
+
+		// Apply replacer function if provided
+		if (options.replacer) {
+			value = options.replacer(key, value);
+
+			// If replacer returns undefined, skip this key
+			if (value === undefined) {
+				return '';
+			}
+		}
+
+		if (value === undefined) {
+			return '';
+		}
+
+		if (value === null) {
+			return encode(key, options);
+		}
+
+		if (Array.isArray(value)) {
+			if (value.length === 0 && options.arrayFormat === 'bracket-separator') {
+				return encode(key, options) + '[]';
+			}
+
+			// Apply replacer to array elements if provided
+			// Note: We don't re-apply replacer to the array itself, only to elements
+			let processedArray = value;
+			if (options.replacer) {
+				processedArray = value.map((item, index) =>
+					options.replacer(`${key}[${index}]`, item),
+				).filter(item => item !== undefined);
+			}
+
+			return processedArray
+				.reduce(formatter(key), [])
+				.join('&');
+		}
+
+		return encode(key, options) + '=' + encode(value, options);
+	}).filter(x => x.length > 0).join('&');
+}
+
+function parseUrl(url, options) {
+	options = {
+		decode: true,
+		...options,
+	};
+
+	let [url_, hash] = splitOnFirst(url, '#');
+
+	if (url_ === undefined) {
+		url_ = url;
+	}
+
+	return {
+		url: url_?.split('?')?.[0] ?? '',
+		query: parse$3(extract(url), options),
+		...(options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}),
+	};
+}
+
+function stringifyUrl(object, options) {
+	options = {
+		encode: true,
+		strict: true,
+		[encodeFragmentIdentifier]: true,
+		...options,
+	};
+
+	const url = removeHash(object.url).split('?')[0] || '';
+	const queryFromUrl = extract(object.url);
+
+	const query = {
+		...parse$3(queryFromUrl, {sort: false, ...options}),
+		...object.query,
+	};
+
+	let queryString = stringify(query, options);
+	queryString &&= `?${queryString}`;
+
+	let hash = getHash(object.url);
+	if (typeof object.fragmentIdentifier === 'string') {
+		const urlObjectForFragmentEncode = new URL(url);
+		urlObjectForFragmentEncode.hash = object.fragmentIdentifier;
+		hash = options[encodeFragmentIdentifier] ? urlObjectForFragmentEncode.hash : `#${object.fragmentIdentifier}`;
+	}
+
+	return `${url}${queryString}${hash}`;
+}
+
+function pick$3(input, filter, options) {
+	options = {
+		parseFragmentIdentifier: true,
+		[encodeFragmentIdentifier]: false,
+		...options,
+	};
+
+	const {url, query, fragmentIdentifier} = parseUrl(input, options);
+
+	return stringifyUrl({
+		url,
+		query: includeKeys(query, filter),
+		fragmentIdentifier,
+	}, options);
+}
+
+function exclude(input, filter, options) {
+	const exclusionFilter = Array.isArray(filter) ? key => !filter.includes(key) : (key, value) => !filter(key, value);
+
+	return pick$3(input, exclusionFilter, options);
+}
+
+var queryString = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    exclude: exclude,
+    extract: extract,
+    parse: parse$3,
+    parseUrl: parseUrl,
+    pick: pick$3,
+    stringify: stringify,
+    stringifyUrl: stringifyUrl
+});
+
+/**
+ * Storage abstraction for testable localStorage access
+ *
+ * @module utils/storage
+ */
+/**
+ * Default localStorage implementation
+ */
+var LocalStorageAdapter = /** @class */ (function () {
+    function LocalStorageAdapter() {
+    }
+    /** Get a value from localStorage */
+    LocalStorageAdapter.prototype.get = function (key) {
+        try {
+            return localStorage.getItem(key);
+        }
+        catch (_a) {
+            return null;
+        }
+    };
+    /** Set a value in localStorage */
+    LocalStorageAdapter.prototype.set = function (key, value) {
+        try {
+            localStorage.setItem(key, value);
+        }
+        catch (_a) {
+            // Storage may be unavailable or full
+            console.warn("Failed to save to localStorage: ".concat(key));
+        }
+    };
+    /** Remove a value from localStorage */
+    LocalStorageAdapter.prototype.remove = function (key) {
+        try {
+            localStorage.removeItem(key);
+        }
+        catch (_a) {
+            // Storage may be unavailable
+        }
+    };
+    return LocalStorageAdapter;
+}());
+/** Default storage instance using localStorage */
+var currentStorage = new LocalStorageAdapter();
+/**
+ * Get the current storage instance
+ * @returns The active storage implementation
+ */
+function getStorage() {
+    return currentStorage;
+}
+
+/** Time constants for duration calculations */
+var TIME_CONSTANTS = {
+    MS_PER_SECOND: 1000,
+    SECONDS_PER_MINUTE: 60,
+    MINUTES_PER_HOUR: 60,
+    HOURS_PER_DAY: 24,
+    PADDING_THRESHOLD: 10,
+    MS_DIVISOR: 100,
+};
+/**
+ * Sort activities by end time in descending order (most recent first)
+ * Activities without an endTime are treated as current (using Date.now())
+ * @param activities - Array of activities with optional endTime
+ * @returns New sorted array (does not mutate original)
+ */
+var sortActivitiesByEndTime = function (activities) {
+    return __spreadArray$1([], activities, true).sort(function (a, b) {
+        var aTime = a.endTime ? new Date(a.endTime).getTime() : Date.now();
+        var bTime = b.endTime ? new Date(b.endTime).getTime() : Date.now();
+        return bTime - aTime; // Descending order (most recent first)
+    });
+};
+/**
+ * Sort items by name in ascending order (alphabetical)
+ * @param items - Array of items with optional name field
+ * @returns New sorted array (does not mutate original)
+ */
+var sortByName = function (items) {
+    return __spreadArray$1([], items, true).sort(function (a, b) {
+        var _a, _b;
+        var aName = (_a = a.name) !== null && _a !== void 0 ? _a : '';
+        var bName = (_b = b.name) !== null && _b !== void 0 ? _b : '';
+        return aName.localeCompare(bName);
+    });
+};
+/**
+ * Create a map of activity instance IDs to decision IDs
+ * @param decisions - Array of decision instances
+ * @returns Map from activityInstanceId to decision id
+ */
+var mapDecisionsByActivity = function (decisions) {
+    return new Map(decisions
+        .filter(function (d) {
+        return d.id !== null && d.id !== undefined && d.activityInstanceId !== null && d.activityInstanceId !== undefined;
+    })
+        .map(function (decision) { return [decision.activityInstanceId, decision.id]; }));
+};
+/**
+ * Convert a duration in milliseconds to a human-readable time string
+ * @param duration - Duration in milliseconds
+ * @returns Formatted time string (HH:MM:SS.m)
+ */
+var asctime = function (duration) {
+    var milliseconds = parseInt(String((duration % TIME_CONSTANTS.MS_PER_SECOND) / TIME_CONSTANTS.MS_DIVISOR), TIME_CONSTANTS.PADDING_THRESHOLD);
+    var seconds = Math.floor((duration / TIME_CONSTANTS.MS_PER_SECOND) % TIME_CONSTANTS.SECONDS_PER_MINUTE);
+    var minutes = Math.floor((duration / (TIME_CONSTANTS.MS_PER_SECOND * TIME_CONSTANTS.SECONDS_PER_MINUTE)) % TIME_CONSTANTS.MINUTES_PER_HOUR);
+    var hours = Math.floor((duration / (TIME_CONSTANTS.MS_PER_SECOND * TIME_CONSTANTS.SECONDS_PER_MINUTE * TIME_CONSTANTS.MINUTES_PER_HOUR)) %
+        TIME_CONSTANTS.HOURS_PER_DAY);
+    var hoursStr = hours < TIME_CONSTANTS.PADDING_THRESHOLD ? "0".concat(String(hours)) : String(hours);
+    var minutesStr = minutes < TIME_CONSTANTS.PADDING_THRESHOLD ? "0".concat(String(minutes)) : String(minutes);
+    var secondsStr = seconds < TIME_CONSTANTS.PADDING_THRESHOLD ? "0".concat(String(seconds)) : String(seconds);
+    return "".concat(hoursStr, ":").concat(minutesStr, ":").concat(secondsStr, ".").concat(String(milliseconds));
+};
+var SETTINGS_KEY = 'minimal-history-plugin';
+/** Default maximum results for API queries */
+var DEFAULT_MAX_RESULTS = 1000;
+/** Default settings when none are stored */
+var DEFAULT_SETTINGS = {
+    leftPaneSize: null,
+    topPaneSize: null,
+    maxResults: DEFAULT_MAX_RESULTS,
+};
+/**
+ * Parse stored settings JSON safely
+ * @param jsonString - JSON string from localStorage
+ * @returns Parsed settings or empty object
+ */
+function parseStoredSettings(jsonString) {
+    if (jsonString === null) {
+        return {};
+    }
+    try {
+        return JSON.parse(jsonString);
+    }
+    catch (_a) {
+        return {};
+    }
+}
+/**
+ * Load plugin settings from localStorage and URL hash
+ * @returns Merged plugin settings
+ */
+var loadSettings = function () {
+    var _a, _b, _c;
+    var storage = getStorage();
+    var hashSplit = location.hash.split('?', 1)[0];
+    var parsed = queryString.parse(location.hash.substring((hashSplit !== null && hashSplit !== void 0 ? hashSplit : '').length + 1));
+    var raw = parseStoredSettings(storage.get(SETTINGS_KEY));
+    var autoRefreshParam = parsed['autoRefresh'];
+    var showHistoricBadgesParam = parsed['showHistoricBadges'];
+    var showSequenceFlowParam = parsed['showSequenceFlow'];
+    var maxResultsParam = parsed['maxResults'];
+    var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
+    return {
+        autoRefresh: raw.autoRefresh === true || autoRefreshParam !== undefined,
+        showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
+        showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
+        leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
+        topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
+        maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
+    };
+};
+/**
+ * Save plugin settings to storage
+ * @param settings - The settings to save
+ */
+var saveSettings = function (settings) {
+    var storage = getStorage();
+    storage.set(SETTINGS_KEY, JSON.stringify(settings));
+};
+
+/**
+ * Gets the configured max results setting as a string for API params.
+ * @returns The max results value from settings as a string
+ */
+function getMaxResultsParam() {
+    return String(loadSettings().maxResults);
+}
+/** Cache TTL duration in minutes */
+var CACHE_TTL_MINUTES = 5;
+/** Seconds per minute */
+var SECONDS_PER_MINUTE = 60;
+/** Default cache TTL in milliseconds (5 minutes) */
+var CACHE_TTL_MS = CACHE_TTL_MINUTES * SECONDS_PER_MINUTE * 1000;
+/** In-memory cache for process definition XML */
+var processDefinitionXmlCache = new Map();
+/** In-memory cache for process definitions */
+var processDefinitionCache = new Map();
+/**
+ * Checks if a cache entry is still valid.
+ * @param entry - The cache entry to check
+ * @returns True if the entry is valid and not expired
+ */
+function isCacheValid(entry) {
+    if (!entry) {
+        return false;
+    }
+    return Date.now() - entry.timestamp < CACHE_TTL_MS;
+}
+/**
+ * Custom error class for API errors with status code and response body.
+ */
+var ApiError = /** @class */ (function (_super) {
+    __extends$1(ApiError, _super);
+    /**
+     * @param message - Human readable error message, from the engine where it sends one
+     * @param status - HTTP status code of the response
+     * @param body - Parsed response body
+     * @param path - API endpoint path that produced the error
+     */
+    function ApiError(message, status, body, path) {
+        var _this = _super.call(this, message) || this;
+        // Required while the build targets ES5: the downlevel of `extends Error` loses the
+        // prototype link, which silently makes every `err instanceof ApiError` false. Without
+        // this line the status checks throughout the plugins never match. Safe to keep at any
+        // target, and harmless once the target is raised.
+        Object.setPrototypeOf(_this, ApiError.prototype);
+        _this.name = 'ApiError';
+        _this.status = status;
+        _this.body = body;
+        _this.path = path;
+        return _this;
+    }
+    return ApiError;
+}(Error));
+/**
+ * Injectable fetch function for testing purposes.
+ * Defaults to the global fetch.
+ */
+var fetchFn = fetch;
+/**
+ * Builds headers for API requests with CSRF token.
+ * @param api - The API configuration object
+ * @returns Headers object for fetch requests
+ */
+var headers = function (api) {
+    return {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-XSRF-TOKEN': api.CSRFToken,
+    };
+};
+/**
+ * Parses response body based on content type.
+ * @param res - The fetch Response object
+ * @returns Parsed JSON or text content
+ */
+function parseResponseBody(res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var contentType;
+        var _a;
+        return __generator(this, function (_b) {
+            contentType = (_a = res.headers.get('Content-Type')) !== null && _a !== void 0 ? _a : '';
+            if (contentType.startsWith('application/json')) {
+                return [2 /*return*/, res.json()];
+            }
+            return [2 /*return*/, res.text()];
+        });
+    });
+}
+/**
+ * Makes a GET request to the engine API.
+ * @param api - The API configuration object
+ * @param path - The API endpoint path
+ * @param params - Optional query parameters
+ * @param options - Optional per-request options, such as an abort signal
+ * @returns Promise resolving to the response data
+ * @throws {ApiError} When the response status is not 2xx
+ */
+var get$1 = function (api, path, params, options) { return __awaiter(void 0, void 0, void 0, function () {
+    var splitResult, query, url, res, body, message;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                // XXX: Workaround a possible bug where engine api has been parsed wrong
+                if (/\/#\//.exec(api.engine)) {
+                    splitResult = api.engine.split('/#/')[0];
+                    api.engine = (splitResult !== null && splitResult !== void 0 ? splitResult : '').replace(/.*\//g, '');
+                    api.engineApi = "".concat(api.baseApi, "/engine/").concat(api.engine);
+                }
+                params = params !== null && params !== void 0 ? params : {};
+                if (['/history/activity-instance', '/history/variable-instance', '/history/decision-instance'].includes(path) &&
+                    !params['maxResults']) {
+                    params['maxResults'] = getMaxResultsParam();
+                }
+                query = new URLSearchParams(params).toString();
+                url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
+                return [4 /*yield*/, fetchFn(url, __assign({ method: 'get', headers: headers(api) }, ((options === null || options === void 0 ? void 0 : options.signal) ? { signal: options.signal } : {})))];
+            case 1:
+                res = _a.sent();
+                return [4 /*yield*/, parseResponseBody(res)];
+            case 2:
+                body = _a.sent();
+                if (res.ok) {
+                    return [2 /*return*/, body];
+                }
+                else {
+                    message = typeof body === 'object' && body !== null && 'message' in body
+                        ? String(body.message)
+                        : "API error: ".concat(res.status);
+                    throw new ApiError(message, res.status, body, path);
+                }
+        }
+    });
+}); };
+/**
+ * Makes a POST request to the engine API.
+ * @param api - The API configuration object
+ * @param path - The API endpoint path
+ * @param params - Optional query parameters
+ * @param payload - Optional request body
+ * @returns Promise resolving to the response data
+ * @throws {ApiError} When the response status is not 2xx
+ */
+var post = function (api, path, params, payload) { return __awaiter(void 0, void 0, void 0, function () {
+    var query, body, url, res, responseBody, message;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                params = params !== null && params !== void 0 ? params : {};
+                if (['/history/activity-instance', '/history/variable-instance', '/history/decision-instance'].includes(path) &&
+                    !params['maxResults']) {
+                    params['maxResults'] = getMaxResultsParam();
+                }
+                query = new URLSearchParams(params).toString();
+                body = payload !== null && payload !== void 0 ? payload : null;
+                url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
+                return [4 /*yield*/, fetchFn(url, {
+                        method: 'post',
+                        headers: headers(api),
+                        body: body,
+                    })];
+            case 1:
+                res = _a.sent();
+                return [4 /*yield*/, parseResponseBody(res)];
+            case 2:
+                responseBody = _a.sent();
+                if (res.ok) {
+                    return [2 /*return*/, responseBody];
+                }
+                else {
+                    message = typeof responseBody === 'object' && responseBody !== null && 'message' in responseBody
+                        ? String(responseBody.message)
+                        : "API error: ".concat(res.status);
+                    throw new ApiError(message, res.status, responseBody, path);
+                }
+        }
+    });
+}); };
+// =============================================================================
+// Typed API Client Functions
+// =============================================================================
+/**
+ * Fetches historic activity instances for a process instance.
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @param params - Optional additional query parameters
+ * @returns Promise resolving to array of historic activity instances
+ */
+function getActivities(api, processInstanceId, params) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, get$1(api, '/history/activity-instance', __assign({ processInstanceId: processInstanceId }, params))];
+                case 1: return [2 /*return*/, (_a.sent())];
+            }
+        });
+    });
+}
+/**
+ * Fetches historic variable instances for a process instance.
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @param params - Optional additional query parameters
+ * @returns Promise resolving to array of historic variable instances
+ */
+function getVariables(api, processInstanceId, params) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, get$1(api, '/history/variable-instance', __assign({ processInstanceId: processInstanceId }, params))];
+                case 1: return [2 /*return*/, (_a.sent())];
+            }
+        });
+    });
+}
+/**
+ * Fetches historic decision instances for a process instance.
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @param params - Optional additional query parameters
+ * @returns Promise resolving to array of historic decision instances
+ */
+function getDecisions(api, processInstanceId, params) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, get$1(api, '/history/decision-instance', __assign({ processInstanceId: processInstanceId }, params))];
+                case 1: return [2 /*return*/, (_a.sent())];
+            }
+        });
+    });
+}
+/**
+ * Fetches a process definition by ID.
+ * Results are cached for 5 minutes since process definitions rarely change.
+ * @param api - The API configuration object
+ * @param processDefinitionId - The process definition ID
+ * @returns Promise resolving to the process definition
+ */
+function getProcessDefinition(api, processDefinitionId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var cached, data;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    cached = processDefinitionCache.get(processDefinitionId);
+                    if (isCacheValid(cached)) {
+                        return [2 /*return*/, cached.data];
+                    }
+                    return [4 /*yield*/, get$1(api, "/process-definition/".concat(processDefinitionId))];
+                case 1:
+                    data = (_a.sent());
+                    // Store in cache
+                    processDefinitionCache.set(processDefinitionId, {
+                        data: data,
+                        timestamp: Date.now(),
+                    });
+                    return [2 /*return*/, data];
+            }
+        });
+    });
+}
+/**
+ * Fetches the BPMN XML for a process definition.
+ * Results are cached for 5 minutes since BPMN XML doesn't change for a given definition ID.
+ * @param api - The API configuration object
+ * @param processDefinitionId - The process definition ID
+ * @returns Promise resolving to the BPMN XML object with id and bpmn20Xml properties
+ */
+function getProcessDefinitionXml(api, processDefinitionId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var cached, data;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    cached = processDefinitionXmlCache.get(processDefinitionId);
+                    if (isCacheValid(cached)) {
+                        return [2 /*return*/, cached.data];
+                    }
+                    return [4 /*yield*/, get$1(api, "/process-definition/".concat(processDefinitionId, "/xml"))];
+                case 1:
+                    data = (_a.sent());
+                    // Store in cache
+                    processDefinitionXmlCache.set(processDefinitionId, {
+                        data: data,
+                        timestamp: Date.now(),
+                    });
+                    return [2 /*return*/, data];
+            }
+        });
+    });
+}
+/**
+ * Fetches a historic process instance by ID.
+ * @param api - The API configuration object
+ * @param processInstanceId - The process instance ID
+ * @returns Promise resolving to the historic process instance
+ */
+function getHistoricProcessInstance(api, processInstanceId) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, get$1(api, "/history/process-instance/".concat(processInstanceId))];
+                case 1: return [2 /*return*/, (_a.sent())];
+            }
+        });
+    });
+}
+/**
+ * Fetches the engine version.
+ * @param api - The API configuration object
+ * @returns Promise resolving to the version object
+ */
+function getVersion(api) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, get$1(api, '/version')];
+                case 1: return [2 /*return*/, (_a.sent())];
+            }
+        });
+    });
+}
+
 function r(e){var t,f,n="";if("string"==typeof e||"number"==typeof e)n+=e;else if("object"==typeof e)if(Array.isArray(e)){var o=e.length;for(t=0;t<o;t++)e[t]&&(f=r(e[t]))&&(n&&(n+=" "),n+=f);}else for(f in e)e[f]&&(n&&(n+=" "),n+=f);return n}function clsx(){for(var e,t,f=0,n="",o=arguments.length;f<o;f++)(e=arguments[f])&&(t=r(e))&&(n&&(n+=" "),n+=t);return n}
 
 /**
@@ -9505,7 +10725,7 @@ const unescapedLatinCharacterRegExp = /[a-zA-Z]/;
  * })
  * //=> Sun Feb 28 2010 00:00:00
  */
-function parse$3(dateStr, formatStr, referenceDate, options) {
+function parse$2(dateStr, formatStr, referenceDate, options) {
   const invalidDate = () => constructFrom(options?.in || referenceDate, NaN);
   const defaultOptions = getDefaultOptions();
   const locale = options?.locale ?? defaultOptions.locale ?? enUS;
@@ -12865,7 +14085,7 @@ function parseDate(value, dateFormat, locale, strictParsing, refDate) {
     var formats = Array.isArray(dateFormat) ? dateFormat : [dateFormat];
     for (var _i = 0, formats_1 = formats; _i < formats_1.length; _i++) {
         var format_1 = formats_1[_i];
-        var parsedDate = parse$3(value, format_1, refDate, {
+        var parsedDate = parse$2(value, format_1, refDate, {
             locale: localeObject});
         if (isValid(parsedDate) &&
             (!strictParsing || value === formatDate$1(parsedDate, format_1, locale))) {
@@ -18529,6 +19749,41 @@ ___$insertStylesToHeader("/**\n * Date picker widget styles\n *\n * Styles for t
 
 /** HTTP status code for Forbidden */
 var HTTP_FORBIDDEN = 403;
+/**
+ * Run an autocomplete lookup, treating a denied permission as "no suggestions".
+ *
+ * Autocompletion is an optional convenience: a user who may not list groups should still
+ * be able to type a group id by hand rather than see an error.
+ * @param api - The API configuration object
+ * @param path - Engine API path to query
+ * @param params - Query parameters
+ * @param signal - Optional signal aborting a superseded lookup
+ * @param deniedMessage - Logged when the engine denies the lookup
+ * @returns The rows, or an empty array when the lookup is not permitted
+ */
+function lookup(api, path, params, signal, deniedMessage) {
+    return __awaiter(this, void 0, void 0, function () {
+        var rows, error_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, get$1(api, path, params, { signal: signal })];
+                case 1:
+                    rows = _a.sent();
+                    return [2 /*return*/, Array.isArray(rows) ? rows : []];
+                case 2:
+                    error_1 = _a.sent();
+                    if (error_1 instanceof ApiError && error_1.status === HTTP_FORBIDDEN) {
+                        console.warn(deniedMessage);
+                        return [2 /*return*/, []];
+                    }
+                    throw error_1;
+                case 3: return [2 /*return*/];
+            }
+        });
+    });
+}
 /** Default debounce delay in milliseconds for autocomplete searches */
 var DEFAULT_DEBOUNCE_MS = 300;
 /**
@@ -18644,11 +19899,13 @@ function createBooleanField(key, label) {
  * ```typescript
  * const userAutocompleter = createApiAutocompleter(
  *   async (query, api, signal) => {
- *     const response = await fetch(
- *       `${api.engineApi}/user?nameLike=${encodeURIComponent(query)}%`,
- *       { signal, headers: headers(api) }
+ *     const users = await lookup<UserProfileDto>(
+ *       api,
+ *       '/user',
+ *       { nameLike: `${query}%` },
+ *       signal,
+ *       'User search permission denied'
  *     );
- *     const users = await response.json();
  *     return users.map(u => ({ key: u.id, label: u.id }));
  *   },
  *   { api, minChars: 2, maxResults: 10 }
@@ -18726,49 +19983,31 @@ function createUserAutocompleter(api, options) {
     var _this = this;
     var _a, _b, _c, _d;
     return createApiAutocompleter(function (query, apiConfig, signal) { return __awaiter(_this, void 0, void 0, function () {
-        var encodedQuery, headers, searches, results, userMap, _i, results_1, userList, _a, userList_1, user;
+        var encodedQuery, searches, results, userMap, _i, results_1, userList, _a, userList_1, user;
         var _this = this;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     encodedQuery = encodeURIComponent(query);
-                    headers = {
-                        Accept: 'application/json',
-                        'X-XSRF-TOKEN': apiConfig.CSRFToken,
-                    };
                     searches = [
-                        "".concat(apiConfig.engineApi, "/user?firstNameLike=%").concat(encodedQuery, "%"),
-                        "".concat(apiConfig.engineApi, "/user?lastNameLike=%").concat(encodedQuery, "%"),
-                        "".concat(apiConfig.engineApi, "/user?emailLike=%").concat(encodedQuery, "%"),
+                        { firstNameLike: "%".concat(encodedQuery, "%") },
+                        { lastNameLike: "%".concat(encodedQuery, "%") },
+                        { emailLike: "%".concat(encodedQuery, "%") },
                     ];
-                    return [4 /*yield*/, Promise.all(searches.map(function (url) { return __awaiter(_this, void 0, void 0, function () {
-                            var response, error_1;
+                    return [4 /*yield*/, Promise.all(searches.map(function (params) { return __awaiter(_this, void 0, void 0, function () {
+                            var error_2;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
-                                        _a.trys.push([0, 3, , 4]);
-                                        return [4 /*yield*/, fetch(url, {
-                                                signal: signal !== null && signal !== void 0 ? signal : null,
-                                                headers: headers,
-                                            })];
-                                    case 1:
-                                        response = _a.sent();
-                                        // Handle permission denied gracefully
-                                        if (response.status === HTTP_FORBIDDEN) {
-                                            console.warn('User search permission denied');
-                                            return [2 /*return*/, []];
-                                        }
-                                        if (!response.ok) {
-                                            throw new Error("User search failed: ".concat(response.status));
-                                        }
-                                        return [4 /*yield*/, response.json()];
-                                    case 2: return [2 /*return*/, (_a.sent())];
-                                    case 3:
-                                        error_1 = _a.sent();
+                                        _a.trys.push([0, 2, , 3]);
+                                        return [4 /*yield*/, lookup(apiConfig, '/user', params, signal, 'User search permission denied')];
+                                    case 1: return [2 /*return*/, _a.sent()];
+                                    case 2:
+                                        error_2 = _a.sent();
                                         // If one search fails, continue with others
-                                        console.warn('User search request failed:', error_1);
+                                        console.warn('User search request failed:', error_2);
                                         return [2 /*return*/, []];
-                                    case 4: return [2 /*return*/];
+                                    case 3: return [2 /*return*/];
                                 }
                             });
                         }); }))];
@@ -18823,31 +20062,12 @@ function createTenantAutocompleter(api, options) {
     var _this = this;
     var _a, _b, _c;
     return createApiAutocompleter(function (query, apiConfig, signal) { return __awaiter(_this, void 0, void 0, function () {
-        var url, response, tenants, lowerQuery;
+        var tenants, lowerQuery;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    url = "".concat(apiConfig.engineApi, "/tenant");
-                    return [4 /*yield*/, fetch(url, {
-                            signal: signal !== null && signal !== void 0 ? signal : null,
-                            headers: {
-                                Accept: 'application/json',
-                                'X-XSRF-TOKEN': apiConfig.CSRFToken,
-                            },
-                        })];
+                case 0: return [4 /*yield*/, lookup(apiConfig, '/tenant', {}, signal, 'Tenant search permission denied')];
                 case 1:
-                    response = _a.sent();
-                    // Handle permission denied gracefully
-                    if (response.status === HTTP_FORBIDDEN) {
-                        console.warn('Tenant search permission denied');
-                        return [2 /*return*/, []];
-                    }
-                    if (!response.ok) {
-                        throw new Error("Tenant search failed: ".concat(response.status));
-                    }
-                    return [4 /*yield*/, response.json()];
-                case 2:
-                    tenants = (_a.sent());
+                    tenants = _a.sent();
                     lowerQuery = query.toLowerCase();
                     return [2 /*return*/, tenants
                             .filter(function (t) { var _a; return (_a = t.id) === null || _a === void 0 ? void 0 : _a.toLowerCase().includes(lowerQuery); })
@@ -18883,26 +20103,12 @@ function createProcessDefinitionAutocompleter(api, options) {
     var _this = this;
     var _a, _b, _c, _d;
     return createApiAutocompleter(function (query, apiConfig, signal) { return __awaiter(_this, void 0, void 0, function () {
-        var url, response, definitions;
+        var definitions;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    url = "".concat(apiConfig.engineApi, "/process-definition?nameLike=").concat(encodeURIComponent(query), "%&latestVersion=true");
-                    return [4 /*yield*/, fetch(url, {
-                            signal: signal !== null && signal !== void 0 ? signal : null,
-                            headers: {
-                                Accept: 'application/json',
-                                'X-XSRF-TOKEN': apiConfig.CSRFToken,
-                            },
-                        })];
+                case 0: return [4 /*yield*/, lookup(apiConfig, '/process-definition', { nameLike: "".concat(query, "%"), latestVersion: 'true' }, signal, 'Process definition search permission denied')];
                 case 1:
-                    response = _a.sent();
-                    if (!response.ok) {
-                        throw new Error("Process definition search failed: ".concat(response.status));
-                    }
-                    return [4 /*yield*/, response.json()];
-                case 2:
-                    definitions = (_a.sent());
+                    definitions = _a.sent();
                     return [2 /*return*/, definitions
                             .filter(function (d) { return d.name; })
                             .map(function (d) {
@@ -21535,902 +22741,6 @@ function VscCollapseAll (props) {
 }function VscExpandAll (props) {
   return GenIcon({"attr":{"viewBox":"0 0 16 16","fill":"currentColor"},"child":[{"tag":"path","attr":{"d":"M9 9H4v1h5V9z"},"child":[]},{"tag":"path","attr":{"d":"M7 12V7H6v5h1z"},"child":[]},{"tag":"path","attr":{"fillRule":"evenodd","clipRule":"evenodd","d":"M5 3l1-1h7l1 1v7l-1 1h-2v2l-1 1H3l-1-1V6l1-1h2V3zm1 2h4l1 1v4h2V3H6v2zm4 1H3v7h7V6z"},"child":[]}]})(props);
 }
-
-const token = '%[a-f0-9]{2}';
-const singleMatcher = new RegExp('(' + token + ')|([^%]+?)', 'gi');
-const multiMatcher = new RegExp('(' + token + ')+', 'gi');
-
-function decodeComponents(components, split) {
-	try {
-		// Try to decode the entire string first
-		return [decodeURIComponent(components.join(''))];
-	} catch {
-		// Do nothing
-	}
-
-	if (components.length === 1) {
-		return components;
-	}
-
-	split = split || 1;
-
-	// Split the array in 2 parts
-	const left = components.slice(0, split);
-	const right = components.slice(split);
-
-	return Array.prototype.concat.call([], decodeComponents(left), decodeComponents(right));
-}
-
-function decode$1(input) {
-	try {
-		return decodeURIComponent(input);
-	} catch {
-		let tokens = input.match(singleMatcher) || [];
-
-		for (let i = 1; i < tokens.length; i++) {
-			input = decodeComponents(tokens, i).join('');
-
-			tokens = input.match(singleMatcher) || [];
-		}
-
-		return input;
-	}
-}
-
-function customDecodeURIComponent(input) {
-	// Keep track of all the replacements and prefill the map with the `BOM`
-	const replaceMap = {
-		'%FE%FF': '\uFFFD\uFFFD',
-		'%FF%FE': '\uFFFD\uFFFD',
-	};
-
-	let match = multiMatcher.exec(input);
-	while (match) {
-		try {
-			// Decode as big chunks as possible
-			replaceMap[match[0]] = decodeURIComponent(match[0]);
-		} catch {
-			const result = decode$1(match[0]);
-
-			if (result !== match[0]) {
-				replaceMap[match[0]] = result;
-			}
-		}
-
-		match = multiMatcher.exec(input);
-	}
-
-	// Add `%C2` at the end of the map to make sure it does not replace the combinator before everything else
-	replaceMap['%C2'] = '\uFFFD';
-
-	const entries = Object.keys(replaceMap);
-
-	for (const key of entries) {
-		// Replace all decoded components
-		input = input.replace(new RegExp(key, 'g'), replaceMap[key]);
-	}
-
-	return input;
-}
-
-function decodeUriComponent(encodedURI) {
-	if (typeof encodedURI !== 'string') {
-		throw new TypeError('Expected `encodedURI` to be of type `string`, got `' + typeof encodedURI + '`');
-	}
-
-	try {
-		// Try the built in decoder first
-		return decodeURIComponent(encodedURI);
-	} catch {
-		// Fallback to a more advanced decoder
-		return customDecodeURIComponent(encodedURI);
-	}
-}
-
-function includeKeys(object, predicate) {
-	const result = {};
-
-	if (Array.isArray(predicate)) {
-		for (const key of predicate) {
-			const descriptor = Object.getOwnPropertyDescriptor(object, key);
-			if (descriptor?.enumerable) {
-				Object.defineProperty(result, key, descriptor);
-			}
-		}
-	} else {
-		// `Reflect.ownKeys()` is required to retrieve symbol properties
-		for (const key of Reflect.ownKeys(object)) {
-			const descriptor = Object.getOwnPropertyDescriptor(object, key);
-			if (descriptor.enumerable) {
-				const value = object[key];
-				if (predicate(key, value, object)) {
-					Object.defineProperty(result, key, descriptor);
-				}
-			}
-		}
-	}
-
-	return result;
-}
-
-function splitOnFirst(string, separator) {
-	if (!(typeof string === 'string' && typeof separator === 'string')) {
-		throw new TypeError('Expected the arguments to be of type `string`');
-	}
-
-	if (string === '' || separator === '') {
-		return [];
-	}
-
-	const separatorIndex = string.indexOf(separator);
-
-	if (separatorIndex === -1) {
-		return [];
-	}
-
-	return [
-		string.slice(0, separatorIndex),
-		string.slice(separatorIndex + separator.length)
-	];
-}
-
-const isNullOrUndefined = value => value === null || value === undefined;
-
-// eslint-disable-next-line unicorn/prefer-code-point
-const strictUriEncode = string => encodeURIComponent(string).replaceAll(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
-
-const encodeFragmentIdentifier = Symbol('encodeFragmentIdentifier');
-
-function encoderForArrayFormat(options) {
-	switch (options.arrayFormat) {
-		case 'index': {
-			return key => (result, value) => {
-				const index = result.length;
-
-				if (
-					value === undefined
-					|| (options.skipNull && value === null)
-					|| (options.skipEmptyString && value === '')
-				) {
-					return result;
-				}
-
-				if (value === null) {
-					return [
-						...result, [encode(key, options), '[', index, ']'].join(''),
-					];
-				}
-
-				return [
-					...result,
-					[encode(key, options), '[', encode(index, options), ']=', encode(value, options)].join(''),
-				];
-			};
-		}
-
-		case 'bracket': {
-			return key => (result, value) => {
-				if (
-					value === undefined
-					|| (options.skipNull && value === null)
-					|| (options.skipEmptyString && value === '')
-				) {
-					return result;
-				}
-
-				if (value === null) {
-					return [
-						...result,
-						[encode(key, options), '[]'].join(''),
-					];
-				}
-
-				return [
-					...result,
-					[encode(key, options), '[]=', encode(value, options)].join(''),
-				];
-			};
-		}
-
-		case 'colon-list-separator': {
-			return key => (result, value) => {
-				if (
-					value === undefined
-					|| (options.skipNull && value === null)
-					|| (options.skipEmptyString && value === '')
-				) {
-					return result;
-				}
-
-				if (value === null) {
-					return [
-						...result,
-						[encode(key, options), ':list='].join(''),
-					];
-				}
-
-				return [
-					...result,
-					[encode(key, options), ':list=', encode(value, options)].join(''),
-				];
-			};
-		}
-
-		case 'comma':
-		case 'separator':
-		case 'bracket-separator': {
-			const keyValueSeparator = options.arrayFormat === 'bracket-separator'
-				? '[]='
-				: '=';
-
-			return key => (result, value) => {
-				if (
-					value === undefined
-					|| (options.skipNull && value === null)
-					|| (options.skipEmptyString && value === '')
-				) {
-					return result;
-				}
-
-				// Translate null to an empty string so that it doesn't serialize as 'null'
-				value = value === null ? '' : value;
-
-				if (result.length === 0) {
-					return [[encode(key, options), keyValueSeparator, encode(value, options)].join('')];
-				}
-
-				return [[result, encode(value, options)].join(options.arrayFormatSeparator)];
-			};
-		}
-
-		default: {
-			return key => (result, value) => {
-				if (
-					value === undefined
-					|| (options.skipNull && value === null)
-					|| (options.skipEmptyString && value === '')
-				) {
-					return result;
-				}
-
-				if (value === null) {
-					return [
-						...result,
-						encode(key, options),
-					];
-				}
-
-				return [
-					...result,
-					[encode(key, options), '=', encode(value, options)].join(''),
-				];
-			};
-		}
-	}
-}
-
-function parserForArrayFormat(options) {
-	let result;
-
-	switch (options.arrayFormat) {
-		case 'index': {
-			return (key, value, accumulator) => {
-				result = /\[(\d*)]$/.exec(key);
-
-				key = key.replace(/\[\d*]$/, '');
-
-				if (!result) {
-					accumulator[key] = value;
-					return;
-				}
-
-				if (accumulator[key] === undefined) {
-					accumulator[key] = {};
-				}
-
-				accumulator[key][result[1]] = value;
-			};
-		}
-
-		case 'bracket': {
-			return (key, value, accumulator) => {
-				result = /(\[])$/.exec(key);
-				key = key.replace(/\[]$/, '');
-
-				if (!result) {
-					accumulator[key] = value;
-					return;
-				}
-
-				if (accumulator[key] === undefined) {
-					accumulator[key] = [value];
-					return;
-				}
-
-				accumulator[key] = [...accumulator[key], value];
-			};
-		}
-
-		case 'colon-list-separator': {
-			return (key, value, accumulator) => {
-				result = /(:list)$/.exec(key);
-				key = key.replace(/:list$/, '');
-
-				if (!result) {
-					accumulator[key] = value;
-					return;
-				}
-
-				if (accumulator[key] === undefined) {
-					accumulator[key] = [value];
-					return;
-				}
-
-				accumulator[key] = [...accumulator[key], value];
-			};
-		}
-
-		case 'comma':
-		case 'separator': {
-			return (key, value, accumulator) => {
-				const isArray = typeof value === 'string' && value.includes(options.arrayFormatSeparator);
-				const newValue = isArray ? value.split(options.arrayFormatSeparator).map(item => decode(item, options)) : (value === null ? value : decode(value, options));
-				accumulator[key] = newValue;
-			};
-		}
-
-		case 'bracket-separator': {
-			return (key, value, accumulator) => {
-				const isArray = /(\[])$/.test(key);
-				key = key.replace(/\[]$/, '');
-
-				if (!isArray) {
-					accumulator[key] = value ? decode(value, options) : value;
-					return;
-				}
-
-				const arrayValue = value === null
-					? []
-					: decode(value, options).split(options.arrayFormatSeparator);
-
-				if (accumulator[key] === undefined) {
-					accumulator[key] = arrayValue;
-					return;
-				}
-
-				accumulator[key] = [...accumulator[key], ...arrayValue];
-			};
-		}
-
-		default: {
-			return (key, value, accumulator) => {
-				if (accumulator[key] === undefined) {
-					accumulator[key] = value;
-					return;
-				}
-
-				accumulator[key] = [...[accumulator[key]].flat(), value];
-			};
-		}
-	}
-}
-
-function validateArrayFormatSeparator(value) {
-	if (typeof value !== 'string' || value.length !== 1) {
-		throw new TypeError('arrayFormatSeparator must be single character string');
-	}
-}
-
-function encode(value, options) {
-	if (options.encode) {
-		return options.strict ? strictUriEncode(value) : encodeURIComponent(value);
-	}
-
-	return value;
-}
-
-function decode(value, options) {
-	if (options.decode) {
-		return decodeUriComponent(value);
-	}
-
-	return value;
-}
-
-function keysSorter(input) {
-	if (Array.isArray(input)) {
-		return input.sort();
-	}
-
-	if (typeof input === 'object') {
-		return keysSorter(Object.keys(input))
-			.sort((a, b) => Number(a) - Number(b))
-			.map(key => input[key]);
-	}
-
-	return input;
-}
-
-function removeHash(input) {
-	const hashStart = input.indexOf('#');
-	if (hashStart !== -1) {
-		input = input.slice(0, hashStart);
-	}
-
-	return input;
-}
-
-function getHash(url) {
-	let hash = '';
-	const hashStart = url.indexOf('#');
-	if (hashStart !== -1) {
-		hash = url.slice(hashStart);
-	}
-
-	return hash;
-}
-
-function parseValue(value, options, type) {
-	if (type === 'string' && typeof value === 'string') {
-		return value;
-	}
-
-	if (typeof type === 'function' && typeof value === 'string') {
-		return type(value);
-	}
-
-	if (type === 'boolean' && value === null) {
-		return true;
-	}
-
-	if (type === 'boolean' && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
-		return value.toLowerCase() === 'true';
-	}
-
-	if (type === 'boolean' && value !== null && (value.toLowerCase() === '1' || value.toLowerCase() === '0')) {
-		return value.toLowerCase() === '1';
-	}
-
-	if (type === 'string[]' && options.arrayFormat !== 'none' && typeof value === 'string') {
-		return [value];
-	}
-
-	if (type === 'number[]' && options.arrayFormat !== 'none' && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
-		return [Number(value)];
-	}
-
-	if (type === 'number' && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
-		return Number(value);
-	}
-
-	if (options.parseBooleans && value !== null && (value.toLowerCase() === 'true' || value.toLowerCase() === 'false')) {
-		return value.toLowerCase() === 'true';
-	}
-
-	if (options.parseNumbers && !Number.isNaN(Number(value)) && (typeof value === 'string' && value.trim() !== '')) {
-		return Number(value);
-	}
-
-	return value;
-}
-
-function extract(input) {
-	input = removeHash(input);
-	const queryStart = input.indexOf('?');
-	if (queryStart === -1) {
-		return '';
-	}
-
-	return input.slice(queryStart + 1);
-}
-
-function parse$2(query, options) {
-	options = {
-		decode: true,
-		sort: true,
-		arrayFormat: 'none',
-		arrayFormatSeparator: ',',
-		parseNumbers: false,
-		parseBooleans: false,
-		types: Object.create(null),
-		...options,
-	};
-
-	validateArrayFormatSeparator(options.arrayFormatSeparator);
-
-	const formatter = parserForArrayFormat(options);
-
-	// Create an object with no prototype
-	const returnValue = Object.create(null);
-
-	if (typeof query !== 'string') {
-		return returnValue;
-	}
-
-	query = query.trim().replace(/^[?#&]/, '');
-
-	if (!query) {
-		return returnValue;
-	}
-
-	for (const parameter of query.split('&')) {
-		if (parameter === '') {
-			continue;
-		}
-
-		const parameter_ = options.decode ? parameter.replaceAll('+', ' ') : parameter;
-
-		let [key, value] = splitOnFirst(parameter_, '=');
-
-		if (key === undefined) {
-			key = parameter_;
-		}
-
-		// Missing `=` should be `null`:
-		// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
-		value = value === undefined ? null : (['comma', 'separator', 'bracket-separator'].includes(options.arrayFormat) ? value : decode(value, options));
-		formatter(decode(key, options), value, returnValue);
-	}
-
-	for (const [key, value] of Object.entries(returnValue)) {
-		if (typeof value === 'object' && value !== null && options.types[key] !== 'string') {
-			for (const [key2, value2] of Object.entries(value)) {
-				const typeOption = options.types[key];
-				const type = typeof typeOption === 'function' ? typeOption : (typeOption ? typeOption.replace('[]', '') : undefined);
-				value[key2] = parseValue(value2, options, type);
-			}
-		} else if (typeof value === 'object' && value !== null && options.types[key] === 'string') {
-			returnValue[key] = Object.values(value).join(options.arrayFormatSeparator);
-		} else {
-			returnValue[key] = parseValue(value, options, options.types[key]);
-		}
-	}
-
-	if (options.sort === false) {
-		return returnValue;
-	}
-
-	// TODO: Remove the use of `reduce`.
-	// eslint-disable-next-line unicorn/no-array-reduce
-	return (options.sort === true ? Object.keys(returnValue).sort() : Object.keys(returnValue).sort(options.sort)).reduce((result, key) => {
-		const value = returnValue[key];
-		result[key] = Boolean(value) && typeof value === 'object' && !Array.isArray(value) ? keysSorter(value) : value;
-		return result;
-	}, Object.create(null));
-}
-
-function stringify(object, options) {
-	if (!object) {
-		return '';
-	}
-
-	options = {
-		encode: true,
-		strict: true,
-		arrayFormat: 'none',
-		arrayFormatSeparator: ',',
-		...options,
-	};
-
-	validateArrayFormatSeparator(options.arrayFormatSeparator);
-
-	const shouldFilter = key => (
-		(options.skipNull && isNullOrUndefined(object[key]))
-		|| (options.skipEmptyString && object[key] === '')
-	);
-
-	const formatter = encoderForArrayFormat(options);
-
-	const objectCopy = {};
-
-	for (const [key, value] of Object.entries(object)) {
-		if (!shouldFilter(key)) {
-			objectCopy[key] = value;
-		}
-	}
-
-	const keys = Object.keys(objectCopy);
-
-	if (options.sort !== false) {
-		keys.sort(options.sort);
-	}
-
-	return keys.map(key => {
-		let value = object[key];
-
-		// Apply replacer function if provided
-		if (options.replacer) {
-			value = options.replacer(key, value);
-
-			// If replacer returns undefined, skip this key
-			if (value === undefined) {
-				return '';
-			}
-		}
-
-		if (value === undefined) {
-			return '';
-		}
-
-		if (value === null) {
-			return encode(key, options);
-		}
-
-		if (Array.isArray(value)) {
-			if (value.length === 0 && options.arrayFormat === 'bracket-separator') {
-				return encode(key, options) + '[]';
-			}
-
-			// Apply replacer to array elements if provided
-			// Note: We don't re-apply replacer to the array itself, only to elements
-			let processedArray = value;
-			if (options.replacer) {
-				processedArray = value.map((item, index) =>
-					options.replacer(`${key}[${index}]`, item),
-				).filter(item => item !== undefined);
-			}
-
-			return processedArray
-				.reduce(formatter(key), [])
-				.join('&');
-		}
-
-		return encode(key, options) + '=' + encode(value, options);
-	}).filter(x => x.length > 0).join('&');
-}
-
-function parseUrl(url, options) {
-	options = {
-		decode: true,
-		...options,
-	};
-
-	let [url_, hash] = splitOnFirst(url, '#');
-
-	if (url_ === undefined) {
-		url_ = url;
-	}
-
-	return {
-		url: url_?.split('?')?.[0] ?? '',
-		query: parse$2(extract(url), options),
-		...(options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}),
-	};
-}
-
-function stringifyUrl(object, options) {
-	options = {
-		encode: true,
-		strict: true,
-		[encodeFragmentIdentifier]: true,
-		...options,
-	};
-
-	const url = removeHash(object.url).split('?')[0] || '';
-	const queryFromUrl = extract(object.url);
-
-	const query = {
-		...parse$2(queryFromUrl, {sort: false, ...options}),
-		...object.query,
-	};
-
-	let queryString = stringify(query, options);
-	queryString &&= `?${queryString}`;
-
-	let hash = getHash(object.url);
-	if (typeof object.fragmentIdentifier === 'string') {
-		const urlObjectForFragmentEncode = new URL(url);
-		urlObjectForFragmentEncode.hash = object.fragmentIdentifier;
-		hash = options[encodeFragmentIdentifier] ? urlObjectForFragmentEncode.hash : `#${object.fragmentIdentifier}`;
-	}
-
-	return `${url}${queryString}${hash}`;
-}
-
-function pick$3(input, filter, options) {
-	options = {
-		parseFragmentIdentifier: true,
-		[encodeFragmentIdentifier]: false,
-		...options,
-	};
-
-	const {url, query, fragmentIdentifier} = parseUrl(input, options);
-
-	return stringifyUrl({
-		url,
-		query: includeKeys(query, filter),
-		fragmentIdentifier,
-	}, options);
-}
-
-function exclude(input, filter, options) {
-	const exclusionFilter = Array.isArray(filter) ? key => !filter.includes(key) : (key, value) => !filter(key, value);
-
-	return pick$3(input, exclusionFilter, options);
-}
-
-var queryString = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    exclude: exclude,
-    extract: extract,
-    parse: parse$2,
-    parseUrl: parseUrl,
-    pick: pick$3,
-    stringify: stringify,
-    stringifyUrl: stringifyUrl
-});
-
-/**
- * Storage abstraction for testable localStorage access
- *
- * @module utils/storage
- */
-/**
- * Default localStorage implementation
- */
-var LocalStorageAdapter = /** @class */ (function () {
-    function LocalStorageAdapter() {
-    }
-    /** Get a value from localStorage */
-    LocalStorageAdapter.prototype.get = function (key) {
-        try {
-            return localStorage.getItem(key);
-        }
-        catch (_a) {
-            return null;
-        }
-    };
-    /** Set a value in localStorage */
-    LocalStorageAdapter.prototype.set = function (key, value) {
-        try {
-            localStorage.setItem(key, value);
-        }
-        catch (_a) {
-            // Storage may be unavailable or full
-            console.warn("Failed to save to localStorage: ".concat(key));
-        }
-    };
-    /** Remove a value from localStorage */
-    LocalStorageAdapter.prototype.remove = function (key) {
-        try {
-            localStorage.removeItem(key);
-        }
-        catch (_a) {
-            // Storage may be unavailable
-        }
-    };
-    return LocalStorageAdapter;
-}());
-/** Default storage instance using localStorage */
-var currentStorage = new LocalStorageAdapter();
-/**
- * Get the current storage instance
- * @returns The active storage implementation
- */
-function getStorage() {
-    return currentStorage;
-}
-
-/** Time constants for duration calculations */
-var TIME_CONSTANTS = {
-    MS_PER_SECOND: 1000,
-    SECONDS_PER_MINUTE: 60,
-    MINUTES_PER_HOUR: 60,
-    HOURS_PER_DAY: 24,
-    PADDING_THRESHOLD: 10,
-    MS_DIVISOR: 100,
-};
-/**
- * Sort activities by end time in descending order (most recent first)
- * Activities without an endTime are treated as current (using Date.now())
- * @param activities - Array of activities with optional endTime
- * @returns New sorted array (does not mutate original)
- */
-var sortActivitiesByEndTime = function (activities) {
-    return __spreadArray$1([], activities, true).sort(function (a, b) {
-        var aTime = a.endTime ? new Date(a.endTime).getTime() : Date.now();
-        var bTime = b.endTime ? new Date(b.endTime).getTime() : Date.now();
-        return bTime - aTime; // Descending order (most recent first)
-    });
-};
-/**
- * Sort items by name in ascending order (alphabetical)
- * @param items - Array of items with optional name field
- * @returns New sorted array (does not mutate original)
- */
-var sortByName = function (items) {
-    return __spreadArray$1([], items, true).sort(function (a, b) {
-        var _a, _b;
-        var aName = (_a = a.name) !== null && _a !== void 0 ? _a : '';
-        var bName = (_b = b.name) !== null && _b !== void 0 ? _b : '';
-        return aName.localeCompare(bName);
-    });
-};
-/**
- * Create a map of activity instance IDs to decision IDs
- * @param decisions - Array of decision instances
- * @returns Map from activityInstanceId to decision id
- */
-var mapDecisionsByActivity = function (decisions) {
-    return new Map(decisions
-        .filter(function (d) {
-        return d.id !== null && d.id !== undefined && d.activityInstanceId !== null && d.activityInstanceId !== undefined;
-    })
-        .map(function (decision) { return [decision.activityInstanceId, decision.id]; }));
-};
-/**
- * Convert a duration in milliseconds to a human-readable time string
- * @param duration - Duration in milliseconds
- * @returns Formatted time string (HH:MM:SS.m)
- */
-var asctime = function (duration) {
-    var milliseconds = parseInt(String((duration % TIME_CONSTANTS.MS_PER_SECOND) / TIME_CONSTANTS.MS_DIVISOR), TIME_CONSTANTS.PADDING_THRESHOLD);
-    var seconds = Math.floor((duration / TIME_CONSTANTS.MS_PER_SECOND) % TIME_CONSTANTS.SECONDS_PER_MINUTE);
-    var minutes = Math.floor((duration / (TIME_CONSTANTS.MS_PER_SECOND * TIME_CONSTANTS.SECONDS_PER_MINUTE)) % TIME_CONSTANTS.MINUTES_PER_HOUR);
-    var hours = Math.floor((duration / (TIME_CONSTANTS.MS_PER_SECOND * TIME_CONSTANTS.SECONDS_PER_MINUTE * TIME_CONSTANTS.MINUTES_PER_HOUR)) %
-        TIME_CONSTANTS.HOURS_PER_DAY);
-    var hoursStr = hours < TIME_CONSTANTS.PADDING_THRESHOLD ? "0".concat(String(hours)) : String(hours);
-    var minutesStr = minutes < TIME_CONSTANTS.PADDING_THRESHOLD ? "0".concat(String(minutes)) : String(minutes);
-    var secondsStr = seconds < TIME_CONSTANTS.PADDING_THRESHOLD ? "0".concat(String(seconds)) : String(seconds);
-    return "".concat(hoursStr, ":").concat(minutesStr, ":").concat(secondsStr, ".").concat(String(milliseconds));
-};
-var SETTINGS_KEY = 'minimal-history-plugin';
-/** Default maximum results for API queries */
-var DEFAULT_MAX_RESULTS = 1000;
-/** Default settings when none are stored */
-var DEFAULT_SETTINGS = {
-    leftPaneSize: null,
-    topPaneSize: null,
-    maxResults: DEFAULT_MAX_RESULTS,
-};
-/**
- * Parse stored settings JSON safely
- * @param jsonString - JSON string from localStorage
- * @returns Parsed settings or empty object
- */
-function parseStoredSettings(jsonString) {
-    if (jsonString === null) {
-        return {};
-    }
-    try {
-        return JSON.parse(jsonString);
-    }
-    catch (_a) {
-        return {};
-    }
-}
-/**
- * Load plugin settings from localStorage and URL hash
- * @returns Merged plugin settings
- */
-var loadSettings = function () {
-    var _a, _b, _c;
-    var storage = getStorage();
-    var hashSplit = location.hash.split('?', 1)[0];
-    var parsed = queryString.parse(location.hash.substring((hashSplit !== null && hashSplit !== void 0 ? hashSplit : '').length + 1));
-    var raw = parseStoredSettings(storage.get(SETTINGS_KEY));
-    var autoRefreshParam = parsed['autoRefresh'];
-    var showHistoricBadgesParam = parsed['showHistoricBadges'];
-    var showSequenceFlowParam = parsed['showSequenceFlow'];
-    var maxResultsParam = parsed['maxResults'];
-    var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
-    return {
-        autoRefresh: raw.autoRefresh === true || autoRefreshParam !== undefined,
-        showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
-        showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
-        leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
-        topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
-        maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
-    };
-};
-/**
- * Save plugin settings to storage
- * @param settings - The settings to save
- */
-var saveSettings = function (settings) {
-    var storage = getStorage();
-    storage.set(SETTINGS_KEY, JSON.stringify(settings));
-};
 
 /**
  * Audit log table displaying historic activity instances with timing,
@@ -36810,7 +37120,7 @@ function serialize(node, output) {
   return output;
 }
 
-function get$1(element) {
+function get(element) {
   var child = element.firstChild,
       output = [];
 
@@ -36825,7 +37135,7 @@ function get$1(element) {
 function innerSVG(element, svg) {
 
   {
-    return get$1(element);
+    return get(element);
   }
 }
 
@@ -76731,324 +77041,6 @@ var WarningBox = function (_a) {
         children));
 };
 
-/**
- * Gets the configured max results setting as a string for API params.
- * @returns The max results value from settings as a string
- */
-function getMaxResultsParam() {
-    return String(loadSettings().maxResults);
-}
-/** Cache TTL duration in minutes */
-var CACHE_TTL_MINUTES = 5;
-/** Seconds per minute */
-var SECONDS_PER_MINUTE = 60;
-/** Default cache TTL in milliseconds (5 minutes) */
-var CACHE_TTL_MS = CACHE_TTL_MINUTES * SECONDS_PER_MINUTE * 1000;
-/** In-memory cache for process definition XML */
-var processDefinitionXmlCache = new Map();
-/** In-memory cache for process definitions */
-var processDefinitionCache = new Map();
-/**
- * Checks if a cache entry is still valid.
- * @param entry - The cache entry to check
- * @returns True if the entry is valid and not expired
- */
-function isCacheValid(entry) {
-    if (!entry) {
-        return false;
-    }
-    return Date.now() - entry.timestamp < CACHE_TTL_MS;
-}
-/**
- * Custom error class for API errors with status code and response body.
- */
-var ApiError = /** @class */ (function (_super) {
-    __extends$1(ApiError, _super);
-    /**
-     *
-     */
-    function ApiError(message, status, body, path) {
-        var _this = _super.call(this, message) || this;
-        _this.name = 'ApiError';
-        _this.status = status;
-        _this.body = body;
-        _this.path = path;
-        return _this;
-    }
-    return ApiError;
-}(Error));
-/**
- * Injectable fetch function for testing purposes.
- * Defaults to the global fetch.
- */
-var fetchFn = fetch;
-/**
- * Builds headers for API requests with CSRF token.
- * @param api - The API configuration object
- * @returns Headers object for fetch requests
- */
-var headers = function (api) {
-    return {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-XSRF-TOKEN': api.CSRFToken,
-    };
-};
-/**
- * Parses response body based on content type.
- * @param res - The fetch Response object
- * @returns Parsed JSON or text content
- */
-function parseResponseBody(res) {
-    return __awaiter(this, void 0, void 0, function () {
-        var contentType;
-        var _a;
-        return __generator(this, function (_b) {
-            contentType = (_a = res.headers.get('Content-Type')) !== null && _a !== void 0 ? _a : '';
-            if (contentType.startsWith('application/json')) {
-                return [2 /*return*/, res.json()];
-            }
-            return [2 /*return*/, res.text()];
-        });
-    });
-}
-/**
- * Makes a GET request to the engine API.
- * @param api - The API configuration object
- * @param path - The API endpoint path
- * @param params - Optional query parameters
- * @returns Promise resolving to the response data
- * @throws {ApiError} When the response status is not 2xx
- */
-var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0, function () {
-    var splitResult, query, url, res, body, message;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                // XXX: Workaround a possible bug where engine api has been parsed wrong
-                if (/\/#\//.exec(api.engine)) {
-                    splitResult = api.engine.split('/#/')[0];
-                    api.engine = (splitResult !== null && splitResult !== void 0 ? splitResult : '').replace(/.*\//g, '');
-                    api.engineApi = "".concat(api.baseApi, "/engine/").concat(api.engine);
-                }
-                params = params !== null && params !== void 0 ? params : {};
-                if (['/history/activity-instance', '/history/variable-instance', '/history/decision-instance'].includes(path) &&
-                    !params['maxResults']) {
-                    params['maxResults'] = getMaxResultsParam();
-                }
-                query = new URLSearchParams(params).toString();
-                url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
-                return [4 /*yield*/, fetchFn(url, {
-                        method: 'get',
-                        headers: headers(api),
-                    })];
-            case 1:
-                res = _a.sent();
-                return [4 /*yield*/, parseResponseBody(res)];
-            case 2:
-                body = _a.sent();
-                if (res.ok) {
-                    return [2 /*return*/, body];
-                }
-                else {
-                    message = typeof body === 'object' && body !== null && 'message' in body
-                        ? String(body.message)
-                        : "API error: ".concat(res.status);
-                    throw new ApiError(message, res.status, body, path);
-                }
-        }
-    });
-}); };
-/**
- * Makes a POST request to the engine API.
- * @param api - The API configuration object
- * @param path - The API endpoint path
- * @param params - Optional query parameters
- * @param payload - Optional request body
- * @returns Promise resolving to the response data
- * @throws {ApiError} When the response status is not 2xx
- */
-var post = function (api, path, params, payload) { return __awaiter(void 0, void 0, void 0, function () {
-    var query, body, url, res, responseBody, message;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                params = params !== null && params !== void 0 ? params : {};
-                if (['/history/activity-instance', '/history/variable-instance', '/history/decision-instance'].includes(path) &&
-                    !params['maxResults']) {
-                    params['maxResults'] = getMaxResultsParam();
-                }
-                query = new URLSearchParams(params).toString();
-                body = payload !== null && payload !== void 0 ? payload : null;
-                url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
-                return [4 /*yield*/, fetchFn(url, {
-                        method: 'post',
-                        headers: headers(api),
-                        body: body,
-                    })];
-            case 1:
-                res = _a.sent();
-                return [4 /*yield*/, parseResponseBody(res)];
-            case 2:
-                responseBody = _a.sent();
-                if (res.ok) {
-                    return [2 /*return*/, responseBody];
-                }
-                else {
-                    message = typeof responseBody === 'object' && responseBody !== null && 'message' in responseBody
-                        ? String(responseBody.message)
-                        : "API error: ".concat(res.status);
-                    throw new ApiError(message, res.status, responseBody, path);
-                }
-        }
-    });
-}); };
-// =============================================================================
-// Typed API Client Functions
-// =============================================================================
-/**
- * Fetches historic activity instances for a process instance.
- * @param api - The API configuration object
- * @param processInstanceId - The process instance ID
- * @param params - Optional additional query parameters
- * @returns Promise resolving to array of historic activity instances
- */
-function getActivities(api, processInstanceId, params) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, get(api, '/history/activity-instance', __assign({ processInstanceId: processInstanceId }, params))];
-                case 1: return [2 /*return*/, (_a.sent())];
-            }
-        });
-    });
-}
-/**
- * Fetches historic variable instances for a process instance.
- * @param api - The API configuration object
- * @param processInstanceId - The process instance ID
- * @param params - Optional additional query parameters
- * @returns Promise resolving to array of historic variable instances
- */
-function getVariables(api, processInstanceId, params) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, get(api, '/history/variable-instance', __assign({ processInstanceId: processInstanceId }, params))];
-                case 1: return [2 /*return*/, (_a.sent())];
-            }
-        });
-    });
-}
-/**
- * Fetches historic decision instances for a process instance.
- * @param api - The API configuration object
- * @param processInstanceId - The process instance ID
- * @param params - Optional additional query parameters
- * @returns Promise resolving to array of historic decision instances
- */
-function getDecisions(api, processInstanceId, params) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, get(api, '/history/decision-instance', __assign({ processInstanceId: processInstanceId }, params))];
-                case 1: return [2 /*return*/, (_a.sent())];
-            }
-        });
-    });
-}
-/**
- * Fetches a process definition by ID.
- * Results are cached for 5 minutes since process definitions rarely change.
- * @param api - The API configuration object
- * @param processDefinitionId - The process definition ID
- * @returns Promise resolving to the process definition
- */
-function getProcessDefinition(api, processDefinitionId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var cached, data;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    cached = processDefinitionCache.get(processDefinitionId);
-                    if (isCacheValid(cached)) {
-                        return [2 /*return*/, cached.data];
-                    }
-                    return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId))];
-                case 1:
-                    data = (_a.sent());
-                    // Store in cache
-                    processDefinitionCache.set(processDefinitionId, {
-                        data: data,
-                        timestamp: Date.now(),
-                    });
-                    return [2 /*return*/, data];
-            }
-        });
-    });
-}
-/**
- * Fetches the BPMN XML for a process definition.
- * Results are cached for 5 minutes since BPMN XML doesn't change for a given definition ID.
- * @param api - The API configuration object
- * @param processDefinitionId - The process definition ID
- * @returns Promise resolving to the BPMN XML object with id and bpmn20Xml properties
- */
-function getProcessDefinitionXml(api, processDefinitionId) {
-    return __awaiter(this, void 0, void 0, function () {
-        var cached, data;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    cached = processDefinitionXmlCache.get(processDefinitionId);
-                    if (isCacheValid(cached)) {
-                        return [2 /*return*/, cached.data];
-                    }
-                    return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId, "/xml"))];
-                case 1:
-                    data = (_a.sent());
-                    // Store in cache
-                    processDefinitionXmlCache.set(processDefinitionId, {
-                        data: data,
-                        timestamp: Date.now(),
-                    });
-                    return [2 /*return*/, data];
-            }
-        });
-    });
-}
-/**
- * Fetches a historic process instance by ID.
- * @param api - The API configuration object
- * @param processInstanceId - The process instance ID
- * @returns Promise resolving to the historic process instance
- */
-function getHistoricProcessInstance(api, processInstanceId) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, get(api, "/history/process-instance/".concat(processInstanceId))];
-                case 1: return [2 /*return*/, (_a.sent())];
-            }
-        });
-    });
-}
-/**
- * Fetches the engine version.
- * @param api - The API configuration object
- * @returns Promise resolving to the version object
- */
-function getVersion(api) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, get(api, '/version')];
-                case 1: return [2 /*return*/, (_a.sent())];
-            }
-        });
-    });
-}
-
 /** Message event types that can reference messages */
 var MESSAGE_EVENT_TYPES = [
     'bpmn:IntermediateCatchEvent',
@@ -77212,7 +77204,7 @@ var getBpmnElements = function (processDefinitionId, api) { return __awaiter(voi
     var _a;
     return __generator(this, function (_b) {
         switch (_b.label) {
-            case 0: return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId, "/xml"))];
+            case 0: return [4 /*yield*/, get$1(api, "/process-definition/".concat(processDefinitionId, "/xml"))];
             case 1:
                 definitionData = (_b.sent());
                 if (definitionData.bpmn20Xml === undefined) {
@@ -77314,7 +77306,7 @@ var RestartProcessForm = function (_a) {
                             terminationType: terminationType,
                         });
                         return [3 /*break*/, 5];
-                    case 2: return [4 /*yield*/, get(api, "/process-definition/".concat(processDefinitionId))];
+                    case 2: return [4 /*yield*/, get$1(api, "/process-definition/".concat(processDefinitionId))];
                     case 3:
                         processDefResponse = _b.sent();
                         processDefinition = processDefResponse;
@@ -77322,15 +77314,15 @@ var RestartProcessForm = function (_a) {
                             throw new Error('Could not determine process definition key');
                         }
                         return [4 /*yield*/, Promise.all([
-                                get(api, '/history/process-instance', {
+                                get$1(api, '/history/process-instance', {
                                     processDefinitionKey: processDefinition.key,
                                     externallyTerminated: 'true',
                                 }),
-                                get(api, '/history/process-instance', {
+                                get$1(api, '/history/process-instance', {
                                     processDefinitionKey: processDefinition.key,
                                     internallyTerminated: 'true',
                                 }),
-                                get(api, '/history/process-instance', {
+                                get$1(api, '/history/process-instance', {
                                     processDefinitionKey: processDefinition.key,
                                     completed: 'true',
                                 }),
@@ -79522,7 +79514,7 @@ var Modal = function (_a) {
                                 if (!(variable.type !== 'Json')) return [3 /*break*/, 1];
                                 setIsOpen(true);
                                 return [3 /*break*/, 3];
-                            case 1: return [4 /*yield*/, get(api, "/history/variable-instance/".concat(variable.id), {
+                            case 1: return [4 /*yield*/, get$1(api, "/history/variable-instance/".concat(variable.id), {
                                     deserializeValue: 'false',
                                 })];
                             case 2:
@@ -80019,7 +80011,7 @@ var HistoryService = /** @class */ (function () {
             if (params === void 0) { params = {}; }
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, get(this.api, '/history/activity-instance', __assign({ processInstanceId: instanceId }, params))];
+                    case 0: return [4 /*yield*/, get$1(this.api, '/history/activity-instance', __assign({ processInstanceId: instanceId }, params))];
                     case 1:
                         result = _a.sent();
                         return [2 /*return*/, Array.isArray(result) ? result : []];
@@ -80048,7 +80040,7 @@ var HistoryService = /** @class */ (function () {
                                 cleanedParams[key] = typeof value === 'boolean' ? String(value) : value;
                             }
                         }
-                        return [4 /*yield*/, get(this.api, '/history/activity-instance', cleanedParams)];
+                        return [4 /*yield*/, get$1(this.api, '/history/activity-instance', cleanedParams)];
                     case 1:
                         result = _c.sent();
                         return [2 /*return*/, Array.isArray(result) ? result : []];
@@ -80068,7 +80060,7 @@ var HistoryService = /** @class */ (function () {
             if (params === void 0) { params = {}; }
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, get(this.api, '/history/variable-instance', __assign({ processInstanceId: instanceId }, params))];
+                    case 0: return [4 /*yield*/, get$1(this.api, '/history/variable-instance', __assign({ processInstanceId: instanceId }, params))];
                     case 1:
                         result = _a.sent();
                         return [2 /*return*/, Array.isArray(result) ? result : []];
@@ -80088,7 +80080,7 @@ var HistoryService = /** @class */ (function () {
             if (params === void 0) { params = {}; }
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, get(this.api, '/history/decision-instance', __assign({ processInstanceId: instanceId }, params))];
+                    case 0: return [4 /*yield*/, get$1(this.api, '/history/decision-instance', __assign({ processInstanceId: instanceId }, params))];
                     case 1:
                         result = _a.sent();
                         return [2 /*return*/, Array.isArray(result) ? result : []];
@@ -80108,7 +80100,7 @@ var HistoryService = /** @class */ (function () {
             if (params === void 0) { params = {}; }
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, get(this.api, "/process-definition/".concat(processDefinitionId, "/statistics"), params)];
+                    case 0: return [4 /*yield*/, get$1(this.api, "/process-definition/".concat(processDefinitionId, "/statistics"), params)];
                     case 1:
                         result = _a.sent();
                         return [2 /*return*/, Array.isArray(result) ? result : []];
