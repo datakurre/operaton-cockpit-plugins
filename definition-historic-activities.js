@@ -21403,10 +21403,15 @@ var DEFAULT_MAX_RESULTS = 1000;
 // =============================================================================
 // Heatmap Constants
 // =============================================================================
-/** Layer index of the heatmap, above the diagram and the executed path */
-var HEATMAP_LAYER_INDEX = 2;
-/** Opacity of the heatmap layer, low enough to keep labels readable through it */
-var HEATMAP_OPACITY = 0.7;
+/**
+ * Layer index of the heatmap. Negative puts it *below* diagram-js's base layer, so
+ * element borders, labels and flows stay crisp on top of the heat rather than being
+ * tinted by it. Shapes paint a near-opaque white fill, so the heat reads as a halo
+ * around them rather than a wash over them.
+ */
+var HEATMAP_LAYER_INDEX = -1;
+/** Opacity of the heatmap layer. It sits behind the diagram, so it can be strong */
+var HEATMAP_OPACITY = 0.85;
 /** Gaussian blur applied to the whole heatmap group, in diagram units */
 var HEATMAP_BLUR = 12;
 /** Blob radius as a multiple of half the element's longest side */
@@ -21414,16 +21419,25 @@ var HEATMAP_RADIUS_SCALE = 2.1;
 /** Smallest blob radius, so events and gateways still register */
 var HEATMAP_MIN_RADIUS = 46;
 /** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
-var HEATMAP_GAMMA = 0.5;
-/** Opacity weight of the coldest element, so quiet parts stay faint rather than loud */
-var HEATMAP_MIN_ALPHA = 0.22;
+var HEATMAP_GAMMA = 0.7;
 /** How much of a blob's radius follows intensity rather than the element's size */
 var HEATMAP_BLOOM = 0.35;
+/** Samples taken from the colour ramp to build the filter's transfer tables */
+var HEATMAP_RAMP_SAMPLES = 12;
+/** Width of the density smear drawn along a sequence flow, in diagram units */
+var HEATMAP_PATH_WIDTH = 30;
+/** Density floor, so a cold-but-executed element still joins the field */
+var HEATMAP_MIN_DENSITY = 0.1;
 /**
- * Falloff exponent for the colour within a blob. Below 1 the hot colour holds further
- * out, so a single centre stop does not get blurred away into the cooler ring.
+ * Amplifies the density field before it is coloured. Blurring spreads each
+ * contribution and so lowers its peak; without a gain the hottest element never
+ * reaches the top of the ramp and the map tops out orange.
  */
-var HEATMAP_CORE = 0.55;
+var HEATMAP_DENSITY_GAIN = 1.25;
+/** Exponent on the opacity curve; above 1 it holds cold regions back */
+var HEATMAP_ALPHA_EXPONENT = 1.6;
+/** Slope of the opacity curve once it starts rising */
+var HEATMAP_ALPHA_SLOPE = 2.1;
 
 var componentEvent = {};
 
@@ -21892,49 +21906,223 @@ function getIntensity(totalMillis, maxMillis) {
     }
     return Math.pow(Math.min(1, totalMillis / maxMillis), HEATMAP_GAMMA);
 }
-/** Gradient stops per blob, from the hot core out to the transparent rim. */
-var BLOB_STOPS = 6;
-/** Decimal places kept on a stop's opacity. */
-var ALPHA_PRECISION = 3;
 /**
- * Builds the radial gradient a single blob is painted with.
+ * Builds the filter that turns the density field into heat.
  *
- * The ramp is walked *within* each blob rather than one flat hue per element: the core
- * sits at the element's own intensity and cools outwards through the ramp to a
- * transparent rim. That is what makes a hot element read as a hot spot — a red core
- * inside a yellow-green halo — instead of a uniformly tinted disc.
+ * This is the part that makes the map continuous rather than a scatter of coloured
+ * discs. Everything below is drawn in plain white at varying opacity, so overlapping
+ * contributions compose into one greyscale density field; only then is that field
+ * blurred and mapped through the colour ramp. Colouring each blob separately, as the
+ * first version did, cannot merge neighbours — two warm elements stay two warm spots
+ * instead of becoming one warm region.
+ *
+ * The chain is: blur, copy alpha into every channel, then transfer each channel
+ * through a table sampled from the ramp. Because the tables are indexed by the same
+ * density value, the result is the ramp colour for that density.
  *
  * @param defs - The defs element to append to
- * @param id - Unique gradient id
- * @param intensity - The element's normalised heat
- * @returns The created gradient
+ * @param id - Unique filter id
+ * @returns The created filter
  */
-function createBlobGradient(defs, id, intensity) {
+function createHeatFilter(defs, id) {
+    var _a;
+    var filterEl = create('filter');
+    attr(filterEl, {
+        id: id,
+        x: '-25%',
+        y: '-25%',
+        width: '150%',
+        height: '150%',
+        // Without this the browser interpolates in linearRGB and the ramp washes out.
+        'color-interpolation-filters': 'sRGB',
+    });
+    var blur = create('feGaussianBlur');
+    attr(blur, { in: 'SourceGraphic', stdDeviation: HEATMAP_BLUR, result: 'density' });
+    append(filterEl, blur);
+    // Copy the density (alpha) into R, G and B so the transfer tables below all read it.
+    var spread = create('feColorMatrix');
+    attr(spread, {
+        in: 'density',
+        type: 'matrix',
+        // The gain in every row lifts the blurred peak back to the top of the ramp.
+        values: "0 0 0 ".concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0"),
+        result: 'grey',
+    });
+    append(filterEl, spread);
+    var channels = [[], [], []];
+    var alphas = [];
+    for (var sample = 0; sample < HEATMAP_RAMP_SAMPLES; sample++) {
+        var along = sample / (HEATMAP_RAMP_SAMPLES - 1);
+        var rgb = /rgb\((\d+), (\d+), (\d+)\)/.exec(getHeatColor(along));
+        for (var channel = 0; channel < channels.length; channel++) {
+            channels[channel].push(Number((_a = rgb === null || rgb === void 0 ? void 0 : rgb[channel + 1]) !== null && _a !== void 0 ? _a : 0) / MAX_CHANNEL);
+        }
+        // Cold density fades out rather than hazing blue across the whole canvas.
+        alphas.push(Math.min(1, Math.pow(along, HEATMAP_ALPHA_EXPONENT) * HEATMAP_ALPHA_SLOPE));
+    }
+    var transfer = create('feComponentTransfer');
+    attr(transfer, { in: 'grey' });
+    ['feFuncR', 'feFuncG', 'feFuncB'].forEach(function (name, channel) {
+        var func = create(name);
+        attr(func, { type: 'table', tableValues: channels[channel].join(' ') });
+        append(transfer, func);
+    });
+    var funcA = create('feFuncA');
+    attr(funcA, { type: 'table', tableValues: alphas.join(' ') });
+    append(transfer, funcA);
+    append(filterEl, transfer);
+    append(defs, filterEl);
+    return filterEl;
+}
+/**
+ * The single radial gradient every density blob is painted with: opaque white at the
+ * centre, transparent at the rim. One definition serves every blob because intensity
+ * is carried by the blob's own opacity, not by its colour.
+ */
+function createDensityGradient(defs, id) {
     var gradient = create('radialGradient');
     attr(gradient, { id: id });
-    // Alpha carries intensity as well as the colour does. Without it a barely-used
-    // element paints just as solidly as the worst offender, only in blue, and the
-    // diagram reads as uniformly busy instead of pointing at the slow parts.
-    var weight = HEATMAP_MIN_ALPHA + (1 - HEATMAP_MIN_ALPHA) * intensity;
-    for (var step = 0; step < BLOB_STOPS; step++) {
-        var along = step / (BLOB_STOPS - 1);
-        var stop_1 = create('stop');
-        attr(stop_1, {
-            offset: "".concat(Math.round(along * 100), "%"),
-            'stop-color': getHeatColor(intensity * Math.pow(1 - along, HEATMAP_CORE)),
-            'stop-opacity': ((1 - along) * weight).toFixed(ALPHA_PRECISION),
-        });
-        append(gradient, stop_1);
-    }
+    var inner = create('stop');
+    attr(inner, { offset: '0%', 'stop-color': 'white', 'stop-opacity': 1 });
+    var outer = create('stop');
+    attr(outer, { offset: '100%', 'stop-color': 'white', 'stop-opacity': 0 });
+    append(gradient, inner);
+    append(gradient, outer);
+    append(defs, gradient);
+    return gradient;
+}
+/** Largest value of an RGB channel, for normalising ramp samples into transfer tables. */
+var MAX_CHANNEL = 255;
+/**
+ * Density contributed by an element, floored so an executed-but-quick element still
+ * joins the field instead of leaving a hole in it.
+ */
+function densityOf(intensity) {
+    return HEATMAP_MIN_DENSITY + (1 - HEATMAP_MIN_DENSITY) * intensity;
+}
+/**
+ * The gradient fading a flow from its source's density to its target's.
+ */
+function createFlowGradient(defs, id, smear) {
+    var gradient = create('linearGradient');
+    attr(gradient, {
+        id: id,
+        gradientUnits: 'userSpaceOnUse',
+        x1: smear.start.x,
+        y1: smear.start.y,
+        x2: smear.end.x,
+        y2: smear.end.y,
+    });
+    var first = create('stop');
+    attr(first, { offset: '0%', 'stop-color': 'white', 'stop-opacity': smear.from });
+    var last = create('stop');
+    attr(last, { offset: '100%', 'stop-color': 'white', 'stop-opacity': smear.to });
+    append(gradient, first);
+    append(gradient, last);
     append(defs, gradient);
     return gradient;
 }
 /**
+ * The thick soft stroke that carries a flow's density along its waypoints.
+ */
+function createFlowSmear(waypoints, gradientId) {
+    var line = create('path');
+    attr(line, {
+        d: waypoints.map(function (point, at) { return "".concat(at === 0 ? 'M' : 'L', " ").concat(point.x, " ").concat(point.y); }).join(' '),
+        fill: 'none',
+        stroke: "url(#".concat(gradientId, ")"),
+        'stroke-width': HEATMAP_PATH_WIDTH,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+    });
+    return line;
+}
+/**
+ * Smears density along the sequence flows between heated elements.
+ *
+ * Flows carry no duration of their own, so this is interpolation rather than
+ * measurement: the smear fades from the source's density to the target's. It exists to
+ * close the gaps between elements so the map reads as one field, and it never invents
+ * a hot spot — a flow can only be as warm as the elements it joins.
+ *
+ * @param group - The density group to draw into
+ * @param defs - Where the per-flow gradients go
+ * @param registry - BPMN element registry
+ * @param density - Density per element id
+ * @param sequence - Render sequence, for unique gradient ids
+ * @returns The gradients created, for cleanup
+ */
+function appendFlowDensity(group, defs, registry, density, sequence) {
+    var _a, _b;
+    var created = [];
+    var index = 0;
+    for (var _i = 0, _c = Array.from(density.keys()); _i < _c.length; _i++) {
+        var elementId = _c[_i];
+        var element = registry.get(elementId);
+        for (var _d = 0, _e = (_a = element === null || element === void 0 ? void 0 : element.outgoing) !== null && _a !== void 0 ? _a : []; _d < _e.length; _d++) {
+            var flow = _e[_d];
+            var from = density.get(elementId);
+            var to = density.get(flow.target.id);
+            var waypoints = (_b = flow.waypoints) !== null && _b !== void 0 ? _b : [];
+            var start = waypoints[0];
+            var end = waypoints[waypoints.length - 1];
+            if (from === undefined || to === undefined || start === undefined || end === undefined) {
+                continue;
+            }
+            var gradientId = "history-heatmap-flow-".concat(sequence, "-").concat(index++);
+            created.push(createFlowGradient(defs, gradientId, { start: start, end: end, from: from, to: to }));
+            append(group, createFlowSmear(waypoints, gradientId));
+        }
+    }
+    return created;
+}
+/**
+ * The density blob for one element, or null when it has no bounds to sit on.
+ */
+function createDensityBlob(registry, cell, maxMillis, gradientId) {
+    var _a, _b;
+    var element = registry.get(cell.elementId);
+    var width = element === null || element === void 0 ? void 0 : element.width;
+    var height = element === null || element === void 0 ? void 0 : element.height;
+    if (element === undefined || width === undefined || height === undefined) {
+        return null;
+    }
+    var intensity = getIntensity(cell.totalMillis, maxMillis);
+    // Hot spots bloom a little wider as well as denser, so they read first.
+    var spread = 1 - HEATMAP_BLOOM + HEATMAP_BLOOM * intensity;
+    var radius = Math.max(HEATMAP_MIN_RADIUS, (Math.max(width, height) / 2) * HEATMAP_RADIUS_SCALE) * spread;
+    var blob = create('ellipse');
+    attr(blob, {
+        cx: ((_a = element.x) !== null && _a !== void 0 ? _a : 0) + width / 2,
+        cy: ((_b = element.y) !== null && _b !== void 0 ? _b : 0) + height / 2,
+        rx: radius,
+        ry: radius,
+        fill: "url(#".concat(gradientId, ")"),
+        opacity: densityOf(intensity),
+    });
+    return blob;
+}
+/**
+ * Creates the colourising filter and the shared density gradient for one render.
+ * Ids carry the render sequence so two diagrams on a page cannot share them.
+ * @param defs - The defs element to append to
+ * @param sequence - This render's sequence number
+ * @returns The ids to reference and the nodes to remove later
+ */
+function prepareHeatDefs(defs, sequence) {
+    var filterId = "history-heatmap-filter-".concat(sequence);
+    var gradientId = "history-heatmap-density-".concat(sequence);
+    return {
+        filterId: filterId,
+        gradientId: gradientId,
+        nodes: [createHeatFilter(defs, filterId), createDensityGradient(defs, gradientId)],
+    };
+}
+/**
  * Renders the heatmap layer over the diagram.
  *
- * Blobs are drawn in diagram coordinates on their own canvas layer, so panning and
- * zooming carry them along without any redraw, and the whole group is blurred as one
- * so neighbouring hot spots merge instead of reading as separate discs.
+ * Blobs and flow smears are drawn in diagram coordinates on their own canvas layer, so
+ * panning and zooming carry them along without any redraw.
  *
  * @param viewer - The BPMN viewer instance
  * @param activities - Historic activity instances to visualise
@@ -21952,14 +22140,8 @@ var renderHeatmap = function (viewer, activities) {
     var maxMillis = (_b = (_a = cells[0]) === null || _a === void 0 ? void 0 : _a.totalMillis) !== null && _b !== void 0 ? _b : 0;
     var defs = resolveDefs(canvas);
     var sequence = heatmapSequence++;
-    var filterId = "history-heatmap-blur-".concat(sequence);
-    var filterEl = create('filter');
-    attr(filterEl, { id: filterId, x: '-50%', y: '-50%', width: '200%', height: '200%' });
-    var blur = create('feGaussianBlur');
-    attr(blur, { stdDeviation: HEATMAP_BLUR });
-    append(filterEl, blur);
-    append(defs, filterEl);
-    added.push(filterEl);
+    var _c = prepareHeatDefs(defs, sequence), filterId = _c.filterId, gradientId = _c.gradientId, nodes = _c.nodes;
+    added.push.apply(added, nodes);
     var group = create('g');
     attr(group, {
         class: 'history-heatmap',
@@ -21967,30 +22149,20 @@ var renderHeatmap = function (viewer, activities) {
         opacity: HEATMAP_OPACITY,
         'pointer-events': 'none',
     });
-    cells.forEach(function (cell, index) {
-        var _a, _b;
-        var element = registry.get(cell.elementId);
-        var width = element === null || element === void 0 ? void 0 : element.width;
-        var height = element === null || element === void 0 ? void 0 : element.height;
-        if (element === undefined || width === undefined || height === undefined) {
-            return;
+    var density = new Map();
+    for (var _i = 0, cells_1 = cells; _i < cells_1.length; _i++) {
+        var cell = cells_1[_i];
+        density.set(cell.elementId, densityOf(getIntensity(cell.totalMillis, maxMillis)));
+    }
+    // Flows go down first so element blobs sit over their joins.
+    added.push.apply(added, appendFlowDensity(group, defs, registry, density, sequence));
+    for (var _d = 0, cells_2 = cells; _d < cells_2.length; _d++) {
+        var cell = cells_2[_d];
+        var blob = createDensityBlob(registry, cell, maxMillis, gradientId);
+        if (blob) {
+            append(group, blob);
         }
-        var intensity = getIntensity(cell.totalMillis, maxMillis);
-        var gradientId = "history-heatmap-blob-".concat(sequence, "-").concat(index);
-        added.push(createBlobGradient(defs, gradientId, intensity));
-        // Hot spots bloom a little wider as well as brighter, so they read first.
-        var spread = 1 - HEATMAP_BLOOM + HEATMAP_BLOOM * intensity;
-        var radius = Math.max(HEATMAP_MIN_RADIUS, (Math.max(width, height) / 2) * HEATMAP_RADIUS_SCALE) * spread;
-        var blob = create('ellipse');
-        attr(blob, {
-            cx: ((_a = element.x) !== null && _a !== void 0 ? _a : 0) + width / 2,
-            cy: ((_b = element.y) !== null && _b !== void 0 ? _b : 0) + height / 2,
-            rx: radius,
-            ry: radius,
-            fill: "url(#".concat(gradientId, ")"),
-        });
-        append(group, blob);
-    });
+    }
     append(canvas.getLayer('historyHeatmap', HEATMAP_LAYER_INDEX), group);
     added.push(group);
     return added;
