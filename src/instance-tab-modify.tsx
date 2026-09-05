@@ -69,6 +69,7 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [actualProcessDefId, setActualProcessDefId] = useState<string | null>(null);
 
   const methods = useForm<ModifyFormData>({
@@ -159,6 +160,7 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
     try {
       setIsSubmitted(true);
       setError(null);
+      setSuccessMessage(null);
 
       const payload = {
         skipCustomListeners: data.skipCustomListeners,
@@ -200,8 +202,7 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
 
       await post(api, `/process-instance/${processInstanceId}/modification`, {}, JSON.stringify(payload));
 
-      // Show success message instead of immediate refresh
-      setError('Process instance modified successfully! The page will refresh to show updates.');
+      setSuccessMessage('Process instance modified successfully! The page will refresh to show updates.');
       setIsSubmitted(false);
 
       // Delay refresh to allow user to see success message
@@ -280,8 +281,8 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
           extreme care and only if you understand the consequences.
         </WarningBox>
 
-        {error &&
-          (error.includes('successfully') ? <SuccessMessage message={error} /> : <ErrorMessage message={error} />)}
+        {error !== null && <ErrorMessage message={error} />}
+        {successMessage !== null && <SuccessMessage message={successMessage} />}
 
         <FormButton type="submit" disabled={isSubmitted} variant="primary" minWidth={160}>
           {isSubmitted ? 'Modifying...' : 'Apply Modifications'}

@@ -16,11 +16,43 @@ import {
   createAsyncAutocompleter,
 } from 'react-select-filter-box';
 import type { API } from '../types';
+import { ApiError, get } from './api';
 import { datePickerWidget } from './datePickerWidget';
 import './datePickerWidget.scss';
 
 /** HTTP status code for Forbidden */
 const HTTP_FORBIDDEN = 403;
+
+/**
+ * Run an autocomplete lookup, treating a denied permission as "no suggestions".
+ *
+ * Autocompletion is an optional convenience: a user who may not list groups should still
+ * be able to type a group id by hand rather than see an error.
+ * @param api - The API configuration object
+ * @param path - Engine API path to query
+ * @param params - Query parameters
+ * @param signal - Optional signal aborting a superseded lookup
+ * @param deniedMessage - Logged when the engine denies the lookup
+ * @returns The rows, or an empty array when the lookup is not permitted
+ */
+async function lookup<T>(
+  api: API,
+  path: string,
+  params: Record<string, string>,
+  signal: AbortSignal | undefined,
+  deniedMessage: string
+): Promise<T[]> {
+  try {
+    const rows = await get(api, path, params, { signal });
+    return Array.isArray(rows) ? (rows as T[]) : [];
+  } catch (error) {
+    if (error instanceof ApiError && error.status === HTTP_FORBIDDEN) {
+      console.warn(deniedMessage);
+      return [];
+    }
+    throw error;
+  }
+}
 /** Default debounce delay in milliseconds for autocomplete searches */
 const DEFAULT_DEBOUNCE_MS = 300;
 
@@ -212,11 +244,13 @@ export interface ApiAutocompleterOptions {
  * ```typescript
  * const userAutocompleter = createApiAutocompleter(
  *   async (query, api, signal) => {
- *     const response = await fetch(
- *       `${api.engineApi}/user?nameLike=${encodeURIComponent(query)}%`,
- *       { signal, headers: headers(api) }
+ *     const users = await lookup<UserProfileDto>(
+ *       api,
+ *       '/user',
+ *       { nameLike: `${query}%` },
+ *       signal,
+ *       'User search permission denied'
  *     );
- *     const users = await response.json();
  *     return users.map(u => ({ key: u.id, label: u.id }));
  *   },
  *   { api, minChars: 2, maxResults: 10 }
@@ -327,37 +361,17 @@ export function createUserAutocompleter(
   return createApiAutocompleter(
     async (query: string, apiConfig: API, signal?: AbortSignal): Promise<AutocompleteItem[]> => {
       const encodedQuery = encodeURIComponent(query);
-      const headers = {
-        Accept: 'application/json',
-        'X-XSRF-TOKEN': apiConfig.CSRFToken,
-      };
-
       // Perform three separate searches (REST API uses AND logic, not OR)
-      const searches = [
-        `${apiConfig.engineApi}/user?firstNameLike=%${encodedQuery}%`,
-        `${apiConfig.engineApi}/user?lastNameLike=%${encodedQuery}%`,
-        `${apiConfig.engineApi}/user?emailLike=%${encodedQuery}%`,
+      const searches: Record<string, string>[] = [
+        { firstNameLike: `%${encodedQuery}%` },
+        { lastNameLike: `%${encodedQuery}%` },
+        { emailLike: `%${encodedQuery}%` },
       ];
 
       const results = await Promise.all(
-        searches.map(async url => {
+        searches.map(async params => {
           try {
-            const response = await fetch(url, {
-              signal: signal ?? null,
-              headers,
-            });
-
-            // Handle permission denied gracefully
-            if (response.status === HTTP_FORBIDDEN) {
-              console.warn('User search permission denied');
-              return [];
-            }
-
-            if (!response.ok) {
-              throw new Error(`User search failed: ${response.status}`);
-            }
-
-            return (await response.json()) as UserProfileDto[];
+            return await lookup<UserProfileDto>(apiConfig, '/user', params, signal, 'User search permission denied');
           } catch (error) {
             // If one search fails, continue with others
             console.warn('User search request failed:', error);
@@ -424,26 +438,13 @@ export function createGroupAutocompleter(
 ): ReturnType<typeof createAsyncAutocompleter> {
   return createApiAutocompleter(
     async (query: string, apiConfig: API, signal?: AbortSignal): Promise<AutocompleteItem[]> => {
-      const url = `${apiConfig.engineApi}/group?nameLike=%${encodeURIComponent(query)}%`;
-      const response = await fetch(url, {
-        signal: signal ?? null,
-        headers: {
-          Accept: 'application/json',
-          'X-XSRF-TOKEN': apiConfig.CSRFToken,
-        },
-      });
-
-      // Handle permission denied gracefully
-      if (response.status === HTTP_FORBIDDEN) {
-        console.warn('Group search permission denied');
-        return [];
-      }
-
-      if (!response.ok) {
-        throw new Error(`Group search failed: ${response.status}`);
-      }
-
-      const groups = (await response.json()) as GroupDto[];
+      const groups = await lookup<GroupDto>(
+        apiConfig,
+        '/group',
+        { nameLike: `%${query}%` },
+        signal,
+        'Group search permission denied'
+      );
       return groups
         .filter(g => g.id)
         .map(g => ({
@@ -493,26 +494,7 @@ export function createTenantAutocompleter(
 ): ReturnType<typeof createAsyncAutocompleter> {
   return createApiAutocompleter(
     async (query: string, apiConfig: API, signal?: AbortSignal): Promise<AutocompleteItem[]> => {
-      const url = `${apiConfig.engineApi}/tenant`;
-      const response = await fetch(url, {
-        signal: signal ?? null,
-        headers: {
-          Accept: 'application/json',
-          'X-XSRF-TOKEN': apiConfig.CSRFToken,
-        },
-      });
-
-      // Handle permission denied gracefully
-      if (response.status === HTTP_FORBIDDEN) {
-        console.warn('Tenant search permission denied');
-        return [];
-      }
-
-      if (!response.ok) {
-        throw new Error(`Tenant search failed: ${response.status}`);
-      }
-
-      const tenants = (await response.json()) as TenantDto[];
+      const tenants = await lookup<TenantDto>(apiConfig, '/tenant', {}, signal, 'Tenant search permission denied');
       const lowerQuery = query.toLowerCase();
 
       return tenants
@@ -567,20 +549,13 @@ export function createProcessDefinitionAutocompleter(
 ): ReturnType<typeof createAsyncAutocompleter> {
   return createApiAutocompleter(
     async (query: string, apiConfig: API, signal?: AbortSignal): Promise<AutocompleteItem[]> => {
-      const url = `${apiConfig.engineApi}/process-definition?nameLike=${encodeURIComponent(query)}%&latestVersion=true`;
-      const response = await fetch(url, {
-        signal: signal ?? null,
-        headers: {
-          Accept: 'application/json',
-          'X-XSRF-TOKEN': apiConfig.CSRFToken,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Process definition search failed: ${response.status}`);
-      }
-
-      const definitions = (await response.json()) as ProcessDefinitionDto[];
+      const definitions = await lookup<ProcessDefinitionDto>(
+        apiConfig,
+        '/process-definition',
+        { nameLike: `${query}%`, latestVersion: 'true' },
+        signal,
+        'Process definition search permission denied'
+      );
       return definitions
         .filter(d => d.name)
         .map(d => ({

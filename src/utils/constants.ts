@@ -54,6 +54,9 @@ export const MS_PER_SECOND = 1000;
 /** Minutes per hour */
 export const MINUTES_PER_HOUR = 60;
 
+/** Seconds per minute */
+export const SECONDS_PER_MINUTE = 60;
+
 /** Width of admin panel in pixels */
 export const ADMIN_PANEL_WIDTH_PX = 220;
 

@@ -20,6 +20,7 @@ import {
   type LegacyExpression,
 } from '../filterSchema';
 import type { FilterExpression, FilterSchema } from 'react-select-filter-box';
+import { setFetchFunction, resetFetchFunction } from '../api';
 
 describe('filterSchema', () => {
   describe('OPERATORS', () => {
@@ -994,9 +995,12 @@ describe('filterSchema', () => {
 
     beforeEach(() => {
       global.fetch = jest.fn();
+      // The autocompleters go through utils/api, which holds its own injectable fetch.
+      setFetchFunction(global.fetch as unknown as typeof fetch);
     });
 
     afterEach(() => {
+      resetFetchFunction();
       jest.resetAllMocks();
     });
 
@@ -1017,16 +1021,19 @@ describe('filterSchema', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => mockUsersFirstName,
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => mockUsersLastName,
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => mockUsersEmail,
         });
 
@@ -1050,7 +1057,7 @@ describe('filterSchema', () => {
       expect(global.fetch).toHaveBeenCalledTimes(3);
       expect(global.fetch).toHaveBeenNthCalledWith(
         1,
-        'http://localhost:8080/engine-rest/user?firstNameLike=%john%',
+        'http://localhost:8080/engine-rest/user?firstNameLike=%25john%25',
         expect.objectContaining({
           headers: expect.objectContaining({
             Accept: 'application/json',
@@ -1060,7 +1067,7 @@ describe('filterSchema', () => {
       );
       expect(global.fetch).toHaveBeenNthCalledWith(
         2,
-        'http://localhost:8080/engine-rest/user?lastNameLike=%john%',
+        'http://localhost:8080/engine-rest/user?lastNameLike=%25john%25',
         expect.objectContaining({
           headers: expect.objectContaining({
             Accept: 'application/json',
@@ -1070,7 +1077,7 @@ describe('filterSchema', () => {
       );
       expect(global.fetch).toHaveBeenNthCalledWith(
         3,
-        'http://localhost:8080/engine-rest/user?emailLike=%john%',
+        'http://localhost:8080/engine-rest/user?emailLike=%25john%25',
         expect.objectContaining({
           headers: expect.objectContaining({
             Accept: 'application/json',
@@ -1094,16 +1101,19 @@ describe('filterSchema', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => mockUsers,
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => [],
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => [],
         });
 
@@ -1133,16 +1143,19 @@ describe('filterSchema', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => [duplicateUser],
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => [duplicateUser],
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => [duplicateUser],
         });
 
@@ -1174,6 +1187,8 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 403,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        json: async () => ({ message: 'Forbidden' }),
       });
 
       const autocompleter = require('../filterSchema').createUserAutocompleter(mockApi, {
@@ -1209,16 +1224,19 @@ describe('filterSchema', () => {
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => mockUsers,
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => [],
         })
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
           json: async () => [],
         });
 
@@ -1249,9 +1267,12 @@ describe('filterSchema', () => {
 
     beforeEach(() => {
       global.fetch = jest.fn();
+      // The autocompleters go through utils/api, which holds its own injectable fetch.
+      setFetchFunction(global.fetch as unknown as typeof fetch);
     });
 
     afterEach(() => {
+      resetFetchFunction();
       jest.resetAllMocks();
     });
 
@@ -1271,6 +1292,7 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: async () => mockGroups,
       });
 
@@ -1291,7 +1313,7 @@ describe('filterSchema', () => {
       const result = await autocompleter.getSuggestions(context);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/engine-rest/group?nameLike=%admin%',
+        'http://localhost:8080/engine-rest/group?nameLike=%25admin%25',
         expect.objectContaining({
           headers: expect.objectContaining({
             Accept: 'application/json',
@@ -1312,6 +1334,7 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: async () => mockGroups,
       });
 
@@ -1339,6 +1362,8 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 403,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        json: async () => ({ message: 'Forbidden' }),
       });
 
       const autocompleter = require('../filterSchema').createGroupAutocompleter(mockApi, {
@@ -1368,6 +1393,7 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: async () => mockGroups,
       });
 
@@ -1398,9 +1424,12 @@ describe('filterSchema', () => {
 
     beforeEach(() => {
       global.fetch = jest.fn();
+      // The autocompleters go through utils/api, which holds its own injectable fetch.
+      setFetchFunction(global.fetch as unknown as typeof fetch);
     });
 
     afterEach(() => {
+      resetFetchFunction();
       jest.resetAllMocks();
     });
 
@@ -1414,6 +1443,7 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: async () => mockTenants,
       });
 
@@ -1453,6 +1483,7 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: async () => mockTenants,
       });
 
@@ -1483,6 +1514,7 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: async () => mockTenants,
       });
 
@@ -1508,6 +1540,8 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         status: 403,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        json: async () => ({ message: 'Forbidden' }),
       });
 
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
@@ -1539,9 +1573,12 @@ describe('filterSchema', () => {
 
     beforeEach(() => {
       global.fetch = jest.fn();
+      // The autocompleters go through utils/api, which holds its own injectable fetch.
+      setFetchFunction(global.fetch as unknown as typeof fetch);
     });
 
     afterEach(() => {
+      resetFetchFunction();
       jest.resetAllMocks();
     });
 
@@ -1554,6 +1591,7 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: async () => mockDefinitions,
       });
 
@@ -1573,7 +1611,7 @@ describe('filterSchema', () => {
       const result = await autocompleter.getSuggestions(context);
 
       expect(global.fetch).toHaveBeenCalledWith(
-        'http://localhost:8080/engine-rest/process-definition?nameLike=invoice%&latestVersion=true',
+        'http://localhost:8080/engine-rest/process-definition?nameLike=invoice%25&latestVersion=true',
         expect.any(Object)
       );
 
@@ -1592,6 +1630,7 @@ describe('filterSchema', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
         json: async () => mockDefinitions,
       });
 

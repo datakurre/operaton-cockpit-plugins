@@ -60,7 +60,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [src/cockpit-custom-styles.tsx](src/cockpit-custom-styles.tsx): Minimal plugin that only applies custom stylesheets (SCSS) for UI customization without any JavaScript functionality.
 - [src/cockpit-nologin.tsx](src/cockpit-nologin.tsx): Cockpit no-login plugin that hides the signin form with CSS. For environments with external authentication (SSO, reverse proxy).
 - [src/dashboard-favourites.tsx](src/dashboard-favourites.tsx): Process definition favorites plugin. Adds a star button on process definition runtime views to favorite/unfavorite definitions, and provides a dashboard table showing favorited process definitions with version info and direct links.
-- [src/dashboard-integrations.tsx](src/dashboard-integrations.tsx): Cockpit dashboard section listing active external tasks (process, task, topic, worker, lock time, retries) with incident indicators and retry/unlock actions for individual tasks and batches. Reuses the favourites stored by `dashboard-favourites` (`minimal-history-plugin-favourites`) to offer a favourites-only filter, on by default.
+- [src/dashboard-integrations.tsx](src/dashboard-integrations.tsx): Cockpit dashboard section listing external tasks that carry an incident or are held by a worker (process, task, topic, worker, lock time, retries), with retry and unlock actions for individual tasks and batches. Loads in three bounded requests — the favourites filter goes into the external task query, definitions come back in one `processDefinitionIdIn` lookup and incidents in one `processDefinitionKeyIn` lookup. Reuses the favourites stored by `dashboard-favourites` (`minimal-history-plugin-favourites`) to offer a favourites-only filter, on by default.
 - [src/decisions-dashboard.tsx](src/decisions-dashboard.tsx): **Abandoned.** DMN "Decision Simulator" dashboard (`cockpit.decisions.dashboard`). See [Abandoned plugins](#abandoned-plugins) before touching it.
 - [src/definition-historic-activities.tsx](src/definition-historic-activities.tsx): Adds a runtime tab and diagram overlay for historic activity statistics with a filter UI and badge overlays.
 - [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition "Modify" tab hosting three batch operations against a definition: `BatchModifyForm` (Batch Modify), `BatchMessageForm` (Message) and `BatchSignalForm` (Signal). All three target instances through the shared helpers in
@@ -85,7 +85,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [ViewerService.ts](src/services/ViewerService.ts): BPMN viewer abstraction with interfaces for overlays, element registry, and canvas operations
 
 ### Shared utilities (`src/utils/`)
-- [api.ts](src/utils/api.ts): API helpers and CSRF-aware fetch wrappers
+- [api.ts](src/utils/api.ts): API helpers and CSRF-aware fetch wrappers. Everything that talks to the engine goes through these — they carry the CSRF header, normalise `api.engine`, raise `ApiError`, and route through the injectable fetch the tests replace. `get` also takes an abort signal, for callers that supersede their own requests
 - [angular.ts](src/utils/angular.ts): Angular service abstraction for testability (route reloading)
 - [authorization.ts](src/utils/authorization.ts): Authorization types, constants (AUTH_TYPES, RESOURCE_TYPES, PERMISSIONS_BY_RESOURCE), and helper functions for admin authorization management
 - [bpmn.ts](src/utils/bpmn.ts): Re-exports from `bpmn/` submodule for backwards compatibility
@@ -486,22 +486,14 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
   set, so the preview lists instances of the current definition and says in a note that the real reach is
   wider. This is a limit of the API, not a bug to fix.
 
-- **`dashboard-integrations` fetches external tasks one instance at a time.** It calls
-  `/external-task` with no `maxResults` and no `processDefinitionKeyIn`, then loops one
-  `GET /process-definition/{id}` and one `GET /incident` per instance, sequentially. Both filters exist
-  on those endpoints (`/incident` even takes `processDefinitionKeyIn`), and `getProcessDefinition` in
-  [src/utils/api.ts](src/utils/api.ts) is already cached, so this could be two calls rather than N.
-  Unfixed.
-
-- **Direct `fetch()` calls bypass the API helpers.** [src/utils/filterSchema.ts](src/utils/filterSchema.ts)
-  calls `fetch` directly in its four autocompleters. They send `Accept` and `X-XSRF-TOKEN` by hand but
-  skip `ApiError`, the `api.engine` normalisation in `get()`, and the `setFetchFunction` seam the tests
-  rely on. Unfixed.
-
-- **`instance-tab-modify` uses one state field for both success and failure.** `onSubmit` writes its
-  success text into `error`, and the render decides which alert to show with
-  `error.includes('successfully')`. The component already imports `SuccessMessage`; it wants a separate
-  state field. Unfixed.
+- **The build targets ES5, so `class extends Error` needs a prototype fix.** `tsconfig.json` sets
+  `"target": "es5"`, whose downlevel of `extends Error` drops the prototype link, silently making every
+  `err instanceof ApiError` false — in the shipped bundles, not only in tests. Seven call sites depended
+  on it, including the 404 check in [src/admin-route-authorization.tsx](src/admin-route-authorization.tsx)
+  that decides whether a resource is reported missing or merely unverifiable. `ApiError`'s constructor now
+  calls `Object.setPrototypeOf(this, ApiError.prototype)`, covered by a test in
+  [src/utils/__tests__/api.test.ts](src/utils/__tests__/api.test.ts). Any future class extending a builtin
+  (`Error`, `Array`, `Map`) needs the same line until the target is raised.
 
 - **react-select-filter-box installed from git**: The package has no npm releases and is pinned to a commit
   of `github:jyukopla/react-select-filter-box` in [package.json](package.json). Bumping it means moving the
