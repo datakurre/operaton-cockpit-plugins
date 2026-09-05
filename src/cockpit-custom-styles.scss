@@ -210,6 +210,13 @@
     }
 
     .stored-criteria .dropdown-menu {
+        min-width: 280px !important;
+        max-width: 400px !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        max-height: 450px !important;
+        padding: 6px 0 !important;
+
         .input-group-sm {
             display: flex !important;
             align-items: stretch !important;
@@ -237,6 +244,12 @@
                     justify-content: center !important;
                 }
             }
+        }
+
+        .stored-criteria-set > div {
+            white-space: normal !important;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
         }
     }
 }
