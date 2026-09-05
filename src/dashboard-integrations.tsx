@@ -16,7 +16,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { API } from './types';
 import { get, post, put } from './utils/api';
-import { MINUTES_PER_HOUR } from './utils/constants';
+import { DEFAULT_MAX_RESULTS, SECONDS_PER_MINUTE } from './utils/constants';
 import { formatDateTime } from './utils/formatting';
 import { getStorage } from './utils/storage';
 import ErrorMessage from './Components/ErrorMessage';
@@ -136,7 +136,9 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<Set<string>>(new Set());
-  const [favouriteKeys] = useState<Set<string>>(() => loadFavouriteKeys());
+  // Refreshed on every fetch: the render-time filter below and the server-side filter in
+  // fetchTasks have to agree, and starring a definition elsewhere changes the stored set.
+  const [favouriteKeys, setFavouriteKeys] = useState<Set<string>>(() => loadFavouriteKeys());
   const [favouritesOnly, setFavouritesOnly] = useState<boolean>(() => loadFavouritesOnlySetting());
 
   // Replace "Custom Plugins" section title with "Incidents and locked tasks"
@@ -152,7 +154,12 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   }, []);
 
   /**
-   * Fetch external tasks from the API
+   * Load the external tasks and everything shown alongside them.
+   *
+   * Three bounded requests, not one per definition and one per instance: the favourites
+   * filter is pushed into the external task query, definition names come back in a single
+   * `processDefinitionIdIn` lookup, and incidents in a single `processDefinitionKeyIn`
+   * lookup that is grouped by instance here.
    */
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
@@ -161,6 +168,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
       // Check favorites configuration early
       const favKeys = loadFavouriteKeys();
       const favouritesOnlyEnabled = loadFavouritesOnlySetting();
+      setFavouriteKeys(favKeys);
 
       // If favorites filter is enabled but no favorites configured, skip all API calls
       if (favouritesOnlyEnabled && favKeys.size === 0) {
@@ -172,63 +180,67 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
         return;
       }
 
-      // Fetch all external tasks
-      const externalTasks = (await get(api, '/external-task', {})) as ExternalTask[] | null;
+      const taskParams: Record<string, string> = { maxResults: String(DEFAULT_MAX_RESULTS) };
+      if (favouritesOnlyEnabled) {
+        taskParams['processDefinitionKeyIn'] = Array.from(favKeys).join(',');
+      }
+
+      const externalTasks = (await get(api, '/external-task', taskParams)) as ExternalTask[] | null;
       const taskList = externalTasks ?? [];
       setTasks(taskList);
 
-      // Filter tasks to favourites if enabled (using processDefinitionKey from external task)
-      const tasksToFetch = favouritesOnlyEnabled
-        ? taskList.filter(task => {
-            return task.processDefinitionKey ? favKeys.has(task.processDefinitionKey) : false;
-          })
-        : taskList;
+      if (taskList.length === 0) {
+        setProcessNames(new Map());
+        setProcessDefKeys(new Map());
+        setIncidents(new Map());
+        return;
+      }
 
-      // Collect unique process definition IDs from filtered tasks only
       const processDefIds = new Set<string>();
-      for (const task of tasksToFetch) {
+      const definitionKeys = new Set<string>();
+      for (const task of taskList) {
         if (task.processDefinitionId) {
           processDefIds.add(task.processDefinitionId);
         }
+        if (task.processDefinitionKey) {
+          definitionKeys.add(task.processDefinitionKey);
+        }
       }
 
-      // Fetch process definition names and keys (only for filtered tasks)
+      const [definitions, allIncidents] = await Promise.all([
+        processDefIds.size > 0
+          ? (get(api, '/process-definition', {
+              processDefinitionIdIn: Array.from(processDefIds).join(','),
+              maxResults: String(DEFAULT_MAX_RESULTS),
+            }) as Promise<ProcessDefinition[] | null>)
+          : Promise.resolve([]),
+        definitionKeys.size > 0
+          ? (get(api, '/incident', {
+              processDefinitionKeyIn: Array.from(definitionKeys).join(','),
+              maxResults: String(DEFAULT_MAX_RESULTS),
+            }) as Promise<Incident[] | null>)
+          : Promise.resolve([]),
+      ]);
+
       const namesMap = new Map<string, string>();
       const keysMap = new Map<string, string>();
-      for (const defId of Array.from(processDefIds)) {
-        try {
-          const def = (await get(api, `/process-definition/${defId}`, {})) as ProcessDefinition | null;
-          if (def) {
-            namesMap.set(defId, def.name ?? def.key);
-            keysMap.set(defId, def.key);
-          }
-        } catch {
-          // Ignore errors for individual definitions
-        }
+      for (const def of definitions ?? []) {
+        namesMap.set(def.id, def.name ?? def.key);
+        keysMap.set(def.id, def.key);
       }
       setProcessNames(namesMap);
       setProcessDefKeys(keysMap);
 
-      // Collect unique process instance IDs for incident lookup (only from filtered tasks)
-      const processInstanceIds = new Set<string>();
-      for (const task of tasksToFetch) {
-        if (task.processInstanceId) {
-          processInstanceIds.add(task.processInstanceId);
-        }
-      }
-
-      // Fetch incidents for each process instance (only for filtered tasks)
+      // /incident has no processInstanceIdIn, so the query is by definition key and the
+      // rows are grouped by instance here. Extra instances in the response are harmless:
+      // only the instances that have a task are ever looked up.
       const incidentsMap = new Map<string, Incident[]>();
-      for (const instanceId of Array.from(processInstanceIds)) {
-        try {
-          const instanceIncidents = (await get(api, '/incident', {
-            processInstanceId: instanceId,
-          })) as Incident[] | null;
-          if (instanceIncidents && instanceIncidents.length > 0) {
-            incidentsMap.set(instanceId, instanceIncidents);
-          }
-        } catch {
-          // Ignore errors for individual incidents
+      for (const incident of allIncidents ?? []) {
+        const existing = incidentsMap.get(incident.processInstanceId);
+        if (existing) {
+          existing.push(incident);
+        } else {
+          incidentsMap.set(incident.processInstanceId, [incident]);
         }
       }
       setIncidents(incidentsMap);
@@ -269,24 +281,16 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   };
 
   /**
-   * Check if a task has been locked for more than 5 minutes.
-   * We check if the task is currently locked (has a future lock expiration time).
-   * Since we don't have the exact lock start time from the API, we consider any
-   * currently locked task as potentially locked for more than 5 minutes.
+   * Check whether a task is currently held by a worker.
+   *
+   * The API reports when a lock expires but not when it was taken, so how long a task has
+   * been held cannot be derived here. This asks only whether it is held right now.
    */
-  const isLockedLongEnough = (task: ExternalTask): boolean => {
+  const isHeldByWorker = (task: ExternalTask): boolean => {
     if (!task.lockExpirationTime || !task.workerId) {
       return false;
     }
-    const lockExpirationDate = new Date(task.lockExpirationTime);
-    const now = new Date();
-
-    // Task is locked if expiration time is in the future
-    const currentlyLocked = lockExpirationDate > now;
-
-    // If the task is currently locked, we consider it locked long enough
-    // (since we can't determine the exact lock start time from the API)
-    return currentlyLocked;
+    return new Date(task.lockExpirationTime) > new Date();
   };
 
   /**
@@ -308,8 +312,8 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
 
     const remainingMs = lockDate.getTime() - now.getTime();
     const remainingSecs = Math.floor(remainingMs / 1000);
-    const mins = Math.floor(remainingSecs / MINUTES_PER_HOUR);
-    const secs = remainingSecs % MINUTES_PER_HOUR;
+    const mins = Math.floor(remainingSecs / SECONDS_PER_MINUTE);
+    const secs = remainingSecs % SECONDS_PER_MINUTE;
 
     return `${formatDateTime(lockTime)} (${mins}m ${secs}s remaining)`;
   };
@@ -317,8 +321,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
   // Pre-filter tasks for incident or lock check (before favourites filtering)
   const tasksWithIssues = tasks.filter(task => {
     const hasIncident = task.processInstanceId && incidents.has(task.processInstanceId);
-    const lockedLongEnough = isLockedLongEnough(task);
-    return Boolean(hasIncident) || lockedLongEnough;
+    return Boolean(hasIncident) || isHeldByWorker(task);
   });
 
   // Apply favourites filter on top
@@ -451,11 +454,12 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
     }
 
     try {
-      // Use batch endpoint if available, otherwise retry individually
-      await post(
+      // /external-task/retries is PUT-only. It used to be called with POST here, which the
+      // engine answered with 405 every time, so the batch never ran and a silent catch fell
+      // back to one request per task while hiding real failures such as a denied permission.
+      await put(
         api,
         '/external-task/retries',
-        {},
         JSON.stringify({
           externalTaskIds: taskIds,
           retries: 1,
@@ -463,19 +467,17 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
       );
       setSelectedTasks(new Set());
       await fetchTasks();
-    } catch {
-      // Fallback to individual retries using PUT helper
-      for (const taskId of taskIds) {
-        try {
-          await put(api, `/external-task/${taskId}/retries`, JSON.stringify({ retries: 1 }));
-        } catch (_err) {
-          console.error('Error retrying task:', taskId, _err);
-        }
-      }
-      setSelectedTasks(new Set());
-      await fetchTasks();
+    } catch (_err) {
+      console.error('Error retrying tasks:', _err);
+      setError(`Failed to retry ${taskIds.length} task${taskIds.length !== 1 ? 's' : ''}`);
     } finally {
-      setActionLoading(new Set());
+      setActionLoading(prev => {
+        const next = new Set(prev);
+        for (const taskId of taskIds) {
+          next.delete(taskId);
+        }
+        return next;
+      });
     }
   };
 

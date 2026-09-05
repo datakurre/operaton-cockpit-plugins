@@ -99,7 +99,27 @@
     h5 {
       margin: 0 0 10px 0;
       color: #0066cc;
+
+      & + h5,
+      ul + & {
+        margin-top: 15px;
+      }
     }
+  }
+
+  &__request-preview {
+    margin: 0;
+    padding: 10px;
+    max-height: 320px;
+    overflow: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.85em;
+    line-height: 1.4;
+    white-space: pre;
+    color: #333;
   }
 
   &__instance-list {

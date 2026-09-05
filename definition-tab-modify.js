@@ -99,7 +99,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-___$insertStylesToHeader("/**\n * Styles for instance-tab-modify and definition-tab-modify plugins.\n * Provides styling for the process modification form UI.\n */\n.modify-form {\n  padding: 10px;\n}\n.modify-form__loading {\n  padding: 10px;\n}\n.modify-form__meta-text {\n  font-size: 0.9em;\n  color: #666;\n}\n.modify-form__error {\n  padding: 10px;\n  color: red;\n}\n.modify-form__header {\n  margin-bottom: 15px;\n}\n.modify-form__description {\n  font-size: 0.95em;\n  color: #666;\n  margin-top: 5px;\n}\n.modify-form__section {\n  background: #f9f9f9;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n  padding: 15px;\n  margin-bottom: 20px;\n}\n.modify-form__field {\n  margin-bottom: 15px;\n}\n.modify-form__field label {\n  display: block;\n  font-weight: 500;\n  margin-bottom: 5px;\n}\n.modify-form__field input[type=checkbox] {\n  margin-right: 5px;\n}\n.modify-form__input, .modify-form__textarea {\n  width: 100%;\n  padding: 8px;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  font-family: inherit;\n  font-size: 0.95em;\n}\n.modify-form__input:focus, .modify-form__textarea:focus {\n  outline: none;\n  border-color: #4a90e2;\n}\n.modify-form__textarea {\n  resize: vertical;\n  font-family: monospace;\n}\n.modify-form__hint {\n  font-size: 0.9em;\n  color: #888;\n  font-style: italic;\n  margin-top: 5px;\n}\n.modify-form__add-instruction {\n  margin-bottom: 15px;\n}\n.modify-form__actions {\n  display: flex;\n  gap: 10px;\n  margin-top: 15px;\n}\n.modify-form__dry-run-result {\n  margin-top: 15px;\n  padding: 15px;\n  background: #e7f3ff;\n  border: 1px solid #b3d9ff;\n  border-radius: 4px;\n}\n.modify-form__dry-run-result h5 {\n  margin: 0 0 10px 0;\n  color: #0066cc;\n}\n.modify-form__instance-list {\n  list-style: none;\n  padding: 0;\n  margin: 0;\n  max-height: 300px;\n  overflow-y: auto;\n}\n.modify-form__instance-list li {\n  padding: 5px 10px;\n  margin: 2px 0;\n  background: white;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  font-family: monospace;\n  font-size: 0.9em;\n}");
+___$insertStylesToHeader("/**\n * Styles for instance-tab-modify and definition-tab-modify plugins.\n * Provides styling for the process modification form UI.\n */\n.modify-form {\n  padding: 10px;\n}\n.modify-form__loading {\n  padding: 10px;\n}\n.modify-form__meta-text {\n  font-size: 0.9em;\n  color: #666;\n}\n.modify-form__error {\n  padding: 10px;\n  color: red;\n}\n.modify-form__header {\n  margin-bottom: 15px;\n}\n.modify-form__description {\n  font-size: 0.95em;\n  color: #666;\n  margin-top: 5px;\n}\n.modify-form__section {\n  background: #f9f9f9;\n  border: 1px solid #ddd;\n  border-radius: 4px;\n  padding: 15px;\n  margin-bottom: 20px;\n}\n.modify-form__field {\n  margin-bottom: 15px;\n}\n.modify-form__field label {\n  display: block;\n  font-weight: 500;\n  margin-bottom: 5px;\n}\n.modify-form__field input[type=checkbox] {\n  margin-right: 5px;\n}\n.modify-form__input, .modify-form__textarea {\n  width: 100%;\n  padding: 8px;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  font-family: inherit;\n  font-size: 0.95em;\n}\n.modify-form__input:focus, .modify-form__textarea:focus {\n  outline: none;\n  border-color: #4a90e2;\n}\n.modify-form__textarea {\n  resize: vertical;\n  font-family: monospace;\n}\n.modify-form__hint {\n  font-size: 0.9em;\n  color: #888;\n  font-style: italic;\n  margin-top: 5px;\n}\n.modify-form__add-instruction {\n  margin-bottom: 15px;\n}\n.modify-form__actions {\n  display: flex;\n  gap: 10px;\n  margin-top: 15px;\n}\n.modify-form__dry-run-result {\n  margin-top: 15px;\n  padding: 15px;\n  background: #e7f3ff;\n  border: 1px solid #b3d9ff;\n  border-radius: 4px;\n}\n.modify-form__dry-run-result h5 {\n  margin: 0 0 10px 0;\n  color: #0066cc;\n}\n.modify-form__dry-run-result h5 + h5, ul + .modify-form__dry-run-result h5 {\n  margin-top: 15px;\n}\n.modify-form__request-preview {\n  margin: 0;\n  padding: 10px;\n  max-height: 320px;\n  overflow: auto;\n  background: white;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  font-family: monospace;\n  font-size: 0.85em;\n  line-height: 1.4;\n  white-space: pre;\n  color: #333;\n}\n.modify-form__instance-list {\n  list-style: none;\n  padding: 0;\n  margin: 0;\n  max-height: 300px;\n  overflow-y: auto;\n}\n.modify-form__instance-list li {\n  padding: 5px 10px;\n  margin: 2px 0;\n  background: white;\n  border: 1px solid #ccc;\n  border-radius: 3px;\n  font-family: monospace;\n  font-size: 0.9em;\n}");
 
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
@@ -184,17 +184,17 @@ var hasRequiredScheduler_production_min;
 function requireScheduler_production_min () {
 	if (hasRequiredScheduler_production_min) return scheduler_production_min;
 	hasRequiredScheduler_production_min = 1;
-	(function (exports$1) {
+	(function (exports) {
 function f(a,b){var c=a.length;a.push(b);a:for(;0<c;){var d=c-1>>>1,e=a[d];if(0<g(e,b))a[d]=b,a[c]=e,c=d;else break a}}function h(a){return 0===a.length?null:a[0]}function k(a){if(0===a.length)return null;var b=a[0],c=a.pop();if(c!==b){a[0]=c;a:for(var d=0,e=a.length,w=e>>>1;d<w;){var m=2*(d+1)-1,C=a[m],n=m+1,x=a[n];if(0>g(C,c))n<e&&0>g(x,C)?(a[d]=x,a[n]=c,d=n):(a[d]=C,a[m]=c,d=m);else if(n<e&&0>g(x,c))a[d]=x,a[n]=c,d=n;else break a}}return b}
-		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports$1.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports$1.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
+		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
 		"undefined"!==typeof navigator&&void 0!==navigator.scheduling&&void 0!==navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending.bind(navigator.scheduling);function G(a){for(var b=h(t);null!==b;){if(null===b.callback)k(t);else if(b.startTime<=a)k(t),b.sortIndex=b.expirationTime,f(r,b);else break;b=h(t);}}function H(a){B=false;G(a);if(!A)if(null!==h(r))A=true,I(J);else {var b=h(t);null!==b&&K(H,b.startTime-a);}}
-		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports$1.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
-		function M(){return exports$1.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports$1.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports$1.unstable_now());},b);}
-		exports$1.unstable_IdlePriority=5;exports$1.unstable_ImmediatePriority=1;exports$1.unstable_LowPriority=4;exports$1.unstable_NormalPriority=3;exports$1.unstable_Profiling=null;exports$1.unstable_UserBlockingPriority=2;exports$1.unstable_cancelCallback=function(a){a.callback=null;};exports$1.unstable_continueExecution=function(){A||z||(A=true,I(J));};
-		exports$1.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports$1.unstable_getCurrentPriorityLevel=function(){return y};exports$1.unstable_getFirstCallbackNode=function(){return h(r)};exports$1.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports$1.unstable_pauseExecution=function(){};
-		exports$1.unstable_requestPaint=function(){};exports$1.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
-		exports$1.unstable_scheduleCallback=function(a,b,c){var d=exports$1.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
-		exports$1.unstable_shouldYield=M;exports$1.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
+		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
+		function M(){return exports.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports.unstable_now());},b);}
+		exports.unstable_IdlePriority=5;exports.unstable_ImmediatePriority=1;exports.unstable_LowPriority=4;exports.unstable_NormalPriority=3;exports.unstable_Profiling=null;exports.unstable_UserBlockingPriority=2;exports.unstable_cancelCallback=function(a){a.callback=null;};exports.unstable_continueExecution=function(){A||z||(A=true,I(J));};
+		exports.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports.unstable_getCurrentPriorityLevel=function(){return y};exports.unstable_getFirstCallbackNode=function(){return h(r)};exports.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports.unstable_pauseExecution=function(){};
+		exports.unstable_requestPaint=function(){};exports.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
+		exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
+		exports.unstable_shouldYield=M;exports.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
 	} (scheduler_production_min));
 	return scheduler_production_min;
 }
@@ -641,7 +641,7 @@ function cloneObject(data) {
 
 var isKey = (value) => /^\w*$/.test(value);
 
-var isUndefined$2 = (val) => val === undefined;
+var isUndefined$3 = (val) => val === undefined;
 
 var compact = (value) => Array.isArray(value) ? value.filter(Boolean) : [];
 
@@ -652,8 +652,8 @@ var get$1 = (object, path, defaultValue) => {
         return defaultValue;
     }
     const result = (isKey(path) ? [path] : stringToPath(path)).reduce((result, key) => isNullOrUndefined$1(result) ? result : result[key], object);
-    return isUndefined$2(result) || result === object
-        ? isUndefined$2(object[path])
+    return isUndefined$3(result) || result === object
+        ? isUndefined$3(object[path])
             ? defaultValue
             : object[path]
         : result;
@@ -804,10 +804,10 @@ function useFormState(props) {
     return React.useMemo(() => getProxyFormState(formState, control, _localProxyFormState.current, false), [formState, control]);
 }
 
-var isString$1 = (value) => typeof value === 'string';
+var isString$3 = (value) => typeof value === 'string';
 
 var generateWatchOutput = (names, _names, formValues, isGlobal, defaultValue) => {
-    if (isString$1(names)) {
+    if (isString$3(names)) {
         isGlobal && _names.watch.add(names);
         return get$1(formValues, names, defaultValue);
     }
@@ -1070,7 +1070,7 @@ function useController(props) {
         if (_shouldUnregisterField) {
             const value = cloneObject(get$1(control._options.defaultValues, name, _props.current.defaultValue));
             set$1(control._defaultValues, name, value);
-            if (isUndefined$2(get$1(control._formValues, name))) {
+            if (isUndefined$3(get$1(control._formValues, name))) {
                 set$1(control._formValues, name, value);
             }
         }
@@ -1329,13 +1329,13 @@ function baseGet(object, updatePath) {
     const length = updatePath.slice(0, -1).length;
     let index = 0;
     while (index < length) {
-        object = isUndefined$2(object) ? index++ : object[updatePath[index++]];
+        object = isUndefined$3(object) ? index++ : object[updatePath[index++]];
     }
     return object;
 }
 function isEmptyArray(obj) {
     for (const key in obj) {
-        if (obj.hasOwnProperty(key) && !isUndefined$2(obj[key])) {
+        if (obj.hasOwnProperty(key) && !isUndefined$3(obj[key])) {
             return false;
         }
     }
@@ -1380,7 +1380,7 @@ function markFieldsDirty(data, fields = {}) {
             fields[key] = Array.isArray(value) ? [] : {};
             markFieldsDirty(value, fields[key]);
         }
-        else if (!isUndefined$2(value)) {
+        else if (!isUndefined$3(value)) {
             fields[key] = true;
         }
     }
@@ -1393,7 +1393,7 @@ function getDirtyFields(data, formValues, dirtyFieldsFromValues) {
     for (const key in data) {
         const value = data[key];
         if (isTraversable(value)) {
-            if (isUndefined$2(formValues) || isPrimitive(dirtyFieldsFromValues[key])) {
+            if (isUndefined$3(formValues) || isPrimitive(dirtyFieldsFromValues[key])) {
                 dirtyFieldsFromValues[key] = markFieldsDirty(value, Array.isArray(value) ? [] : {});
             }
             else {
@@ -1423,8 +1423,8 @@ var getCheckboxValue = (options) => {
         }
         return options[0].checked && !options[0].disabled
             ? // @ts-expect-error expected to work in the browser
-                options[0].attributes && !isUndefined$2(options[0].attributes.value)
-                    ? isUndefined$2(options[0].value) || options[0].value === ''
+                options[0].attributes && !isUndefined$3(options[0].attributes.value)
+                    ? isUndefined$3(options[0].value) || options[0].value === ''
                         ? validResult
                         : { value: options[0].value, isValid: true }
                     : validResult
@@ -1433,7 +1433,7 @@ var getCheckboxValue = (options) => {
     return defaultResult;
 };
 
-var getFieldValueAs = (value, { valueAsNumber, valueAsDate, setValueAs }) => isUndefined$2(value)
+var getFieldValueAs = (value, { valueAsNumber, valueAsDate, setValueAs }) => isUndefined$3(value)
     ? value
     : valueAsNumber
         ? value === ''
@@ -1441,7 +1441,7 @@ var getFieldValueAs = (value, { valueAsNumber, valueAsDate, setValueAs }) => isU
             : value
                 ? +value
                 : value
-        : valueAsDate && isString$1(value)
+        : valueAsDate && isString$3(value)
             ? new Date(value)
             : setValueAs
                 ? setValueAs(value)
@@ -1474,7 +1474,7 @@ function getFieldValue(_f) {
     if (isCheckBoxInput(ref)) {
         return getCheckboxValue(_f.refs).value;
     }
-    return getFieldValueAs(isUndefined$2(ref.value) ? _f.ref.value : ref.value, _f);
+    return getFieldValueAs(isUndefined$3(ref.value) ? _f.ref.value : ref.value, _f);
 }
 
 var getResolverOptions = (fieldsNames, _fields, criteriaMode, shouldUseNativeValidation) => {
@@ -1493,7 +1493,7 @@ var getResolverOptions = (fieldsNames, _fields, criteriaMode, shouldUseNativeVal
 
 var isRegex = (value) => value instanceof RegExp;
 
-var getRuleValue = (rule) => isUndefined$2(rule)
+var getRuleValue = (rule) => isUndefined$3(rule)
     ? rule
     : isRegex(rule)
         ? rule.source
@@ -1641,12 +1641,12 @@ var updateFieldArrayRootError = (errors, error, name) => {
 };
 
 function getValidateError(result, ref, type = 'validate') {
-    if (isString$1(result) ||
-        (Array.isArray(result) && result.every(isString$1)) ||
+    if (isString$3(result) ||
+        (Array.isArray(result) && result.every(isString$3)) ||
         (isBoolean(result) && !result)) {
         return {
             type,
-            message: isString$1(result) ? result : '',
+            message: isString$3(result) ? result : '',
             ref,
         };
     }
@@ -1677,8 +1677,8 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
     const isCheckBox = isCheckBoxInput(ref);
     const isRadioOrCheckbox = isRadio || isCheckBox;
     const isEmpty = ((valueAsNumber || isFileInput(ref)) &&
-        isUndefined$2(ref.value) &&
-        isUndefined$2(inputValue)) ||
+        isUndefined$3(ref.value) &&
+        isUndefined$3(inputValue)) ||
         (isHTMLElement(ref) && ref.value === '') ||
         inputValue === '' ||
         (Array.isArray(inputValue) && !inputValue.length);
@@ -1699,7 +1699,7 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
                 (isBoolean(inputValue) && !inputValue) ||
                 (isCheckBox && !getCheckboxValue(refs).isValid) ||
                 (isRadio && !getRadioValue(refs).isValid))) {
-        const { value, message } = isString$1(required)
+        const { value, message } = isString$3(required)
             ? { value: !!required, message: required }
             : getValueAndMessage(required);
         if (value) {
@@ -1735,14 +1735,14 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
             const convertTimeToDate = (time) => new Date(new Date().toDateString() + ' ' + time);
             const isTime = ref.type == 'time';
             const isWeek = ref.type == 'week';
-            if (isString$1(maxOutput.value) && inputValue) {
+            if (isString$3(maxOutput.value) && inputValue) {
                 exceedMax = isTime
                     ? convertTimeToDate(inputValue) > convertTimeToDate(maxOutput.value)
                     : isWeek
                         ? inputValue > maxOutput.value
                         : valueDate > new Date(maxOutput.value);
             }
-            if (isString$1(minOutput.value) && inputValue) {
+            if (isString$3(minOutput.value) && inputValue) {
                 exceedMin = isTime
                     ? convertTimeToDate(inputValue) < convertTimeToDate(minOutput.value)
                     : isWeek
@@ -1760,7 +1760,7 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
     }
     if ((maxLength || minLength) &&
         !isEmpty &&
-        (isString$1(inputValue) || (isFieldArray && Array.isArray(inputValue)))) {
+        (isString$3(inputValue) || (isFieldArray && Array.isArray(inputValue)))) {
         const maxLengthOutput = getValueAndMessage(maxLength);
         const minLengthOutput = getValueAndMessage(minLength);
         const exceedMax = !isNullOrUndefined$1(maxLengthOutput.value) &&
@@ -1775,7 +1775,7 @@ var validateField = async (field, disabledFieldNames, formValues, validateAllFie
             }
         }
     }
-    if (pattern && !isEmpty && isString$1(inputValue)) {
+    if (pattern && !isEmpty && isString$3(inputValue)) {
         const { value: patternValue, message } = getValueAndMessage(pattern);
         if (isRegex(patternValue) && !inputValue.match(patternValue)) {
             error[name] = {
@@ -2003,8 +2003,8 @@ function createFormControl(props = {}) {
     const updateValidAndValue = (name, shouldSkipSetValueAs, value, ref) => {
         const field = get$1(_fields, name);
         if (field) {
-            const defaultValue = get$1(_formValues, name, isUndefined$2(value) ? get$1(_defaultValues, name) : value);
-            isUndefined$2(defaultValue) ||
+            const defaultValue = get$1(_formValues, name, isUndefined$3(value) ? get$1(_defaultValues, name) : value);
+            isUndefined$3(defaultValue) ||
                 (ref && ref.defaultChecked) ||
                 shouldSkipSetValueAs
                 ? set$1(_formValues, name, shouldSkipSetValueAs ? defaultValue : getFieldValue(field._f))
@@ -2159,9 +2159,9 @@ function createFormControl(props = {}) {
     const _getWatch = (names, defaultValue, isGlobal) => generateWatchOutput(names, _names, {
         ...(_state.mount
             ? _formValues
-            : isUndefined$2(defaultValue)
+            : isUndefined$3(defaultValue)
                 ? _defaultValues
-                : isString$1(names)
+                : isString$3(names)
                     ? { [names]: defaultValue }
                     : defaultValue),
     }, isGlobal, defaultValue);
@@ -2381,7 +2381,7 @@ function createFormControl(props = {}) {
         let validationResult;
         const fieldNames = convertToArrayPayload(name);
         if (_options.resolver) {
-            const errors = await executeSchemaAndUpdateState(isUndefined$2(name) ? name : fieldNames);
+            const errors = await executeSchemaAndUpdateState(isUndefined$3(name) ? name : fieldNames);
             isValid = isEmptyObject(errors);
             validationResult = name
                 ? !fieldNames.some((name) => get$1(errors, name))
@@ -2398,7 +2398,7 @@ function createFormControl(props = {}) {
             validationResult = isValid = await executeBuiltInValidation(_fields);
         }
         _subjects.state.next({
-            ...(!isString$1(name) ||
+            ...(!isString$3(name) ||
                 ((_proxyFormState.isValid || _proxySubscribeFormState.isValid) &&
                     isValid !== _formState.isValid)
                 ? {}
@@ -2418,9 +2418,9 @@ function createFormControl(props = {}) {
         if (config) {
             values = extractFormValues(config.dirtyFields ? _formState.dirtyFields : _formState.touchedFields, values);
         }
-        return isUndefined$2(fieldNames)
+        return isUndefined$3(fieldNames)
             ? values
-            : isString$1(fieldNames)
+            : isString$3(fieldNames)
                 ? get$1(values, fieldNames)
                 : fieldNames.map((name) => get$1(values, name));
     };
@@ -2570,7 +2570,7 @@ function createFormControl(props = {}) {
                 if (ref) {
                     register(name, options);
                     field = get$1(_fields, name);
-                    const fieldRef = isUndefined$2(ref.value)
+                    const fieldRef = isUndefined$3(ref.value)
                         ? ref.querySelectorAll
                             ? ref.querySelectorAll('input,select,textarea')[0] || ref
                             : ref
@@ -2686,7 +2686,7 @@ function createFormControl(props = {}) {
     };
     const resetField = (name, options = {}) => {
         if (get$1(_fields, name)) {
-            if (isUndefined$2(options.defaultValue)) {
+            if (isUndefined$3(options.defaultValue)) {
                 setValue(name, cloneObject(get$1(_defaultValues, name)));
             }
             else {
@@ -2727,16 +2727,16 @@ function createFormControl(props = {}) {
                     const isDirty = get$1(_formState.dirtyFields, fieldName);
                     const existingValue = get$1(_formValues, fieldName);
                     const newValue = get$1(values, fieldName);
-                    if (isDirty && !isUndefined$2(existingValue)) {
+                    if (isDirty && !isUndefined$3(existingValue)) {
                         set$1(values, fieldName, existingValue);
                     }
-                    else if (!isDirty && !isUndefined$2(newValue)) {
+                    else if (!isDirty && !isUndefined$3(newValue)) {
                         setValue(fieldName, newValue);
                     }
                 }
             }
             else {
-                if (isWeb && isUndefined$2(formValues)) {
+                if (isWeb && isUndefined$3(formValues)) {
                     for (const name of _names.mount) {
                         const field = get$1(_fields, name);
                         if (field && field._f) {
@@ -2957,9 +2957,9 @@ var generateId = () => {
     });
 };
 
-var getFocusFieldName = (name, index, options = {}) => options.shouldFocus || isUndefined$2(options.shouldFocus)
+var getFocusFieldName = (name, index, options = {}) => options.shouldFocus || isUndefined$3(options.shouldFocus)
     ? options.focusName ||
-        `${name}.${isUndefined$2(options.focusIndex) ? index : options.focusIndex}.`
+        `${name}.${isUndefined$3(options.focusIndex) ? index : options.focusIndex}.`
     : '';
 
 var appendAt = (data, value) => [
@@ -2981,7 +2981,7 @@ var moveArrayAt = (data, from, to) => {
     if (!Array.isArray(data)) {
         return [];
     }
-    if (isUndefined$2(data[to])) {
+    if (isUndefined$3(data[to])) {
         data[to] = undefined;
     }
     data.splice(to, 0, data.splice(from, 1)[0]);
@@ -3002,7 +3002,7 @@ function removeAtIndexes(data, indexes) {
     }
     return compact(temp).length ? temp : [];
 }
-var removeArrayAt = (data, index) => isUndefined$2(index)
+var removeArrayAt = (data, index) => isUndefined$3(index)
     ? []
     : removeAtIndexes(data, convertToArrayPayload(index).sort((a, b) => a - b));
 
@@ -3401,6 +3401,54 @@ function useForm(props = {}) {
 }
 
 /**
+ * Dry run preview for the batch operation forms.
+ *
+ * Shows both halves of a dry run: which process instances the operation would reach, and
+ * the request it would send. The request matters as much as the instance list - the
+ * instructions, the variables and their types, and whether the target is a fixed list of
+ * ids or an open-ended query are all decided there, and none of it is visible from a count.
+ *
+ * @module
+ */
+/** Maximum number of instances to show in preview */
+var MAX_PREVIEW_INSTANCES$3 = 10;
+/**
+ * Displays a preview of a batch operation: affected instances and the request body.
+ */
+var DryRunResultPreview = function (_a) {
+    var result = _a.result, request = _a.request, _b = _a.instanceLabel, instanceLabel = _b === void 0 ? 'instance' : _b, instanceNote = _a.instanceNote, _c = _a.maxInstances, maxInstances = _c === void 0 ? MAX_PREVIEW_INSTANCES$3 : _c;
+    if (!result && !request) {
+        return null;
+    }
+    return (React.createElement("div", { className: "modify-form__dry-run-result" },
+        result && (React.createElement(React.Fragment, null,
+            React.createElement("h5", null,
+                "Found ",
+                result.count,
+                " ",
+                instanceLabel,
+                result.count !== 1 ? 's' : ''),
+            result.instances.length > 0 && (React.createElement("ul", { className: "modify-form__instance-list" },
+                result.instances.map(function (inst) { return (React.createElement("li", { key: inst.id },
+                    inst.id,
+                    " ",
+                    inst.businessKey ? "(".concat(inst.businessKey, ")") : '')); }),
+                result.count > maxInstances && React.createElement("li", null,
+                    "...and ",
+                    result.count - maxInstances,
+                    " more"))),
+            instanceNote !== undefined && React.createElement("p", { className: "modify-form__hint" }, instanceNote))),
+        request && (React.createElement(React.Fragment, null,
+            React.createElement("h5", null, "Request that would be sent"),
+            React.createElement("pre", { className: "modify-form__request-preview", "aria-label": "Request preview" },
+                request.method,
+                " ",
+                request.path,
+                '\n',
+                JSON.stringify(request.payload, null, 2))))));
+};
+
+/**
  * Simple error message component for consistent error display.
  * Uses role="alert" with aria-live="assertive" for immediate screen reader announcement.
  */
@@ -3447,6 +3495,43 @@ var FormButton = function (_a) {
         minWidth: "".concat(minWidth, "px"),
     };
     return (React.createElement("button", { type: type, onClick: onClick, disabled: disabled, style: style, className: className, "aria-label": ariaLabel, "aria-disabled": disabled }, children));
+};
+
+/**
+ * Renders the "select instances by" dropdown and the fields its modes need.
+ */
+var InstanceSelectionFields = function (_a) {
+    var activities = _a.activities, _b = _a.label, label = _b === void 0 ? 'Select Instances By' : _b;
+    var _c = useFormContext(), register = _c.register, control = _c.control;
+    var instanceSelectionMode = useWatch({ control: control, name: 'instanceSelectionMode' });
+    return (React.createElement(React.Fragment, null,
+        React.createElement("div", { className: "modify-form__field" },
+            React.createElement("label", { htmlFor: "instanceSelectionMode" }, label),
+            React.createElement("select", __assign({ id: "instanceSelectionMode" }, register('instanceSelectionMode'), { className: "modify-form__input" }),
+                React.createElement("option", { value: "all" }, "All active instances of this definition"),
+                React.createElement("option", { value: "query" }, "Query (filter by activity/state)"),
+                React.createElement("option", { value: "specific" }, "Specific instance IDs"))),
+        instanceSelectionMode === 'specific' && (React.createElement("div", { className: "modify-form__field" },
+            React.createElement("label", { htmlFor: "specificInstanceIds" }, "Instance IDs (comma-separated)"),
+            React.createElement("textarea", __assign({ id: "specificInstanceIds" }, register('specificInstanceIds'), { placeholder: "instance-id-1, instance-id-2, instance-id-3", rows: 3, className: "modify-form__textarea" })))),
+        instanceSelectionMode === 'query' && (React.createElement(React.Fragment, null,
+            React.createElement("div", { className: "modify-form__field" },
+                React.createElement("label", { htmlFor: "queryActivityId" }, "Filter by Activity (optional)"),
+                React.createElement("select", __assign({ id: "queryActivityId" }, register('queryActivityId'), { className: "modify-form__input" }),
+                    React.createElement("option", { value: "" }, "Any activity"),
+                    activities.map(function (a) {
+                        var _a;
+                        return (React.createElement("option", { key: a.id, value: a.id }, (_a = a.name) !== null && _a !== void 0 ? _a : a.id,
+                            " (",
+                            a.type,
+                            ")"));
+                    }))),
+            React.createElement("div", { className: "modify-form__field" },
+                React.createElement("label", { htmlFor: "queryState" }, "Instance State"),
+                React.createElement("select", __assign({ id: "queryState" }, register('queryState'), { className: "modify-form__input" }),
+                    React.createElement("option", { value: "active" }, "Active"),
+                    React.createElement("option", { value: "suspended" }, "Suspended"),
+                    React.createElement("option", { value: "any" }, "Any")))))));
 };
 
 /**
@@ -4438,10 +4523,18 @@ function getMaxResultsParam() {
 var ApiError = /** @class */ (function (_super) {
     __extends(ApiError, _super);
     /**
-     *
+     * @param message - Human readable error message, from the engine where it sends one
+     * @param status - HTTP status code of the response
+     * @param body - Parsed response body
+     * @param path - API endpoint path that produced the error
      */
     function ApiError(message, status, body, path) {
         var _this = _super.call(this, message) || this;
+        // Required while the build targets ES5: the downlevel of `extends Error` loses the
+        // prototype link, which silently makes every `err instanceof ApiError` false. Without
+        // this line the status checks throughout the plugins never match. Safe to keep at any
+        // target, and harmless once the target is raised.
+        Object.setPrototypeOf(_this, ApiError.prototype);
         _this.name = 'ApiError';
         _this.status = status;
         _this.body = body;
@@ -4490,10 +4583,11 @@ function parseResponseBody(res) {
  * @param api - The API configuration object
  * @param path - The API endpoint path
  * @param params - Optional query parameters
+ * @param options - Optional per-request options, such as an abort signal
  * @returns Promise resolving to the response data
  * @throws {ApiError} When the response status is not 2xx
  */
-var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0, function () {
+var get = function (api, path, params, options) { return __awaiter(void 0, void 0, void 0, function () {
     var splitResult, query, url, res, body, message;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -4511,10 +4605,7 @@ var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0
                 }
                 query = new URLSearchParams(params).toString();
                 url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
-                return [4 /*yield*/, fetchFn(url, {
-                        method: 'get',
-                        headers: headers(api),
-                    })];
+                return [4 /*yield*/, fetchFn(url, __assign({ method: 'get', headers: headers(api) }, ({})))];
             case 1:
                 res = _a.sent();
                 return [4 /*yield*/, parseResponseBody(res)];
@@ -4578,6 +4669,1974 @@ var post = function (api, path, params, payload) { return __awaiter(void 0, void
 }); };
 
 /**
+ * Variable transformation utilities for Camunda/Operaton API
+ *
+ * @module utils/variables
+ */
+/** Supported variable types in Camunda/Operaton */
+/** Numeric variable types that require parseFloat conversion */
+var NUMERIC_TYPES = ['Integer', 'Double', 'Short', 'Long'];
+/** JSON-like variable types that require JSON.parse conversion */
+var JSON_TYPES = ['Json', 'Object'];
+/**
+ * Transform a single variable value based on its type
+ * @param value - The raw value from form input
+ * @param type - The variable type
+ * @returns The transformed value
+ */
+function transformVariableValue(value, type) {
+    if (type === 'Boolean') {
+        return value === 'true' || value === true;
+    }
+    if (NUMERIC_TYPES.includes(type)) {
+        var stringValue = String(value);
+        var parsed = parseFloat(stringValue);
+        return isNaN(parsed) ? 0 : parsed;
+    }
+    if (JSON_TYPES.includes(type)) {
+        try {
+            return JSON.parse(String(value));
+        }
+        catch (_a) {
+            // Return raw string if parsing fails - backend will catch validation errors
+            return String(value);
+        }
+    }
+    return String(value);
+}
+/**
+ * Transform a single variable for API requests
+ * @param variable - The variable input from form
+ * @param includeLocal - Whether to include the local flag
+ * @returns Transformed variable object for API
+ */
+function transformVariable(variable, includeLocal) {
+    var result = {
+        value: transformVariableValue(variable.value, variable.type),
+        type: variable.type,
+    };
+    if (variable.local !== undefined) {
+        result.local = variable.local;
+    }
+    return result;
+}
+/**
+ * Transform an array of variables into the format expected by Camunda/Operaton API
+ * @param variables - Array of variable inputs from form
+ * @param includeLocal - Whether to include the local flag in output
+ * @returns Object mapping variable names to their transformed values
+ */
+function transformVariables(variables, includeLocal) {
+    return variables.reduce(function (acc, variable) {
+        if (variable.name) {
+            acc[variable.name] = transformVariable(variable);
+        }
+        return acc;
+    }, {});
+}
+
+/**
+ * Targeting and request building for the definition-level batch operations.
+ *
+ * The forms in the definition "Modify" tab all follow the same shape: pick a set of
+ * process instances, describe an operation, then POST it. Both the dry run and the real
+ * run go through the builders here, so the request previewed is by construction the
+ * request sent.
+ *
+ * @module
+ */
+/**
+ * Split the comma-separated instance ids entered in the form.
+ * @param selection - The form's instance selection
+ * @returns The ids, or null when the form is not selecting by id
+ */
+function getSelectedInstanceIds(selection) {
+    if (selection.instanceSelectionMode !== 'specific') {
+        return null;
+    }
+    var ids = selection.specificInstanceIds
+        .split(',')
+        .map(function (id) { return id.trim(); })
+        .filter(function (id) { return id.length > 0; });
+    return ids.length > 0 ? ids : null;
+}
+/**
+ * Build the process instance query describing the selected instances.
+ * @param selection - The form's instance selection
+ * @param processDefinitionId - The definition the form is scoped to
+ * @returns The query object, or null when the form is selecting by id
+ */
+function buildInstanceQuery(selection, processDefinitionId) {
+    if (selection.instanceSelectionMode === 'all') {
+        return { processDefinitionId: processDefinitionId };
+    }
+    if (selection.instanceSelectionMode === 'query') {
+        var query = { processDefinitionId: processDefinitionId };
+        if (selection.queryActivityId) {
+            query['activityIdIn'] = [selection.queryActivityId];
+        }
+        if (selection.queryState === 'active') {
+            query['active'] = true;
+        }
+        else if (selection.queryState === 'suspended') {
+            query['suspended'] = true;
+        }
+        return query;
+    }
+    return null;
+}
+/**
+ * Build the query string parameters that list the selected instances.
+ *
+ * Used by the dry run, which reads the instances back with `GET /process-instance`.
+ * @param selection - The form's instance selection
+ * @param processDefinitionId - The definition the form is scoped to
+ * @returns Query parameters, or null when nothing is selected
+ */
+function buildInstanceLookupParams(selection, processDefinitionId) {
+    var instanceIds = getSelectedInstanceIds(selection);
+    if (instanceIds) {
+        return { processInstanceIds: instanceIds.join(',') };
+    }
+    var query = buildInstanceQuery(selection, processDefinitionId);
+    if (!query) {
+        return null;
+    }
+    var params = {};
+    for (var _i = 0, _a = Object.entries(query); _i < _a.length; _i++) {
+        var _b = _a[_i], key = _b[0], value = _b[1];
+        if (Array.isArray(value)) {
+            params[key] = value.join(',');
+        }
+        else if (typeof value === 'boolean') {
+            params[key] = value ? 'true' : 'false';
+        }
+        else if (typeof value === 'string') {
+            params[key] = value;
+        }
+    }
+    return params;
+}
+/**
+ * Add the selected instances to a payload that supports both targeting styles.
+ * @param payload - The payload to extend, modified in place
+ * @param selection - The form's instance selection
+ * @param processDefinitionId - The definition the form is scoped to
+ * @returns True when a target was set, false when the selection is empty
+ */
+function applyInstanceTarget(payload, selection, processDefinitionId) {
+    var instanceIds = getSelectedInstanceIds(selection);
+    if (instanceIds) {
+        payload['processInstanceIds'] = instanceIds;
+        return true;
+    }
+    var query = buildInstanceQuery(selection, processDefinitionId);
+    if (query) {
+        payload['processInstanceQuery'] = query;
+        return true;
+    }
+    return false;
+}
+/**
+ * Keep only the instructions that name the activity or transition they need.
+ * @param instructions - Instructions held in form state
+ * @returns The instructions that are complete enough to send
+ */
+function keepCompleteInstructions(instructions) {
+    return instructions.filter(function (instruction) {
+        if (instruction.type === 'startTransition') {
+            return instruction.transitionId !== undefined && instruction.transitionId !== '';
+        }
+        return instruction.activityId !== undefined && instruction.activityId !== '';
+    });
+}
+/**
+ * Convert one form instruction into its API representation.
+ * @param instruction - Instruction held in form state
+ * @returns The instruction as the engine expects it
+ */
+function toInstructionPayload(instruction) {
+    var payload = { type: instruction.type };
+    if (instruction.activityId !== undefined && instruction.activityId !== '') {
+        payload.activityId = instruction.activityId;
+    }
+    if (instruction.transitionId !== undefined && instruction.transitionId !== '') {
+        payload.transitionId = instruction.transitionId;
+    }
+    if (instruction.type === 'cancel' && instruction.cancelCurrentActiveActivityInstances === true) {
+        payload.cancelCurrentActiveActivityInstances = true;
+    }
+    if (instruction.variables !== undefined && instruction.variables.length > 0) {
+        payload.variables = transformVariables(instruction.variables);
+    }
+    return payload;
+}
+/**
+ * Build the asynchronous batch modification request.
+ * @param data - The batch modification form's state
+ * @param processDefinitionId - The definition the form is scoped to
+ * @returns The request, or null when no instances are selected
+ */
+function buildModificationRequest(data, processDefinitionId) {
+    var payload = {
+        processDefinitionId: processDefinitionId,
+        skipCustomListeners: data.skipCustomListeners,
+        skipIoMappings: data.skipIoMappings,
+        instructions: keepCompleteInstructions(data.instructions).map(toInstructionPayload),
+        annotation: data.annotation !== '' ? data.annotation : 'Batch modified via Cockpit plugin',
+    };
+    if (!applyInstanceTarget(payload, data, processDefinitionId)) {
+        return null;
+    }
+    return { method: 'POST', path: '/modification/executeAsync', payload: payload };
+}
+/**
+ * Build the message request.
+ *
+ * A message on a start event starts one new instance and takes no instance target; any
+ * other message is correlated asynchronously to the selected instances.
+ * @param data - The message form's state
+ * @param processDefinitionId - The definition the form is scoped to
+ * @returns The request, or null when the message name or the instance target is missing
+ */
+function buildMessageRequest(data, processDefinitionId) {
+    if (data.messageName === '') {
+        return null;
+    }
+    var variables = data.processVariables.length > 0 ? transformVariables(data.processVariables) : undefined;
+    if (data.isStartEvent) {
+        var payload_1 = { messageName: data.messageName };
+        if (data.businessKey !== '') {
+            payload_1['businessKey'] = data.businessKey;
+        }
+        if (variables !== undefined) {
+            payload_1['processVariables'] = variables;
+        }
+        return { method: 'POST', path: '/message', payload: payload_1 };
+    }
+    var payload = { messageName: data.messageName };
+    if (!applyInstanceTarget(payload, data, processDefinitionId)) {
+        return null;
+    }
+    if (variables !== undefined) {
+        payload['variables'] = variables;
+    }
+    return { method: 'POST', path: '/process-instance/message-async', payload: payload };
+}
+/**
+ * Build the signal broadcast request.
+ *
+ * No execution id is set, so the engine delivers the signal to every matching catch event
+ * in every deployed definition, not only the one the form is scoped to.
+ * @param data - The signal form's state
+ * @returns The request, or null when the signal name is missing
+ */
+function buildSignalRequest(data) {
+    if (data.signalName === '') {
+        return null;
+    }
+    var payload = { name: data.signalName };
+    if (data.processVariables.length > 0) {
+        payload['variables'] = transformVariables(data.processVariables);
+    }
+    return { method: 'POST', path: '/signal', payload: payload };
+}
+
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
+ */
+
+const nativeToString$2 = Object.prototype.toString;
+
+function isString$2(obj) {
+  return nativeToString$2.call(obj) === '[object String]';
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign$2(target, ...others) {
+  return Object.assign(target, ...others);
+}
+
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][] | T[] | null} [arr]
+ *
+ * @return {T[]}
+ */
+
+const nativeToString$1 = Object.prototype.toString;
+const nativeHasOwnProperty$1 = Object.prototype.hasOwnProperty;
+
+function isUndefined$2(obj) {
+  return obj === undefined;
+}
+
+function isDefined(obj) {
+  return obj !== undefined;
+}
+
+function isNil$1(obj) {
+  return obj == null;
+}
+
+function isArray$1(obj) {
+  return nativeToString$1.call(obj) === '[object Array]';
+}
+
+function isObject(obj) {
+  return nativeToString$1.call(obj) === '[object Object]';
+}
+
+function isString$1(obj) {
+  return nativeToString$1.call(obj) === '[object String]';
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has$1(target, key) {
+  return !isNil$1(target) && nativeHasOwnProperty$1.call(target, key);
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
+ *
+ * @return {T} return result that stopped the iteration
+ */
+function forEach$1(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined$2(collection)) {
+    return;
+  }
+
+  const convertKey = isArray$1(collection) ? toNum$1 : identity$1;
+
+  for (let key in collection) {
+
+    if (has$1(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+
+function identity$1(arg) {
+  return arg;
+}
+
+function toNum$1(arg) {
+  return Number(arg);
+}
+
+/**
+ * Bind function against target <this>.
+ *
+ * @param  {Function} fn
+ * @param  {Object}   target
+ *
+ * @return {Function} bound function
+ */
+function bind(fn, target) {
+  return fn.bind(target);
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign$1(target, ...others) {
+  return Object.assign(target, ...others);
+}
+
+/**
+ * Sets a nested property of a given object to the specified value.
+ *
+ * This mutates the object and returns it.
+ *
+ * @template T
+ *
+ * @param {T} target The target of the set operation.
+ * @param {(string|number)[]} path The path to the nested value.
+ * @param {any} value The value to set.
+ *
+ * @return {T}
+ */
+function set(target, path, value) {
+
+  let currentTarget = target;
+
+  forEach$1(path, function(key, idx) {
+
+    if (typeof key !== 'number' && typeof key !== 'string') {
+      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
+    }
+
+    if (key === 'constructor') {
+      throw new Error('illegal key: constructor');
+    }
+
+    if (key === '__proto__') {
+      throw new Error('illegal key: __proto__');
+    }
+
+    let nextKey = path[idx + 1];
+    let nextTarget = currentTarget[key];
+
+    if (isDefined(nextKey) && isNil$1(nextTarget)) {
+      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
+    }
+
+    if (isUndefined$2(nextKey)) {
+      if (isUndefined$2(value)) {
+        delete currentTarget[key];
+      } else {
+        currentTarget[key] = value;
+      }
+    } else {
+      currentTarget = nextTarget;
+    }
+  });
+
+  return target;
+}
+
+/**
+ * Pick properties from the given target.
+ *
+ * @template T
+ * @template {any[]} V
+ *
+ * @param {T} target
+ * @param {V} properties
+ *
+ * @return Pick<T, V>
+ */
+function pick(target, properties) {
+
+  let result = {};
+
+  let obj = Object(target);
+
+  forEach$1(properties, function(prop) {
+
+    if (prop in obj) {
+      result[prop] = target[prop];
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Moddle base element.
+ */
+function Base() { }
+
+/**
+ * @template { keyof this } K
+ *
+ * Get property value (typed)
+ *
+ * @overload
+ *
+ * @param {K} name
+ *
+ * @return { this[K] }
+ */
+/**
+ * @template T
+ *
+ * Get property value
+ *
+ * @overload
+ *
+ * @param {string} name
+ *
+ * @return {T}
+ */
+/**
+ * Get property value
+ *
+ * @overload
+ *
+ * @param {string} name
+ *
+ * @return {unknown}
+ */
+Base.prototype.get = function(name) {
+  return this.$model.properties.get(this, name);
+};
+
+/**
+ * @template { keyof this } K
+ * @template { this[K] } V
+ *
+ * Set property value
+ *
+ * @overload
+ *
+ * @param {K} name
+ * @param {V} value
+ */
+/**
+ * @template { string } S
+ *
+ * Set property value
+ *
+ * @overload
+ *
+ * @param { S extends keyof this ? never : S } name
+ * @param { any } value
+ */
+Base.prototype.set = function(name, value) {
+  this.$model.properties.set(this, name, value);
+};
+
+/**
+ * @typedef {import('./ns.js').Namespace} Namespace
+ * @typedef {import('./moddle.js').default} Moddle
+ * @typedef {import('./properties.js').default} Properties
+ * @typedef {import('./registry.js').EffectiveDescriptor} EffectiveDescriptor
+ * @typedef {import('./base.js').default} BaseElement
+ * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
+ */
+
+/**
+ * @template [T=Record<string,any>]
+ * @typedef {{
+ *   new(attrs?: Partial<T>): ModdleElement<T>;
+ *   prototype: ModdleElement<T>;
+ *   readonly $model: Moddle;
+ *   readonly $descriptor: EffectiveDescriptor;
+ * }} ModdleElementType
+ */
+
+/**
+ * @template [T=Record<string,any>]
+ * @typedef {BaseElement & T & {
+ *   readonly $model: Moddle;
+ *   readonly $descriptor: EffectiveDescriptor;
+ *   readonly $type: Namespace['name'];
+ *   readonly $attrs: Record<string, any>;
+ *   $parent?: ModdleElement | AnyModdleElement;
+ *   hasType: Moddle['hasType'];
+ *   $instanceOf: Moddle['hasType'];
+ * }} ModdleElement
+ */
+
+/**
+ * @template [T=Record<string,any>]
+ * @typedef {BaseElement & T & {
+ *   $type: string;
+ *   $instanceOf: (type: string) => boolean;
+ *   $parent?: ModdleElement | AnyModdleElement;
+ *   readonly $model: Moddle;
+ *   readonly $descriptor: AnyTypeDescriptor;
+ * }} AnyModdleElement
+ */
+
+/**
+ * A model element factory.
+ *
+ * @param {Moddle} model
+ * @param {Properties} properties
+ */
+function Factory(model, properties) {
+
+  /**
+   * @private
+   */
+  this.model = model;
+
+  /**
+   * @private
+   */
+  this.properties = properties;
+}
+
+/**
+ * @template [T=Record<string,any>]
+ * @param {EffectiveDescriptor} descriptor
+ * @return {ModdleElementType<T>}
+ */
+Factory.prototype.createType = function(descriptor) {
+
+  var model = this.model;
+
+  var props = this.properties,
+      prototype = Object.create(Base.prototype);
+
+  // initialize default values
+  forEach$1(descriptor.properties, function(p) {
+    if (!p.isMany && p.default !== undefined) {
+      prototype[p.name] = p.default;
+    }
+  });
+
+  props.defineModel(prototype, model);
+  props.defineDescriptor(prototype, descriptor);
+
+  var name = descriptor.ns.name;
+
+  /**
+   * The new type constructor
+   *
+   * @type { ModdleElementType }
+   */
+  function ModdleElement(attrs) {
+    props.define(this, '$type', { value: name, enumerable: true });
+    props.define(this, '$attrs', { value: {} });
+    props.define(this, '$parent', { writable: true });
+
+    forEach$1(attrs, bind(function(val, key) {
+      this.set(key, val);
+    }, this));
+  }
+
+  ModdleElement.prototype = prototype;
+
+  ModdleElement.hasType = prototype.$instanceOf = this.model.hasType;
+
+  // static links
+  props.defineModel(ModdleElement, model);
+  props.defineDescriptor(ModdleElement, descriptor);
+
+  return ModdleElement;
+};
+
+/**
+ * Built-in moddle types
+ */
+var BUILTINS = {
+  String: true,
+  Boolean: true,
+  Integer: true,
+  Real: true,
+  Element: true
+};
+
+/**
+ * Converters for built-in types from string representations
+ */
+var TYPE_CONVERTERS = {
+  String: function(s) { return s; },
+  Boolean: function(s) { return s === 'true'; },
+  Integer: function(s) { return parseInt(s, 10); },
+  Real: function(s) { return parseFloat(s); }
+};
+
+/**
+ * @typedef {'String'} StringType
+ * @typedef {'Boolean'} BooleanType
+ * @typedef {'Integer'} IntegerType
+ * @typedef {'Real'} RealType
+ * @typedef {'Element'} ElementType
+ * @typedef {StringType | BooleanType | IntegerType | RealType} BuiltInSimpleType
+ * @typedef {BuiltInSimpleType | ElementType} BuiltInType
+ */
+
+/**
+ * Convert given value to string
+ * @overlord
+ * @param {StringType} type
+ * @param {any} value
+ * @return {string}
+ */
+/**
+ * Convert given value to boolean
+ * @overlord
+ * @param {BooleanType} type
+ * @param {any} value
+ * @return {boolean}
+ */
+/**
+ * Convert given value to number
+ * @overlord
+ * @param {IntegerType | RealType} type
+ * @param {any} value
+ * @return {number}
+ */
+/**
+ * Convert a type to its real representation
+ * @template T
+ * @overlord
+ * @param {Exclude<string,BuiltInSimpleType>} type
+ * @param {T} value
+ * @return {T}
+ */
+function coerceType(type, value) {
+
+  var converter = TYPE_CONVERTERS[type];
+
+  if (converter) {
+    return converter(value);
+  } else {
+    return value;
+  }
+}
+
+/**
+ * Return whether the given type is built-in
+ * @overload
+ * @param {BuiltInType} type
+ * @return {true}
+ */
+/**
+ * Return whether the given type is built-in
+ * @overload
+ * @param {Exclude<string,BuiltInType>} type
+ * @return {false}
+ */
+function isBuiltIn(type) {
+  return !!BUILTINS[type];
+}
+
+/**
+ * Return true if the given type is simple
+ * @overload
+ * @param {BuiltInSimpleType} type
+ * @return {true}
+ */
+/**
+ * Return false the given type is not simple
+ * @overload
+ * @param {Exclude<string,BuiltInSimpleType>} type
+ * @return {false}
+ */
+function isSimple(type) {
+  return !!TYPE_CONVERTERS[type];
+}
+
+/**
+ * @typedef {{
+ *   name: string;
+ *   prefix: string;
+ *   localName: string;
+ * }} Namespace
+ */
+
+/**
+ * Parses a namespaced attribute name of the form (ns:)localName to an object,
+ * given a default prefix to assume in case no explicit namespace is given.
+ *
+ * @param {String} name
+ * @param {String} [defaultPrefix] the default prefix to take, if none is present.
+ *
+ * @return {Namespace} the parsed name
+ */
+function parseName(name, defaultPrefix) {
+  var parts = name.split(/:/),
+      localName, prefix;
+
+  // no prefix (i.e. only local name)
+  if (parts.length === 1) {
+    localName = name;
+    prefix = defaultPrefix;
+  }
+
+  // prefix + local name
+  else if (parts.length === 2) {
+    localName = parts[1];
+    prefix = parts[0];
+  }
+
+  else {
+    throw new Error('expected <prefix:localName> or <localName>, got ' + name);
+  }
+
+  name = (prefix ? prefix + ':' : '') + localName;
+
+  return {
+    name: name,
+    prefix: prefix,
+    localName: localName
+  };
+}
+
+/**
+ * @typedef {import('./ns.js').Namespace} Namespace
+ * @typedef {import('./registry.js').RegisteredPackage} RegisteredPackage
+ * @typedef {import('./registry.js').RegisteredTypeDef} RegisteredTypeDef
+ * @typedef {import('./registry.js').RegisteredPropertyDef} RegisteredPropertyDef
+ */
+
+/**
+ * Effective element descriptor
+ * aka element type descriptor
+ * aka element descriptor
+ * @typedef {{
+ *   readonly ns: Namespace;
+ *   readonly name: Namespace['name'];
+ *   readonly allTypes: Array<RegisteredTypeDef>;
+ *   readonly allTypesByName: Record<string, RegisteredTypeDef>;
+ *   readonly properties: Array<PropertyDescriptor>;
+ *   readonly propertiesByName: Record<string, PropertyDescriptor>;
+ *   readonly bodyProperty?: PropertyDescriptor;
+ *   readonly idProperty?: PropertyDescriptor;
+ *   readonly $pkg?: RegisteredPackage;
+ * }} EffectiveDescriptor
+ */
+
+/**
+ * Property descriptor
+ * @typedef {RegisteredPropertyDef & {
+ *   localName: Namespace['localName'];
+ *   inherited?: boolean;
+ *   definedBy?: RegisteredTypeDef;
+ * }} PropertyDescriptor
+ */
+
+/**
+ * @typedef {{
+ *   name: string;
+ *   isGeneric: true;
+ *   ns: {
+ *     prefix: string;
+ *     localName: string;
+ *     uri: string;
+ *   };
+ * }} AnyTypeDescriptor
+ */
+
+/**
+ * A utility to build element descriptors.
+ * @class DescriptorBuilder
+ * @param {Namespace} nameNs
+ */
+function DescriptorBuilder(nameNs) {
+
+  /**
+   * @private
+   * @type {Namespace}
+   */
+  this.ns = nameNs;
+
+  /**
+   * @private
+   * @type {Namespace['name']}
+   */
+  this.name = nameNs.name;
+
+  /**
+   * @private
+   * @type {Array<RegisteredTypeDef>}
+   */
+  this.allTypes = [];
+
+  /**
+   * @private
+   * @type {Record<string, RegisteredTypeDef>}
+   */
+  this.allTypesByName = {};
+
+  /**
+   * @private
+   * @type {Array<PropertyDescriptor>}
+   */
+  this.properties = [];
+
+  /**
+   * @private
+   * @type {Record<string, PropertyDescriptor>}
+   */
+  this.propertiesByName = {};
+}
+
+/**
+ * @return {EffectiveDescriptor}
+ */
+DescriptorBuilder.prototype.build = function() {
+  return pick(this, [
+    'ns',
+    'name',
+    'allTypes',
+    'allTypesByName',
+    'properties',
+    'propertiesByName',
+    'bodyProperty',
+    'idProperty'
+  ]);
+};
+
+/**
+ * Add property at given index.
+ *
+ * @param {PropertyDescriptor} p
+ * @param {Number} [idx]
+ * @param {Boolean} [validate=true]
+ */
+DescriptorBuilder.prototype.addProperty = function(p, idx, validate) {
+
+  if (typeof idx === 'boolean') {
+    validate = idx;
+    idx = undefined;
+  }
+
+  this.addNamedProperty(p, validate !== false);
+
+  var properties = this.properties;
+
+  if (idx !== undefined) {
+    properties.splice(idx, 0, p);
+  } else {
+    properties.push(p);
+  }
+};
+
+/**
+ * @param {PropertyDescriptor} oldProperty
+ * @param {PropertyDescriptor} newProperty
+ * @param {string} replace
+ */
+DescriptorBuilder.prototype.replaceProperty = function(oldProperty, newProperty, replace) {
+  var oldNameNs = oldProperty.ns;
+
+  var props = this.properties,
+      propertiesByName = this.propertiesByName,
+      rename = oldProperty.name !== newProperty.name;
+
+  if (oldProperty.isId) {
+    if (!newProperty.isId) {
+      throw new Error(
+        'property <' + newProperty.ns.name + '> must be id property ' +
+        'to refine <' + oldProperty.ns.name + '>');
+    }
+
+    this.setIdProperty(newProperty, false);
+  }
+
+  if (oldProperty.isBody) {
+
+    if (!newProperty.isBody) {
+      throw new Error(
+        'property <' + newProperty.ns.name + '> must be body property ' +
+        'to refine <' + oldProperty.ns.name + '>');
+    }
+
+    // TODO: Check compatibility
+    this.setBodyProperty(newProperty, false);
+  }
+
+  // validate existence and get location of old property
+  var idx = props.indexOf(oldProperty);
+  if (idx === -1) {
+    throw new Error('property <' + oldNameNs.name + '> not found in property list');
+  }
+
+  // remove old property
+  props.splice(idx, 1);
+
+  // replacing the named property is intentional
+  //
+  //  * validate only if this is a "rename" operation
+  //  * add at specific index unless we "replace"
+  //
+  this.addProperty(newProperty, replace ? undefined : idx, rename);
+
+  // make new property available under old name
+  propertiesByName[oldNameNs.name] = propertiesByName[oldNameNs.localName] = newProperty;
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ * @param {string} targetPropertyName
+ * @param {string} replace
+ */
+DescriptorBuilder.prototype.redefineProperty = function(p, targetPropertyName, replace) {
+
+  var nsPrefix = p.ns.prefix;
+  var parts = targetPropertyName.split('#');
+
+  var name = parseName(parts[0], nsPrefix);
+  var attrName = parseName(parts[1], name.prefix).name;
+
+  var redefinedProperty = this.propertiesByName[attrName];
+  if (!redefinedProperty) {
+    throw new Error('refined property <' + attrName + '> not found');
+  } else {
+    this.replaceProperty(redefinedProperty, p, replace);
+  }
+
+  delete p.redefines;
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ * @param {boolean} validate
+ */
+DescriptorBuilder.prototype.addNamedProperty = function(p, validate) {
+  var ns = p.ns,
+      propsByName = this.propertiesByName;
+
+  if (validate) {
+    this.assertNotDefined(p, ns.name);
+    this.assertNotDefined(p, ns.localName);
+  }
+
+  propsByName[ns.name] = propsByName[ns.localName] = p;
+};
+
+/**
+ * @param {RegisteredPropertyDef} p
+ */
+DescriptorBuilder.prototype.removeNamedProperty = function(p) {
+  var ns = p.ns,
+      propsByName = this.propertiesByName;
+
+  delete propsByName[ns.name];
+  delete propsByName[ns.localName];
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ * @param {boolean} [validate]
+ */
+DescriptorBuilder.prototype.setBodyProperty = function(p, validate) {
+
+  if (validate && this.bodyProperty) {
+    throw new Error(
+      'body property defined multiple times ' +
+      '(<' + this.bodyProperty.ns.name + '>, <' + p.ns.name + '>)');
+  }
+
+  this.bodyProperty = p;
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ * @param {boolean} [validate]
+ */
+DescriptorBuilder.prototype.setIdProperty = function(p, validate) {
+
+  if (validate && this.idProperty) {
+    throw new Error(
+      'id property defined multiple times ' +
+      '(<' + this.idProperty.ns.name + '>, <' + p.ns.name + '>)');
+  }
+
+  this.idProperty = p;
+};
+
+/**
+ * @param {RegisteredTypeDef} typeDescriptor
+ */
+DescriptorBuilder.prototype.assertNotTrait = function(typeDescriptor) {
+
+  const _extends = typeDescriptor.extends || [];
+
+  if (_extends.length) {
+    throw new Error(
+      `cannot create <${ typeDescriptor.name }> extending <${ typeDescriptor.extends }>`
+    );
+  }
+};
+
+/**
+ * @param {PropertyDescriptor} p
+ */
+DescriptorBuilder.prototype.assertNotDefined = function(p, name) {
+  var propertyName = p.name,
+      definedProperty = this.propertiesByName[propertyName];
+
+  if (definedProperty) {
+    throw new Error(
+      'property <' + propertyName + '> already defined; ' +
+      'override of <' + definedProperty.definedBy.ns.name + '#' + definedProperty.ns.name + '> by ' +
+      '<' + p.definedBy.ns.name + '#' + p.ns.name + '> not allowed without redefines');
+  }
+};
+
+/**
+ * @param {string} name
+ * @return {PropertyDescriptor}
+ */
+DescriptorBuilder.prototype.hasProperty = function(name) {
+  return this.propertiesByName[name];
+};
+
+/**
+ * @param {RegisteredTypeDef} t
+ * @param {boolean} inherited
+ */
+DescriptorBuilder.prototype.addTrait = function(t, inherited) {
+
+  if (inherited) {
+    this.assertNotTrait(t);
+  }
+
+  var typesByName = this.allTypesByName,
+      types = this.allTypes;
+
+  var typeName = t.name;
+
+  if (typeName in typesByName) {
+    return;
+  }
+
+  forEach$1(t.properties, bind(function(p) {
+
+    // clone property to allow extensions
+    p = assign$1({}, p, {
+      name: p.ns.localName,
+      inherited: inherited
+    });
+
+    Object.defineProperty(p, 'definedBy', {
+      value: t
+    });
+
+    var replaces = p.replaces,
+        redefines = p.redefines;
+
+    // add replace/redefine support
+    if (replaces || redefines) {
+      this.redefineProperty(p, replaces || redefines, replaces);
+    } else {
+      if (p.isBody) {
+        this.setBodyProperty(p);
+      }
+      if (p.isId) {
+        this.setIdProperty(p);
+      }
+      this.addProperty(p);
+    }
+  }, this));
+
+  types.push(t);
+  typesByName[typeName] = t;
+};
+
+/**
+ * @typedef {import('./ns.js').Namespace} Namespace
+ * @typedef {import('./moddle.js').PackageDefinition} PackageDefinition
+ * @typedef {import('./moddle.js').TypeDefinition} TypeDefinition
+ * @typedef {import('./moddle.js').PropertyDefinition} PropertyDefinition
+ * @typedef {import('./properties.js').default} Properties
+ * @typedef {import('./descriptor-builder.js').EffectiveDescriptor} EffectiveDescriptor
+ */
+
+/**
+ * Registered package definition
+ * @typedef {Omit<PackageDefinition, 'types'> & {
+ *   types?: Array<RegisteredTypeDef>;
+ * }} RegisteredPackage
+ */
+
+/**
+ * Registered type definition
+ * @typedef {Omit<TypeDefinition, 'properties'> & {
+ *   properties?: Array<RegisteredPropertyDef>;
+ *   propertiesByName?: Record<string, RegisteredPropertyDef>;
+ *   superClass?: Array<string>;
+ *   extends?: Array<string>;
+ *   meta?: Record<string, *>;
+ *   traits?: Array<string>;
+ *   ns?: Namespace;
+ *   readonly $pkg?: RegisteredPackage;
+ * }} RegisteredTypeDef
+ */
+
+/**
+ * Registered property definition
+ * @typedef {PropertyDefinition & { ns: Namespace }} RegisteredPropertyDef
+ */
+
+/**
+ * A registry of Moddle packages.
+ *
+ * @param {Array<PackageDefinition> | Record<string,PackageDefinition>} packages
+ * @param {Properties} properties
+ */
+function Registry(packages, properties) {
+
+  /**
+   * @private
+   * @type {Record<string, RegisteredPackage>} registered packages map
+   */
+  this.packageMap = {};
+
+  /**
+   * @type {Record<string,RegisteredTypeDef>}
+   */
+  this.typeMap = {};
+
+  /**
+   * @private
+   * @type {Array<RegisteredPackage>} all registered packages
+   */
+  this.packages = [];
+
+  /**
+   * @private
+   * @type {Properties}
+   */
+  this.properties = properties;
+
+  forEach$1(packages, bind(this.registerPackage, this));
+}
+
+/**
+ * @param {string} uriOrPrefix uri or prefix of package
+ * @return {RegisteredPackage} registered package
+ */
+Registry.prototype.getPackage = function(uriOrPrefix) {
+  return this.packageMap[uriOrPrefix];
+};
+
+/**
+ * @return {Array<RegisteredPackage>} all registered packages
+ */
+Registry.prototype.getPackages = function() {
+  return this.packages;
+};
+
+/**
+ * @private
+ * @param {PackageDefinition} pkg registering package
+ */
+Registry.prototype.registerPackage = function(pkg) {
+
+  // copy package
+  pkg = assign$1({}, pkg);
+
+  var pkgMap = this.packageMap;
+
+  ensureAvailable(pkgMap, pkg, 'prefix');
+  ensureAvailable(pkgMap, pkg, 'uri');
+
+  // register types
+  forEach$1(pkg.types, bind(function(descriptor) {
+    this.registerType(descriptor, pkg);
+  }, this));
+
+  pkgMap[pkg.uri] = pkgMap[pkg.prefix] = pkg;
+  this.packages.push(pkg);
+};
+
+/**
+ * @private
+ * Register a type from a specific package with us
+ * @param {TypeDefinition} type
+ * @param {RegisteredPackage} pkg
+ */
+Registry.prototype.registerType = function(type, pkg) {
+  type = assign$1({}, type, {
+    superClass: (type.superClass || []).slice(),
+    extends: (type.extends || []).slice(),
+    properties: (type.properties || []).slice(),
+    meta: assign$1((type.meta || {}))
+  });
+
+  var ns = parseName(type.name, pkg.prefix),
+      name = ns.name,
+      /** @type {Record<string, RegisteredPropertyDef>} */ propertiesByName = {};
+
+  // parse properties
+  forEach$1(type.properties, bind(function(p) {
+
+    // namespace property names
+    var propertyNs = parseName(p.name, ns.prefix),
+        propertyName = propertyNs.name;
+
+    // namespace property types
+    if (!isBuiltIn(p.type)) {
+      p.type = parseName(p.type, propertyNs.prefix).name;
+    }
+
+    assign$1(p, {
+      ns: propertyNs,
+      name: propertyName
+    });
+
+    propertiesByName[propertyName] = p;
+  }, this));
+
+  // update ns + name
+  assign$1(type, {
+    ns: ns,
+    name: name,
+    propertiesByName: propertiesByName
+  });
+
+  forEach$1(type.extends, bind(function(extendsName) {
+    var extendsNameNs = parseName(extendsName, ns.prefix);
+
+    var extended = this.typeMap[extendsNameNs.name];
+
+    extended.traits = extended.traits || [];
+    extended.traits.push(name);
+  }, this));
+
+  // link to package
+  this.definePackage(type, pkg);
+
+  // register
+  this.typeMap[name] = type;
+};
+
+/**
+ * @callback IteratorFn
+ * @param {RegisteredTypeDef} type
+ * @param {boolean} inherited
+ */
+
+/**
+ * Traverse the type hierarchy from bottom to top,
+ * calling iterator with (type, inherited) for all elements in
+ * the inheritance chain.
+ * @private
+ * @param {Namespace} nsName
+ * @param {IteratorFn} iterator
+ * @param {Boolean} [trait=false]
+ */
+Registry.prototype.mapTypes = function(nsName, iterator, trait) {
+
+  /** @type {RegisteredTypeDef} */
+  var type = isBuiltIn(nsName.name) ? { name: nsName.name } : this.typeMap[nsName.name];
+
+  var self = this;
+
+  /**
+   * Traverse the selected super type or trait
+   *
+   * @param {String} cls
+   * @param {Boolean} [trait=false]
+   */
+  function traverse(cls, trait) {
+    var parentNs = parseName(cls, isBuiltIn(cls) ? '' : nsName.prefix);
+    self.mapTypes(parentNs, iterator, trait);
+  }
+
+  /**
+   * Traverse the selected trait.
+   *
+   * @param {String} cls
+   */
+  function traverseTrait(cls) {
+    return traverse(cls, true);
+  }
+
+  /**
+   * Traverse the selected super type
+   *
+   * @param {String} cls
+   */
+  function traverseSuper(cls) {
+    return traverse(cls, false);
+  }
+
+  if (!type) {
+    throw new Error('unknown type <' + nsName.name + '>');
+  }
+
+  forEach$1(type.superClass, trait ? traverseTrait : traverseSuper);
+
+  // call iterator with (type, inherited=!trait)
+  iterator(type, !trait);
+
+  forEach$1(type.traits, traverseTrait);
+};
+
+/**
+ * Returns the effective descriptor for a type.
+ * @param  {Namespace['name']} name the namespaced name (ns:localName) of the type
+ * @return {EffectiveDescriptor} the resulting effective descriptor
+ */
+Registry.prototype.getEffectiveDescriptor = function(name) {
+
+  var nsName = parseName(name);
+
+  var builder = new DescriptorBuilder(nsName);
+
+  this.mapTypes(nsName, function(type, inherited) {
+    builder.addTrait(type, inherited);
+  });
+
+  var descriptor = builder.build();
+
+  // define package link
+  this.definePackage(descriptor, descriptor.allTypes[descriptor.allTypes.length - 1].$pkg);
+
+  return descriptor;
+};
+
+/**
+ * @private
+ * @param {RegisteredTypeDef | EffectiveDescriptor} target
+ * @param {RegisteredPackage} pkg
+ */
+Registry.prototype.definePackage = function(target, pkg) {
+  this.properties.define(target, '$pkg', { value: pkg });
+};
+
+// helpers ////////////////////////////
+
+/**
+ * Checking already defined packages
+ * @param {Record<string, RegisteredPackage>} packageMap
+ * @param {PackageDefinition} pkg
+ * @param {'prefix' | 'uri'} identifierKey
+ */
+function ensureAvailable(packageMap, pkg, identifierKey) {
+
+  var value = pkg[identifierKey];
+
+  if (value in packageMap) {
+    throw new Error('package with ' + identifierKey + ' <' + value + '> already defined');
+  }
+}
+
+/**
+ * @typedef {import('./moddle.js').default} Moddle
+ * @typedef {import('./descriptor-builder.js').PropertyDescriptor} PropertyDesc
+ * @typedef {import('./registry.js').EffectiveDescriptor} EffectiveDescriptor
+ * @typedef {import('./factory.js').ModdleElement} ModdleElement
+ * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
+ */
+
+/**
+ * A utility that gets and sets properties of model elements.
+ *
+ * @param {Moddle} model
+ */
+function Properties(model) {
+
+  /** @type {Moddle} */
+  this.model = model;
+}
+
+/**
+ * Sets a named property on the target element.
+ * If the value is undefined, the property gets deleted.
+ *
+ * @param {ModdleElement} target
+ * @param {String} name
+ * @param {Object} value
+ */
+Properties.prototype.set = function(target, name, value) {
+
+  if (!isString$1(name) || !name.length) {
+    throw new TypeError('property name must be a non-empty string');
+  }
+
+  var property = this.getProperty(target, name);
+
+  var propertyName = property && property.name;
+
+  if (isUndefined$1(value)) {
+
+    // unset the property, if the specified value is undefined;
+    // delete from $attrs (for extensions) or the target itself
+    if (property) {
+      delete target[propertyName];
+    } else {
+      delete target.$attrs[stripGlobal(name)];
+    }
+  } else {
+
+    // set the property, defining well defined properties on the fly
+    // or simply updating them in target.$attrs (for extensions)
+    if (property) {
+      if (propertyName in target) {
+        target[propertyName] = value;
+      } else {
+        defineProperty(target, property, value);
+      }
+    } else {
+      target.$attrs[stripGlobal(name)] = value;
+    }
+  }
+};
+
+/**
+ * Returns the named property of the given element
+ *
+ * @param  {ModdleElement} target
+ * @param  {String} name
+ *
+ * @return {Object}
+ */
+Properties.prototype.get = function(target, name) {
+
+  var property = this.getProperty(target, name);
+
+  if (!property) {
+    return target.$attrs[stripGlobal(name)];
+  }
+
+  var propertyName = property.name;
+
+  // check if access to collection property and lazily initialize it
+  if (!target[propertyName] && property.isMany) {
+    defineProperty(target, property, []);
+  }
+
+  return target[propertyName];
+};
+
+/**
+ * Define a property on the target element
+ * @template [T=any]
+ * @param  {NonNullable<T>} target
+ * @param  {String} name
+ * @param  {PropertyDescriptor} options
+ */
+Properties.prototype.define = function(target, name, options) {
+
+  if (!options.writable) {
+
+    var value = options.value;
+
+    // use getters for read-only variables to support ES6 proxies
+    // cf. https://github.com/bpmn-io/internal-docs/issues/386
+    options = assign$1({}, options, {
+      get: function() { return value; }
+    });
+
+    delete options.value;
+  }
+
+  Object.defineProperty(target, name, options);
+};
+
+/**
+ * Define the descriptor for an element
+ * @template [T=any]
+ * @param {NonNullable<T>} target
+ * @param {EffectiveDescriptor | AnyTypeDescriptor} descriptor
+ */
+Properties.prototype.defineDescriptor = function(target, descriptor) {
+  this.define(target, '$descriptor', { value: descriptor });
+};
+
+/**
+ * Define the model for an element
+ * @template [T=any]
+ * @param {NonNullable<T>} target
+ * @param {Moddle} model
+ */
+Properties.prototype.defineModel = function(target, model) {
+  this.define(target, '$model', { value: model });
+};
+
+/**
+ * Return property with the given name on the element.
+ *
+ * @param {ModdleElement} target
+ * @param {string} name
+ *
+ * @return {PropertyDesc | null} property
+ */
+Properties.prototype.getProperty = function(target, name) {
+
+  var model = this.model;
+
+  var property = model.getPropertyDescriptor(target, name);
+
+  if (property) {
+    return property;
+  }
+
+  if (name.includes(':')) {
+    return null;
+  }
+
+  const strict = model.config.strict;
+
+  if (typeof strict !== 'undefined') {
+    const error = new TypeError(`unknown property <${ name }> on <${ target.$type }>`);
+
+    if (strict) {
+      throw error;
+    } else {
+
+      typeof console !== 'undefined' && console.warn(error);
+    }
+  }
+
+  return null;
+};
+
+function isUndefined$1(val) {
+  return typeof val === 'undefined';
+}
+
+function defineProperty(target, property, value) {
+  Object.defineProperty(target, property.name, {
+    enumerable: !property.isReference,
+    writable: true,
+    value: value,
+    configurable: true
+  });
+}
+
+function stripGlobal(name) {
+  return name.replace(/^:/, '');
+}
+
+/**
+ * @typedef {import('./registry.js').RegisteredTypeDef} RegisteredTypeDef
+ * @typedef {import('./registry.js').RegisteredPackage} RegisteredPackage
+ * @typedef {import('./base.js').default} BaseElement
+ * @typedef {import('./descriptor-builder.js').EffectiveDescriptor} EffectiveDescriptor
+ * @typedef {import('./descriptor-builder.js').AnyTypeDescriptor} AnyTypeDescriptor
+ * @typedef {import('./descriptor-builder.js').PropertyDescriptor} PropertyDescriptor
+ */
+
+/**
+ * @template [T=Record<string,any>]
+ * @typedef {import('./factory.js').ModdleElement<T>} ModdleElement
+ * @typedef {import('./factory.js').ModdleElementType<T>} ModdleElementType
+ * @typedef {import('./factory.js').AnyModdleElement<T>} AnyModdleElement
+ */
+
+/**
+ * Package definition
+ * @typedef {{
+ *   $schema?: string;
+ *   name: string;
+ *   prefix: string;
+ *   types?: Array<TypeDefinition>;
+ *   [key: string]: any;
+ * } & PackageDefinitionXmlExtension} PackageDefinition
+ */
+
+/**
+ * Set of extended parameters for package definition used in moddle-xml.
+ * @typedef {{
+ *   uri?: string;
+ *   xml?: {
+ *     tagAlias?: 'lowerCase';
+ *     typePrefix?: string;
+ *   };
+ * }} PackageDefinitionXmlExtension
+ */
+
+/**
+ * Type definition in declaration in package
+ * @typedef {{
+ *   name: string;
+ *   isAbstract?: boolean;
+ *   properties?: Array<PropertyDefinition>;
+ *   superClass?: Array<string>;
+ *   extends?: Array<string>;
+ *   meta?: Record<string, *>;
+ *   [key: string]: any;
+ * }} TypeDefinition
+ */
+
+/**
+ * Set of extended parameters for property definition used in moddle-xml.
+ * @typedef {{
+ *   isBody?: boolean;
+ *   isAttr?: boolean;
+ *   xml?: {
+ *     serialize?: string;
+ *   };
+ * }} PropertyDefinitionXmlExtension
+ */
+
+/**
+ * Property definition of type definition
+ * @typedef {{
+ *   name: string;
+ *   type: 'String' | 'Boolean' | 'Integer' | 'Real' | string;
+ *   default?: string | boolean | number;
+ *   isMany?: boolean;
+ *   isReference?: boolean;
+ *   isId?: boolean;
+ *   redefines?: string;
+ *   replaces?: string;
+ *   [key: string]: any;
+ * } & PropertyDefinitionXmlExtension} PropertyDefinition
+ */
+
+// Moddle implementation /////////////////////////////////////////////////
+
+/**
+ * @class Moddle
+ *
+ * A model that can be used to create elements of a specific type.
+ *
+ * @example
+ *
+ * import Moddle from 'moddle';
+ *
+ * var pkg = {
+ *   name: 'mypackage',
+ *   prefix: 'my',
+ *   types: [
+ *     { name: 'Root' }
+ *   ]
+ * };
+ *
+ * var moddle = new Moddle([pkg]);
+ *
+ * @param {Array<PackageDefinition> | Record<string,PackageDefinition>} packages the packages to contain
+ * @param {{ strict?: boolean }} [config={}] moddle configuration
+ */
+function Moddle(packages, config = {}) {
+
+  /** @type Readonly<Properties> */
+  this.properties = new Properties(this);
+
+  /** @type Readonly<Factory> */
+  this.factory = new Factory(this, this.properties);
+
+  /** @type Readonly<Registry> */
+  this.registry = new Registry(packages, this.properties);
+
+  /**
+   * @type {Record<string,ModdleElementType>}
+   */
+  this.typeCache = {};
+
+  /**
+   * @type {Readonly<{readonly strict?: boolean}>}
+   */
+  this.config = config;
+}
+
+/**
+ * Create an instance of the specified type.
+ *
+ * @method Moddle#create
+ *
+ * @example
+ *
+ * var foo = moddle.create('my:Foo');
+ * var bar = moddle.create('my:Bar', { id: 'BAR_1' });
+ *
+ * @template [T=Record<string,any>]
+ * @param  {String|EffectiveDescriptor} descriptor the type descriptor or name know to the model
+ * @param  {Partial<T>} [attrs] a number of attributes to initialize the model instance with
+ * @return {ModdleElement<T>} model instance
+ */
+Moddle.prototype.create = function(descriptor, attrs) {
+  var Type = this.getType(descriptor);
+
+  if (!Type) {
+    throw new Error('unknown type <' + descriptor + '>');
+  }
+
+  return new Type(attrs);
+};
+
+/**
+ * Returns the type representing a given descriptor
+ *
+ * @method Moddle#getType
+ *
+ * @example
+ *
+ * var Foo = moddle.getType('my:Foo');
+ * var foo = new Foo({ 'id' : 'FOO_1' });
+ *
+ * @template [T=Record<string,any>]
+ * @param  {String|EffectiveDescriptor} descriptor the type descriptor or name know to the model
+ * @return {ModdleElementType<T>} the type representing the descriptor
+ */
+Moddle.prototype.getType = function(descriptor) {
+
+  var cache = this.typeCache;
+
+  var name = isString$1(descriptor) ? descriptor : descriptor.ns.name;
+
+  var type = cache[name];
+
+  if (!type) {
+    descriptor = this.registry.getEffectiveDescriptor(name);
+    type = cache[name] = this.factory.createType(descriptor);
+  }
+
+  return type;
+};
+
+/**
+ * Creates an any-element type to be used within model instances.
+ *
+ * This can be used to create custom elements that lie outside the meta-model.
+ * The created element contains all the meta-data required to serialize it
+ * as part of meta-model elements.
+ *
+ * @method Moddle#createAny
+ *
+ * @example
+ *
+ * var foo = moddle.createAny('vendor:Foo', 'http://vendor', {
+ *   value: 'bar'
+ * });
+ *
+ * var container = moddle.create('my:Container', 'http://my', {
+ *   any: [ foo ]
+ * });
+ *
+ * // go ahead and serialize the stuff
+ *
+ * @template [T=Record<string, any>]
+ * @param  {String} name  the name of the element
+ * @param  {String} nsUri the namespace uri of the element
+ * @param  {T} [properties] a map of properties to initialize the instance with
+ * @return {AnyModdleElement<T>} the any type instance
+ */
+Moddle.prototype.createAny = function(name, nsUri, properties) {
+
+  var nameNs = parseName(name);
+
+  /** @type AnyModdleElement */
+  var element = {
+    $type: name,
+    $instanceOf: function(type) {
+      return type === this.$type;
+    },
+    get: function(key) {
+      return this[key];
+    },
+    set: function(key, value) {
+      set(this, [ key ], value);
+    }
+  };
+
+  /** @type AnyTypeDescriptor */
+  var descriptor = {
+    name: name,
+    isGeneric: true,
+    ns: {
+      prefix: nameNs.prefix,
+      localName: nameNs.localName,
+      uri: nsUri
+    }
+  };
+
+  this.properties.defineDescriptor(element, descriptor);
+  this.properties.defineModel(element, this);
+  this.properties.define(element, 'get', { enumerable: false, writable: true });
+  this.properties.define(element, 'set', { enumerable: false, writable: true });
+  this.properties.define(element, '$parent', { enumerable: false, writable: true });
+  this.properties.define(element, '$instanceOf', { enumerable: false, writable: true });
+
+  forEach$1(properties, function(a, key) {
+    if (isObject(a) && a.value !== undefined) {
+      element[a.name] = a.value;
+    } else {
+      element[key] = a;
+    }
+  });
+
+  return element;
+};
+
+/**
+ * Returns a registered package by uri or prefix
+ * @param {string} uriOrPrefix
+ * @return {RegisteredPackage} the package
+ */
+Moddle.prototype.getPackage = function(uriOrPrefix) {
+  return this.registry.getPackage(uriOrPrefix);
+};
+
+/**
+ * Returns a snapshot of all known packages
+ *
+ * @return {Readonly<Array<RegisteredPackage>>} the package
+ */
+Moddle.prototype.getPackages = function() {
+  return this.registry.getPackages();
+};
+
+/**
+ * Returns the descriptor for an element
+ * @param {ModdleElement | ModdleElementType} element
+ * @return {EffectiveDescriptor}
+ */
+Moddle.prototype.getElementDescriptor = function(element) {
+  return element.$descriptor;
+};
+
+/**
+ * @overload
+ * Returns true if the given descriptor or instance
+ * represents the given type.
+ * @param {ModdleElement | ModdleElementType} element
+ * @param {string} type
+ * @return {boolean}
+ */
+/**
+ * @overload
+ * @param {string} type
+ * @return {boolean}
+ */
+Moddle.prototype.hasType = function(element, type) {
+  if (type === undefined) {
+    type = element;
+    element = this;
+  }
+
+  var descriptor = element.$model.getElementDescriptor(element);
+
+  return (type in descriptor.allTypesByName);
+};
+
+/**
+ * Returns the descriptor of an elements named property
+ * @param {ModdleElement | ModdleElementType} element
+ * @param {string} property
+ * @return {PropertyDescriptor}
+ */
+Moddle.prototype.getPropertyDescriptor = function(element, property) {
+  return this.getElementDescriptor(element).propertiesByName[property];
+};
+
+/**
+ * Return registered type definition
+ * @param {string} type
+ * @return {RegisteredTypeDef}
+ */
+Moddle.prototype.getTypeDescriptor = function(type) {
+  return this.registry.typeMap[type];
+};
+
+/**
  * Flatten array, one level deep.
  *
  * @template T
@@ -4590,12 +6649,8 @@ var post = function (api, path, params, payload) { return __awaiter(void 0, void
 const nativeToString = Object.prototype.toString;
 const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
 
-function isUndefined$1(obj) {
+function isUndefined(obj) {
   return obj === undefined;
-}
-
-function isDefined(obj) {
-  return obj !== undefined;
 }
 
 function isNil(obj) {
@@ -4604,10 +6659,6 @@ function isNil(obj) {
 
 function isArray(obj) {
   return nativeToString.call(obj) === '[object Array]';
-}
-
-function isObject(obj) {
-  return nativeToString.call(obj) === '[object Object]';
 }
 
 /**
@@ -4789,7 +6840,7 @@ function forEach(collection, iterator) {
   let val,
       result;
 
-  if (isUndefined$1(collection)) {
+  if (isUndefined(collection)) {
     return;
   }
 
@@ -4832,18 +6883,6 @@ function toNum(arg) {
 }
 
 /**
- * Bind function against target <this>.
- *
- * @param  {Function} fn
- * @param  {Object}   target
- *
- * @return {Function} bound function
- */
-function bind(fn, target) {
-  return fn.bind(target);
-}
-
-/**
  * Convenience wrapper for `Object.assign`.
  *
  * @param {Object} target
@@ -4854,1081 +6893,6 @@ function bind(fn, target) {
 function assign(target, ...others) {
   return Object.assign(target, ...others);
 }
-
-/**
- * Sets a nested property of a given object to the specified value.
- *
- * This mutates the object and returns it.
- *
- * @template T
- *
- * @param {T} target The target of the set operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} value The value to set.
- *
- * @return {T}
- */
-function set(target, path, value) {
-
-  let currentTarget = target;
-
-  forEach(path, function(key, idx) {
-
-    if (typeof key !== 'number' && typeof key !== 'string') {
-      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
-    }
-
-    if (key === 'constructor') {
-      throw new Error('illegal key: constructor');
-    }
-
-    if (key === '__proto__') {
-      throw new Error('illegal key: __proto__');
-    }
-
-    let nextKey = path[idx + 1];
-    let nextTarget = currentTarget[key];
-
-    if (isDefined(nextKey) && isNil(nextTarget)) {
-      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
-    }
-
-    if (isUndefined$1(nextKey)) {
-      if (isUndefined$1(value)) {
-        delete currentTarget[key];
-      } else {
-        currentTarget[key] = value;
-      }
-    } else {
-      currentTarget = nextTarget;
-    }
-  });
-
-  return target;
-}
-
-/**
- * Pick properties from the given target.
- *
- * @template T
- * @template {any[]} V
- *
- * @param {T} target
- * @param {V} properties
- *
- * @return Pick<T, V>
- */
-function pick(target, properties) {
-
-  let result = {};
-
-  let obj = Object(target);
-
-  forEach(properties, function(prop) {
-
-    if (prop in obj) {
-      result[prop] = target[prop];
-    }
-  });
-
-  return result;
-}
-
-/**
- * Moddle base element.
- */
-function Base() { }
-
-Base.prototype.get = function(name) {
-  return this.$model.properties.get(this, name);
-};
-
-Base.prototype.set = function(name, value) {
-  this.$model.properties.set(this, name, value);
-};
-
-/**
- * A model element factory.
- *
- * @param {Moddle} model
- * @param {Properties} properties
- */
-function Factory(model, properties) {
-  this.model = model;
-  this.properties = properties;
-}
-
-
-Factory.prototype.createType = function(descriptor) {
-
-  var model = this.model;
-
-  var props = this.properties,
-      prototype = Object.create(Base.prototype);
-
-  // initialize default values
-  forEach(descriptor.properties, function(p) {
-    if (!p.isMany && p.default !== undefined) {
-      prototype[p.name] = p.default;
-    }
-  });
-
-  props.defineModel(prototype, model);
-  props.defineDescriptor(prototype, descriptor);
-
-  var name = descriptor.ns.name;
-
-  /**
-   * The new type constructor
-   */
-  function ModdleElement(attrs) {
-    props.define(this, '$type', { value: name, enumerable: true });
-    props.define(this, '$attrs', { value: {} });
-    props.define(this, '$parent', { writable: true });
-
-    forEach(attrs, bind(function(val, key) {
-      this.set(key, val);
-    }, this));
-  }
-
-  ModdleElement.prototype = prototype;
-
-  ModdleElement.hasType = prototype.$instanceOf = this.model.hasType;
-
-  // static links
-  props.defineModel(ModdleElement, model);
-  props.defineDescriptor(ModdleElement, descriptor);
-
-  return ModdleElement;
-};
-
-/**
- * Built-in moddle types
- */
-var BUILTINS = {
-  String: true,
-  Boolean: true,
-  Integer: true,
-  Real: true,
-  Element: true
-};
-
-/**
- * Converters for built in types from string representations
- */
-var TYPE_CONVERTERS = {
-  String: function(s) { return s; },
-  Boolean: function(s) { return s === 'true'; },
-  Integer: function(s) { return parseInt(s, 10); },
-  Real: function(s) { return parseFloat(s); }
-};
-
-/**
- * Convert a type to its real representation
- */
-function coerceType(type, value) {
-
-  var converter = TYPE_CONVERTERS[type];
-
-  if (converter) {
-    return converter(value);
-  } else {
-    return value;
-  }
-}
-
-/**
- * Return whether the given type is built-in
- */
-function isBuiltIn(type) {
-  return !!BUILTINS[type];
-}
-
-/**
- * Return whether the given type is simple
- */
-function isSimple(type) {
-  return !!TYPE_CONVERTERS[type];
-}
-
-/**
- * Parses a namespaced attribute name of the form (ns:)localName to an object,
- * given a default prefix to assume in case no explicit namespace is given.
- *
- * @param {String} name
- * @param {String} [defaultPrefix] the default prefix to take, if none is present.
- *
- * @return {Object} the parsed name
- */
-function parseName(name, defaultPrefix) {
-  var parts = name.split(/:/),
-      localName, prefix;
-
-  // no prefix (i.e. only local name)
-  if (parts.length === 1) {
-    localName = name;
-    prefix = defaultPrefix;
-  }
-
-  // prefix + local name
-  else if (parts.length === 2) {
-    localName = parts[1];
-    prefix = parts[0];
-  }
-
-  else {
-    throw new Error('expected <prefix:localName> or <localName>, got ' + name);
-  }
-
-  name = (prefix ? prefix + ':' : '') + localName;
-
-  return {
-    name: name,
-    prefix: prefix,
-    localName: localName
-  };
-}
-
-/**
- * A utility to build element descriptors.
- */
-function DescriptorBuilder(nameNs) {
-  this.ns = nameNs;
-  this.name = nameNs.name;
-  this.allTypes = [];
-  this.allTypesByName = {};
-  this.properties = [];
-  this.propertiesByName = {};
-}
-
-
-DescriptorBuilder.prototype.build = function() {
-  return pick(this, [
-    'ns',
-    'name',
-    'allTypes',
-    'allTypesByName',
-    'properties',
-    'propertiesByName',
-    'bodyProperty',
-    'idProperty'
-  ]);
-};
-
-/**
- * Add property at given index.
- *
- * @param {Object} p
- * @param {Number} [idx]
- * @param {Boolean} [validate=true]
- */
-DescriptorBuilder.prototype.addProperty = function(p, idx, validate) {
-
-  if (typeof idx === 'boolean') {
-    validate = idx;
-    idx = undefined;
-  }
-
-  this.addNamedProperty(p, validate !== false);
-
-  var properties = this.properties;
-
-  if (idx !== undefined) {
-    properties.splice(idx, 0, p);
-  } else {
-    properties.push(p);
-  }
-};
-
-
-DescriptorBuilder.prototype.replaceProperty = function(oldProperty, newProperty, replace) {
-  var oldNameNs = oldProperty.ns;
-
-  var props = this.properties,
-      propertiesByName = this.propertiesByName,
-      rename = oldProperty.name !== newProperty.name;
-
-  if (oldProperty.isId) {
-    if (!newProperty.isId) {
-      throw new Error(
-        'property <' + newProperty.ns.name + '> must be id property ' +
-        'to refine <' + oldProperty.ns.name + '>');
-    }
-
-    this.setIdProperty(newProperty, false);
-  }
-
-  if (oldProperty.isBody) {
-
-    if (!newProperty.isBody) {
-      throw new Error(
-        'property <' + newProperty.ns.name + '> must be body property ' +
-        'to refine <' + oldProperty.ns.name + '>');
-    }
-
-    // TODO: Check compatibility
-    this.setBodyProperty(newProperty, false);
-  }
-
-  // validate existence and get location of old property
-  var idx = props.indexOf(oldProperty);
-  if (idx === -1) {
-    throw new Error('property <' + oldNameNs.name + '> not found in property list');
-  }
-
-  // remove old property
-  props.splice(idx, 1);
-
-  // replacing the named property is intentional
-  //
-  //  * validate only if this is a "rename" operation
-  //  * add at specific index unless we "replace"
-  //
-  this.addProperty(newProperty, replace ? undefined : idx, rename);
-
-  // make new property available under old name
-  propertiesByName[oldNameNs.name] = propertiesByName[oldNameNs.localName] = newProperty;
-};
-
-
-DescriptorBuilder.prototype.redefineProperty = function(p, targetPropertyName, replace) {
-
-  var nsPrefix = p.ns.prefix;
-  var parts = targetPropertyName.split('#');
-
-  var name = parseName(parts[0], nsPrefix);
-  var attrName = parseName(parts[1], name.prefix).name;
-
-  var redefinedProperty = this.propertiesByName[attrName];
-  if (!redefinedProperty) {
-    throw new Error('refined property <' + attrName + '> not found');
-  } else {
-    this.replaceProperty(redefinedProperty, p, replace);
-  }
-
-  delete p.redefines;
-};
-
-DescriptorBuilder.prototype.addNamedProperty = function(p, validate) {
-  var ns = p.ns,
-      propsByName = this.propertiesByName;
-
-  if (validate) {
-    this.assertNotDefined(p, ns.name);
-    this.assertNotDefined(p, ns.localName);
-  }
-
-  propsByName[ns.name] = propsByName[ns.localName] = p;
-};
-
-DescriptorBuilder.prototype.removeNamedProperty = function(p) {
-  var ns = p.ns,
-      propsByName = this.propertiesByName;
-
-  delete propsByName[ns.name];
-  delete propsByName[ns.localName];
-};
-
-DescriptorBuilder.prototype.setBodyProperty = function(p, validate) {
-
-  if (validate && this.bodyProperty) {
-    throw new Error(
-      'body property defined multiple times ' +
-      '(<' + this.bodyProperty.ns.name + '>, <' + p.ns.name + '>)');
-  }
-
-  this.bodyProperty = p;
-};
-
-DescriptorBuilder.prototype.setIdProperty = function(p, validate) {
-
-  if (validate && this.idProperty) {
-    throw new Error(
-      'id property defined multiple times ' +
-      '(<' + this.idProperty.ns.name + '>, <' + p.ns.name + '>)');
-  }
-
-  this.idProperty = p;
-};
-
-DescriptorBuilder.prototype.assertNotTrait = function(typeDescriptor) {
-
-  const _extends = typeDescriptor.extends || [];
-
-  if (_extends.length) {
-    throw new Error(
-      `cannot create <${ typeDescriptor.name }> extending <${ typeDescriptor.extends }>`
-    );
-  }
-};
-
-DescriptorBuilder.prototype.assertNotDefined = function(p, name) {
-  var propertyName = p.name,
-      definedProperty = this.propertiesByName[propertyName];
-
-  if (definedProperty) {
-    throw new Error(
-      'property <' + propertyName + '> already defined; ' +
-      'override of <' + definedProperty.definedBy.ns.name + '#' + definedProperty.ns.name + '> by ' +
-      '<' + p.definedBy.ns.name + '#' + p.ns.name + '> not allowed without redefines');
-  }
-};
-
-DescriptorBuilder.prototype.hasProperty = function(name) {
-  return this.propertiesByName[name];
-};
-
-DescriptorBuilder.prototype.addTrait = function(t, inherited) {
-
-  if (inherited) {
-    this.assertNotTrait(t);
-  }
-
-  var typesByName = this.allTypesByName,
-      types = this.allTypes;
-
-  var typeName = t.name;
-
-  if (typeName in typesByName) {
-    return;
-  }
-
-  forEach(t.properties, bind(function(p) {
-
-    // clone property to allow extensions
-    p = assign({}, p, {
-      name: p.ns.localName,
-      inherited: inherited
-    });
-
-    Object.defineProperty(p, 'definedBy', {
-      value: t
-    });
-
-    var replaces = p.replaces,
-        redefines = p.redefines;
-
-    // add replace/redefine support
-    if (replaces || redefines) {
-      this.redefineProperty(p, replaces || redefines, replaces);
-    } else {
-      if (p.isBody) {
-        this.setBodyProperty(p);
-      }
-      if (p.isId) {
-        this.setIdProperty(p);
-      }
-      this.addProperty(p);
-    }
-  }, this));
-
-  types.push(t);
-  typesByName[typeName] = t;
-};
-
-/**
- * A registry of Moddle packages.
- *
- * @param {Array<Package>} packages
- * @param {Properties} properties
- */
-function Registry(packages, properties) {
-  this.packageMap = {};
-  this.typeMap = {};
-
-  this.packages = [];
-
-  this.properties = properties;
-
-  forEach(packages, bind(this.registerPackage, this));
-}
-
-
-Registry.prototype.getPackage = function(uriOrPrefix) {
-  return this.packageMap[uriOrPrefix];
-};
-
-Registry.prototype.getPackages = function() {
-  return this.packages;
-};
-
-
-Registry.prototype.registerPackage = function(pkg) {
-
-  // copy package
-  pkg = assign({}, pkg);
-
-  var pkgMap = this.packageMap;
-
-  ensureAvailable(pkgMap, pkg, 'prefix');
-  ensureAvailable(pkgMap, pkg, 'uri');
-
-  // register types
-  forEach(pkg.types, bind(function(descriptor) {
-    this.registerType(descriptor, pkg);
-  }, this));
-
-  pkgMap[pkg.uri] = pkgMap[pkg.prefix] = pkg;
-  this.packages.push(pkg);
-};
-
-
-/**
- * Register a type from a specific package with us
- */
-Registry.prototype.registerType = function(type, pkg) {
-
-  type = assign({}, type, {
-    superClass: (type.superClass || []).slice(),
-    extends: (type.extends || []).slice(),
-    properties: (type.properties || []).slice(),
-    meta: assign((type.meta || {}))
-  });
-
-  var ns = parseName(type.name, pkg.prefix),
-      name = ns.name,
-      propertiesByName = {};
-
-  // parse properties
-  forEach(type.properties, bind(function(p) {
-
-    // namespace property names
-    var propertyNs = parseName(p.name, ns.prefix),
-        propertyName = propertyNs.name;
-
-    // namespace property types
-    if (!isBuiltIn(p.type)) {
-      p.type = parseName(p.type, propertyNs.prefix).name;
-    }
-
-    assign(p, {
-      ns: propertyNs,
-      name: propertyName
-    });
-
-    propertiesByName[propertyName] = p;
-  }, this));
-
-  // update ns + name
-  assign(type, {
-    ns: ns,
-    name: name,
-    propertiesByName: propertiesByName
-  });
-
-  forEach(type.extends, bind(function(extendsName) {
-    var extendsNameNs = parseName(extendsName, ns.prefix);
-
-    var extended = this.typeMap[extendsNameNs.name];
-
-    extended.traits = extended.traits || [];
-    extended.traits.push(name);
-  }, this));
-
-  // link to package
-  this.definePackage(type, pkg);
-
-  // register
-  this.typeMap[name] = type;
-};
-
-
-/**
- * Traverse the type hierarchy from bottom to top,
- * calling iterator with (type, inherited) for all elements in
- * the inheritance chain.
- *
- * @param {Object} nsName
- * @param {Function} iterator
- * @param {Boolean} [trait=false]
- */
-Registry.prototype.mapTypes = function(nsName, iterator, trait) {
-
-  var type = isBuiltIn(nsName.name) ? { name: nsName.name } : this.typeMap[nsName.name];
-
-  var self = this;
-
-  /**
-   * Traverse the selected super type or trait
-   *
-   * @param {String} cls
-   * @param {Boolean} [trait=false]
-   */
-  function traverse(cls, trait) {
-    var parentNs = parseName(cls, isBuiltIn(cls) ? '' : nsName.prefix);
-    self.mapTypes(parentNs, iterator, trait);
-  }
-
-  /**
-   * Traverse the selected trait.
-   *
-   * @param {String} cls
-   */
-  function traverseTrait(cls) {
-    return traverse(cls, true);
-  }
-
-  /**
-   * Traverse the selected super type
-   *
-   * @param {String} cls
-   */
-  function traverseSuper(cls) {
-    return traverse(cls, false);
-  }
-
-  if (!type) {
-    throw new Error('unknown type <' + nsName.name + '>');
-  }
-
-  forEach(type.superClass, trait ? traverseTrait : traverseSuper);
-
-  // call iterator with (type, inherited=!trait)
-  iterator(type, !trait);
-
-  forEach(type.traits, traverseTrait);
-};
-
-
-/**
- * Returns the effective descriptor for a type.
- *
- * @param  {String} type the namespaced name (ns:localName) of the type
- *
- * @return {Descriptor} the resulting effective descriptor
- */
-Registry.prototype.getEffectiveDescriptor = function(name) {
-
-  var nsName = parseName(name);
-
-  var builder = new DescriptorBuilder(nsName);
-
-  this.mapTypes(nsName, function(type, inherited) {
-    builder.addTrait(type, inherited);
-  });
-
-  var descriptor = builder.build();
-
-  // define package link
-  this.definePackage(descriptor, descriptor.allTypes[descriptor.allTypes.length - 1].$pkg);
-
-  return descriptor;
-};
-
-
-Registry.prototype.definePackage = function(target, pkg) {
-  this.properties.define(target, '$pkg', { value: pkg });
-};
-
-
-
-// helpers ////////////////////////////
-
-function ensureAvailable(packageMap, pkg, identifierKey) {
-
-  var value = pkg[identifierKey];
-
-  if (value in packageMap) {
-    throw new Error('package with ' + identifierKey + ' <' + value + '> already defined');
-  }
-}
-
-/**
- * A utility that gets and sets properties of model elements.
- *
- * @param {Model} model
- */
-function Properties(model) {
-  this.model = model;
-}
-
-
-/**
- * Sets a named property on the target element.
- * If the value is undefined, the property gets deleted.
- *
- * @param {Object} target
- * @param {String} name
- * @param {Object} value
- */
-Properties.prototype.set = function(target, name, value) {
-
-  if (!isString(name) || !name.length) {
-    throw new TypeError('property name must be a non-empty string');
-  }
-
-  var property = this.getProperty(target, name);
-
-  var propertyName = property && property.name;
-
-  if (isUndefined(value)) {
-
-    // unset the property, if the specified value is undefined;
-    // delete from $attrs (for extensions) or the target itself
-    if (property) {
-      delete target[propertyName];
-    } else {
-      delete target.$attrs[stripGlobal(name)];
-    }
-  } else {
-
-    // set the property, defining well defined properties on the fly
-    // or simply updating them in target.$attrs (for extensions)
-    if (property) {
-      if (propertyName in target) {
-        target[propertyName] = value;
-      } else {
-        defineProperty(target, property, value);
-      }
-    } else {
-      target.$attrs[stripGlobal(name)] = value;
-    }
-  }
-};
-
-/**
- * Returns the named property of the given element
- *
- * @param  {Object} target
- * @param  {String} name
- *
- * @return {Object}
- */
-Properties.prototype.get = function(target, name) {
-
-  var property = this.getProperty(target, name);
-
-  if (!property) {
-    return target.$attrs[stripGlobal(name)];
-  }
-
-  var propertyName = property.name;
-
-  // check if access to collection property and lazily initialize it
-  if (!target[propertyName] && property.isMany) {
-    defineProperty(target, property, []);
-  }
-
-  return target[propertyName];
-};
-
-
-/**
- * Define a property on the target element
- *
- * @param  {Object} target
- * @param  {String} name
- * @param  {Object} options
- */
-Properties.prototype.define = function(target, name, options) {
-
-  if (!options.writable) {
-
-    var value = options.value;
-
-    // use getters for read-only variables to support ES6 proxies
-    // cf. https://github.com/bpmn-io/internal-docs/issues/386
-    options = assign({}, options, {
-      get: function() { return value; }
-    });
-
-    delete options.value;
-  }
-
-  Object.defineProperty(target, name, options);
-};
-
-
-/**
- * Define the descriptor for an element
- */
-Properties.prototype.defineDescriptor = function(target, descriptor) {
-  this.define(target, '$descriptor', { value: descriptor });
-};
-
-/**
- * Define the model for an element
- */
-Properties.prototype.defineModel = function(target, model) {
-  this.define(target, '$model', { value: model });
-};
-
-/**
- * Return property with the given name on the element.
- *
- * @param {any} target
- * @param {string} name
- *
- * @return {object | null} property
- */
-Properties.prototype.getProperty = function(target, name) {
-
-  var model = this.model;
-
-  var property = model.getPropertyDescriptor(target, name);
-
-  if (property) {
-    return property;
-  }
-
-  if (name.includes(':')) {
-    return null;
-  }
-
-  const strict = model.config.strict;
-
-  if (typeof strict !== 'undefined') {
-    const error = new TypeError(`unknown property <${ name }> on <${ target.$type }>`);
-
-    if (strict) {
-      throw error;
-    } else {
-
-      // eslint-disable-next-line no-undef
-      typeof console !== 'undefined' && console.warn(error);
-    }
-  }
-
-  return null;
-};
-
-function isUndefined(val) {
-  return typeof val === 'undefined';
-}
-
-function defineProperty(target, property, value) {
-  Object.defineProperty(target, property.name, {
-    enumerable: !property.isReference,
-    writable: true,
-    value: value,
-    configurable: true
-  });
-}
-
-function stripGlobal(name) {
-  return name.replace(/^:/, '');
-}
-
-// Moddle implementation /////////////////////////////////////////////////
-
-/**
- * @class Moddle
- *
- * A model that can be used to create elements of a specific type.
- *
- * @example
- *
- * var Moddle = require('moddle');
- *
- * var pkg = {
- *   name: 'mypackage',
- *   prefix: 'my',
- *   types: [
- *     { name: 'Root' }
- *   ]
- * };
- *
- * var moddle = new Moddle([pkg]);
- *
- * @param {Array<Package>} packages the packages to contain
- *
- * @param { { strict?: boolean } } [config] moddle configuration
- */
-function Moddle(packages, config = {}) {
-
-  this.properties = new Properties(this);
-
-  this.factory = new Factory(this, this.properties);
-  this.registry = new Registry(packages, this.properties);
-
-  this.typeCache = {};
-
-  this.config = config;
-}
-
-
-/**
- * Create an instance of the specified type.
- *
- * @method Moddle#create
- *
- * @example
- *
- * var foo = moddle.create('my:Foo');
- * var bar = moddle.create('my:Bar', { id: 'BAR_1' });
- *
- * @param  {String|Object} descriptor the type descriptor or name know to the model
- * @param  {Object} attrs   a number of attributes to initialize the model instance with
- * @return {Object}         model instance
- */
-Moddle.prototype.create = function(descriptor, attrs) {
-  var Type = this.getType(descriptor);
-
-  if (!Type) {
-    throw new Error('unknown type <' + descriptor + '>');
-  }
-
-  return new Type(attrs);
-};
-
-
-/**
- * Returns the type representing a given descriptor
- *
- * @method Moddle#getType
- *
- * @example
- *
- * var Foo = moddle.getType('my:Foo');
- * var foo = new Foo({ 'id' : 'FOO_1' });
- *
- * @param  {String|Object} descriptor the type descriptor or name know to the model
- * @return {Object}         the type representing the descriptor
- */
-Moddle.prototype.getType = function(descriptor) {
-
-  var cache = this.typeCache;
-
-  var name = isString(descriptor) ? descriptor : descriptor.ns.name;
-
-  var type = cache[name];
-
-  if (!type) {
-    descriptor = this.registry.getEffectiveDescriptor(name);
-    type = cache[name] = this.factory.createType(descriptor);
-  }
-
-  return type;
-};
-
-
-/**
- * Creates an any-element type to be used within model instances.
- *
- * This can be used to create custom elements that lie outside the meta-model.
- * The created element contains all the meta-data required to serialize it
- * as part of meta-model elements.
- *
- * @method Moddle#createAny
- *
- * @example
- *
- * var foo = moddle.createAny('vendor:Foo', 'http://vendor', {
- *   value: 'bar'
- * });
- *
- * var container = moddle.create('my:Container', 'http://my', {
- *   any: [ foo ]
- * });
- *
- * // go ahead and serialize the stuff
- *
- *
- * @param  {String} name  the name of the element
- * @param  {String} nsUri the namespace uri of the element
- * @param  {Object} [properties] a map of properties to initialize the instance with
- * @return {Object} the any type instance
- */
-Moddle.prototype.createAny = function(name, nsUri, properties) {
-
-  var nameNs = parseName(name);
-
-  var element = {
-    $type: name,
-    $instanceOf: function(type) {
-      return type === this.$type;
-    },
-    get: function(key) {
-      return this[key];
-    },
-    set: function(key, value) {
-      set(this, [ key ], value);
-    }
-  };
-
-  var descriptor = {
-    name: name,
-    isGeneric: true,
-    ns: {
-      prefix: nameNs.prefix,
-      localName: nameNs.localName,
-      uri: nsUri
-    }
-  };
-
-  this.properties.defineDescriptor(element, descriptor);
-  this.properties.defineModel(element, this);
-  this.properties.define(element, 'get', { enumerable: false, writable: true });
-  this.properties.define(element, 'set', { enumerable: false, writable: true });
-  this.properties.define(element, '$parent', { enumerable: false, writable: true });
-  this.properties.define(element, '$instanceOf', { enumerable: false, writable: true });
-
-  forEach(properties, function(a, key) {
-    if (isObject(a) && a.value !== undefined) {
-      element[a.name] = a.value;
-    } else {
-      element[key] = a;
-    }
-  });
-
-  return element;
-};
-
-/**
- * Returns a registered package by uri or prefix
- *
- * @return {Object} the package
- */
-Moddle.prototype.getPackage = function(uriOrPrefix) {
-  return this.registry.getPackage(uriOrPrefix);
-};
-
-/**
- * Returns a snapshot of all known packages
- *
- * @return {Object} the package
- */
-Moddle.prototype.getPackages = function() {
-  return this.registry.getPackages();
-};
-
-/**
- * Returns the descriptor for an element
- */
-Moddle.prototype.getElementDescriptor = function(element) {
-  return element.$descriptor;
-};
-
-/**
- * Returns true if the given descriptor or instance
- * represents the given type.
- *
- * May be applied to this, if element is omitted.
- */
-Moddle.prototype.hasType = function(element, type) {
-  if (type === undefined) {
-    type = element;
-    element = this;
-  }
-
-  var descriptor = element.$model.getElementDescriptor(element);
-
-  return (type in descriptor.allTypesByName);
-};
-
-/**
- * Returns the descriptor of an elements named property
- */
-Moddle.prototype.getPropertyDescriptor = function(element, property) {
-  return this.getElementDescriptor(element).propertiesByName[property];
-};
-
-/**
- * Returns a mapped type's descriptor
- */
-Moddle.prototype.getTypeDescriptor = function(type) {
-  return this.registry.typeMap[type];
-};
 
 var fromCharCode = String.fromCharCode;
 
@@ -6605,16 +7569,16 @@ function Parser(options) {
         data = xml.substring(j);
       } else
 
-      // start errors
-      if (j === 0) {
-        data = xml.substring(j, i);
-      }
+        // start errors
+        if (j === 0) {
+          data = xml.substring(j, i);
+        }
 
-      // other errors
-      else {
-        column = i - startOfLine;
-        data = (j == -1 ? xml.substring(i) : xml.substring(i, j + 1));
-      }
+        // other errors
+        else {
+          column = i - startOfLine;
+          data = (j == -1 ? xml.substring(i) : xml.substring(i, j + 1));
+        }
 
       return {
         'data': data,
@@ -8863,12 +9827,12 @@ BpmnModdle.prototype = Object.create(Moddle.prototype);
  */
 BpmnModdle.prototype.fromXML = function(xmlStr, typeName, options) {
 
-  if (!isString(typeName)) {
+  if (!isString$2(typeName)) {
     options = typeName;
     typeName = 'bpmn:Definitions';
   }
 
-  var reader = new Reader(assign({ model: this, lax: true }, options));
+  var reader = new Reader(assign$2({ model: this, lax: true }, options));
   var rootHandler = reader.handler(typeName);
 
   return reader.fromXML(xmlStr, rootHandler);
@@ -12553,7 +13517,7 @@ const packages = {
 };
 
 function SimpleBpmnModdle(additionalPackages, options) {
-  const pks = assign({}, packages, additionalPackages);
+  const pks = assign$2({}, packages, additionalPackages);
 
   return new BpmnModdle(pks, options);
 }
@@ -13930,113 +14894,72 @@ var getBpmnElements = function (processDefinitionId, api) { return __awaiter(voi
     });
 }); };
 
-/**
- * Variable transformation utilities for Camunda/Operaton API
- *
- * @module utils/variables
- */
-/** Supported variable types in Camunda/Operaton */
-/** Numeric variable types that require parseFloat conversion */
-var NUMERIC_TYPES = ['Integer', 'Double', 'Short', 'Long'];
-/** JSON-like variable types that require JSON.parse conversion */
-var JSON_TYPES = ['Json', 'Object'];
-/**
- * Transform a single variable value based on its type
- * @param value - The raw value from form input
- * @param type - The variable type
- * @returns The transformed value
- */
-function transformVariableValue(value, type) {
-    if (type === 'Boolean') {
-        return value === 'true' || value === true;
-    }
-    if (NUMERIC_TYPES.includes(type)) {
-        var stringValue = String(value);
-        var parsed = parseFloat(stringValue);
-        return isNaN(parsed) ? 0 : parsed;
-    }
-    if (JSON_TYPES.includes(type)) {
-        try {
-            return JSON.parse(String(value));
-        }
-        catch (_a) {
-            // Return raw string if parsing fails - backend will catch validation errors
-            return String(value);
-        }
-    }
-    return String(value);
-}
-/**
- * Transform a single variable for API requests
- * @param variable - The variable input from form
- * @param includeLocal - Whether to include the local flag
- * @returns Transformed variable object for API
- */
-function transformVariable(variable, includeLocal) {
-    var result = {
-        value: transformVariableValue(variable.value, variable.type),
-        type: variable.type,
-    };
-    if (variable.local !== undefined) {
-        result.local = variable.local;
-    }
-    return result;
-}
-/**
- * Transform an array of variables into the format expected by Camunda/Operaton API
- * @param variables - Array of variable inputs from form
- * @param includeLocal - Whether to include the local flag in output
- * @returns Object mapping variable names to their transformed values
- */
-function transformVariables(variables, includeLocal) {
-    return variables.reduce(function (acc, variable) {
-        if (variable.name) {
-            acc[variable.name] = transformVariable(variable);
-        }
-        return acc;
-    }, {});
-}
-
 /** Maximum number of instances to show in dry-run preview */
 var MAX_PREVIEW_INSTANCES$2 = 10;
+/** Radix used when deriving a business key from the clock */
+var BUSINESS_KEY_RADIX = 36;
+/** Length of the random suffix in a generated business key */
+var BUSINESS_KEY_SUFFIX_LENGTH = 8;
 /**
- * Batch message correlation form component.
- * Allows correlating messages to multiple process instances.
+ * Generate a business key for an instance started from a message.
+ *
+ * Without a business key an instance started here cannot be found again afterwards, so
+ * the field is pre-filled rather than left empty.
+ * @returns A generated business key
  */
+function generateBusinessKey() {
+    var stamp = Date.now().toString(BUSINESS_KEY_RADIX);
+    var random = Math.random().toString(BUSINESS_KEY_RADIX).slice(2, BUSINESS_KEY_SUFFIX_LENGTH);
+    return "message-".concat(stamp, "-").concat(random);
+}
+/**
+ * Form for sending a BPMN message from a process definition.
+ */
+// eslint-disable-next-line max-lines-per-function -- Two message paths with targeting, dry run and validation
 var BatchMessageForm = function (_a) {
     var api = _a.api, processDefinitionId = _a.processDefinitionId;
     var _b = reactExports.useState([]), messages = _b[0], setMessages = _b[1];
-    var _c = reactExports.useState(true), isLoading = _c[0], setIsLoading = _c[1];
-    var _d = reactExports.useState(false), isSubmitting = _d[0], setIsSubmitting = _d[1];
-    var _e = reactExports.useState(false), isDryRun = _e[0], setIsDryRun = _e[1];
-    var _f = reactExports.useState(null), error = _f[0], setError = _f[1];
-    var _g = reactExports.useState(null), successMessage = _g[0], setSuccessMessage = _g[1];
-    var _h = reactExports.useState(null), dryRunResult = _h[0], setDryRunResult = _h[1];
+    var _c = reactExports.useState([]), activities = _c[0], setActivities = _c[1];
+    var _d = reactExports.useState(true), isLoading = _d[0], setIsLoading = _d[1];
+    var _e = reactExports.useState(false), isSubmitting = _e[0], setIsSubmitting = _e[1];
+    var _f = reactExports.useState(false), isDryRun = _f[0], setIsDryRun = _f[1];
+    var _g = reactExports.useState(null), error = _g[0], setError = _g[1];
+    var _h = reactExports.useState(null), successMessage = _h[0], setSuccessMessage = _h[1];
+    var _j = reactExports.useState(null), dryRunResult = _j[0], setDryRunResult = _j[1];
+    var _k = reactExports.useState(null), dryRunRequest = _k[0], setDryRunRequest = _k[1];
     var methods = useForm({
         defaultValues: {
             messageName: '',
+            isStartEvent: false,
+            businessKey: '',
             processVariables: [],
+            instanceSelectionMode: 'all',
+            specificInstanceIds: '',
+            queryActivityId: '',
+            queryState: 'active',
         },
     });
-    var handleSubmit = methods.handleSubmit, reset = methods.reset, watch = methods.watch;
+    var handleSubmit = methods.handleSubmit, reset = methods.reset, watch = methods.watch, setValue = methods.setValue;
     var selectedMessageName = watch('messageName');
     var selectedMessage = messages.find(function (m) { return m.name === selectedMessageName; });
+    var isStartEvent = (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true;
     reactExports.useEffect(function () {
-        var loadMessages = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var allMessages, _err_1, errorMessage;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+        var loadDefinition = function () { return __awaiter(void 0, void 0, void 0, function () {
+            var _a, allMessages, allActivities, _err_1, errorMessage;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _a.trys.push([0, 2, 3, 4]);
+                        _b.trys.push([0, 2, 3, 4]);
                         setIsLoading(true);
                         return [4 /*yield*/, getBpmnElements(processDefinitionId, api)];
                     case 1:
-                        allMessages = (_a.sent()).messages;
+                        _a = _b.sent(), allMessages = _a.messages, allActivities = _a.activities;
                         setMessages(allMessages);
+                        setActivities(allActivities);
                         setError(null);
                         return [3 /*break*/, 4];
                     case 2:
-                        _err_1 = _a.sent();
+                        _err_1 = _b.sent();
                         console.error('Error loading messages:', _err_1);
                         errorMessage = _err_1 instanceof Error ? _err_1.message : 'Unknown error';
                         setError("Failed to load BPMN messages: ".concat(errorMessage, ". Check console for details."));
@@ -14048,106 +14971,121 @@ var BatchMessageForm = function (_a) {
                 }
             });
         }); };
-        void loadMessages();
+        void loadDefinition();
     }, [api, processDefinitionId]);
-    var transformVariables$1 = function (vars) {
-        return transformVariables(vars);
-    };
+    // Keep the derived flag in form state so the request builders see it, and give a start
+    // message a business key to start with.
+    reactExports.useEffect(function () {
+        setValue('isStartEvent', isStartEvent);
+        if (isStartEvent) {
+            setValue('businessKey', generateBusinessKey());
+        }
+        setDryRunResult(null);
+        setDryRunRequest(null);
+    }, [isStartEvent, setValue]);
     /**
-     * Run a dry-run query to show affected instances
+     * Preview the request, and for a correlation also the instances it would reach.
+     *
+     * The request comes from the same builder onSubmit uses, so the preview cannot drift
+     * from what is actually posted.
      */
-    var runDryRun = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var instances, err_1, errorMessage;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+    var runDryRun = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+        var request, params, instances, _a, err_1, errorMessage;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    _a.trys.push([0, 2, 3, 4]);
+                    _b.trys.push([0, 4, 5, 6]);
                     setIsDryRun(true);
                     setError(null);
                     setDryRunResult(null);
-                    return [4 /*yield*/, get(api, '/process-instance', {
-                            processDefinitionId: processDefinitionId,
-                        })];
+                    setDryRunRequest(null);
+                    request = buildMessageRequest(data, processDefinitionId);
+                    if (!request) {
+                        setError(data.messageName === ''
+                            ? 'Please select a message to send.'
+                            : 'Please select the instances to correlate the message to.');
+                        return [2 /*return*/];
+                    }
+                    setDryRunRequest(request);
+                    // A start message creates an instance rather than targeting existing ones.
+                    if (data.isStartEvent) {
+                        return [2 /*return*/];
+                    }
+                    params = buildInstanceLookupParams(data, processDefinitionId);
+                    if (!params) return [3 /*break*/, 2];
+                    return [4 /*yield*/, get(api, '/process-instance', params)];
                 case 1:
-                    instances = (_a.sent());
+                    _a = (_b.sent());
+                    return [3 /*break*/, 3];
+                case 2:
+                    _a = [];
+                    _b.label = 3;
+                case 3:
+                    instances = _a;
                     setDryRunResult({
                         count: instances.length,
                         instances: instances.slice(0, MAX_PREVIEW_INSTANCES$2),
                     });
                     if (instances.length === 0) {
-                        setError('No active instances found for this definition.');
+                        setError('No instances found matching the selection criteria.');
                     }
-                    return [3 /*break*/, 4];
-                case 2:
-                    err_1 = _a.sent();
+                    return [3 /*break*/, 6];
+                case 4:
+                    err_1 = _b.sent();
                     console.error('Dry run error:', err_1);
                     errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
                     setError("Failed to query instances: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 4];
-                case 3:
+                    return [3 /*break*/, 6];
+                case 5:
                     setIsDryRun(false);
                     return [7 /*endfinally*/];
-                case 4: return [2 /*return*/];
+                case 6: return [2 /*return*/];
             }
         });
     }); };
     /**
-     * Submit the message correlation request
+     * Send the message.
      */
     var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var isStart, payload, payload, err_2, errorMessage;
-        var _a;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var request, startedWith, err_2, errorMessage;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
-                    _b.trys.push([0, 5, 6, 7]);
+                    _a.trys.push([0, 2, 3, 4]);
                     setIsSubmitting(true);
                     setError(null);
                     setSuccessMessage(null);
                     setDryRunResult(null);
-                    if (!data.messageName) {
-                        setError('Please select a message to correlate.');
-                        setIsSubmitting(false);
+                    setDryRunRequest(null);
+                    request = buildMessageRequest(data, processDefinitionId);
+                    if (!request) {
+                        setError(data.messageName === ''
+                            ? 'Please select a message to send.'
+                            : 'Please select the instances to correlate the message to.');
                         return [2 /*return*/];
                     }
-                    isStart = (_a = selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) !== null && _a !== void 0 ? _a : false;
-                    if (!isStart) return [3 /*break*/, 2];
-                    payload = {
-                        messageName: data.messageName,
-                        processVariables: data.processVariables.length > 0 ? transformVariables$1(data.processVariables) : undefined,
-                    };
-                    return [4 /*yield*/, post(api, '/message', {}, JSON.stringify(payload))];
+                    return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
                 case 1:
-                    _b.sent();
-                    setSuccessMessage("Message \"".concat(data.messageName, "\" sent successfully. A new process instance will be started."));
+                    _a.sent();
+                    if (data.isStartEvent) {
+                        startedWith = data.businessKey !== '' ? " with business key \"".concat(data.businessKey, "\"") : '';
+                        setSuccessMessage("Message \"".concat(data.messageName, "\" sent. A new process instance was started").concat(startedWith, "."));
+                    }
+                    else {
+                        setSuccessMessage("Message \"".concat(data.messageName, "\" correlation submitted as a batch operation. ") +
+                            "Check the batch operations view for progress.");
+                    }
                     return [3 /*break*/, 4];
                 case 2:
-                    payload = {
-                        messageName: data.messageName,
-                        processInstanceQuery: {
-                            processDefinitionId: processDefinitionId,
-                        },
-                    };
-                    if (data.processVariables.length > 0) {
-                        payload['variables'] = transformVariables$1(data.processVariables);
-                    }
-                    return [4 /*yield*/, post(api, '/process-instance/message-async', {}, JSON.stringify(payload))];
-                case 3:
-                    _b.sent();
-                    setSuccessMessage("Message \"".concat(data.messageName, "\" correlation submitted successfully as a batch operation! ") +
-                        "Check the batch operations view for progress.");
-                    _b.label = 4;
-                case 4: return [3 /*break*/, 7];
-                case 5:
-                    err_2 = _b.sent();
+                    err_2 = _a.sent();
                     console.error('Message correlation error:', err_2);
                     errorMessage = err_2 instanceof Error ? err_2.message : String(err_2);
-                    setError("Failed to correlate message: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 7];
-                case 6:
+                    setError("Failed to send message: ".concat(errorMessage, ". Check console for details."));
+                    return [3 /*break*/, 4];
+                case 3:
                     setIsSubmitting(false);
                     return [7 /*endfinally*/];
-                case 7: return [2 /*return*/];
+                case 4: return [2 /*return*/];
             }
         });
     }); };
@@ -14159,24 +15097,29 @@ var BatchMessageForm = function (_a) {
         setError(null);
         setSuccessMessage(null);
         setDryRunResult(null);
+        setDryRunRequest(null);
     };
     if (isLoading) {
         return (React.createElement("div", { className: "modify-form__loading" },
             React.createElement(LoadingSpinner, null),
             React.createElement("p", null, "Loading BPMN messages...")));
     }
-    if (error && messages.length === 0) {
+    if (error !== null && messages.length === 0) {
         return (React.createElement("div", { className: "modify-form__error" },
             React.createElement(ErrorMessage, { message: error })));
     }
-    var submitLabel = (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true ? 'Start Process' : 'Correlate Message';
+    var submitLabel = isStartEvent ? 'Start Process Instance' : 'Correlate Message';
     return (React.createElement(FormProvider, __assign({}, methods),
         React.createElement("form", { onSubmit: function (e) {
                 e.preventDefault();
                 void handleSubmit(onSubmit)(e);
             }, className: "modify-form" },
             React.createElement("div", { className: "modify-form__header" },
-                React.createElement("p", { className: "modify-form__description" }, "Correlate a message asynchronously to all active instances of this process definition. The message will be delivered as a batch operation.")),
+                React.createElement("p", { className: "modify-form__description" }, isStartEvent
+                    ? 'This message is configured on a start event. Sending it starts one new process instance; ' +
+                        'no running instances are involved.'
+                    : 'Correlate a message asynchronously to running instances of this process definition. ' +
+                        'Choose which instances below, then use dry run to check the request before sending it.')),
             React.createElement("div", { className: "modify-form__section" },
                 React.createElement("div", { className: "modify-form__field" },
                     React.createElement("label", { htmlFor: "messageName" }, "Message"),
@@ -14186,30 +15129,20 @@ var BatchMessageForm = function (_a) {
                             m.name,
                             m.isStartEvent ? ' (start event)' : '')); }))),
                 messages.length === 0 && (React.createElement("p", { className: "modify-form__hint" }, "No message events found in this process definition.")),
-                (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) !== true && (React.createElement("div", { className: "modify-form__actions" },
+                isStartEvent ? (React.createElement("div", { className: "modify-form__field" },
+                    React.createElement("label", { htmlFor: "businessKey" }, "Business Key"),
+                    React.createElement("input", __assign({ id: "businessKey", type: "text" }, methods.register('businessKey'), { className: "modify-form__input", placeholder: "Business key for the new instance" })),
+                    React.createElement("p", { className: "modify-form__hint" }, "Identifies the instance this message starts. Pre-filled so the new instance can be found again; replace it with your own if you have one."))) : (React.createElement(InstanceSelectionFields, { activities: activities, label: "Correlate To" })),
+                React.createElement("div", { className: "modify-form__actions" },
                     React.createElement(FormButton, { type: "button", variant: "secondary", onClick: function () {
-                            void runDryRun();
-                        }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Preview Instances'))),
-                dryRunResult && (React.createElement("div", { className: "modify-form__dry-run-result" },
-                    React.createElement("h5", null,
-                        "Found ",
-                        dryRunResult.count,
-                        " active instance",
-                        dryRunResult.count !== 1 ? 's' : ''),
-                    dryRunResult.instances.length > 0 && (React.createElement("ul", { className: "modify-form__instance-list" },
-                        dryRunResult.instances.map(function (inst) { return (React.createElement("li", { key: inst.id },
-                            inst.id,
-                            " ",
-                            inst.businessKey ? "(".concat(inst.businessKey, ")") : '')); }),
-                        dryRunResult.count > MAX_PREVIEW_INSTANCES$2 && (React.createElement("li", null,
-                            "...and ",
-                            dryRunResult.count - MAX_PREVIEW_INSTANCES$2,
-                            " more"))))))),
+                            void handleSubmit(runDryRun)();
+                        }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Dry Run')),
+                React.createElement(DryRunResultPreview, { result: dryRunResult, request: dryRunRequest, maxInstances: MAX_PREVIEW_INSTANCES$2, instanceLabel: "active instance" })),
             React.createElement("h4", null, "Process Variables"),
             React.createElement(VariableBuilder, { name: "processVariables", showLocalFlag: false }),
-            (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true ? (React.createElement(WarningBox, null, "This message is configured on a start event. Sending it will start a new process instance.")) : (React.createElement(WarningBox, null, "This message will be correlated asynchronously to ALL active instances of this process definition as a batch operation. Make sure the message name and variables are correct before submitting.")),
-            error && React.createElement(ErrorMessage, { message: error }),
-            successMessage && React.createElement(SuccessMessage, { message: successMessage }),
+            isStartEvent ? (React.createElement(WarningBox, null, "This message is configured on a start event. Sending it will start a new process instance.")) : (React.createElement(WarningBox, null, "The message will be correlated asynchronously, as a batch operation, to every instance matching the selection above. Run a dry run first and check both the instance list and the request.")),
+            error !== null && React.createElement(ErrorMessage, { message: error }),
+            successMessage !== null && React.createElement(SuccessMessage, { message: successMessage }),
             React.createElement("div", { className: "modify-form__actions" },
                 React.createElement(FormButton, { type: "submit", disabled: isSubmitting, variant: "primary", minWidth: 160 }, isSubmitting ? 'Sending...' : submitLabel),
                 React.createElement(FormButton, { type: "button", variant: "secondary", onClick: handleReset, minWidth: 100 }, "Reset")))));
@@ -14432,6 +15365,7 @@ var BatchModifyForm = function (_a) {
     var _g = reactExports.useState(null), error = _g[0], setError = _g[1];
     var _h = reactExports.useState(null), successMessage = _h[0], setSuccessMessage = _h[1];
     var _j = reactExports.useState(null), dryRunResult = _j[0], setDryRunResult = _j[1];
+    var _k = reactExports.useState(null), dryRunRequest = _k[0], setDryRunRequest = _k[1];
     var methods = useForm({
         defaultValues: {
             instructions: [{ type: 'startBeforeActivity', activityId: '', variables: [] }],
@@ -14444,12 +15378,11 @@ var BatchModifyForm = function (_a) {
             queryState: 'active',
         },
     });
-    var control = methods.control, handleSubmit = methods.handleSubmit, watch = methods.watch, reset = methods.reset;
-    var _k = useFieldArray({
+    var control = methods.control, handleSubmit = methods.handleSubmit, reset = methods.reset;
+    var _l = useFieldArray({
         control: control,
         name: 'instructions',
-    }), fields = _k.fields, append = _k.append, remove = _k.remove;
-    var instanceSelectionMode = watch('instanceSelectionMode');
+    }), fields = _l.fields, append = _l.append, remove = _l.remove;
     reactExports.useEffect(function () {
         var loadActivities = function () { return __awaiter(void 0, void 0, void 0, function () {
             var _a, activities_1, sequenceFlows_1, _err_1, errorMessage;
@@ -14480,72 +15413,38 @@ var BatchModifyForm = function (_a) {
         }); };
         void loadActivities();
     }, [api, processDefinitionId]);
-    var transformVariables$1 = function (vars) {
-        return transformVariables(vars);
-    };
     /**
-     * Build the query object for instance selection
-     */
-    var buildInstanceQuery = function (data) {
-        if (data.instanceSelectionMode === 'all') {
-            return { processDefinitionId: processDefinitionId };
-        }
-        else if (data.instanceSelectionMode === 'query') {
-            var query = { processDefinitionId: processDefinitionId };
-            if (data.queryActivityId) {
-                query['activityIdIn'] = [data.queryActivityId];
-            }
-            if (data.queryState === 'active') {
-                query['active'] = true;
-            }
-            else if (data.queryState === 'suspended') {
-                query['suspended'] = true;
-            }
-            return query;
-        }
-        return null;
-    };
-    /**
-     * Get specific instance IDs from form data
-     */
-    var getInstanceIds = function (data) {
-        if (data.instanceSelectionMode === 'specific') {
-            return data.specificInstanceIds
-                .split(',')
-                .map(function (id) { return id.trim(); })
-                .filter(function (id) { return id.length > 0; });
-        }
-        return null;
-    };
-    /**
-     * Run a dry-run query to show affected instances
+     * Run a dry run: read back the targeted instances and show the request that a real
+     * run would send. Both use the same builders as onSubmit, so the preview cannot drift
+     * from what is actually posted.
      */
     var runDryRun = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var instanceIds, query, instances, err_1, errorMessage;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var request, params, instances, _a, err_1, errorMessage;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    _a.trys.push([0, 5, 6, 7]);
+                    _b.trys.push([0, 4, 5, 6]);
                     setIsDryRun(true);
                     setError(null);
                     setDryRunResult(null);
-                    instanceIds = getInstanceIds(data);
-                    query = buildInstanceQuery(data);
-                    instances = [];
-                    if (!instanceIds) return [3 /*break*/, 2];
-                    return [4 /*yield*/, get(api, '/process-instance', {
-                            processInstanceIds: instanceIds.join(','),
-                        })];
+                    setDryRunRequest(null);
+                    request = buildModificationRequest(data, processDefinitionId);
+                    if (!request) {
+                        setError('Please select instances to modify.');
+                        return [2 /*return*/];
+                    }
+                    setDryRunRequest(request);
+                    params = buildInstanceLookupParams(data, processDefinitionId);
+                    if (!params) return [3 /*break*/, 2];
+                    return [4 /*yield*/, get(api, '/process-instance', params)];
                 case 1:
-                    instances = (_a.sent());
-                    return [3 /*break*/, 4];
+                    _a = (_b.sent());
+                    return [3 /*break*/, 3];
                 case 2:
-                    if (!query) return [3 /*break*/, 4];
-                    return [4 /*yield*/, get(api, '/process-instance', query)];
+                    _a = [];
+                    _b.label = 3;
                 case 3:
-                    instances = (_a.sent());
-                    _a.label = 4;
-                case 4:
+                    instances = _a;
                     setDryRunResult({
                         count: instances.length,
                         instances: instances.slice(0, MAX_PREVIEW_INSTANCES$1),
@@ -14553,17 +15452,17 @@ var BatchModifyForm = function (_a) {
                     if (instances.length === 0) {
                         setError('No instances found matching the selection criteria.');
                     }
-                    return [3 /*break*/, 7];
-                case 5:
-                    err_1 = _a.sent();
+                    return [3 /*break*/, 6];
+                case 4:
+                    err_1 = _b.sent();
                     console.error('Dry run error:', err_1);
                     errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
                     setError("Failed to query instances: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 6];
+                case 5:
                     setIsDryRun(false);
                     return [7 /*endfinally*/];
-                case 7: return [2 /*return*/];
+                case 6: return [2 /*return*/];
             }
         });
     }); };
@@ -14571,7 +15470,7 @@ var BatchModifyForm = function (_a) {
      * Submit the batch modification request
      */
     var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var instanceIds, query, payload, err_2, errorMessage;
+        var request, err_2, errorMessage;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -14580,54 +15479,14 @@ var BatchModifyForm = function (_a) {
                     setError(null);
                     setSuccessMessage(null);
                     setDryRunResult(null);
-                    instanceIds = getInstanceIds(data);
-                    query = buildInstanceQuery(data);
-                    if (!instanceIds && !query) {
+                    setDryRunRequest(null);
+                    request = buildModificationRequest(data, processDefinitionId);
+                    if (!request) {
                         setError('Please select instances to modify.');
                         setIsSubmitting(false);
                         return [2 /*return*/];
                     }
-                    payload = {
-                        processDefinitionId: processDefinitionId,
-                        skipCustomListeners: data.skipCustomListeners,
-                        skipIoMappings: data.skipIoMappings,
-                        instructions: data.instructions
-                            .filter(function (inst) {
-                            if (inst.type === 'startTransition') {
-                                return inst.transitionId !== undefined && inst.transitionId !== '';
-                            }
-                            else if (inst.type === 'cancel') {
-                                return inst.activityId !== undefined && inst.activityId !== '';
-                            }
-                            else {
-                                return inst.activityId !== undefined && inst.activityId !== '';
-                            }
-                        })
-                            .map(function (inst) {
-                            var instruction = { type: inst.type };
-                            if (inst.activityId !== undefined && inst.activityId !== '') {
-                                instruction.activityId = inst.activityId;
-                            }
-                            if (inst.transitionId !== undefined && inst.transitionId !== '') {
-                                instruction.transitionId = inst.transitionId;
-                            }
-                            if (inst.type === 'cancel' && inst.cancelCurrentActiveActivityInstances) {
-                                instruction.cancelCurrentActiveActivityInstances = true;
-                            }
-                            if (inst.variables !== undefined && inst.variables.length > 0) {
-                                instruction.variables = transformVariables$1(inst.variables);
-                            }
-                            return instruction;
-                        }),
-                        annotation: data.annotation !== '' ? data.annotation : 'Batch modified via Cockpit plugin',
-                    };
-                    if (instanceIds) {
-                        payload['processInstanceIds'] = instanceIds;
-                    }
-                    else if (query) {
-                        payload['processInstanceQuery'] = query;
-                    }
-                    return [4 /*yield*/, post(api, '/modification/executeAsync', {}, JSON.stringify(payload))];
+                    return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
                 case 1:
                     _a.sent();
                     setSuccessMessage("Batch modification submitted successfully! The modification will be executed asynchronously. " +
@@ -14654,6 +15513,7 @@ var BatchModifyForm = function (_a) {
         setError(null);
         setSuccessMessage(null);
         setDryRunResult(null);
+        setDryRunRequest(null);
     };
     if (isLoading) {
         return (React.createElement("div", { className: "modify-form__loading" },
@@ -14673,54 +15533,14 @@ var BatchModifyForm = function (_a) {
                 void handleSubmit(onSubmit)(e);
             }, className: "modify-form" },
             React.createElement("div", { className: "modify-form__header" },
-                React.createElement("p", { className: "modify-form__description" }, "Apply modification instructions to multiple process instances. Use dry-run mode to preview affected instances before executing.")),
+                React.createElement("p", { className: "modify-form__description" }, "Apply modification instructions to multiple process instances. Use dry run to see which instances would be affected and the exact request that would be sent.")),
             React.createElement("div", { className: "modify-form__section" },
-                React.createElement("div", { className: "modify-form__field" },
-                    React.createElement("label", { htmlFor: "instanceSelectionMode" }, "Select Instances By"),
-                    React.createElement("select", __assign({ id: "instanceSelectionMode" }, methods.register('instanceSelectionMode'), { className: "modify-form__input" }),
-                        React.createElement("option", { value: "all" }, "All active instances of this definition"),
-                        React.createElement("option", { value: "query" }, "Query (filter by activity/state)"),
-                        React.createElement("option", { value: "specific" }, "Specific instance IDs"))),
-                instanceSelectionMode === 'specific' && (React.createElement("div", { className: "modify-form__field" },
-                    React.createElement("label", { htmlFor: "specificInstanceIds" }, "Instance IDs (comma-separated)"),
-                    React.createElement("textarea", __assign({ id: "specificInstanceIds" }, methods.register('specificInstanceIds'), { placeholder: "instance-id-1, instance-id-2, instance-id-3", rows: 3, className: "modify-form__textarea" })))),
-                instanceSelectionMode === 'query' && (React.createElement(React.Fragment, null,
-                    React.createElement("div", { className: "modify-form__field" },
-                        React.createElement("label", { htmlFor: "queryActivityId" }, "Filter by Activity (optional)"),
-                        React.createElement("select", __assign({ id: "queryActivityId" }, methods.register('queryActivityId'), { className: "modify-form__input" }),
-                            React.createElement("option", { value: "" }, "Any activity"),
-                            activities.map(function (a) {
-                                var _a;
-                                return (React.createElement("option", { key: a.id, value: a.id }, (_a = a.name) !== null && _a !== void 0 ? _a : a.id,
-                                    " (",
-                                    a.type,
-                                    ")"));
-                            }))),
-                    React.createElement("div", { className: "modify-form__field" },
-                        React.createElement("label", { htmlFor: "queryState" }, "Instance State"),
-                        React.createElement("select", __assign({ id: "queryState" }, methods.register('queryState'), { className: "modify-form__input" }),
-                            React.createElement("option", { value: "active" }, "Active"),
-                            React.createElement("option", { value: "suspended" }, "Suspended"),
-                            React.createElement("option", { value: "any" }, "Any"))))),
+                React.createElement(InstanceSelectionFields, { activities: activities }),
                 React.createElement("div", { className: "modify-form__actions" },
                     React.createElement(FormButton, { type: "button", variant: "secondary", onClick: function () {
                             void handleSubmit(runDryRun)();
                         }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Dry Run')),
-                dryRunResult && (React.createElement("div", { className: "modify-form__dry-run-result" },
-                    React.createElement("h5", null,
-                        "Found ",
-                        dryRunResult.count,
-                        " instance",
-                        dryRunResult.count !== 1 ? 's' : ''),
-                    dryRunResult.instances.length > 0 && (React.createElement("ul", { className: "modify-form__instance-list" },
-                        dryRunResult.instances.map(function (inst) { return (React.createElement("li", { key: inst.id },
-                            inst.id,
-                            " ",
-                            inst.businessKey ? "(".concat(inst.businessKey, ")") : '')); }),
-                        dryRunResult.count > MAX_PREVIEW_INSTANCES$1 && (React.createElement("li", null,
-                            "...and ",
-                            dryRunResult.count - MAX_PREVIEW_INSTANCES$1,
-                            " more"))))))),
+                React.createElement(DryRunResultPreview, { result: dryRunResult, request: dryRunRequest, maxInstances: MAX_PREVIEW_INSTANCES$1 })),
             fields.map(function (field, index) { return (React.createElement(InstructionCard, { key: field.id, fieldId: field.id, index: index, showRemove: fields.length > 1, onRemove: function () {
                     remove(index);
                 }, activities: activities, sequenceFlows: sequenceFlows, activeInstances: [], activityCounts: new Map(), cancelMethods: new Map(), setCancelMethods: function () {
@@ -14752,6 +15572,7 @@ var BatchSignalForm = function (_a) {
     var _d = reactExports.useState(null), error = _d[0], setError = _d[1];
     var _e = reactExports.useState(null), successMessage = _e[0], setSuccessMessage = _e[1];
     var _f = reactExports.useState(null), dryRunResult = _f[0], setDryRunResult = _f[1];
+    var _g = reactExports.useState(null), dryRunRequest = _g[0], setDryRunRequest = _g[1];
     var methods = useForm({
         defaultValues: {
             signalName: '',
@@ -14759,14 +15580,12 @@ var BatchSignalForm = function (_a) {
         },
     });
     var handleSubmit = methods.handleSubmit, reset = methods.reset;
-    var transformVariables$1 = function (vars) {
-        return transformVariables(vars);
-    };
     /**
-     * Run a dry-run query to show affected instances
+     * Preview the broadcast: the request it would send, and the instances of *this*
+     * definition, which is only part of what a signal reaches.
      */
-    var runDryRun = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var instances, err_1, errorMessage;
+    var runDryRun = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+        var request, instances, err_1, errorMessage;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -14774,6 +15593,13 @@ var BatchSignalForm = function (_a) {
                     setIsDryRun(true);
                     setError(null);
                     setDryRunResult(null);
+                    setDryRunRequest(null);
+                    request = buildSignalRequest(data);
+                    if (!request) {
+                        setError('Please enter a signal name.');
+                        return [2 /*return*/];
+                    }
+                    setDryRunRequest(request);
                     return [4 /*yield*/, get(api, '/process-instance', {
                             processDefinitionId: processDefinitionId,
                         })];
@@ -14804,7 +15630,7 @@ var BatchSignalForm = function (_a) {
      * Submit the signal broadcast request
      */
     var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var payload, err_2, errorMessage;
+        var request, err_2, errorMessage;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -14813,19 +15639,14 @@ var BatchSignalForm = function (_a) {
                     setError(null);
                     setSuccessMessage(null);
                     setDryRunResult(null);
-                    if (!data.signalName) {
+                    setDryRunRequest(null);
+                    request = buildSignalRequest(data);
+                    if (!request) {
                         setError('Please enter a signal name.');
                         setIsSubmitting(false);
                         return [2 /*return*/];
                     }
-                    payload = {
-                        name: data.signalName,
-                        executionId: undefined, // Broadcast to all matching
-                    };
-                    if (data.processVariables.length > 0) {
-                        payload['variables'] = transformVariables$1(data.processVariables);
-                    }
-                    return [4 /*yield*/, post(api, '/signal', {}, JSON.stringify(payload))];
+                    return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
                 case 1:
                     _a.sent();
                     setSuccessMessage("Signal \"".concat(data.signalName, "\" broadcast engine-wide. All matching signal catch events across all process definitions have been triggered."));
@@ -14851,6 +15672,7 @@ var BatchSignalForm = function (_a) {
         setError(null);
         setSuccessMessage(null);
         setDryRunResult(null);
+        setDryRunRequest(null);
     };
     return (React.createElement(FormProvider, __assign({}, methods),
         React.createElement("form", { onSubmit: function (e) {
@@ -14865,24 +15687,10 @@ var BatchSignalForm = function (_a) {
                     React.createElement("input", __assign({ id: "signalName", type: "text" }, methods.register('signalName', { required: true }), { placeholder: "Enter signal name", className: "modify-form__input" }))),
                 React.createElement("div", { className: "modify-form__actions" },
                     React.createElement(FormButton, { type: "button", variant: "secondary", onClick: function () {
-                            void runDryRun();
-                        }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Preview Instances')),
-                dryRunResult && (React.createElement("div", { className: "modify-form__dry-run-result" },
-                    React.createElement("h5", null,
-                        "Found ",
-                        dryRunResult.count,
-                        " active instance",
-                        dryRunResult.count !== 1 ? 's' : '',
-                        " for this definition (the signal will broadcast engine-wide across all definitions)"),
-                    dryRunResult.instances.length > 0 && (React.createElement("ul", { className: "modify-form__instance-list" },
-                        dryRunResult.instances.map(function (inst) { return (React.createElement("li", { key: inst.id },
-                            inst.id,
-                            " ",
-                            inst.businessKey ? "(".concat(inst.businessKey, ")") : '')); }),
-                        dryRunResult.count > MAX_PREVIEW_INSTANCES && (React.createElement("li", null,
-                            "...and ",
-                            dryRunResult.count - MAX_PREVIEW_INSTANCES,
-                            " more"))))))),
+                            void handleSubmit(runDryRun)();
+                        }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Dry Run')),
+                React.createElement(DryRunResultPreview, { result: dryRunResult, request: dryRunRequest, maxInstances: MAX_PREVIEW_INSTANCES, instanceLabel: "active instance of this definition", instanceNote: 'This list covers this definition only. The broadcast reaches every matching signal catch event ' +
+                        'in every deployed definition, so the real reach is wider than shown.' })),
             React.createElement("h4", null, "Variables"),
             React.createElement(VariableBuilder, { name: "processVariables", showLocalFlag: false }),
             error && React.createElement(ErrorMessage, { message: error }),

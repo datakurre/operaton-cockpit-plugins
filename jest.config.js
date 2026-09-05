@@ -17,8 +17,6 @@ module.exports = {
     // Mock react-select-filter-box (library with nested React types)
     '^react-select-filter-box$': '<rootDir>/src/__mocks__/react-select-filter-box.tsx',
     '^react-select-filter-box/styles$': 'identity-obj-proxy',
-    // Use the CJS build of bpmn-moddle so Jest can require it without ESM transform
-    '^bpmn-moddle$': '<rootDir>/node_modules/bpmn-moddle/dist/index.cjs',
   },
   // setupFiles runs BEFORE the test environment is set up
   setupFiles: ['<rootDir>/src/setupPolyfills.js'],
@@ -45,8 +43,12 @@ module.exports = {
       statements: 75,
     },
   },
+  // bpmn-moddle and its dependency chain (moddle, moddle-xml, saxen, a nested min-dash)
+  // are ESM-only, so they must be transformed rather than ignored. Note the pattern is
+  // unanchored: a nested path such as bpmn-moddle/node_modules/min-dash is only transformed
+  // when *every* "node_modules/" segment in it is followed by an allowed package name.
   transformIgnorePatterns: [
-    '/node_modules/(?!(bpmn-js|diagram-js|min-dash|min-dom|msw|@mswjs|until-async)/)',
+    '/node_modules/(?!(bpmn-js|bpmn-moddle|diagram-js|min-dash|min-dom|moddle-xml|moddle|saxen|msw|@mswjs|until-async)/)',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   // Handle ESM modules - transform both TS/TSX and JS files from ESM packages

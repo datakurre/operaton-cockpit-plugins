@@ -240,6 +240,47 @@ describe('instance-route-history integration', () => {
     });
   });
 
+  describe('matchesVersionFilter', () => {
+    /**
+     * Load the exported predicate from the plugin module.
+     */
+    async function loadMatcher(): Promise<
+      (id: string | null | undefined, filter: { operator: string; value: number }) => boolean
+    > {
+      const mod = await import('../instance-route-history');
+      return mod.matchesVersionFilter as unknown as (
+        id: string | null | undefined,
+        filter: { operator: string; value: number }
+      ) => boolean;
+    }
+
+    it.each([
+      ['eq', 3, 'p:3:dep', true],
+      ['eq', 3, 'p:4:dep', false],
+      ['lt', 3, 'p:2:dep', true],
+      ['lt', 3, 'p:3:dep', false],
+      ['lte', 3, 'p:3:dep', true],
+      ['gt', 3, 'p:4:dep', true],
+      ['gt', 3, 'p:3:dep', false],
+      ['gte', 3, 'p:3:dep', true],
+    ])('applies %s %d to %s', async (operator, value, definitionId, expected) => {
+      const matchesVersionFilter = await loadMatcher();
+      expect(
+        matchesVersionFilter(definitionId as string, { operator: operator as string, value: value as number })
+      ).toBe(expected);
+    });
+
+    it('rejects ids it cannot read a version from', async () => {
+      const matchesVersionFilter = await loadMatcher();
+      const filter = { operator: 'eq', value: 1 };
+      expect(matchesVersionFilter(null, filter)).toBe(false);
+      expect(matchesVersionFilter(undefined, filter)).toBe(false);
+      expect(matchesVersionFilter('', filter)).toBe(false);
+      expect(matchesVersionFilter('no-version', filter)).toBe(false);
+      expect(matchesVersionFilter('p:notanumber:dep', filter)).toBe(false);
+    });
+  });
+
   describe('Pagination flow', () => {
     it('should include pagination params in query', async () => {
       mockFetch.mockImplementation(async (url: string) => {

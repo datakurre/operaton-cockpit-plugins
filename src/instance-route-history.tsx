@@ -30,9 +30,13 @@ import {
   getDecisions,
 } from './utils/api';
 import { DEFAULT_PAGE_SIZE } from './utils/constants';
-import { parseProcessInstanceExpressions, type ProcessInstanceQueryParams } from './utils/filterExpressionParsers';
+import {
+  parseProcessInstanceExpressions,
+  type ProcessInstanceQueryParams,
+  type VersionFilter,
+} from './utils/filterExpressionParsers';
 import { createInstanceQuerySchema, type LegacyExpression } from './utils/filterSchema';
-import { sortActivitiesByEndTime, sortByName, mapDecisionsByActivity } from './utils/misc';
+import { sortActivitiesByEndTime, sortByName, mapDecisionsByActivity, loadSettings } from './utils/misc';
 
 /**
  * Convert filter expression params to API query params.
@@ -212,6 +216,44 @@ function toApiQuery(
 }
 /* eslint-enable complexity, max-statements */
 
+/**
+ * Test an instance's definition version against a version filter.
+ *
+ * The version is read from the process definition id, which the engine formats as
+ * `key:version:deploymentId`.
+ * @param processDefinitionId - Process definition id of the historic instance
+ * @param versionFilter - Operator and version to compare against
+ * @returns True when the instance's version satisfies the filter
+ */
+export function matchesVersionFilter(
+  processDefinitionId: string | null | undefined,
+  versionFilter: VersionFilter
+): boolean {
+  if (processDefinitionId === null || processDefinitionId === undefined || processDefinitionId === '') {
+    return false;
+  }
+  const versionPart = processDefinitionId.split(':')[1];
+  const instanceVersion = versionPart !== undefined ? parseInt(versionPart, 10) : NaN;
+  if (isNaN(instanceVersion)) {
+    return false;
+  }
+
+  switch (versionFilter.operator) {
+    case 'eq':
+      return instanceVersion === versionFilter.value;
+    case 'lt':
+      return instanceVersion < versionFilter.value;
+    case 'lte':
+      return instanceVersion <= versionFilter.value;
+    case 'gt':
+      return instanceVersion > versionFilter.value;
+    case 'gte':
+      return instanceVersion >= versionFilter.value;
+    default:
+      return true;
+  }
+}
+
 /** Interface for BPMN viewer instance */
 interface BpmnViewerInstance {
   _container: HTMLElement;
@@ -272,53 +314,41 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
         baseQuery.processDefinitionId = processDefinitionId;
       }
 
+      // The history API has no version operator, and its instance query takes a single
+      // processDefinitionId rather than a list, so a version filter can only be applied
+      // client-side. Paginating on the server first would slice the page *before* that
+      // filter ran, leaving short or empty pages under a total that still counted the
+      // other versions. So fetch one bounded window instead and page through it locally.
+      if (versionFilter) {
+        const windowed = await historyService.queryProcessInstances(baseQuery, {
+          maxResults: loadSettings().maxResults,
+          firstResult: 0,
+        });
+        const matching = windowed.filter(instance => matchesVersionFilter(instance.processDefinitionId, versionFilter));
+        setInstancesCount(matching.length);
+        setInstances(matching.slice(firstResult, firstResult + perPage));
+        return;
+      }
+
       const count = await historyService.countProcessInstances(baseQuery);
       setInstancesCount(count);
 
-      // Fetch instances and optionally filter by version client-side
-      let fetchedInstances = await historyService.queryProcessInstances(baseQuery, {
-        maxResults: perPage,
-        firstResult,
-      });
-
-      // Apply version filter client-side if specified (API doesn't support version operators)
-      if (versionFilter) {
-        fetchedInstances = fetchedInstances.filter(instance => {
-          const defId = instance.processDefinitionId;
-          if (!defId) {
-            return false;
-          }
-          // Extract version from processDefinitionId (format: key:version:deploymentId)
-          const versionPart = defId.split(':')[1];
-          const instanceVersion = versionPart !== undefined ? parseInt(versionPart, 10) : NaN;
-          if (isNaN(instanceVersion)) {
-            return false;
-          }
-
-          switch (versionFilter.operator) {
-            case 'eq':
-              return instanceVersion === versionFilter.value;
-            case 'lt':
-              return instanceVersion < versionFilter.value;
-            case 'lte':
-              return instanceVersion <= versionFilter.value;
-            case 'gt':
-              return instanceVersion > versionFilter.value;
-            case 'gte':
-              return instanceVersion >= versionFilter.value;
-            default:
-              return true;
-          }
-        });
-      }
-
-      setInstances(fetchedInstances);
+      setInstances(
+        await historyService.queryProcessInstances(baseQuery, {
+          maxResults: perPage,
+          firstResult,
+        })
+      );
     })();
   }, [historyService, processDefinitionId, processDefinitionKey, perPage, query, firstResult]);
 
-  // Parse filter expressions using extracted utility function
+  // Parse filter expressions using extracted utility function. Changing the filter changes
+  // the size of the result set, so return to the first page rather than leaving the pager
+  // pointing past the end of it.
   useEffect(() => {
     setQuery(parseProcessInstanceExpressions(expressions));
+    setCurrentPage(1);
+    setFirstResult(0);
   }, [expressions]);
 
   // Hack to ensure long living HTML node for filter box

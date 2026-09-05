@@ -45,6 +45,17 @@ function __extends(d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+
 function __awaiter(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -173,17 +184,17 @@ var hasRequiredScheduler_production_min;
 function requireScheduler_production_min () {
 	if (hasRequiredScheduler_production_min) return scheduler_production_min;
 	hasRequiredScheduler_production_min = 1;
-	(function (exports$1) {
+	(function (exports) {
 function f(a,b){var c=a.length;a.push(b);a:for(;0<c;){var d=c-1>>>1,e=a[d];if(0<g(e,b))a[d]=b,a[c]=e,c=d;else break a}}function h(a){return 0===a.length?null:a[0]}function k(a){if(0===a.length)return null;var b=a[0],c=a.pop();if(c!==b){a[0]=c;a:for(var d=0,e=a.length,w=e>>>1;d<w;){var m=2*(d+1)-1,C=a[m],n=m+1,x=a[n];if(0>g(C,c))n<e&&0>g(x,C)?(a[d]=x,a[n]=c,d=n):(a[d]=C,a[m]=c,d=m);else if(n<e&&0>g(x,c))a[d]=x,a[n]=c,d=n;else break a}}return b}
-		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports$1.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports$1.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
+		function g(a,b){var c=a.sortIndex-b.sortIndex;return 0!==c?c:a.id-b.id}if("object"===typeof performance&&"function"===typeof performance.now){var l=performance;exports.unstable_now=function(){return l.now()};}else {var p=Date,q=p.now();exports.unstable_now=function(){return p.now()-q};}var r=[],t=[],u=1,v=null,y=3,z=false,A=false,B=false,D="function"===typeof setTimeout?setTimeout:null,E="function"===typeof clearTimeout?clearTimeout:null,F="undefined"!==typeof setImmediate?setImmediate:null;
 		"undefined"!==typeof navigator&&void 0!==navigator.scheduling&&void 0!==navigator.scheduling.isInputPending&&navigator.scheduling.isInputPending.bind(navigator.scheduling);function G(a){for(var b=h(t);null!==b;){if(null===b.callback)k(t);else if(b.startTime<=a)k(t),b.sortIndex=b.expirationTime,f(r,b);else break;b=h(t);}}function H(a){B=false;G(a);if(!A)if(null!==h(r))A=true,I(J);else {var b=h(t);null!==b&&K(H,b.startTime-a);}}
-		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports$1.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
-		function M(){return exports$1.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports$1.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports$1.unstable_now());},b);}
-		exports$1.unstable_IdlePriority=5;exports$1.unstable_ImmediatePriority=1;exports$1.unstable_LowPriority=4;exports$1.unstable_NormalPriority=3;exports$1.unstable_Profiling=null;exports$1.unstable_UserBlockingPriority=2;exports$1.unstable_cancelCallback=function(a){a.callback=null;};exports$1.unstable_continueExecution=function(){A||z||(A=true,I(J));};
-		exports$1.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports$1.unstable_getCurrentPriorityLevel=function(){return y};exports$1.unstable_getFirstCallbackNode=function(){return h(r)};exports$1.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports$1.unstable_pauseExecution=function(){};
-		exports$1.unstable_requestPaint=function(){};exports$1.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
-		exports$1.unstable_scheduleCallback=function(a,b,c){var d=exports$1.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
-		exports$1.unstable_shouldYield=M;exports$1.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
+		function J(a,b){A=false;B&&(B=false,E(L),L=-1);z=true;var c=y;try{G(b);for(v=h(r);null!==v&&(!(v.expirationTime>b)||a&&!M());){var d=v.callback;if("function"===typeof d){v.callback=null;y=v.priorityLevel;var e=d(v.expirationTime<=b);b=exports.unstable_now();"function"===typeof e?v.callback=e:v===h(r)&&k(r);G(b);}else k(r);v=h(r);}if(null!==v)var w=!0;else {var m=h(t);null!==m&&K(H,m.startTime-b);w=!1;}return w}finally{v=null,y=c,z=false;}}var N=false,O=null,L=-1,P=5,Q=-1;
+		function M(){return exports.unstable_now()-Q<P?false:true}function R(){if(null!==O){var a=exports.unstable_now();Q=a;var b=true;try{b=O(!0,a);}finally{b?S():(N=false,O=null);}}else N=false;}var S;if("function"===typeof F)S=function(){F(R);};else if("undefined"!==typeof MessageChannel){var T=new MessageChannel,U=T.port2;T.port1.onmessage=R;S=function(){U.postMessage(null);};}else S=function(){D(R,0);};function I(a){O=a;N||(N=true,S());}function K(a,b){L=D(function(){a(exports.unstable_now());},b);}
+		exports.unstable_IdlePriority=5;exports.unstable_ImmediatePriority=1;exports.unstable_LowPriority=4;exports.unstable_NormalPriority=3;exports.unstable_Profiling=null;exports.unstable_UserBlockingPriority=2;exports.unstable_cancelCallback=function(a){a.callback=null;};exports.unstable_continueExecution=function(){A||z||(A=true,I(J));};
+		exports.unstable_forceFrameRate=function(a){0>a||125<a?console.error("forceFrameRate takes a positive int between 0 and 125, forcing frame rates higher than 125 fps is not supported"):P=0<a?Math.floor(1E3/a):5;};exports.unstable_getCurrentPriorityLevel=function(){return y};exports.unstable_getFirstCallbackNode=function(){return h(r)};exports.unstable_next=function(a){switch(y){case 1:case 2:case 3:var b=3;break;default:b=y;}var c=y;y=b;try{return a()}finally{y=c;}};exports.unstable_pauseExecution=function(){};
+		exports.unstable_requestPaint=function(){};exports.unstable_runWithPriority=function(a,b){switch(a){case 1:case 2:case 3:case 4:case 5:break;default:a=3;}var c=y;y=a;try{return b()}finally{y=c;}};
+		exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();"object"===typeof c&&null!==c?(c=c.delay,c="number"===typeof c&&0<c?d+c:d):c=d;switch(a){case 1:var e=-1;break;case 2:e=250;break;case 5:e=1073741823;break;case 4:e=1E4;break;default:e=5E3;}e=c+e;a={id:u++,callback:b,priorityLevel:a,startTime:c,expirationTime:e,sortIndex:-1};c>d?(a.sortIndex=c,f(t,a),null===h(r)&&a===h(t)&&(B?(E(L),L=-1):B=true,K(H,c-d))):(a.sortIndex=e,f(r,a),A||z||(A=true,I(J)));return a};
+		exports.unstable_shouldYield=M;exports.unstable_wrapCallback=function(a){var b=y;return function(){var c=y;y=b;try{return a.apply(this,arguments)}finally{y=c;}}}; 
 	} (scheduler_production_min));
 	return scheduler_production_min;
 }
@@ -1353,12 +1364,12 @@ function getStorage() {
 
 var SETTINGS_KEY = 'minimal-history-plugin';
 /** Default maximum results for API queries */
-var DEFAULT_MAX_RESULTS = 1000;
+var DEFAULT_MAX_RESULTS$1 = 1000;
 /** Default settings when none are stored */
 var DEFAULT_SETTINGS = {
     leftPaneSize: null,
     topPaneSize: null,
-    maxResults: DEFAULT_MAX_RESULTS,
+    maxResults: DEFAULT_MAX_RESULTS$1,
 };
 /**
  * Parse stored settings JSON safely
@@ -1416,10 +1427,18 @@ var HTTP_STATUS_NO_CONTENT = 204;
 var ApiError = /** @class */ (function (_super) {
     __extends(ApiError, _super);
     /**
-     *
+     * @param message - Human readable error message, from the engine where it sends one
+     * @param status - HTTP status code of the response
+     * @param body - Parsed response body
+     * @param path - API endpoint path that produced the error
      */
     function ApiError(message, status, body, path) {
         var _this = _super.call(this, message) || this;
+        // Required while the build targets ES5: the downlevel of `extends Error` loses the
+        // prototype link, which silently makes every `err instanceof ApiError` false. Without
+        // this line the status checks throughout the plugins never match. Safe to keep at any
+        // target, and harmless once the target is raised.
+        Object.setPrototypeOf(_this, ApiError.prototype);
         _this.name = 'ApiError';
         _this.status = status;
         _this.body = body;
@@ -1468,10 +1487,11 @@ function parseResponseBody(res) {
  * @param api - The API configuration object
  * @param path - The API endpoint path
  * @param params - Optional query parameters
+ * @param options - Optional per-request options, such as an abort signal
  * @returns Promise resolving to the response data
  * @throws {ApiError} When the response status is not 2xx
  */
-var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0, function () {
+var get = function (api, path, params, options) { return __awaiter(void 0, void 0, void 0, function () {
     var splitResult, query, url, res, body, message;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -1489,10 +1509,7 @@ var get = function (api, path, params) { return __awaiter(void 0, void 0, void 0
                 }
                 query = new URLSearchParams(params).toString();
                 url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
-                return [4 /*yield*/, fetchFn(url, {
-                        method: 'get',
-                        headers: headers(api),
-                    })];
+                return [4 /*yield*/, fetchFn(url, __assign({ method: 'get', headers: headers(api) }, ({})))];
             case 1:
                 res = _a.sent();
                 return [4 /*yield*/, parseResponseBody(res)];
@@ -1530,7 +1547,7 @@ var post = function (api, path, params, payload) { return __awaiter(void 0, void
                     params['maxResults'] = getMaxResultsParam();
                 }
                 query = new URLSearchParams(params).toString();
-                body = payload !== null && payload !== void 0 ? payload : null;
+                body = payload ;
                 url = query ? "".concat(api.engineApi).concat(path, "?").concat(query) : "".concat(api.engineApi).concat(path);
                 return [4 /*yield*/, fetchFn(url, {
                         method: 'post',
@@ -1604,8 +1621,10 @@ var put = function (api, path, payload) { return __awaiter(void 0, void 0, void 
 // UI Constants
 // =============================================================================
 /** Modal overlay z-index to ensure modals appear above other content */
-/** Minutes per hour */
-var MINUTES_PER_HOUR = 60;
+/** Seconds per minute */
+var SECONDS_PER_MINUTE = 60;
+/** Default maximum results for history API queries */
+var DEFAULT_MAX_RESULTS = 1000;
 
 /**
  * Formatting utilities for dates and URLs
@@ -1843,8 +1862,10 @@ var IntegrationsTable = function (_a) {
     var _g = reactExports.useState(true), isLoading = _g[0], setIsLoading = _g[1];
     var _h = reactExports.useState(null), error = _h[0], setError = _h[1];
     var _j = reactExports.useState(new Set()), actionLoading = _j[0], setActionLoading = _j[1];
-    var favouriteKeys = reactExports.useState(function () { return loadFavouriteKeys(); })[0];
-    var _k = reactExports.useState(function () { return loadFavouritesOnlySetting(); }), favouritesOnly = _k[0], setFavouritesOnly = _k[1];
+    // Refreshed on every fetch: the render-time filter below and the server-side filter in
+    // fetchTasks have to agree, and starring a definition elsewhere changes the stored set.
+    var _k = reactExports.useState(function () { return loadFavouriteKeys(); }), favouriteKeys = _k[0], setFavouriteKeys = _k[1];
+    var _l = reactExports.useState(function () { return loadFavouritesOnlySetting(); }), favouritesOnly = _l[0], setFavouritesOnly = _l[1];
     // Replace "Custom Plugins" section title with "Incidents and locked tasks"
     reactExports.useEffect(function () {
         var titleElement = document.querySelector('h1.section-title.col-xs-4.ng-binding') ||
@@ -1856,23 +1877,29 @@ var IntegrationsTable = function (_a) {
         }
     }, []);
     /**
-     * Fetch external tasks from the API
+     * Load the external tasks and everything shown alongside them.
+     *
+     * Three bounded requests, not one per definition and one per instance: the favourites
+     * filter is pushed into the external task query, definition names come back in a single
+     * `processDefinitionIdIn` lookup, and incidents in a single `processDefinitionKeyIn`
+     * lookup that is grouped by instance here.
      */
     var fetchTasks = reactExports.useCallback(function () { return __awaiter(void 0, void 0, void 0, function () {
-        var favKeys_1, favouritesOnlyEnabled, externalTasks, taskList, tasksToFetch, processDefIds, _i, tasksToFetch_1, task, namesMap, keysMap, _a, _b, defId, def, processInstanceIds, _d, tasksToFetch_2, task, incidentsMap, _e, _f, instanceId, instanceIncidents, _err_1;
-        var _h;
-        return __generator(this, function (_j) {
-            switch (_j.label) {
+        var favKeys, favouritesOnlyEnabled, taskParams, externalTasks, taskList, processDefIds, definitionKeys, _i, taskList_1, task, _a, definitions, allIncidents, namesMap, keysMap, _b, _c, def, incidentsMap, _d, _e, incident, existing, _err_1;
+        var _f;
+        return __generator(this, function (_g) {
+            switch (_g.label) {
                 case 0:
                     setIsLoading(true);
                     setError(null);
-                    _j.label = 1;
+                    _g.label = 1;
                 case 1:
-                    _j.trys.push([1, 15, 16, 17]);
-                    favKeys_1 = loadFavouriteKeys();
+                    _g.trys.push([1, 4, 5, 6]);
+                    favKeys = loadFavouriteKeys();
                     favouritesOnlyEnabled = loadFavouritesOnlySetting();
+                    setFavouriteKeys(favKeys);
                     // If favorites filter is enabled but no favorites configured, skip all API calls
-                    if (favouritesOnlyEnabled && favKeys_1.size === 0) {
+                    if (favouritesOnlyEnabled && favKeys.size === 0) {
                         setTasks([]);
                         setProcessNames(new Map());
                         setProcessDefKeys(new Map());
@@ -1880,93 +1907,79 @@ var IntegrationsTable = function (_a) {
                         setIsLoading(false);
                         return [2 /*return*/];
                     }
-                    return [4 /*yield*/, get(api, '/external-task', {})];
+                    taskParams = { maxResults: String(DEFAULT_MAX_RESULTS) };
+                    if (favouritesOnlyEnabled) {
+                        taskParams['processDefinitionKeyIn'] = Array.from(favKeys).join(',');
+                    }
+                    return [4 /*yield*/, get(api, '/external-task', taskParams)];
                 case 2:
-                    externalTasks = (_j.sent());
+                    externalTasks = (_g.sent());
                     taskList = externalTasks !== null && externalTasks !== void 0 ? externalTasks : [];
                     setTasks(taskList);
-                    tasksToFetch = favouritesOnlyEnabled
-                        ? taskList.filter(function (task) {
-                            return task.processDefinitionKey ? favKeys_1.has(task.processDefinitionKey) : false;
-                        })
-                        : taskList;
+                    if (taskList.length === 0) {
+                        setProcessNames(new Map());
+                        setProcessDefKeys(new Map());
+                        setIncidents(new Map());
+                        return [2 /*return*/];
+                    }
                     processDefIds = new Set();
-                    for (_i = 0, tasksToFetch_1 = tasksToFetch; _i < tasksToFetch_1.length; _i++) {
-                        task = tasksToFetch_1[_i];
+                    definitionKeys = new Set();
+                    for (_i = 0, taskList_1 = taskList; _i < taskList_1.length; _i++) {
+                        task = taskList_1[_i];
                         if (task.processDefinitionId) {
                             processDefIds.add(task.processDefinitionId);
                         }
-                    }
-                    namesMap = new Map();
-                    keysMap = new Map();
-                    _a = 0, _b = Array.from(processDefIds);
-                    _j.label = 3;
-                case 3:
-                    if (!(_a < _b.length)) return [3 /*break*/, 8];
-                    defId = _b[_a];
-                    _j.label = 4;
-                case 4:
-                    _j.trys.push([4, 6, , 7]);
-                    return [4 /*yield*/, get(api, "/process-definition/".concat(defId), {})];
-                case 5:
-                    def = (_j.sent());
-                    if (def) {
-                        namesMap.set(defId, (_h = def.name) !== null && _h !== void 0 ? _h : def.key);
-                        keysMap.set(defId, def.key);
-                    }
-                    return [3 /*break*/, 7];
-                case 6:
-                    _j.sent();
-                    return [3 /*break*/, 7];
-                case 7:
-                    _a++;
-                    return [3 /*break*/, 3];
-                case 8:
-                    setProcessNames(namesMap);
-                    setProcessDefKeys(keysMap);
-                    processInstanceIds = new Set();
-                    for (_d = 0, tasksToFetch_2 = tasksToFetch; _d < tasksToFetch_2.length; _d++) {
-                        task = tasksToFetch_2[_d];
-                        if (task.processInstanceId) {
-                            processInstanceIds.add(task.processInstanceId);
+                        if (task.processDefinitionKey) {
+                            definitionKeys.add(task.processDefinitionKey);
                         }
                     }
-                    incidentsMap = new Map();
-                    _e = 0, _f = Array.from(processInstanceIds);
-                    _j.label = 9;
-                case 9:
-                    if (!(_e < _f.length)) return [3 /*break*/, 14];
-                    instanceId = _f[_e];
-                    _j.label = 10;
-                case 10:
-                    _j.trys.push([10, 12, , 13]);
-                    return [4 /*yield*/, get(api, '/incident', {
-                            processInstanceId: instanceId,
-                        })];
-                case 11:
-                    instanceIncidents = (_j.sent());
-                    if (instanceIncidents && instanceIncidents.length > 0) {
-                        incidentsMap.set(instanceId, instanceIncidents);
+                    return [4 /*yield*/, Promise.all([
+                            processDefIds.size > 0
+                                ? get(api, '/process-definition', {
+                                    processDefinitionIdIn: Array.from(processDefIds).join(','),
+                                    maxResults: String(DEFAULT_MAX_RESULTS),
+                                })
+                                : Promise.resolve([]),
+                            definitionKeys.size > 0
+                                ? get(api, '/incident', {
+                                    processDefinitionKeyIn: Array.from(definitionKeys).join(','),
+                                    maxResults: String(DEFAULT_MAX_RESULTS),
+                                })
+                                : Promise.resolve([]),
+                        ])];
+                case 3:
+                    _a = _g.sent(), definitions = _a[0], allIncidents = _a[1];
+                    namesMap = new Map();
+                    keysMap = new Map();
+                    for (_b = 0, _c = definitions !== null && definitions !== void 0 ? definitions : []; _b < _c.length; _b++) {
+                        def = _c[_b];
+                        namesMap.set(def.id, (_f = def.name) !== null && _f !== void 0 ? _f : def.key);
+                        keysMap.set(def.id, def.key);
                     }
-                    return [3 /*break*/, 13];
-                case 12:
-                    _j.sent();
-                    return [3 /*break*/, 13];
-                case 13:
-                    _e++;
-                    return [3 /*break*/, 9];
-                case 14:
+                    setProcessNames(namesMap);
+                    setProcessDefKeys(keysMap);
+                    incidentsMap = new Map();
+                    for (_d = 0, _e = allIncidents !== null && allIncidents !== void 0 ? allIncidents : []; _d < _e.length; _d++) {
+                        incident = _e[_d];
+                        existing = incidentsMap.get(incident.processInstanceId);
+                        if (existing) {
+                            existing.push(incident);
+                        }
+                        else {
+                            incidentsMap.set(incident.processInstanceId, [incident]);
+                        }
+                    }
                     setIncidents(incidentsMap);
-                    return [3 /*break*/, 17];
-                case 15:
-                    _err_1 = _j.sent();
+                    return [3 /*break*/, 6];
+                case 4:
+                    _err_1 = _g.sent();
                     setError('Failed to fetch external tasks');
                     console.error('Error fetching external tasks:', _err_1);
-                    return [3 /*break*/, 17];
-                case 16:
+                    return [3 /*break*/, 6];
+                case 5:
                     setIsLoading(false);
                     return [7 /*endfinally*/];
-                case 17: return [2 /*return*/];
+                case 6: return [2 /*return*/];
             }
         });
     }); }, [api]);
@@ -1995,22 +2008,16 @@ var IntegrationsTable = function (_a) {
         return task.lockExpirationTime !== null && new Date(task.lockExpirationTime) > new Date();
     };
     /**
-     * Check if a task has been locked for more than 5 minutes.
-     * We check if the task is currently locked (has a future lock expiration time).
-     * Since we don't have the exact lock start time from the API, we consider any
-     * currently locked task as potentially locked for more than 5 minutes.
+     * Check whether a task is currently held by a worker.
+     *
+     * The API reports when a lock expires but not when it was taken, so how long a task has
+     * been held cannot be derived here. This asks only whether it is held right now.
      */
-    var isLockedLongEnough = function (task) {
+    var isHeldByWorker = function (task) {
         if (!task.lockExpirationTime || !task.workerId) {
             return false;
         }
-        var lockExpirationDate = new Date(task.lockExpirationTime);
-        var now = new Date();
-        // Task is locked if expiration time is in the future
-        var currentlyLocked = lockExpirationDate > now;
-        // If the task is currently locked, we consider it locked long enough
-        // (since we can't determine the exact lock start time from the API)
-        return currentlyLocked;
+        return new Date(task.lockExpirationTime) > new Date();
     };
     /**
      * Format lock expiration time with remaining time
@@ -2029,15 +2036,14 @@ var IntegrationsTable = function (_a) {
         }
         var remainingMs = lockDate.getTime() - now.getTime();
         var remainingSecs = Math.floor(remainingMs / 1000);
-        var mins = Math.floor(remainingSecs / MINUTES_PER_HOUR);
-        var secs = remainingSecs % MINUTES_PER_HOUR;
+        var mins = Math.floor(remainingSecs / SECONDS_PER_MINUTE);
+        var secs = remainingSecs % SECONDS_PER_MINUTE;
         return "".concat(formatDateTime(lockTime), " (").concat(mins, "m ").concat(secs, "s remaining)");
     };
     // Pre-filter tasks for incident or lock check (before favourites filtering)
     var tasksWithIssues = tasks.filter(function (task) {
         var hasIncident = task.processInstanceId && incidents.has(task.processInstanceId);
-        var lockedLongEnough = isLockedLongEnough(task);
-        return Boolean(hasIncident) || lockedLongEnough;
+        return Boolean(hasIncident) || isHeldByWorker(task);
     });
     // Apply favourites filter on top
     var filteredTasks = tasksWithIssues.filter(function (task) {
@@ -2184,9 +2190,9 @@ var IntegrationsTable = function (_a) {
      * Batch retry selected tasks
      */
     var handleBatchRetry = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var taskIds, _loop_2, _i, taskIds_1, taskId, _b, taskIds_2, taskId, _err_4;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var taskIds, _loop_2, _i, taskIds_1, taskId, _err_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     if (selectedTasks.size === 0) {
                         return [2 /*return*/];
@@ -2199,53 +2205,42 @@ var IntegrationsTable = function (_a) {
                         taskId = taskIds_1[_i];
                         _loop_2(taskId);
                     }
-                    _c.label = 1;
+                    _a.label = 1;
                 case 1:
-                    _c.trys.push([1, 4, 12, 13]);
-                    // Use batch endpoint if available, otherwise retry individually
-                    return [4 /*yield*/, post(api, '/external-task/retries', {}, JSON.stringify({
+                    _a.trys.push([1, 4, 5, 6]);
+                    // /external-task/retries is PUT-only. It used to be called with POST here, which the
+                    // engine answered with 405 every time, so the batch never ran and a silent catch fell
+                    // back to one request per task while hiding real failures such as a denied permission.
+                    return [4 /*yield*/, put(api, '/external-task/retries', JSON.stringify({
                             externalTaskIds: taskIds,
                             retries: 1,
                         }))];
                 case 2:
-                    // Use batch endpoint if available, otherwise retry individually
-                    _c.sent();
+                    // /external-task/retries is PUT-only. It used to be called with POST here, which the
+                    // engine answered with 405 every time, so the batch never ran and a silent catch fell
+                    // back to one request per task while hiding real failures such as a denied permission.
+                    _a.sent();
                     setSelectedTasks(new Set());
                     return [4 /*yield*/, fetchTasks()];
                 case 3:
-                    _c.sent();
-                    return [3 /*break*/, 13];
+                    _a.sent();
+                    return [3 /*break*/, 6];
                 case 4:
-                    _c.sent();
-                    _b = 0, taskIds_2 = taskIds;
-                    _c.label = 5;
+                    _err_4 = _a.sent();
+                    console.error('Error retrying tasks:', _err_4);
+                    setError("Failed to retry ".concat(taskIds.length, " task").concat(taskIds.length !== 1 ? 's' : ''));
+                    return [3 /*break*/, 6];
                 case 5:
-                    if (!(_b < taskIds_2.length)) return [3 /*break*/, 10];
-                    taskId = taskIds_2[_b];
-                    _c.label = 6;
-                case 6:
-                    _c.trys.push([6, 8, , 9]);
-                    return [4 /*yield*/, put(api, "/external-task/".concat(taskId, "/retries"), JSON.stringify({ retries: 1 }))];
-                case 7:
-                    _c.sent();
-                    return [3 /*break*/, 9];
-                case 8:
-                    _err_4 = _c.sent();
-                    console.error('Error retrying task:', taskId, _err_4);
-                    return [3 /*break*/, 9];
-                case 9:
-                    _b++;
-                    return [3 /*break*/, 5];
-                case 10:
-                    setSelectedTasks(new Set());
-                    return [4 /*yield*/, fetchTasks()];
-                case 11:
-                    _c.sent();
-                    return [3 /*break*/, 13];
-                case 12:
-                    setActionLoading(new Set());
+                    setActionLoading(function (prev) {
+                        var next = new Set(prev);
+                        for (var _i = 0, taskIds_2 = taskIds; _i < taskIds_2.length; _i++) {
+                            var taskId = taskIds_2[_i];
+                            next.delete(taskId);
+                        }
+                        return next;
+                    });
                     return [7 /*endfinally*/];
-                case 13: return [2 /*return*/];
+                case 6: return [2 /*return*/];
             }
         });
     }); };
