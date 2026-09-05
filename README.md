@@ -28,7 +28,7 @@ deploy them without running the build.
 |--------|------------------|--------------|
 | `dashboard-favourites.js` | Dashboard section + star button on a process definition | Star process definitions and list the starred ones on the dashboard with running instance and incident counts |
 | `dashboard-integrations.js` | Dashboard section | Lists external tasks that have an incident or are currently locked, with retry and unlock actions (individual and batch) |
-| `definition-historic-activities.js` | Definition tab *Statistics* + diagram | Historic activity statistics with a filter box, plus per-activity count badges on the diagram |
+| `definition-historic-activities.js` | Definition tab *Statistics* + diagram | Historic activity statistics with a filter box, plus a three-state diagram overlay: off, per-activity execution counts, or a heatmap of cumulative time with the totals in the badges. All three follow the tab's filter |
 | `definition-tab-modify.js` | Definition tab *Modify* | Batch modification, message correlation and signal broadcast across instances of a definition. Every operation has a dry run that shows both the instances it would reach and the exact request it would send |
 | `instance-auto-refresh.js` | Instance diagram | Toggle button for periodic auto-refresh of the instance view |
 | `instance-action-unlock.js` | Instance action button | Dialog listing the instance's locked external tasks, with batch unlock |
@@ -258,6 +258,7 @@ Shared user preferences are stored under the key `minimal-history-plugin` as a s
 | `autoRefresh` | boolean | `false` | Auto-refresh process instance views |
 | `showHistoricBadges` | boolean | `false` | Show activity instance count badges on diagram |
 | `showSequenceFlow` | boolean | `false` | Highlight the executed path on the diagram |
+| `showHeatmap` | boolean | `false` | Show the time heatmap on a definition diagram (implies `showHistoricBadges`) |
 | `leftPaneSize` | number | `null` | Left pane width in history view (pixels) |
 | `topPaneSize` | number | `null` | Top pane height in history view (pixels) |
 | `maxResults` | number | `1000` | Maximum results for history API queries |
@@ -284,6 +285,7 @@ localStorage stays on whether or not the parameter is in the URL.
 | `autoRefresh` | Enable auto-refresh |
 | `showHistoricBadges` | Show historic badges |
 | `showSequenceFlow` | Show executed sequence flows |
+| `showHeatmap` | Show the definition time heatmap |
 | `maxResults=N` | Override max results (e.g. `maxResults=500`) |
 
 Example URL with parameters:
@@ -304,6 +306,12 @@ These are current gaps, not bugs to report:
 
 * **History queries are capped.** History endpoints return at most `maxResults` records (1000 by
   default). Raise it with the `maxResults` setting or URL parameter if you need more.
+
+* **The heatmap ranks elements against each other, not against a target.** Colour is the element's
+  share of the slowest element's cumulative time, so the hottest spot is always red however fast the
+  process is overall. It answers "where does this process spend its time", not "is this fast enough".
+  Elements that consumed no measurable time — start and end events, and activities still running —
+  get no blob at all, since they have no duration to rank.
 
 * **The executed path is inferred, not reported.** The engine records which activities ran, never which
   sequence flows were taken, so the green path is reconstructed from activity timestamps. Exclusive
