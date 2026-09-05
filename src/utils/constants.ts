@@ -136,11 +136,16 @@ export const EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
 // Heatmap Constants
 // =============================================================================
 
-/** Layer index of the heatmap, above the diagram and the executed path */
-export const HEATMAP_LAYER_INDEX = 2;
+/**
+ * Layer index of the heatmap. Negative puts it *below* diagram-js's base layer, so
+ * element borders, labels and flows stay crisp on top of the heat rather than being
+ * tinted by it. Shapes paint a near-opaque white fill, so the heat reads as a halo
+ * around them rather than a wash over them.
+ */
+export const HEATMAP_LAYER_INDEX = -1;
 
-/** Opacity of the heatmap layer, low enough to keep labels readable through it */
-export const HEATMAP_OPACITY = 0.7;
+/** Opacity of the heatmap layer. It sits behind the diagram, so it can be strong */
+export const HEATMAP_OPACITY = 0.85;
 
 /** Gaussian blur applied to the whole heatmap group, in diagram units */
 export const HEATMAP_BLUR = 12;
@@ -152,7 +157,7 @@ export const HEATMAP_RADIUS_SCALE = 2.1;
 export const HEATMAP_MIN_RADIUS = 46;
 
 /** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
-export const HEATMAP_GAMMA = 0.5;
+export const HEATMAP_GAMMA = 0.7;
 
 /** Opacity weight of the coldest element, so quiet parts stay faint rather than loud */
 export const HEATMAP_MIN_ALPHA = 0.22;
@@ -160,8 +165,24 @@ export const HEATMAP_MIN_ALPHA = 0.22;
 /** How much of a blob's radius follows intensity rather than the element's size */
 export const HEATMAP_BLOOM = 0.35;
 
+/** Samples taken from the colour ramp to build the filter's transfer tables */
+export const HEATMAP_RAMP_SAMPLES = 12;
+
+/** Width of the density smear drawn along a sequence flow, in diagram units */
+export const HEATMAP_PATH_WIDTH = 30;
+
+/** Density floor, so a cold-but-executed element still joins the field */
+export const HEATMAP_MIN_DENSITY = 0.1;
+
 /**
- * Falloff exponent for the colour within a blob. Below 1 the hot colour holds further
- * out, so a single centre stop does not get blurred away into the cooler ring.
+ * Amplifies the density field before it is coloured. Blurring spreads each
+ * contribution and so lowers its peak; without a gain the hottest element never
+ * reaches the top of the ramp and the map tops out orange.
  */
-export const HEATMAP_CORE = 0.55;
+export const HEATMAP_DENSITY_GAIN = 1.25;
+
+/** Exponent on the opacity curve; above 1 it holds cold regions back */
+export const HEATMAP_ALPHA_EXPONENT = 1.6;
+
+/** Slope of the opacity curve once it starts rising */
+export const HEATMAP_ALPHA_SLOPE = 2.1;
