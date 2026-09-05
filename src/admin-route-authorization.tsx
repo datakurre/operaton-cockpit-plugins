@@ -50,6 +50,8 @@ import {
   deriveTasklistAppUrl,
   isProcessDefinitionKey,
   clearProcessDefinitionKeyCache,
+  resourceValidationKey,
+  RESOURCE_TYPE_PROCESS_DEFINITION,
 } from './utils/authorization';
 import { ADMIN_PANEL_WIDTH_PX, DEFAULT_PAGE_SIZE } from './utils/constants';
 import { parseAuthorizationExpressions } from './utils/filterExpressionParsers';
@@ -270,8 +272,11 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
       }))
       .filter(item => item.endpoint !== null);
 
-    // Deduplicate by resource ID
-    const uniqueResources = Array.from(new Map(resourcesToCheck.map(item => [item.resourceId, item])).values());
+    // Deduplicate by resource type *and* id: the same id under two resource types is two
+    // different resources, validated against two different endpoints.
+    const uniqueResources = Array.from(
+      new Map(resourcesToCheck.map(item => [resourceValidationKey(item.resourceType, item.resourceId), item])).values()
+    );
 
     const total = uniqueResources.length;
     setValidationProgress({ current: 0, total });
@@ -282,23 +287,24 @@ const AuthorizationsView: React.FC<AuthorizationsViewProps> = ({ api }) => {
 
     // Check each resource
     for (const resource of uniqueResources) {
+      const key = resourceValidationKey(resource.resourceType, resource.resourceId);
       try {
         const result = await get(api, resource.endpoint as string);
-        newValidationState[resource.resourceId] = 'valid';
+        newValidationState[key] = 'valid';
 
         // For process definitions with keys, extract the resolved ID
-        if (resource.resourceType === 6 && isProcessDefinitionKey(resource.resourceId)) {
+        if (resource.resourceType === RESOURCE_TYPE_PROCESS_DEFINITION && isProcessDefinitionKey(resource.resourceId)) {
           const pdResult = result as ProcessDefinitionResponse;
           if (pdResult.id) {
-            newResolvedIds[resource.resourceId] = pdResult.id;
+            newResolvedIds[key] = pdResult.id;
           }
         }
       } catch (err) {
         // 404 means resource doesn't exist, other errors are unknown
         if (err instanceof ApiError && err.status === 404) {
-          newValidationState[resource.resourceId] = 'invalid';
+          newValidationState[key] = 'invalid';
         } else {
-          newValidationState[resource.resourceId] = 'unknown';
+          newValidationState[key] = 'unknown';
         }
       }
       current++;

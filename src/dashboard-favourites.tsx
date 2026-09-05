@@ -10,11 +10,12 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaStar, FaRegStar, FaTimesCircle } from 'react-icons/fa';
+import { FaStar, FaRegStar, FaTimesCircle, FaPauseCircle } from 'react-icons/fa';
 import { createRoot } from 'react-dom/client';
 import { Column, CellProps } from 'react-table';
-import type { DefinitionPluginParams, RoutePluginParams, ProcessDefinition } from './types';
+import type { API, DefinitionPluginParams, RoutePluginParams, ProcessDefinition } from './types';
 import type { components } from './operaton';
+import { get, getProcessDefinition } from './utils/api';
 import { getStorage } from './utils/storage';
 import { Clippy } from './Components/Clippy';
 import SortableTable from './Components/SortableTable';
@@ -32,6 +33,11 @@ interface FavouriteDefinition {
 }
 
 type ProcessDefinitionStatistics = components['schemas']['ProcessDefinitionStatisticsResultDto'];
+
+/** Row state, worst-first: incidents outrank suspension, suspension outranks healthy. */
+const STATE_HEALTHY = 0;
+const STATE_SUSPENDED = 1;
+const STATE_INCIDENTS = 2;
 
 interface ProcessDefinitionRow {
   latestVersionId: string; // ID of the latest version for linking
@@ -102,7 +108,7 @@ function removeFavourite(processDefinitionKey: string): void {
 // =============================================================================
 
 interface StarButtonProps {
-  api: { engineApi: string };
+  api: API;
   processDefinitionId: string;
 }
 
@@ -118,21 +124,18 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
     // Load process definition details
     const fetchDefinition = async (): Promise<void> => {
       try {
-        const response = await fetch(`${api.engineApi}/process-definition/${processDefinitionId}`);
-        if (response.ok) {
-          const data = (await response.json()) as ProcessDefinition;
-          setDefinition(data);
-          setIsFav(isFavourite(data.key ?? ''));
-        }
-      } catch {
-        // Silently fail
+        const data = await getProcessDefinition(api, processDefinitionId);
+        setDefinition(data);
+        setIsFav(isFavourite(data.key ?? ''));
+      } catch (_err) {
+        console.error('Error loading process definition:', _err);
       } finally {
         setIsLoading(false);
       }
     };
 
     void fetchDefinition();
-  }, [api.engineApi, processDefinitionId]);
+  }, [api, processDefinitionId]);
 
   const handleToggle = (): void => {
     if (!definition) {
@@ -184,7 +187,7 @@ const StarButton: React.FC<StarButtonProps> = ({ api, processDefinitionId }) => 
 // =============================================================================
 
 interface DashboardTableProps {
-  api: { engineApi: string };
+  api: API;
 }
 
 /**
@@ -215,35 +218,36 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
       }
 
       try {
-        // Build query string with all definition keys
-        const keys = favourites.map(f => `processDefinitionKeyIn=${encodeURIComponent(f.key)}`).join('&');
-        const response = await fetch(`${api.engineApi}/process-definition/statistics?${keys}&incidents=true`);
+        // /process-definition/statistics takes no definition filter at all - only
+        // failedJobs, incidents, incidentsForType and rootIncidents. This used to pass
+        // processDefinitionKeyIn, which the engine simply ignored. The response therefore
+        // covers every definition and is narrowed to the favourites below.
+        const data = (await get(api, '/process-definition/statistics', {
+          incidents: 'true',
+        })) as ProcessDefinitionStatistics[];
 
-        if (response.ok) {
-          const data = (await response.json()) as ProcessDefinitionStatistics[];
-          // Group statistics by key (aggregate across all versions)
-          const statsMap = new Map<string, ProcessDefinitionStatistics[]>();
-          for (const stat of data) {
-            const key = stat.definition?.key;
-            if (key) {
-              if (!statsMap.has(key)) {
-                statsMap.set(key, []);
-              }
-              const statsArray = statsMap.get(key);
-              if (statsArray) {
-                statsArray.push(stat);
-              }
+        // Group statistics by key (aggregate across all versions)
+        const favouriteKeys = new Set(favourites.map(f => f.key));
+        const statsMap = new Map<string, ProcessDefinitionStatistics[]>();
+        for (const stat of data) {
+          const key = stat.definition?.key;
+          if (key !== null && key !== undefined && favouriteKeys.has(key)) {
+            const statsArray = statsMap.get(key);
+            if (statsArray) {
+              statsArray.push(stat);
+            } else {
+              statsMap.set(key, [stat]);
             }
           }
-          setStatistics(statsMap as any);
         }
-      } catch {
-        // Silently fail - will show default values
+        setStatistics(statsMap);
+      } catch (_err) {
+        console.error('Error loading process definition statistics:', _err);
       }
     };
 
     void fetchStatistics();
-  }, [api.engineApi, favourites]);
+  }, [api, favourites]);
 
   // Transform favourites and statistics into table rows (aggregated across all versions)
   const tableData = useMemo<ProcessDefinitionRow[]>(() => {
@@ -277,12 +281,11 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
         totalInstances += stat.instances ?? 0;
       }
 
-      // Calculate state: 0 = healthy, 1 = suspended, 2 = incidents
-      let state = 0;
+      let state = STATE_HEALTHY;
       if (totalIncidents > 0) {
-        state = 2;
+        state = STATE_INCIDENTS;
       } else if (anySuspended) {
-        state = 1;
+        state = STATE_SUSPENDED;
       }
 
       return {
@@ -317,10 +320,11 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
           className: 'state',
           disableSortBy: true,
           Cell: ({ row }: CellProps<ProcessDefinitionRow, number>) => {
-            const { incidents } = row.original;
-            if (incidents > 0) {
+            const { incidents, state } = row.original;
+            const wrapperStyle = { display: 'flex', justifyContent: 'center', alignItems: 'center' };
+            if (state === STATE_INCIDENTS) {
               return (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={wrapperStyle}>
                   <FaTimesCircle
                     style={{ color: '#d9534f', fontSize: '20px' }}
                     aria-label="Has incidents"
@@ -329,8 +333,20 @@ const DashboardTable: React.FC<DashboardTableProps> = ({ api }) => {
                 </div>
               );
             }
+            // A suspended definition used to fall through to the healthy circle below.
+            if (state === STATE_SUSPENDED) {
+              return (
+                <div style={wrapperStyle}>
+                  <FaPauseCircle
+                    style={{ color: '#999999', fontSize: '20px' }}
+                    aria-label="Suspended"
+                    title="Suspended"
+                  />
+                </div>
+              );
+            }
             return (
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={wrapperStyle}>
                 <div className="circle circle-green">{/* State circle for healthy */}</div>
               </div>
             );

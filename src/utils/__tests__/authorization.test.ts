@@ -14,6 +14,7 @@ import {
   DEFAULT_PERMISSIONS,
   getPermissionsForResource,
   getResourceTypeName,
+  resourceValidationKey,
   getAuthTypeLabel,
   renderIdentityDisplay,
   getResourceUrl,
@@ -606,5 +607,22 @@ describe('authorization', () => {
       expect(isProcessDefinitionKey('my_process-v2')).toBe(true);
       expect(isProcessDefinitionKey('test_123')).toBe(true);
     });
+  });
+});
+
+describe('resourceValidationKey', () => {
+  it('separates the same resource id under different resource types', () => {
+    // 6 = Process Definition, 10 = Decision Definition. Keying validation results on the
+    // id alone made these two authorizations share one result, and one endpoint.
+    expect(resourceValidationKey(6, 'invoice')).not.toBe(resourceValidationKey(10, 'invoice'));
+  });
+
+  it('is stable for the same resource type and id', () => {
+    expect(resourceValidationKey(6, 'invoice')).toBe(resourceValidationKey(6, 'invoice'));
+  });
+
+  it('handles a null resource type', () => {
+    expect(resourceValidationKey(null, 'invoice')).toBe('null:invoice');
+    expect(resourceValidationKey(null, 'invoice')).not.toBe(resourceValidationKey(0, 'invoice'));
   });
 });
