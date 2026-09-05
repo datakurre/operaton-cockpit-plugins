@@ -66,12 +66,16 @@ const mockRenderSequenceFlow = jest.fn().mockReturnValue([]);
 const mockClearSequenceFlow = jest.fn();
 const mockRenderActivities = jest.fn();
 const mockRenderRunningTokens = jest.fn().mockReturnValue([]);
+const mockRenderHeatmap = jest.fn().mockReturnValue(['heat-node']);
+const mockClearHeatmap = jest.fn();
 
 jest.mock('../../utils/bpmn', () => ({
   renderSequenceFlow: (...args: unknown[]) => mockRenderSequenceFlow(...args),
   clearSequenceFlow: (...args: unknown[]) => mockClearSequenceFlow(...args),
   renderActivities: (...args: unknown[]) => mockRenderActivities(...args),
   renderRunningTokens: (...args: unknown[]) => mockRenderRunningTokens(...args),
+  renderHeatmap: (...args: unknown[]) => mockRenderHeatmap(...args),
+  clearHeatmap: (...args: unknown[]) => mockClearHeatmap(...args),
 }));
 
 // Mock the misc utilities
@@ -80,6 +84,7 @@ jest.mock('../../utils/misc', () => ({
     showSequenceFlow: false,
     autoRefresh: false,
     showHistoricBadges: false,
+    showInstanceHeatmap: false,
   })),
   saveSettings: jest.fn(),
 }));
@@ -268,6 +273,103 @@ describe('BPMN Component', () => {
 
       unmount();
       expect(mockClearSequenceFlow).toHaveBeenCalled();
+    });
+  });
+
+  describe('Cockpit layout interop', () => {
+    it('should pin the offsets that the process-diagram attribute would otherwise activate', () => {
+      // The attribute buys Cockpit's own badge styling, but it also brings
+      // `position: relative`. Cockpit's page-level classes carry offsets for the app
+      // chrome (`.ctn-content` is `left: 280px; right: 56px`); inert while the
+      // container is static, they shove the diagram sideways the moment it is
+      // positioned. Pin them so borrowing such a class stays a styling decision.
+      const { container } = render(<BPMNViewer diagramXML="" className="ctn-content" showRuntimeToggle={false} />);
+
+      const host = container.firstElementChild as HTMLElement;
+      expect(host).toHaveAttribute('process-diagram');
+      expect(host.style.left).toBe('0px');
+      expect(host.style.right).toBe('0px');
+    });
+
+    it('should let a caller override the pinned offsets', () => {
+      const { container } = render(<BPMNViewer diagramXML="" style={{ left: '10px' }} showRuntimeToggle={false} />);
+
+      expect((container.firstElementChild as HTMLElement).style.left).toBe('10px');
+    });
+  });
+
+  describe('time heatmap', () => {
+    const sampleBpmnXml = `<?xml version="1.0" encoding="UTF-8"?>
+      <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL">
+        <bpmn:process id="Process_1" isExecutable="true">
+          <bpmn:startEvent id="StartEvent_1"/>
+        </bpmn:process>
+      </bpmn:definitions>`;
+
+    it('should not draw the heatmap until it is switched on', async () => {
+      render(<BPMNViewer diagramXML={sampleBpmnXml} activities={[]} showRuntimeToggle={false} />);
+
+      await waitFor(() => {
+        expect(mockRenderActivities).toHaveBeenCalled();
+      });
+
+      expect(mockRenderHeatmap).not.toHaveBeenCalled();
+    });
+
+    it('should draw the heatmap when toggled on and remove it when toggled off', async () => {
+      const activities = [{ activityId: 'Task_1', activityName: 'Task', durationInMillis: 500 }];
+      render(<BPMNViewer diagramXML={sampleBpmnXml} activities={activities} showRuntimeToggle={false} />);
+
+      const button = await screen.findByRole('button', { name: /show time heatmap/i });
+      await userEvent.click(button);
+
+      expect(mockRenderHeatmap).toHaveBeenCalledWith(mockViewer, activities);
+
+      await userEvent.click(screen.getByRole('button', { name: /hide time heatmap/i }));
+
+      expect(mockClearHeatmap).toHaveBeenCalledWith(['heat-node']);
+    });
+
+    it('should redraw the heatmap when activities change while it is on', async () => {
+      const initial = [{ activityId: 'Task_1', activityName: 'Task', durationInMillis: 500 }];
+      const updated = [
+        { activityId: 'Task_1', activityName: 'Task', durationInMillis: 500 },
+        { activityId: 'Task_2', activityName: 'Second', durationInMillis: 900 },
+      ];
+      const { rerender } = render(
+        <BPMNViewer diagramXML={sampleBpmnXml} activities={initial} showRuntimeToggle={false} />
+      );
+
+      await userEvent.click(await screen.findByRole('button', { name: /show time heatmap/i }));
+
+      rerender(<BPMNViewer diagramXML={sampleBpmnXml} activities={updated} showRuntimeToggle={false} />);
+
+      // Auto-refresh keeps handing down fresh activities; the heat has to follow them
+      // or it goes stale while claiming to describe the instance in front of you.
+      await waitFor(() => {
+        expect(mockRenderHeatmap).toHaveBeenLastCalledWith(mockViewer, updated);
+      });
+    });
+
+    it('should warn in the heatmap label when the history was truncated', async () => {
+      render(<BPMNViewer diagramXML={sampleBpmnXml} showRuntimeToggle={false} activitiesTruncated={true} />);
+
+      expect(
+        await screen.findByRole('button', {
+          name: /show time heatmap \(history truncated — totals may be incomplete\)/i,
+        })
+      ).toBeInTheDocument();
+    });
+
+    it('should clear the heatmap on unmount', async () => {
+      const { unmount } = render(<BPMNViewer diagramXML={sampleBpmnXml} showRuntimeToggle={false} />);
+
+      await waitFor(() => {
+        expect(mockViewer.attachTo).toHaveBeenCalled();
+      });
+
+      unmount();
+      expect(mockClearHeatmap).toHaveBeenCalled();
     });
   });
 });

@@ -136,7 +136,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-sequence-flow-button,\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-sequence-flow-button:hover,\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
+___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-heatmap-button,\n.toggle-sequence-flow-button,\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-heatmap-button:hover,\n.toggle-sequence-flow-button:hover,\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
 
 ___$insertStylesToHeader("/**\n * Shared Resizable Layout Styles\n *\n * Common styles for Allotment-based resizable layouts used across plugins.\n * Used by: instance-route-history.scss, admin-route-authorization.scss\n */\n.Pane.vertical.Pane1 {\n  border-right: 1px solid #ddd;\n}\n\n.Resizer {\n  background: rgba(255, 255, 255, 0);\n  opacity: 0.2;\n  z-index: 1;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  -moz-background-clip: padding;\n  -webkit-background-clip: padding;\n  background-clip: padding-box;\n}\n\n.Resizer:hover {\n  -webkit-transition: all 2s ease;\n  transition: all 2s ease;\n}\n\n.Resizer.horizontal {\n  height: 11px;\n  margin: -5px 0;\n  border-top: 5px solid rgba(255, 255, 255, 0);\n  border-bottom: 5px solid rgba(255, 255, 255, 0);\n  cursor: row-resize;\n  width: 100%;\n}\n\n.Resizer.horizontal:hover {\n  border-top: 5px solid rgba(0, 0, 0, 0.5);\n  border-bottom: 5px solid rgba(0, 0, 0, 0.5);\n}\n\n.Resizer.vertical {\n  width: 11px;\n  margin: 0 -5px;\n  border-left: 5px solid rgba(255, 255, 255, 0);\n  border-right: 5px solid rgba(255, 255, 255, 0);\n  cursor: col-resize;\n}\n\n.Resizer.vertical:hover {\n  border-left: 5px solid rgba(0, 0, 0, 0.5);\n  border-right: 5px solid rgba(0, 0, 0, 0.5);\n}\n\n.Resizer.disabled {\n  cursor: not-allowed;\n}\n\n.Resizer.disabled:hover {\n  border-color: transparent;\n}\n\n.react-tabs__tab a {\n  cursor: pointer;\n}\n.react-tabs__tab.active a {\n  cursor: none;\n}\n\n.react-tabs__tab-panel--selected {\n  z-index: 1;\n}\n\n.split-view-view:has(.ctn-tabbed) {\n  border-left: 1px solid #ccc;\n}");
 
@@ -3907,6 +3907,7 @@ var loadSettings = function () {
     var showHistoricBadgesParam = parsed['showHistoricBadges'];
     var showSequenceFlowParam = parsed['showSequenceFlow'];
     var showHeatmapParam = parsed['showHeatmap'];
+    var showInstanceHeatmapParam = parsed['showInstanceHeatmap'];
     var maxResultsParam = parsed['maxResults'];
     var maxResultsValue = typeof maxResultsParam === 'string' ? parseInt(maxResultsParam, 10) : undefined;
     return {
@@ -3914,6 +3915,10 @@ var loadSettings = function () {
         showHistoricBadges: raw.showHistoricBadges === true || showHistoricBadgesParam !== undefined,
         showSequenceFlow: raw.showSequenceFlow === true || showSequenceFlowParam !== undefined,
         showHeatmap: raw.showHeatmap === true || showHeatmapParam !== undefined,
+        // Kept separate from showHeatmap: that one drives the definition diagram's
+        // statistics button, where it also implies the badges are on. Sharing it would
+        // mean switching heat on here silently switched badges on over there.
+        showInstanceHeatmap: raw.showInstanceHeatmap === true || showInstanceHeatmapParam !== undefined,
         leftPaneSize: (_a = raw.leftPaneSize) !== null && _a !== void 0 ? _a : DEFAULT_SETTINGS.leftPaneSize,
         topPaneSize: (_b = raw.topPaneSize) !== null && _b !== void 0 ? _b : DEFAULT_SETTINGS.topPaneSize,
         maxResults: (_c = maxResultsValue !== null && maxResultsValue !== void 0 ? maxResultsValue : raw.maxResults) !== null && _c !== void 0 ? _c : DEFAULT_SETTINGS.maxResults,
@@ -4127,6 +4132,27 @@ function getActivities(api, processInstanceId, params) {
     });
 }
 /**
+ * Splits an over-fetched result into the page to show and whether more was waiting.
+ *
+ * Both history views ask the engine for one record more than they mean to display: if
+ * that extra one comes back, the query hit its cap and whatever is drawn from it — a
+ * path, a table, a heatmap — describes a subset. This is the shared decision, kept out
+ * of the components so it can be reasoned about on its own.
+ *
+ * @param records - What the engine returned, having been asked for limit + 1
+ * @param limit - How many records the caller actually wants
+ * @returns The capped records and whether anything was left behind
+ */
+function capToLimit(records, limit) {
+    if (!Number.isFinite(limit) || limit <= 0) {
+        return { activities: records, truncated: false };
+    }
+    return {
+        activities: records.slice(0, limit),
+        truncated: records.length > limit,
+    };
+}
+/**
  * Fetches a bounded page of historic activity instances, oldest first, reporting
  * whether the instance had more than fit.
  *
@@ -4151,10 +4177,7 @@ function getActivityHistoryPage(api, processInstanceId, maxResults) {
                     })];
                 case 1:
                     records = _a.sent();
-                    return [2 /*return*/, {
-                            activities: records.slice(0, maxResults),
-                            truncated: records.length > maxResults,
-                        }];
+                    return [2 /*return*/, capToLimit(records, maxResults)];
             }
         });
     });
@@ -75552,6 +75575,44 @@ var EXECUTED_PATH_STROKE_WIDTH = 4;
 var EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
 /** Upper bound on the stroke width of an executed sequence flow */
 var EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
+// =============================================================================
+// Heatmap Constants
+// =============================================================================
+/**
+ * Layer index of the heatmap. Negative puts it *below* diagram-js's base layer, so
+ * element borders, labels and flows stay crisp on top of the heat rather than being
+ * tinted by it. Shapes paint a near-opaque white fill, so the heat reads as a halo
+ * around them rather than a wash over them.
+ */
+var HEATMAP_LAYER_INDEX = -1;
+/** Opacity of the heatmap layer. It sits behind the diagram, so it can be strong */
+var HEATMAP_OPACITY = 0.85;
+/** Gaussian blur applied to the whole heatmap group, in diagram units */
+var HEATMAP_BLUR = 12;
+/** Blob radius as a multiple of half the element's longest side */
+var HEATMAP_RADIUS_SCALE = 2.1;
+/** Smallest blob radius, so events and gateways still register */
+var HEATMAP_MIN_RADIUS = 46;
+/** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
+var HEATMAP_GAMMA = 0.7;
+/** How much of a blob's radius follows intensity rather than the element's size */
+var HEATMAP_BLOOM = 0.35;
+/** Samples taken from the colour ramp to build the filter's transfer tables */
+var HEATMAP_RAMP_SAMPLES = 12;
+/** Width of the density smear drawn along a sequence flow, in diagram units */
+var HEATMAP_PATH_WIDTH = 30;
+/** Density floor, so a cold-but-executed element still joins the field */
+var HEATMAP_MIN_DENSITY = 0.1;
+/**
+ * Amplifies the density field before it is coloured. Blurring spreads each
+ * contribution and so lowers its peak; without a gain the hottest element never
+ * reaches the top of the ramp and the map tops out orange.
+ */
+var HEATMAP_DENSITY_GAIN = 1.25;
+/** Exponent on the opacity curve; above 1 it holds cold regions back */
+var HEATMAP_ALPHA_EXPONENT = 1.6;
+/** Slope of the opacity curve once it starts rising */
+var HEATMAP_ALPHA_SLOPE = 2.1;
 
 var img = "data:image/svg+xml,%3c%3fxml version='1.0' encoding='UTF-8' standalone='no'%3f%3e%3csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 202.4325 202.34125' height='202.34125' width='202.4325' xml:space='preserve' version='1.1' id='svg2'%3e%3cmetadata id='metadata8'%3e%3crdf:RDF%3e%3ccc:Work rdf:about=''%3e%3cdc:format%3eimage/svg%2bxml%3c/dc:format%3e%3cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3e%3c/cc:Work%3e%3c/rdf:RDF%3e%3c/metadata%3e%3cdefs id='defs6'%3e%3cclipPath id='clipPath16' clipPathUnits='userSpaceOnUse'%3e%3cpath id='path18' d='m 0%2c161.873 161.946%2c0 L 161.946%2c0 0%2c0 0%2c161.873 Z' /%3e%3c/clipPath%3e%3c/defs%3e%3cg transform='matrix(1.25%2c0%2c0%2c-1.25%2c0%2c202.34125)' id='g10'%3e%3cg id='g12'%3e%3cg clip-path='url(%23clipPath16)' id='g14'%3e%3cg transform='translate(52.4477%2c88.1268)' id='g20'%3e%3cpath id='path22' style='fill:black%3bfill-opacity:1%3bfill-rule:nonzero%3bstroke:none' d='m 0%2c0 c 0%2c7.6 6.179%2c13.779 13.77%2c13.779 7.6%2c0 13.779%2c-6.179 13.779%2c-13.779 0%2c-2.769 -2.238%2c-5.007 -4.998%2c-5.007 -2.761%2c0 -4.999%2c2.238 -4.999%2c5.007 0%2c2.078 -1.695%2c3.765 -3.782%2c3.765 C 11.693%2c3.765 9.997%2c2.078 9.997%2c0 9.997%2c-2.769 7.76%2c-5.007 4.999%2c-5.007 2.238%2c-5.007 0%2c-2.769 0%2c0 m 57.05%2c-23.153 c 0%2c-2.771 -2.237%2c-5.007 -4.998%2c-5.007 l -46.378%2c0 c -2.761%2c0 -4.999%2c2.236 -4.999%2c5.007 0%2c2.769 2.238%2c5.007 4.999%2c5.007 l 46.378%2c0 c 2.761%2c0 4.998%2c-2.238 4.998%2c-5.007 M 35.379%2c-2.805 c -1.545%2c2.291 -0.941%2c5.398 1.35%2c6.943 l 11.594%2c7.83 c 2.273%2c1.58 5.398%2c0.941 6.943%2c-1.332 1.545%2c-2.29 0.941%2c-5.398 -1.35%2c-6.943 l -11.594%2c-7.83 c -0.852%2c-0.586 -1.829%2c-0.87 -2.788%2c-0.87 -1.607%2c0 -3.187%2c0.781 -4.155%2c2.202 m 31.748%2c-30.786 c 0%2c-0.945 -0.376%2c-1.852 -1.045%2c-2.522 l -8.617%2c-8.617 c -0.669%2c-0.668 -1.576%2c-1.045 -2.523%2c-1.045 l -52.833%2c0 c -0.947%2c0 -1.854%2c0.377 -2.523%2c1.045 l -8.617%2c8.617 c -0.669%2c0.67 -1.045%2c1.577 -1.045%2c2.522 l 0%2c52.799 c 0%2c0.947 0.376%2c1.854 1.045%2c2.522 l 8.617%2c8.619 c 0.669%2c0.668 1.576%2c1.044 2.523%2c1.044 l 52.833%2c0 c 0.947%2c0 1.854%2c-0.376 2.523%2c-1.044 l 8.617%2c-8.619 c 0.669%2c-0.668 1.045%2c-1.575 1.045%2c-2.522 l 0%2c-52.799 z m 7.334%2c61.086 -11.25%2c11.25 c -1.705%2c1.705 -4.018%2c2.663 -6.428%2c2.663 l -56.523%2c0 c -2.412%2c0 -4.725%2c-0.959 -6.43%2c-2.665 L -17.412%2c27.494 c -1.704%2c-1.705 -2.661%2c-4.016 -2.661%2c-6.427 l 0%2c-56.515 c 0%2c-2.411 0.958%2c-4.725 2.663%2c-6.428 l 11.25%2c-11.25 c 1.705%2c-1.705 4.017%2c-2.662 6.428%2c-2.662 l 56.515%2c0 c 2.41%2c0 4.723%2c0.957 6.428%2c2.662 l 11.25%2c11.25 c 1.705%2c1.703 2.663%2c4.017 2.663%2c6.428 l 0%2c56.514 c 0%2c2.412 -0.958%2c4.724 -2.663%2c6.429' /%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/g%3e%3c/svg%3e";
 
@@ -75774,12 +75835,12 @@ var getDottedConnections = function (connections) {
  * @param activityId - Historic activity id
  * @returns The BPMN element id
  */
-var toElementId = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
+var toElementId$1 = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
 /**
  * Multi-instance bodies wrap the real executions of an activity rather than being one
  * of them, so counting them would inflate every multi-instance activity by one.
  */
-var isMultiInstanceBody = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
+var isMultiInstanceBody$1 = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
 /**
  * A canceled activity did not complete, so nothing flowed out of it. Gateways are the
  * exception: cancelation is recorded on them even when the token passed through.
@@ -75816,10 +75877,10 @@ function buildActivityTimeIndex(activities) {
     for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
         var activity = activities_1[_i];
         var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        if (isMultiInstanceBody(activityId)) {
+        if (isMultiInstanceBody$1(activityId)) {
             continue;
         }
-        var elementId = toElementId(activityId);
+        var elementId = toElementId$1(activityId);
         var endTime = toTimestamp(activity.endTime);
         index.executedElementIds.add(elementId);
         push(index.startTimes, elementId, toTimestamp(activity.startTime));
@@ -75941,7 +76002,7 @@ function buildConnectionDenyList(activities, elementRegistry, index) {
         if (!isSingleBranchGateway(activity)) {
             continue;
         }
-        var elementId = toElementId((_a = activity.activityId) !== null && _a !== void 0 ? _a : '');
+        var elementId = toElementId$1((_a = activity.activityId) !== null && _a !== void 0 ? _a : '');
         if (visited.has(elementId)) {
             continue;
         }
@@ -76719,6 +76780,396 @@ var clearSequenceFlow = function (nodes) {
     }
 };
 
+/**
+ * BPMN heatmap rendering.
+ *
+ * Shades the diagram by how much cumulative time each element consumed, so the parts
+ * of a process that cost the most are visible at a glance rather than having to be
+ * read out of a table.
+ * @module
+ */
+/**
+ * Colour ramp, cold to hot. Chosen to read as heat rather than as status: it avoids
+ * the executed path's green at both ends, so the two overlays can be on together.
+ */
+/* eslint-disable no-magic-numbers -- channel values of a colour ramp are data */
+var HEAT_RAMP = [
+    { stop: 0, rgb: [43, 92, 214] },
+    { stop: 0.35, rgb: [38, 190, 198] },
+    { stop: 0.6, rgb: [122, 201, 67] },
+    { stop: 0.8, rgb: [240, 196, 42] },
+    { stop: 1, rgb: [216, 44, 32] },
+];
+/* eslint-enable no-magic-numbers */
+/** Counter behind per-render ids, so two diagrams on one page cannot share defs. */
+var heatmapSequence = 0;
+/**
+ * Strips the execution scope suffix the engine appends to an activity id.
+ */
+var toElementId = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
+/**
+ * Multi-instance bodies span their instances, so counting both double-counts the time.
+ */
+var isMultiInstanceBody = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
+/**
+ * Milliseconds an activity occupied, preferring the engine's own figure and falling
+ * back to the timestamps when it is absent.
+ * @param activity - Historic activity instance
+ * @returns Duration in milliseconds, or 0 when it cannot be determined
+ */
+function durationOf(activity) {
+    if (typeof activity.durationInMillis === 'number') {
+        return activity.durationInMillis;
+    }
+    if (!activity.startTime || !activity.endTime) {
+        return 0;
+    }
+    var elapsed = Date.parse(activity.endTime) - Date.parse(activity.startTime);
+    return Number.isNaN(elapsed) ? 0 : elapsed;
+}
+/**
+ * Sums the time spent per diagram element.
+ *
+ * Still-running activities contribute nothing: they have no duration yet, and guessing
+ * one would make the hottest spot of a diagram the thing that simply has not finished.
+ *
+ * @param activities - Historic activity instances to aggregate
+ * @returns One cell per element that consumed time, hottest first
+ */
+function aggregateDurations(activities) {
+    var _a, _b;
+    var totals = new Map();
+    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
+        var activity = activities_1[_i];
+        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
+        if (activityId === '' || isMultiInstanceBody(activityId)) {
+            continue;
+        }
+        var elementId = toElementId(activityId);
+        totals.set(elementId, ((_b = totals.get(elementId)) !== null && _b !== void 0 ? _b : 0) + durationOf(activity));
+    }
+    var cells = [];
+    for (var _c = 0, _d = Array.from(totals.entries()); _c < _d.length; _c++) {
+        var entry = _d[_c];
+        if (entry[1] > 0) {
+            cells.push({ elementId: entry[0], totalMillis: entry[1] });
+        }
+    }
+    cells.sort(function (a, b) { return b.totalMillis - a.totalMillis; });
+    return cells;
+}
+/**
+ * Maps a 0..1 intensity onto the ramp.
+ * @param intensity - Normalised heat, clamped to 0..1
+ * @returns An `rgb()` colour string
+ */
+function getHeatColor(intensity) {
+    var t = Math.min(1, Math.max(0, intensity));
+    var lower = HEAT_RAMP[0];
+    var upper = HEAT_RAMP[HEAT_RAMP.length - 1];
+    for (var i = 0; i < HEAT_RAMP.length - 1; i++) {
+        var a = HEAT_RAMP[i];
+        var b = HEAT_RAMP[i + 1];
+        if (t >= a.stop && t <= b.stop) {
+            lower = a;
+            upper = b;
+            break;
+        }
+    }
+    var span = upper.stop - lower.stop;
+    var ratio = span === 0 ? 0 : (t - lower.stop) / span;
+    var channel = function (index) { var _a, _b, _c; return Math.round(((_a = lower.rgb[index]) !== null && _a !== void 0 ? _a : 0) + (((_b = upper.rgb[index]) !== null && _b !== void 0 ? _b : 0) - ((_c = lower.rgb[index]) !== null && _c !== void 0 ? _c : 0)) * ratio); };
+    return "rgb(".concat(channel(0), ", ").concat(channel(1), ", ").concat(channel(2), ")");
+}
+/**
+ * Normalises a total against the hottest element.
+ *
+ * Time per activity is heavy-tailed — one waiting user task can dwarf every service
+ * task in the process — so a straight ratio would leave everything but the worst
+ * offender uniformly cold. The gamma lifts the middle without reordering anything.
+ *
+ * @param totalMillis - This element's total
+ * @param maxMillis - The hottest element's total
+ * @returns Intensity in 0..1
+ */
+function getIntensity(totalMillis, maxMillis) {
+    if (maxMillis <= 0) {
+        return 0;
+    }
+    return Math.pow(Math.min(1, totalMillis / maxMillis), HEATMAP_GAMMA);
+}
+/**
+ * Builds the filter that turns the density field into heat.
+ *
+ * This is the part that makes the map continuous rather than a scatter of coloured
+ * discs. Everything below is drawn in plain white at varying opacity, so overlapping
+ * contributions compose into one greyscale density field; only then is that field
+ * blurred and mapped through the colour ramp. Colouring each blob separately, as the
+ * first version did, cannot merge neighbours — two warm elements stay two warm spots
+ * instead of becoming one warm region.
+ *
+ * The chain is: blur, copy alpha into every channel, then transfer each channel
+ * through a table sampled from the ramp. Because the tables are indexed by the same
+ * density value, the result is the ramp colour for that density.
+ *
+ * @param defs - The defs element to append to
+ * @param id - Unique filter id
+ * @returns The created filter
+ */
+function createHeatFilter(defs, id) {
+    var _a;
+    var filterEl = create$2('filter');
+    attr$1(filterEl, {
+        id: id,
+        x: '-25%',
+        y: '-25%',
+        width: '150%',
+        height: '150%',
+        // Without this the browser interpolates in linearRGB and the ramp washes out.
+        'color-interpolation-filters': 'sRGB',
+    });
+    var blur = create$2('feGaussianBlur');
+    attr$1(blur, { in: 'SourceGraphic', stdDeviation: HEATMAP_BLUR, result: 'density' });
+    append(filterEl, blur);
+    // Copy the density (alpha) into R, G and B so the transfer tables below all read it.
+    var spread = create$2('feColorMatrix');
+    attr$1(spread, {
+        in: 'density',
+        type: 'matrix',
+        // The gain in every row lifts the blurred peak back to the top of the ramp.
+        values: "0 0 0 ".concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0"),
+        result: 'grey',
+    });
+    append(filterEl, spread);
+    var channels = [[], [], []];
+    var alphas = [];
+    for (var sample = 0; sample < HEATMAP_RAMP_SAMPLES; sample++) {
+        var along = sample / (HEATMAP_RAMP_SAMPLES - 1);
+        var rgb = /rgb\((\d+), (\d+), (\d+)\)/.exec(getHeatColor(along));
+        for (var channel = 0; channel < channels.length; channel++) {
+            channels[channel].push(Number((_a = rgb === null || rgb === void 0 ? void 0 : rgb[channel + 1]) !== null && _a !== void 0 ? _a : 0) / MAX_CHANNEL);
+        }
+        // Cold density fades out rather than hazing blue across the whole canvas.
+        alphas.push(Math.min(1, Math.pow(along, HEATMAP_ALPHA_EXPONENT) * HEATMAP_ALPHA_SLOPE));
+    }
+    var transfer = create$2('feComponentTransfer');
+    attr$1(transfer, { in: 'grey' });
+    ['feFuncR', 'feFuncG', 'feFuncB'].forEach(function (name, channel) {
+        var func = create$2(name);
+        attr$1(func, { type: 'table', tableValues: channels[channel].join(' ') });
+        append(transfer, func);
+    });
+    var funcA = create$2('feFuncA');
+    attr$1(funcA, { type: 'table', tableValues: alphas.join(' ') });
+    append(transfer, funcA);
+    append(filterEl, transfer);
+    append(defs, filterEl);
+    return filterEl;
+}
+/**
+ * The single radial gradient every density blob is painted with: opaque white at the
+ * centre, transparent at the rim. One definition serves every blob because intensity
+ * is carried by the blob's own opacity, not by its colour.
+ */
+function createDensityGradient(defs, id) {
+    var gradient = create$2('radialGradient');
+    attr$1(gradient, { id: id });
+    var inner = create$2('stop');
+    attr$1(inner, { offset: '0%', 'stop-color': 'white', 'stop-opacity': 1 });
+    var outer = create$2('stop');
+    attr$1(outer, { offset: '100%', 'stop-color': 'white', 'stop-opacity': 0 });
+    append(gradient, inner);
+    append(gradient, outer);
+    append(defs, gradient);
+    return gradient;
+}
+/** Largest value of an RGB channel, for normalising ramp samples into transfer tables. */
+var MAX_CHANNEL = 255;
+/**
+ * Density contributed by an element, floored so an executed-but-quick element still
+ * joins the field instead of leaving a hole in it.
+ */
+function densityOf(intensity) {
+    return HEATMAP_MIN_DENSITY + (1 - HEATMAP_MIN_DENSITY) * intensity;
+}
+/**
+ * The gradient fading a flow from its source's density to its target's.
+ */
+function createFlowGradient(defs, id, smear) {
+    var gradient = create$2('linearGradient');
+    attr$1(gradient, {
+        id: id,
+        gradientUnits: 'userSpaceOnUse',
+        x1: smear.start.x,
+        y1: smear.start.y,
+        x2: smear.end.x,
+        y2: smear.end.y,
+    });
+    var first = create$2('stop');
+    attr$1(first, { offset: '0%', 'stop-color': 'white', 'stop-opacity': smear.from });
+    var last = create$2('stop');
+    attr$1(last, { offset: '100%', 'stop-color': 'white', 'stop-opacity': smear.to });
+    append(gradient, first);
+    append(gradient, last);
+    append(defs, gradient);
+    return gradient;
+}
+/**
+ * The thick soft stroke that carries a flow's density along its waypoints.
+ */
+function createFlowSmear(waypoints, gradientId) {
+    var line = create$2('path');
+    attr$1(line, {
+        d: waypoints.map(function (point, at) { return "".concat(at === 0 ? 'M' : 'L', " ").concat(point.x, " ").concat(point.y); }).join(' '),
+        fill: 'none',
+        stroke: "url(#".concat(gradientId, ")"),
+        'stroke-width': HEATMAP_PATH_WIDTH,
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+    });
+    return line;
+}
+/**
+ * Smears density along the sequence flows between heated elements.
+ *
+ * Flows carry no duration of their own, so this is interpolation rather than
+ * measurement: the smear fades from the source's density to the target's. It exists to
+ * close the gaps between elements so the map reads as one field, and it never invents
+ * a hot spot — a flow can only be as warm as the elements it joins.
+ *
+ * @param group - The density group to draw into
+ * @param defs - Where the per-flow gradients go
+ * @param registry - BPMN element registry
+ * @param density - Density per element id
+ * @param sequence - Render sequence, for unique gradient ids
+ * @returns The gradients created, for cleanup
+ */
+function appendFlowDensity(group, defs, registry, density, sequence) {
+    var _a, _b;
+    var created = [];
+    var index = 0;
+    for (var _i = 0, _c = Array.from(density.keys()); _i < _c.length; _i++) {
+        var elementId = _c[_i];
+        var element = registry.get(elementId);
+        for (var _d = 0, _e = (_a = element === null || element === void 0 ? void 0 : element.outgoing) !== null && _a !== void 0 ? _a : []; _d < _e.length; _d++) {
+            var flow = _e[_d];
+            var from = density.get(elementId);
+            var to = density.get(flow.target.id);
+            var waypoints = (_b = flow.waypoints) !== null && _b !== void 0 ? _b : [];
+            var start = waypoints[0];
+            var end = waypoints[waypoints.length - 1];
+            if (from === undefined || to === undefined || start === undefined || end === undefined) {
+                continue;
+            }
+            var gradientId = "history-heatmap-flow-".concat(sequence, "-").concat(index++);
+            created.push(createFlowGradient(defs, gradientId, { start: start, end: end, from: from, to: to }));
+            append(group, createFlowSmear(waypoints, gradientId));
+        }
+    }
+    return created;
+}
+/**
+ * The density blob for one element, or null when it has no bounds to sit on.
+ */
+function createDensityBlob(registry, cell, maxMillis, gradientId) {
+    var _a, _b;
+    var element = registry.get(cell.elementId);
+    var width = element === null || element === void 0 ? void 0 : element.width;
+    var height = element === null || element === void 0 ? void 0 : element.height;
+    if (element === undefined || width === undefined || height === undefined) {
+        return null;
+    }
+    var intensity = getIntensity(cell.totalMillis, maxMillis);
+    // Hot spots bloom a little wider as well as denser, so they read first.
+    var spread = 1 - HEATMAP_BLOOM + HEATMAP_BLOOM * intensity;
+    var radius = Math.max(HEATMAP_MIN_RADIUS, (Math.max(width, height) / 2) * HEATMAP_RADIUS_SCALE) * spread;
+    var blob = create$2('ellipse');
+    attr$1(blob, {
+        cx: ((_a = element.x) !== null && _a !== void 0 ? _a : 0) + width / 2,
+        cy: ((_b = element.y) !== null && _b !== void 0 ? _b : 0) + height / 2,
+        rx: radius,
+        ry: radius,
+        fill: "url(#".concat(gradientId, ")"),
+        opacity: densityOf(intensity),
+    });
+    return blob;
+}
+/**
+ * Creates the colourising filter and the shared density gradient for one render.
+ * Ids carry the render sequence so two diagrams on a page cannot share them.
+ * @param defs - The defs element to append to
+ * @param sequence - This render's sequence number
+ * @returns The ids to reference and the nodes to remove later
+ */
+function prepareHeatDefs(defs, sequence) {
+    var filterId = "history-heatmap-filter-".concat(sequence);
+    var gradientId = "history-heatmap-density-".concat(sequence);
+    return {
+        filterId: filterId,
+        gradientId: gradientId,
+        nodes: [createHeatFilter(defs, filterId), createDensityGradient(defs, gradientId)],
+    };
+}
+/**
+ * Renders the heatmap layer over the diagram.
+ *
+ * Blobs and flow smears are drawn in diagram coordinates on their own canvas layer, so
+ * panning and zooming carry them along without any redraw.
+ *
+ * @param viewer - The BPMN viewer instance
+ * @param activities - Historic activity instances to visualise
+ * @returns The SVG nodes added, for later cleanup
+ */
+var renderHeatmap = function (viewer, activities) {
+    var _a, _b;
+    var registry = viewer.get('elementRegistry');
+    var canvas = viewer.get('canvas');
+    var cells = aggregateDurations(activities);
+    var added = [];
+    if (cells.length === 0) {
+        return added;
+    }
+    var maxMillis = (_b = (_a = cells[0]) === null || _a === void 0 ? void 0 : _a.totalMillis) !== null && _b !== void 0 ? _b : 0;
+    var defs = resolveDefs(canvas);
+    var sequence = heatmapSequence++;
+    var _c = prepareHeatDefs(defs, sequence), filterId = _c.filterId, gradientId = _c.gradientId, nodes = _c.nodes;
+    added.push.apply(added, nodes);
+    var group = create$2('g');
+    attr$1(group, {
+        class: 'history-heatmap',
+        filter: "url(#".concat(filterId, ")"),
+        opacity: HEATMAP_OPACITY,
+        'pointer-events': 'none',
+    });
+    var density = new Map();
+    for (var _i = 0, cells_1 = cells; _i < cells_1.length; _i++) {
+        var cell = cells_1[_i];
+        density.set(cell.elementId, densityOf(getIntensity(cell.totalMillis, maxMillis)));
+    }
+    // Flows go down first so element blobs sit over their joins.
+    added.push.apply(added, appendFlowDensity(group, defs, registry, density, sequence));
+    for (var _d = 0, cells_2 = cells; _d < cells_2.length; _d++) {
+        var cell = cells_2[_d];
+        var blob = createDensityBlob(registry, cell, maxMillis, gradientId);
+        if (blob) {
+            append(group, blob);
+        }
+    }
+    append(canvas.getLayer('historyHeatmap', HEATMAP_LAYER_INDEX), group);
+    added.push(group);
+    return added;
+};
+/**
+ * Removes heatmap nodes previously added to the diagram.
+ * @param nodes - The nodes returned by renderHeatmap
+ */
+var clearHeatmap = function (nodes) {
+    for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
+        var node = nodes_1[_i];
+        remove(node);
+    }
+};
+
 // THIS FILE IS AUTO GENERATED
 function IoMdLocate (props) {
   return GenIcon({"attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M256 176c-44.004 0-80.001 36-80.001 80 0 44.004 35.997 80 80.001 80 44.005 0 79.999-35.996 79.999-80 0-44-35.994-80-79.999-80zm190.938 58.667c-9.605-88.531-81.074-160-169.605-169.599V32h-42.666v33.067c-88.531 9.599-160 81.068-169.604 169.599H32v42.667h33.062c9.604 88.531 81.072 160 169.604 169.604V480h42.666v-33.062c88.531-9.604 160-81.073 169.605-169.604H480v-42.667h-33.062zM256 405.333c-82.137 0-149.334-67.198-149.334-149.333 0-82.136 67.197-149.333 149.334-149.333 82.135 0 149.332 67.198 149.332 149.333S338.135 405.333 256 405.333z"},"child":[]}]})(props);
@@ -76739,13 +77190,45 @@ var ResetZoomButton = reactExports.memo(function (_a) {
 ResetZoomButton.displayName = 'ResetZoomButton';
 
 // THIS FILE IS AUTO GENERATED
-function FaHistory (props) {
+function FaFire (props) {
+  return GenIcon({"attr":{"viewBox":"0 0 384 512"},"child":[{"tag":"path","attr":{"d":"M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-21.7-26.47-32.23-41.43-16.5C27.8 213.16 0 261.33 0 320c0 105.87 86.13 192 192 192s192-86.13 192-192c0-170.29-168-193-168-296.14z"},"child":[]}]})(props);
+}function FaHistory (props) {
   return GenIcon({"attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M504 255.531c.253 136.64-111.18 248.372-247.82 248.468-59.015.042-113.223-20.53-155.822-54.911-11.077-8.94-11.905-25.541-1.839-35.607l11.267-11.267c8.609-8.609 22.353-9.551 31.891-1.984C173.062 425.135 212.781 440 256 440c101.705 0 184-82.311 184-184 0-101.705-82.311-184-184-184-48.814 0-93.149 18.969-126.068 49.932l50.754 50.754c10.08 10.08 2.941 27.314-11.313 27.314H24c-8.837 0-16-7.163-16-16V38.627c0-14.254 17.234-21.393 27.314-11.314l49.372 49.372C129.209 34.136 189.552 8 256 8c136.81 0 247.747 110.78 248 247.531zm-180.912 78.784l9.823-12.63c8.138-10.463 6.253-25.542-4.21-33.679L288 256.349V152c0-13.255-10.745-24-24-24h-16c-13.255 0-24 10.745-24 24v135.651l65.409 50.874c10.463 8.137 25.541 6.253 33.679-4.21z"},"child":[]}]})(props);
 }function FaMinus (props) {
   return GenIcon({"attr":{"viewBox":"0 0 448 512"},"child":[{"tag":"path","attr":{"d":"M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"},"child":[]}]})(props);
 }function FaPlus (props) {
   return GenIcon({"attr":{"viewBox":"0 0 448 512"},"child":[{"tag":"path","attr":{"d":"M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"},"child":[]}]})(props);
 }
+
+/** Colour of the icon when the heatmap is on, taken from the hot end of the ramp. */
+var HEAT_ICON_COLOR = '#d82c20';
+/** Colour of the icon when the heat was computed from a truncated history */
+var PARTIAL_HEAT_COLOR = '#b8860b';
+/**
+ * Toggle button for the time heatmap on a process instance diagram.
+ * Persists the user's preference in localStorage.
+ *
+ * @param props - Component props
+ * @param props.onToggleHeatmap - Callback invoked when visibility changes
+ * @param props.partial - Whether the heat was computed from a truncated history
+ * @returns Toggle button component
+ */
+var ToggleHeatmapButton = function (_a) {
+    var onToggleHeatmap = _a.onToggleHeatmap, _b = _a.partial, partial = _b === void 0 ? false : _b;
+    var _c = reactExports.useState(loadSettings().showInstanceHeatmap), showHeatmap = _c[0], setShowHeatmap = _c[1];
+    reactExports.useEffect(function () {
+        onToggleHeatmap(showHeatmap);
+        saveSettings(__assign(__assign({}, loadSettings()), { showInstanceHeatmap: showHeatmap }));
+    }, [showHeatmap, onToggleHeatmap]);
+    var handleClick = reactExports.useCallback(function () {
+        setShowHeatmap(function (prev) { return !prev; });
+    }, []);
+    // The label carries the warning, not just the colour, so it reaches screen readers too.
+    var action = !showHeatmap ? 'Show time heatmap' : 'Hide time heatmap';
+    var label = partial ? "".concat(action, " (history truncated \u2014 totals may be incomplete)") : action;
+    return (React.createElement("button", { className: "toggle-heatmap-button", title: label, "aria-label": label, onClick: handleClick },
+        React.createElement(FaFire, { style: __assign({ opacity: !showHeatmap ? '0.33' : '1.0', fontSize: '133%' }, (showHeatmap ? { color: partial ? PARTIAL_HEAT_COLOR : HEAT_ICON_COLOR } : {})) })));
+};
 
 /**
  * Toggle button for switching between history and runtime views.
@@ -76960,6 +77443,8 @@ var BPMNViewer = function (_a) {
     var _c = reactExports.useState(null), viewer = _c[0], setViewer = _c[1];
     var isSequenceFlowActiveRef = reactExports.useRef(false);
     var sequenceFlowRef = reactExports.useRef([]);
+    var isHeatmapActiveRef = reactExports.useRef(false);
+    var heatmapRef = reactExports.useRef([]);
     var activitiesRef = reactExports.useRef(activities);
     activitiesRef.current = activities;
     var activitiesTruncatedRef = reactExports.useRef(activitiesTruncated);
@@ -77023,14 +77508,17 @@ var BPMNViewer = function (_a) {
             }
         };
     }, [diagramXML]);
-    // Clean up sequence flow when viewer changes or unmounts
+    // Clean up sequence flow and heatmap when viewer changes or unmounts
     reactExports.useEffect(function () {
         return function () {
             clearSequenceFlow(sequenceFlowRef.current);
             sequenceFlowRef.current = [];
+            clearHeatmap(heatmapRef.current);
+            heatmapRef.current = [];
         };
     }, [viewer]);
-    // Re-render overlays and sequence flows whenever viewer, activities, or activitiesTruncated changes
+    // Re-render overlays, sequence flows and the heatmap whenever viewer, activities,
+    // or activitiesTruncated changes
     reactExports.useEffect(function () {
         if (!viewer) {
             return;
@@ -77045,7 +77533,23 @@ var BPMNViewer = function (_a) {
             clearSequenceFlow(sequenceFlowRef.current);
             sequenceFlowRef.current = renderSequenceFlow(viewer, activities !== null && activities !== void 0 ? activities : [], { truncated: activitiesTruncated });
         }
+        if (isHeatmapActiveRef.current) {
+            clearHeatmap(heatmapRef.current);
+            heatmapRef.current = renderHeatmap(viewer, activities !== null && activities !== void 0 ? activities : []);
+        }
     }, [viewer, activities, activitiesTruncated]);
+    var handleToggleHeatmap = reactExports.useCallback(function (value) {
+        var _a;
+        isHeatmapActiveRef.current = value;
+        if (!value) {
+            clearHeatmap(heatmapRef.current);
+            heatmapRef.current = [];
+            return;
+        }
+        if (viewer && heatmapRef.current.length === 0) {
+            heatmapRef.current = renderHeatmap(viewer, (_a = activitiesRef.current) !== null && _a !== void 0 ? _a : []);
+        }
+    }, [viewer]);
     var handleToggleSequenceFlow = reactExports.useCallback(function (value) {
         var _a;
         isSequenceFlowActiveRef.current = value;
@@ -77065,10 +77569,18 @@ var BPMNViewer = function (_a) {
     // a process diagram, so wearing the attribute gets the webapp's own look for the
     // running-token badges instead of a lookalike built from hardcoded hexes, and keeps
     // them following its theming.
-    return (React.createElement("div", { className: className, ref: ref, style: style, 'process-diagram': '' }, viewer !== null ? (React.createElement(ViewerButtonsPortal, { viewer: viewer, position: { right: '15px', top: '15px', bottom: '45px' } },
+    //
+    // The attribute also brings `position: relative`, and that has a sharp edge: Cockpit's
+    // page-level classes carry offsets meant to clear the app chrome — `.ctn-content` is
+    // `left: 280px; right: 56px` for the sidebar and the right rail. On a static container
+    // those sit inert; making it positioned activates them and shoves the whole diagram
+    // 280px sideways. Pinning the offsets here neutralises any the caller's class happens
+    // to bring, while leaving them overridable through `style` for a caller that means it.
+    return (React.createElement("div", { className: className, ref: ref, style: __assign({ left: 0, right: 0 }, style), 'process-diagram': '' }, viewer !== null ? (React.createElement(ViewerButtonsPortal, { viewer: viewer, position: { right: '15px', top: '15px', bottom: '45px' } },
         React.createElement("div", { style: { display: 'flex', flexDirection: 'column', height: '100%', pointerEvents: 'none' } },
             React.createElement("div", { style: { display: 'flex', flexDirection: 'column', pointerEvents: 'auto' } },
                 React.createElement(ToggleSequenceFlowButton, { partial: activitiesTruncated, onToggleSequenceFlow: handleToggleSequenceFlow }),
+                React.createElement(ToggleHeatmapButton, { partial: activitiesTruncated, onToggleHeatmap: handleToggleHeatmap }),
                 showRuntimeToggle ? (React.createElement(ToggleHistoryViewButton, { onToggleHistoryView: function (value) {
                         var _a;
                         if (!value) {

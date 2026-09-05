@@ -99,6 +99,7 @@ describe('utils/misc', () => {
         showHistoricBadges: false,
         showSequenceFlow: false,
         showHeatmap: false,
+        showInstanceHeatmap: false,
         leftPaneSize: null,
         topPaneSize: null,
         maxResults: 1000,
@@ -157,6 +158,16 @@ describe('utils/misc', () => {
       expect(settings.showSequenceFlow).toBe(true);
     });
 
+    it('should override with URL query parameters for showInstanceHeatmap', () => {
+      window.location.hash = '#/path?showInstanceHeatmap';
+
+      const settings = loadSettings();
+      expect(settings.showInstanceHeatmap).toBe(true);
+      // The definition diagram's heat rides on a separate flag, so linking to an
+      // instance with heat on does not also switch the definition badges on.
+      expect(settings.showHeatmap).toBe(false);
+    });
+
     it('should return defaults for corrupted localStorage', () => {
       (localStorage.getItem as jest.Mock).mockReturnValue('not-valid-json');
 
@@ -205,6 +216,7 @@ describe('utils/misc', () => {
         showHistoricBadges: false,
         showSequenceFlow: false,
         showHeatmap: false,
+        showInstanceHeatmap: false,
         leftPaneSize: null,
         topPaneSize: null,
       };
