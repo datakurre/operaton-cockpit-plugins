@@ -32,7 +32,7 @@ deploy them without running the build.
 | `definition-tab-modify.js` | Definition tab *Modify* | Batch modification, message correlation and signal broadcast across instances of a definition. Every operation has a dry run that shows both the instances it would reach and the exact request it would send |
 | `instance-auto-refresh.js` | Instance diagram | Toggle button for periodic auto-refresh of the instance view |
 | `instance-action-unlock.js` | Instance action button | Dialog listing the instance's locked external tasks, with batch unlock |
-| `instance-historic-activities.js` | Instance tab *Audit Log* + diagram | Audit log for the instance, activity overlays and executed sequence-flow highlighting |
+| `instance-historic-activities.js` | Instance tab *Audit Log* + diagram | Audit log for the instance, activity overlays and executed sequence-flow highlighting. Flows taken more than once are drawn heavier, and hovering one names the exact traversal count |
 | `instance-route-history.js` | Definition tab *History*, instance diagram toggle, and the route `#/history/process-instance/:id` | Filterable, paginated list of historic instances, and a full history view with BPMN viewer, audit log and variables |
 | `instance-tab-modify.js` | Instance tab *Modify* | Modify a single running instance (start/cancel activities, transitions) and correlate a message to it |
 | `cockpit-custom-styles.js` | — | Injects [src/cockpit-custom-styles.scss](src/cockpit-custom-styles.scss); no JavaScript behaviour. Also backfills Bootstrap 3 `col-xs-*` classes that Operaton omits |
@@ -257,7 +257,7 @@ Shared user preferences are stored under the key `minimal-history-plugin` as a s
 |---------|------|---------|-------------|
 | `autoRefresh` | boolean | `false` | Auto-refresh process instance views |
 | `showHistoricBadges` | boolean | `false` | Show activity instance count badges on diagram |
-| `showSequenceFlow` | boolean | `false` | Highlight executed sequence flows on diagram |
+| `showSequenceFlow` | boolean | `false` | Highlight the executed path on the diagram |
 | `leftPaneSize` | number | `null` | Left pane width in history view (pixels) |
 | `topPaneSize` | number | `null` | Top pane height in history view (pixels) |
 | `maxResults` | number | `1000` | Maximum results for history API queries |
@@ -304,6 +304,11 @@ These are current gaps, not bugs to report:
 
 * **History queries are capped.** History endpoints return at most `maxResults` records (1000 by
   default). Raise it with the `maxResults` setting or URL parameter if you need more.
+
+* **The executed path is inferred, not reported.** The engine records which activities ran, never which
+  sequence flows were taken, so the green path is reconstructed from activity timestamps. Exclusive
+  gateways are resolved to the branch that was taken; inclusive and event-based gateways fall back to
+  the plain timestamp heuristic and may show more branches than were really taken.
 
 
 Requirements
