@@ -285,7 +285,9 @@ The project uses strict static analysis optimized for LLM coding agent maintaina
 - `exactOptionalPropertyTypes` – Explicit undefined handling
 - `noImplicitReturns` – All code paths must return
 
-**Before committing**, run `npm run check` to validate all static analysis passes.
+**Before committing**, run `npm run check` to validate all static analysis passes. Be aware that it
+currently fails at the first step for reasons unrelated to your change — see
+[Known issues and fixes](#known-issues-and-fixes).
 
 ### Build notes
 - Rollup compiles TypeScript + React with Babel
@@ -448,6 +450,29 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
 
 ## Known issues and fixes
 
+- **The repository does not typecheck, build, or fully test on a clean checkout of `main`.** Verified on
+  `33a3d6d`: `npm run typecheck` exits 2, `npm run build` fails on the very first bundle
+  (`robot-module.js`), and `npm test` reports 6 failed suites / 26 failed tests out of 1188. CI is red
+  for the same reason — the `Test` job fails at the typecheck step, so the `Build` job (`needs: test`)
+  never runs. Fix this before anything else; you cannot regenerate a bundle until you do. Two
+  independent causes, both from `bpmn-moddle`:
+  - *Typecheck and build.* `@types/bpmn-moddle@10` exports only named types and has **no default
+    export**, but three files do `import type BPMNModdle from 'bpmn-moddle'` and then reach through it
+    as a namespace (`BPMNModdle.Activity`), which is TS2613:
+    [src/RobotModule/renderer.ts:2](src/RobotModule/renderer.ts), [src/utils/bpmn/connections.ts:8](src/utils/bpmn/connections.ts),
+    [src/utils/bpmnParsing.ts:1](src/utils/bpmnParsing.ts). Commit `143f740` ("use default BPMNModdle types
+    (avoid named imports)") introduced it. `import type * as BPMNModdle from 'bpmn-moddle'` fixes the two
+    type-only sites; `bpmnParsing.ts` also uses the import as a *value* (`new BpmnModdle(...)`), so it
+    needs a typed shim for the constructor rather than the same one-line change.
+  - *Tests.* `bpmn-moddle@10` bundles a nested `min-dash@5` (ESM) while the project depends on a hoisted
+    `min-dash@4.2.3`. The `transformIgnorePatterns` in [jest.config.js](jest.config.js) matches only
+    `/node_modules/min-dash/`, not `/node_modules/bpmn-moddle/node_modules/min-dash/`, so the nested copy
+    is never transformed and every suite that reaches `src/utils/bpmnParsing.ts` dies with
+    `SyntaxError: Unexpected token 'export'`. The six suites are `bpmnParsing`, `HistoryViewLayout`,
+    `plugins.integration`, `instance-tab-modify.integration`, `definition-tab-modify.integration` and
+    `instance-route-history.integration` — note that this is exactly the code carrying the modify/message
+    feature gaps below, so those features currently have no working test coverage.
+
 - **Definition-level message sending is half-broken.** In the `Message` tab of `definition-tab-modify`
   ([BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx)) the selected BPMN message drives two very
   different code paths, and only one of them is finished:
@@ -480,6 +505,27 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
 - **`BatchSignalForm` preview understates the blast radius.** `POST /signal` broadcasts engine-wide to every
   matching signal catch event in every deployed definition, but the preview only lists instances of the
   current definition. The `WarningBox` says so in words; the preview still does not.
+
+- **`dashboard-favourites` asks for statistics it cannot filter.** It builds
+  `/process-definition/statistics?processDefinitionKeyIn=…&incidents=true`, but per
+  [src/operaton.json](src/operaton.json) that endpoint accepts only `failedJobs`, `incidents`,
+  `incidentsForType` and `rootIncidents`. The unknown parameter is ignored, so every dashboard load
+  pulls statistics for *all* deployed definitions and filters client-side. The numbers shown are right;
+  the request is not. Also note the row's `state`/`suspended` values are computed and then never used —
+  the State cell only branches on `incidents`, so a suspended definition renders as healthy green.
+
+- **`dashboard-integrations` batch retry always falls back.** `handleBatchRetry` does
+  `post(api, '/external-task/retries', …)`, but that endpoint is **PUT-only**; the POST returns 405, the
+  bare `catch` swallows it, and the code silently degrades to one sequential PUT per task. Switching to
+  `put()` makes it a single request. The same plugin fetches `/external-task` with no `maxResults` and no
+  `processDefinitionKeyIn`, then loops one `GET /process-definition/{id}` and one `GET /incident` per
+  instance — both filters exist on those endpoints and would collapse the N+1 into two calls.
+
+- **`instance-route-history` filters versions after paginating.** The version filter is applied
+  client-side to the current page, while `instancesCount` comes from an unfiltered
+  `countProcessInstances`, so the pager total is wrong and pages can render short or empty. Combining a
+  version filter with `useAllVersions !== true` is doubly broken: the query is already pinned to one
+  `processDefinitionId`.
 
 - **react-select-filter-box installed from git**: The package has no npm releases and is pinned to a commit
   of `github:jyukopla/react-select-filter-box` in [package.json](package.json). Bumping it means moving the

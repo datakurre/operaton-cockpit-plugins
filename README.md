@@ -16,6 +16,65 @@ Breaking changes
 * [the last version before this changelog](https://github.com/datakurre/operaton-cockpit-plugins/tree/608f7f1d2c240c810dac466890decb91f4da5688)
 
 
+The plugins
+-----------
+
+Each plugin is a standalone `*.js` bundle. Built bundles are committed to the repository, so you can
+deploy them without running the build.
+
+### Cockpit
+
+| Bundle | Where it appears | What it does |
+|--------|------------------|--------------|
+| `dashboard-favourites.js` | Dashboard section + star button on a process definition | Star process definitions and list the starred ones on the dashboard with running instance and incident counts |
+| `dashboard-integrations.js` | Dashboard section | Lists external tasks that have an incident or are currently locked, with retry and unlock actions (individual and batch) |
+| `definition-historic-activities.js` | Definition tab *Statistics* + diagram | Historic activity statistics with a filter box, plus per-activity count badges on the diagram |
+| `definition-tab-modify.js` | Definition tab *Modify* | Batch modification, message correlation and signal broadcast across instances of a definition ([see limitations](#known-limitations)) |
+| `instance-auto-refresh.js` | Instance diagram | Toggle button for periodic auto-refresh of the instance view |
+| `instance-action-unlock.js` | Instance action button | Dialog listing the instance's locked external tasks, with batch unlock |
+| `instance-historic-activities.js` | Instance tab *Audit Log* + diagram | Audit log for the instance, activity overlays and executed sequence-flow highlighting |
+| `instance-route-history.js` | Definition tab *History*, instance diagram toggle, and the route `#/history/process-instance/:id` | Filterable, paginated list of historic instances, and a full history view with BPMN viewer, audit log and variables |
+| `instance-tab-modify.js` | Instance tab *Modify* | Modify a single running instance (start/cancel activities, transitions) and correlate a message to it |
+| `cockpit-custom-styles.js` | — | Injects [src/cockpit-custom-styles.scss](src/cockpit-custom-styles.scss); no JavaScript behaviour. Also backfills Bootstrap 3 `col-xs-*` classes that Operaton omits |
+| `robot-module.js` | `bpmnJs.additionalModules` | Draws a Robot Framework icon on service tasks whose id matches `/robot/i` |
+
+### Admin
+
+| Bundle | Where it appears | What it does |
+|--------|------------------|--------------|
+| `admin-route-authorization.js` | Admin route *Authorizations* | Two-panel authorization browser with create, edit and delete, filtering, and a "check resources" pass that flags authorizations pointing at resources that no longer exist |
+| `admin-nologin.js` | — | Hides the signin form (see [No-login plugins](#no-login-plugins)) |
+
+### Tasklist
+
+| Bundle | Where it appears | What it does |
+|--------|------------------|--------------|
+| `tasklist-audit-log.js` | Task detail tab *Audit Log* | Audit log of the process instance the task belongs to |
+| `tasklist-nologin.js` | — | Hides the signin form |
+
+### No-login plugins
+
+`cockpit-nologin.js`, `tasklist-nologin.js`, `admin-nologin.js` and `welcome-nologin.js` contain no
+JavaScript behaviour at all — each only injects a stylesheet that hides `form[name="signinForm"]`.
+They are for deployments where authentication happens outside the webapp (SSO, a reverse proxy,
+pre-authentication) and the login form would only confuse users. They do **not** provide
+authentication and they do **not** protect anything: the form is hidden with CSS, nothing more.
+
+Only `admin-nologin.js` and `tasklist-nologin.js` are part of the default Docker image, because they
+are listed in [admin-config.js](admin-config.js) and [tasklist-config.js](tasklist-config.js). To hide
+the Cockpit or Welcome login form, deploy `cockpit-nologin.js` with
+[cockpit-nologin-config.js](cockpit-nologin-config.js), or `welcome-nologin.js` with
+[welcome-config.js](welcome-config.js), yourself.
+
+### Not included
+
+`decisions-dashboard.js` is **abandoned** and is deliberately not referenced by any configuration and
+not bundled into the Docker image. It was an attempt to put DMN decision evaluation directly into
+Cockpit; that turned out to be the wrong home for it. Use the
+`datakurre.operaton-dmn-modeler` VS Code extension instead, which does the same job next to the DMN
+file you are editing. The sources and the built bundle are kept only so the code stays buildable.
+
+
 Try it
 ------
 
@@ -91,32 +150,54 @@ docker build \
 docker run --rm -p 8080:8080 operaton-with-plugins
 ```
 
+The image covers Cockpit, Admin and Tasklist. It does not include the Welcome app plugin or the
+Cockpit no-login plugin; add those yourself if you need them.
+
 ### Spring Boot
 
-Copy `config.js` and the files it references to `./src/main/resources/META-INF/resources/webjars/operaton/app/cockpit/scripts`. Once you are done, your project structure should look like this:
+Each webapp reads its own `config.js` from its own `scripts` directory, so the per-app configuration
+files in this repository have to be **renamed to `config.js`** when you copy them. Copy each bundle
+next to the config that references it:
+
 ```shell
 src/main/resources/
-├── META-INF
-│   ├── resources
-│   │   └── webjars
-│   │       └── operaton
-│   │           └── app
-│   │               └── cockpit
-│   │                   └── scripts
-│   │                       ├── config.js
-│   │                       ├── decisions-dashboard.js
-│   │                       ├── definition-historic-activities.js
-│   │                       ├── definition-tab-modify.js
-│   │                       ├── instance-historic-activities.js
-│   │                       ├── instance-route-history.js
-│   │                       ├── instance-tab-modify.js
-│   │                       ├── robot-module.js
-│   │                       ├── tasklist-audit-log.js
-│   │                       └── tasklist-config.js
+└── META-INF
+    └── resources
+        └── webjars
+            └── operaton
+                └── app
+                    ├── cockpit
+                    │   └── scripts
+                    │       ├── config.js                          # from config.js
+                    │       ├── cockpit-custom-styles.js
+                    │       ├── dashboard-favourites.js
+                    │       ├── dashboard-integrations.js
+                    │       ├── definition-historic-activities.js
+                    │       ├── definition-tab-modify.js
+                    │       ├── instance-action-unlock.js
+                    │       ├── instance-auto-refresh.js
+                    │       ├── instance-historic-activities.js
+                    │       ├── instance-route-history.js
+                    │       ├── instance-tab-modify.js
+                    │       └── robot-module.js
+                    ├── admin
+                    │   └── scripts
+                    │       ├── config.js                          # from admin-config.js
+                    │       ├── admin-nologin.js
+                    │       └── admin-route-authorization.js
+                    └── tasklist
+                        └── scripts
+                            ├── config.js                          # from tasklist-config.js
+                            ├── tasklist-audit-log.js
+                            └── tasklist-nologin.js
 ```
-After this you can start the project and the plugin should be loaded. Usually, you customize config.js per project and define there which plugins are included and where the browser should find them. You may use a browser network inspector to check that Cockpit loads your version of config.js and also the plugin JavaScript files get loaded.
 
-For use with Camunda 7, use directory `./src/main/resources/META-INF/resources/webjars/camunda/app/cockpit/scripts` instead.
+After this you can start the project and the plugins should be loaded. Usually you customize
+`config.js` per project and define there which plugins are included and where the browser should find
+them. You may use a browser network inspector to check that Cockpit loads your version of `config.js`
+and that the plugin JavaScript files get loaded too.
+
+For use with Camunda 7, use directory `./src/main/resources/META-INF/resources/webjars/camunda/app/...` instead.
 
 
 ### Other Distributions
@@ -127,21 +208,34 @@ For use with Camunda 7, use directory `./src/main/resources/META-INF/resources/w
 Configuration
 -------------
 
-### Plugin Configuration (config.js)
+### Plugin configuration
 
-The `config.js` file controls which plugins are loaded. The default configuration includes:
+Every webapp loads the plugins listed in the `customScripts` array of its own `config.js`. This
+repository ships one configuration file per webapp:
+
+| File | Webapp | Loads |
+|------|--------|-------|
+| [config.js](config.js) | Cockpit | the ten Cockpit plugins plus `robot-module.js` as a `bpmnJs.additionalModules` entry |
+| [admin-config.js](admin-config.js) | Admin | `admin-nologin.js`, `admin-route-authorization.js` |
+| [tasklist-config.js](tasklist-config.js) | Tasklist | `tasklist-nologin.js`, `tasklist-audit-log.js` |
+| [welcome-config.js](welcome-config.js) | Welcome | `welcome-nologin.js` |
+| [cockpit-nologin-config.js](cockpit-nologin-config.js) | Cockpit | `cockpit-nologin.js` only — an alternative to `config.js` |
+
+The Cockpit configuration is:
 
 ```javascript
 export default {
   customScripts: [
-    'scripts/decisions-dashboard.js',
+    'scripts/dashboard-favourites.js',
+    'scripts/dashboard-integrations.js',
     'scripts/definition-historic-activities.js',
     'scripts/definition-tab-modify.js',
     'scripts/instance-auto-refresh.js',
     'scripts/instance-action-unlock.js',
     'scripts/instance-historic-activities.js',
     'scripts/instance-route-history.js',
-    'scripts/instance-tab-modify.js'
+    'scripts/instance-tab-modify.js',
+    'scripts/cockpit-custom-styles.js'
   ],
   bpmnJs: {
     additionalModules: [
@@ -153,9 +247,11 @@ export default {
 };
 ```
 
-### localStorage Settings
+Drop any line to disable that plugin; the bundles are independent of each other.
 
-User preferences are stored in `localStorage` under the key `minimal-history-plugin`. The following settings are persisted:
+### localStorage settings
+
+Shared user preferences are stored under the key `minimal-history-plugin` as a single JSON object:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -166,21 +262,70 @@ User preferences are stored in `localStorage` under the key `minimal-history-plu
 | `topPaneSize` | number | `null` | Top pane height in history view (pixels) |
 | `maxResults` | number | `1000` | Maximum results for history API queries |
 
-### URL Query Parameters
+Some plugins keep their own state under separate keys:
 
-Settings can also be controlled via URL hash parameters. These override localStorage values:
+| Key | Written by | Contents |
+|-----|------------|----------|
+| `minimal-history-plugin-favourites` | `dashboard-favourites` (read by `dashboard-integrations`) | Starred process definitions, as `[{ key, name }]` |
+| `minimal-history-plugin-integrations-favourites-only` | `dashboard-integrations` | Whether the integrations list is limited to starred definitions (default `true`) |
+| `minimal-history-plugin-saved-searches-definition-activities` | `definition-historic-activities` | Saved filter-box searches |
+| `minimal-history-plugin-saved-searches-instance-history` | `instance-route-history` | Saved filter-box searches |
+| `minimal-history-plugin-saved-searches-authorizations` | `admin-route-authorization` | Saved filter-box searches |
+
+### URL query parameters
+
+The shared settings above can also be set from the URL. The parameters are read from the part of the
+**hash** after `?`. The three boolean parameters are enabled by their mere presence — any value,
+including none, turns them on. They can only turn a setting *on*: a setting already stored as `true` in
+localStorage stays on whether or not the parameter is in the URL.
 
 | Parameter | Description |
 |-----------|-------------|
-| `autoRefresh` | Enable auto-refresh when present |
-| `showHistoricBadges` | Show historic badges when present |
-| `showSequenceFlow` | Show sequence flow when present |
-| `maxResults=N` | Override max results (e.g., `maxResults=500`) |
+| `autoRefresh` | Enable auto-refresh |
+| `showHistoricBadges` | Show historic badges |
+| `showSequenceFlow` | Show executed sequence flows |
+| `maxResults=N` | Override max results (e.g. `maxResults=500`) |
 
 Example URL with parameters:
 ```
-http://localhost:8080/camunda/app/cockpit/default/#/process-instance/123?autoRefresh&showSequenceFlow
+http://localhost:8080/operaton/app/cockpit/default/#/process-instance/123?autoRefresh&showSequenceFlow
 ```
+
+
+Known limitations
+-----------------
+
+These are current gaps, not bugs to report:
+
+* **The definition *Modify* tab's message feature is only half finished.** For a message on an
+  intermediate or boundary event it correlates to *every* active instance of the definition — the
+  "Preview Instances" button shows the set, but there is no way to narrow it down. For a message on a
+  start event it simply starts one new instance and offers no business key, so you cannot identify the
+  instance it created afterwards. Prefer the instance-level *Modify → Correlate Message* tab when you
+  need to target a specific instance.
+
+* **Dry runs do not show the request that would be sent.** The batch modify, message and signal forms
+  preview *which* instances would be affected, but not the payload that would be posted. Check the
+  instructions and variables carefully before submitting — these operations are asynchronous batch
+  operations and cannot be undone from the UI.
+
+* **Signal broadcast is engine-wide.** The *Signal* tab posts to `/signal` without an execution ID, so
+  it triggers every matching signal catch event in every deployed process definition, not only in the
+  definition you are looking at. The instance preview shown next to it only lists instances of the
+  current definition, so it understates the reach.
+
+* **History queries are capped.** History endpoints return at most `maxResults` records (1000 by
+  default). Raise it with the `maxResults` setting or URL parameter if you need more.
+
+
+Requirements
+------------
+
+* Operaton or Camunda 7 Cockpit, which passes `api.engineApi` and related fields to each plugin
+* The REST API reachable from the browser, including the `/history/*` endpoints used by the history
+  and audit log views
+* Authorizations for whatever a plugin touches. Plugins do not add permissions of their own: a user
+  who cannot modify instances through the REST API cannot modify them through the *Modify* tab either
 
 
 Develop it
@@ -192,4 +337,31 @@ $ npm install
 $ npm run watch
 ```
 
-When the scripts are mounted into running Docker container, development changes are immediately available in the container with page refresh.
+`npm run watch` rebuilds the bundles with sourcemaps on every change. When the scripts are mounted into
+a running Docker container, changes are visible after a page refresh.
+
+For a complete local stack, [devenv.nix](devenv.nix) runs Operaton with PostgreSQL behind a Caddy
+proxy on port 8000 that serves the configuration files and bundles straight from the repository root:
+
+```bash
+$ make up      # devenv up
+$ npm run watch
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run build` | Production bundles (no sourcemaps) |
+| `BUILD_PLUGIN=<name> npm run build` | Build only bundles whose name contains `<name>` |
+| `npm run watch` | Development build with file watching |
+| `npm test` | Run the Jest test suite |
+| `npm run test:coverage` | Run tests with a coverage report |
+| `npm run typecheck` | TypeScript type checking |
+| `npm run lint` / `npm run lint:fix` | ESLint |
+| `npm run prettier:check` / `npm run prettier:format` | Prettier |
+| `npm run check` | typecheck + lint + prettier, all of them |
+| `npm run fix` | lint --fix + prettier --write |
+
+Sources live in `src/`; the top-level `*.js` files are generated. Edit the sources and rebuild — never
+edit a bundle by hand. See [AGENTS.md](AGENTS.md) for a map of the codebase and its conventions.
