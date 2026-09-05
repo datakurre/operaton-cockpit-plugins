@@ -1707,7 +1707,29 @@ var notDottedTypes = ['bpmn:SubProcess'];
  * Sentinel end time for an execution that is still running. Sorts after every ISO
  * timestamp, so an unfinished activity reads as "ended last".
  */
-var STILL_RUNNING = 'Z';
+/**
+ * Sentinel end time for an execution that is still running. Sorts after every numeric
+ * timestamp, so an unfinished activity reads as "ended last".
+ */
+var STILL_RUNNING = Number.POSITIVE_INFINITY;
+/**
+ * Converts an activity timestamp to epoch milliseconds.
+ * Returns STILL_RUNNING if null, undefined, or unparseable.
+ */
+function toTimestamp(val) {
+    if (val === null || val === undefined) {
+        return STILL_RUNNING;
+    }
+    if (typeof val === 'number') {
+        return val;
+    }
+    var parsed = Date.parse(val);
+    if (!Number.isNaN(parsed)) {
+        return parsed;
+    }
+    var num = Number(val);
+    return Number.isNaN(num) ? STILL_RUNNING : num;
+}
 /**
  * Computes dotted connections through the nodes the executed path passes through.
  *
@@ -1787,7 +1809,7 @@ function push(times, elementId, time) {
  * @returns Sorted time index
  */
 function buildActivityTimeIndex(activities) {
-    var _a, _b, _c;
+    var _a;
     var index = {
         sourceEndTimes: new Map(),
         targetEndTimes: new Map(),
@@ -1802,23 +1824,23 @@ function buildActivityTimeIndex(activities) {
             continue;
         }
         var elementId = toElementId(activityId);
-        var endTime = (_b = activity.endTime) !== null && _b !== void 0 ? _b : STILL_RUNNING;
+        var endTime = toTimestamp(activity.endTime);
         index.executedElementIds.add(elementId);
-        push(index.startTimes, elementId, (_c = activity.startTime) !== null && _c !== void 0 ? _c : STILL_RUNNING);
+        push(index.startTimes, elementId, toTimestamp(activity.startTime));
         push(index.endTimes, elementId, endTime);
         if (isCanceled(activity)) {
             continue;
         }
         push(index.targetEndTimes, elementId, endTime);
         if (activity.endTime) {
-            push(index.sourceEndTimes, elementId, activity.endTime);
+            push(index.sourceEndTimes, elementId, toTimestamp(activity.endTime));
         }
     }
-    for (var _d = 0, _e = [index.sourceEndTimes, index.targetEndTimes, index.startTimes, index.endTimes]; _d < _e.length; _d++) {
-        var times = _e[_d];
-        for (var _f = 0, _g = Array.from(times.values()); _f < _g.length; _f++) {
-            var values = _g[_f];
-            values.sort();
+    for (var _b = 0, _c = [index.sourceEndTimes, index.targetEndTimes, index.startTimes, index.endTimes]; _b < _c.length; _b++) {
+        var times = _c[_b];
+        for (var _d = 0, _e = Array.from(times.values()); _d < _e.length; _d++) {
+            var values = _e[_d];
+            values.sort(function (a, b) { return a - b; });
         }
     }
     return index;
@@ -1836,18 +1858,52 @@ function buildActivityTimeIndex(activities) {
  * @returns Number of traversals, zero when the flow was never taken
  */
 function countTraversals(sourceEndTimes, targetEndTimes) {
-    var _a, _b;
     var source = 0;
     var target = 0;
     var traversals = 0;
     while (source < sourceEndTimes.length && target < targetEndTimes.length) {
-        if (((_a = targetEndTimes[target]) !== null && _a !== void 0 ? _a : '') >= ((_b = sourceEndTimes[source]) !== null && _b !== void 0 ? _b : '')) {
+        if (toTimestamp(targetEndTimes[target]) >= toTimestamp(sourceEndTimes[source])) {
             traversals++;
             source++;
         }
         target++;
     }
     return traversals;
+}
+/**
+ * Resolves the outgoing branch taken during a single execution of an exclusive gateway.
+ */
+function resolveTakenBranch(outgoing, execution, index, targetPointers) {
+    var _a, _b, _c, _d;
+    var bestConnection = null;
+    var bestDelta = Number.POSITIVE_INFINITY;
+    var bestTargetNextPtr = 0;
+    for (var _i = 0, outgoing_1 = outgoing; _i < outgoing_1.length; _i++) {
+        var connection = outgoing_1[_i];
+        var targetId = connection.target.id;
+        var targetTimes = (_a = index.startTimes.get(targetId)) !== null && _a !== void 0 ? _a : [];
+        var ptr = (_b = targetPointers.get(targetId)) !== null && _b !== void 0 ? _b : 0;
+        if (targetId === execution.elementId && ptr <= execution.executionIndex) {
+            ptr = execution.executionIndex + 1;
+        }
+        while (ptr < targetTimes.length && ((_c = targetTimes[ptr]) !== null && _c !== void 0 ? _c : 0) < execution.endTime) {
+            ptr++;
+        }
+        targetPointers.set(targetId, ptr);
+        if (ptr >= targetTimes.length) {
+            continue;
+        }
+        var delta = ((_d = targetTimes[ptr]) !== null && _d !== void 0 ? _d : STILL_RUNNING) - execution.endTime;
+        if (delta >= 0 && delta < bestDelta) {
+            bestDelta = delta;
+            bestConnection = connection;
+            bestTargetNextPtr = ptr + 1;
+        }
+    }
+    if (bestConnection) {
+        targetPointers.set(bestConnection.target.id, bestTargetNextPtr);
+    }
+    return bestConnection;
 }
 /**
  * Builds a deny list of connections that should not be highlighted for exclusive gateways.
@@ -1878,46 +1934,15 @@ function buildConnectionDenyList(activities, elementRegistry, index) {
         }
         var activeConnections = new Set();
         var gatewayEndTimes = (_b = index.endTimes.get(elementId)) !== null && _b !== void 0 ? _b : [];
-        var _loop_1 = function (idx) {
-            var gatewayEndTime = (_c = gatewayEndTimes[idx]) !== null && _c !== void 0 ? _c : STILL_RUNNING;
-            // Rank a copy of the outgoing flows by their target's start time. Sorting the
-            // registry's own array would reorder the shared bpmn-js model.
-            var ranked = __spreadArray([], outgoing, true).sort(function (a, b) {
-                var _a, _b, _c, _d;
-                var startTimesA = (_a = index.startTimes.get(a.target.id)) !== null && _a !== void 0 ? _a : [];
-                var startTimesB = (_b = index.startTimes.get(b.target.id)) !== null && _b !== void 0 ? _b : [];
-                var startA = (_c = startTimesA[idx]) !== null && _c !== void 0 ? _c : STILL_RUNNING;
-                var startB = (_d = startTimesB[idx]) !== null && _d !== void 0 ? _d : STILL_RUNNING;
-                if (startTimesA.length <= idx) {
-                    return 1;
-                }
-                else if (startTimesB.length <= idx) {
-                    return -1;
-                }
-                else if (startA < gatewayEndTime) {
-                    return 1;
-                }
-                else if (startB < gatewayEndTime) {
-                    return -1;
-                }
-                else if (startA > startB) {
-                    return 1;
-                }
-                else if (startA < startB) {
-                    return -1;
-                }
-                return 0;
-            });
-            var taken = ranked[0];
+        var targetPointers = new Map();
+        for (var idx = 0; idx < gatewayEndTimes.length; idx++) {
+            var taken = resolveTakenBranch(outgoing, { elementId: elementId, executionIndex: idx, endTime: (_c = gatewayEndTimes[idx]) !== null && _c !== void 0 ? _c : STILL_RUNNING }, index, targetPointers);
             if (taken) {
                 activeConnections.add(taken.id);
             }
-        };
-        for (var idx = 0; idx < gatewayEndTimes.length; idx++) {
-            _loop_1(idx);
         }
-        for (var _d = 0, outgoing_1 = outgoing; _d < outgoing_1.length; _d++) {
-            var connection = outgoing_1[_d];
+        for (var _d = 0, outgoing_2 = outgoing; _d < outgoing_2.length; _d++) {
+            var connection = outgoing_2[_d];
             if (!activeConnections.has(connection.id) && connection.target.type !== 'bpmn:ParallelGateway') {
                 connectionDenyList.add(connection.id);
             }
@@ -1961,7 +1986,10 @@ var getExecutedConnections = function (activities, elementRegistry) {
         if (connectionDenyList.has(connection.id)) {
             continue;
         }
-        var count = countTraversals((_c = index.sourceEndTimes.get(connection.source.id)) !== null && _c !== void 0 ? _c : [], (_d = index.targetEndTimes.get(connection.target.id)) !== null && _d !== void 0 ? _d : []);
+        var sourceTimes = (_c = index.sourceEndTimes.get(connection.source.id)) !== null && _c !== void 0 ? _c : [];
+        var rawTargetTimes = (_d = index.targetEndTimes.get(connection.target.id)) !== null && _d !== void 0 ? _d : [];
+        var targetTimes = connection.source.id === connection.target.id ? rawTargetTimes.slice(1) : rawTargetTimes;
+        var count = countTraversals(sourceTimes, targetTimes);
         if (count > 0) {
             executed.push({ element: connection, count: count });
         }
