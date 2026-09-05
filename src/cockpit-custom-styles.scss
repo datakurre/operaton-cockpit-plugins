@@ -144,3 +144,492 @@
         display: none;
     }
 }
+
+// ==============================================================================
+// 1. Mobile & Tablet Responsiveness (Navbar & Hamburger Menu)
+// ==============================================================================
+@media (max-width: 767px) {
+  .navbar.app-menu {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    padding: 0 15px !important;
+    min-height: 50px !important;
+    border-bottom: 1px solid #e5e5e5 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+
+    .navbar-header {
+      width: 100% !important;
+      display: flex !important;
+      align-items: center !important;
+      height: 50px !important;
+
+      .navbar-brand {
+        order: 1 !important;
+        margin-right: auto !important;
+        padding-left: 0 !important;
+        font-size: 18px !important;
+        line-height: 50px !important;
+      }
+
+      .small-screen-warning {
+        order: 2 !important;
+        margin-right: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+
+      .navbar-toggler {
+        order: 3 !important;
+        border: none !important;
+        background: transparent !important;
+        padding: 6px !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        outline: none !important;
+
+        .navbar-toggler-icon {
+          display: inline-block !important;
+          width: 22px !important;
+          height: 22px !important;
+          vertical-align: middle !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
+          background-size: 100% !important;
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath stroke='%23555555' stroke-linecap='round' stroke-width='2' d='M3 6h18M3 12h18M3 18h18'/%3e%3c/svg%3e") !important;
+        }
+
+        &.open .navbar-toggler-icon {
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath stroke='%23555555' stroke-linecap='round' stroke-width='2.5' d='M5 5l14 14M19 5L5 19'/%3e%3c/svg%3e") !important;
+        }
+      }
+    }
+
+    // Expanded menu rows
+    ul.ml-auto.d-flex:not(.collapse) {
+      order: 2 !important;
+      width: 100% !important;
+      display: flex !important;
+      justify-content: flex-end !important;
+      align-items: center !important;
+      padding: 8px 0 4px !important;
+      margin: 0 !important;
+      list-style: none !important;
+
+      > li {
+        padding: 0 6px !important;
+      }
+
+      .dropdown-menu:not(.show):not(.open) {
+        display: none !important;
+      }
+    }
+
+    .sections-menu:not(.collapse) {
+      order: 3 !important;
+      width: 100% !important;
+      display: flex !important;
+      justify-content: flex-end !important;
+      padding: 4px 0 12px !important;
+
+      > ul {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-end !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        list-style: none !important;
+
+        > li {
+          margin-left: 12px !important;
+
+          > a {
+            color: #555555 !important;
+            font-size: 14px !important;
+            text-decoration: none !important;
+          }
+        }
+      }
+
+      .dropdown-menu:not(.show):not(.open) {
+        display: none !important;
+      }
+    }
+  }
+}
+
+// Tablet navbar compacting (768px - 991px)
+@media (min-width: 768px) and (max-width: 991px) {
+  .navbar.app-menu {
+    .navbar-brand {
+      font-size: 16px !important;
+      padding-right: 8px !important;
+    }
+    .sections-menu ul li a,
+    .navbar-nav > li > a {
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+      font-size: 13px !important;
+    }
+    .account .nav-link {
+      padding-left: 6px !important;
+      padding-right: 6px !important;
+      font-size: 13px !important;
+    }
+  }
+}
+
+// ==============================================================================
+// 2. Token Badges in BPMN Diagrams & Global Badges
+// ==============================================================================
+// Hide empty badge elements to prevent phantom red/gray circles
+.bjs-container .djs-overlay .instances-overlay .badge:empty,
+.bjs-container .djs-overlay .instances-overlay .badge[style*="display: none"],
+.bjs-container .djs-overlay .instances-overlay .badge.ng-hide {
+  display: none !important;
+}
+
+.badge,
+.bjs-container .djs-overlay .badge {
+  border-radius: 10px !important;
+  padding: 3px 7px !important;
+  min-width: 10px !important;
+  line-height: 12px !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+}
+
+// Activity instance count overlay badges (restoring smooth pill/circle geometry)
+.bjs-container .djs-overlay .instances-overlay .badge.instance-count {
+  border-radius: 10px !important;
+  padding: 3px 7px !important;
+  min-width: 10px !important;
+  line-height: 12px !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  display: inline-block !important;
+  background-color: #70b8db !important;
+  border: 1px solid #143d52 !important;
+  color: #143d52 !important;
+  box-sizing: content-box !important;
+}
+
+// ==============================================================================
+// 3. Table Layout, Column Widths, Overflow & Spacing
+// ==============================================================================
+.cam-table {
+  // Allow table header text to wrap so columns can compress on smaller viewports
+  th {
+    white-space: normal !important;
+    vertical-align: middle !important;
+
+    // Interactive sort links and chevron/minus symbols
+    a[ng-click*="changeOrder"],
+    a[ng-click*="order"],
+    a.sortable {
+      color: #155cb5 !important;
+      text-decoration: none !important;
+      margin-left: 5px !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
+
+      .glyphicon,
+      [class*="bi"] {
+        color: #155cb5 !important;
+        font-size: 13px !important;
+        font-weight: bold !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+      }
+
+      // Restore solid 1.0.3 Glyphicons minus bar geometry
+      .glyphicon-minus,
+      .bi-dash {
+        display: inline-block !important;
+        width: 10px !important;
+        height: 2.5px !important;
+        background-color: #155cb5 !important;
+        vertical-align: middle !important;
+        margin-top: -3px !important;
+        border-radius: 1px !important;
+
+        &::before {
+          content: "" !important;
+          display: none !important;
+        }
+      }
+
+      .glyphicon-chevron-down,
+      .bi-chevron-down,
+      .glyphicon-chevron-up,
+      .bi-chevron-up {
+        font-weight: 900 !important;
+        font-size: 12px !important;
+      }
+
+      &:hover {
+        color: #0b4c8c !important;
+
+        .glyphicon,
+        [class*="bi"] {
+          color: #0b4c8c !important;
+        }
+      }
+    }
+  }
+
+  // Normal data cells: allow graceful wrapping for long text with spaces and unbroken tokens
+  td {
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+
+    a {
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
+  }
+
+  // Specific cells with long unbroken values (e.g. messages, variable values, descriptions)
+  td.message,
+  td.variable-value,
+  td.annotation,
+  td.value {
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  // Specific cells that should NOT wrap (atomic timestamps, actions, checkboxes)
+  td.action, th.action,
+  td.select, th.select,
+  td.date, td.timestamp,
+  td.due-date, td.creation-date, td.follow-up-date,
+  td.variable-type {
+    white-space: nowrap !important;
+  }
+
+  // Prevent UUID columns in instance tables from expanding beyond bounds
+  td.uuid:not(.task-id) {
+    max-width: 140px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  // Guarantee breathing room between adjacent table cells
+  th, td {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  // Stack Action buttons vertically in User Tasks table like 1.0.3
+  th.action, td.action {
+    width: 60px !important;
+    min-width: 60px !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  td.action .action-button {
+    display: block !important;
+    margin: 2px auto !important;
+    padding: 2px 6px !important;
+    height: 24px !important;
+    width: 34px !important;
+  }
+
+  // Soften harsh zebra striping
+  &.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fafbfc !important;
+  }
+
+  // Restore branded soft-blue row hover color (#eaf0f8)
+  tbody tr:hover {
+    background-color: #eaf0f8 !important;
+  }
+}
+
+// ==============================================================================
+// 4. Primary Typography (Fixes BPMN Diagram Word Wrapping)
+// ==============================================================================
+body,
+.ctn-main,
+.navbar,
+.modal,
+.table {
+  font-family: IBMPlexSans, open_sansregular, Helvetica, Arial, Verdana, sans-serif !important;
+}
+
+.bjs-container {
+  --bjs-font-family: IBMPlexSans, open_sansregular, Helvetica, Arial, Verdana, sans-serif !important;
+
+  svg text,
+  .djs-label {
+    font-family: IBMPlexSans, open_sansregular, Helvetica, Arial, Verdana, sans-serif !important;
+  }
+}
+
+// ==============================================================================
+// 5. Button Sizing & Appearance (.btn-default, .btn-xs)
+// ==============================================================================
+.btn-default {
+  color: #333333 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #cccccc !important;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: #333333 !important;
+    background-color: #e6e6e6 !important;
+    border-color: #adadad !important;
+  }
+}
+
+.btn-xs,
+.btn-group-xs > .btn,
+.cam-table .action-button {
+  padding: 2px 6px !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  border-radius: 3px !important;
+  min-height: 22px !important;
+  height: 24px !important;
+}
+
+// Diagram canvas zoom and reset controls (+, -, reset)
+.bjs-container .djs-overlay-context-pad .entry,
+.bjs-container .io-zoom-controls .btn {
+  background-color: #ffffff !important;
+  border: 1px solid #cccccc !important;
+  color: #333333 !important;
+}
+
+// ==============================================================================
+// 6. Float Utilities (.pull-right, .pull-left)
+// ==============================================================================
+.pull-right, .float-right {
+  float: right !important;
+}
+
+.pull-left, .float-left {
+  float: left !important;
+}
+
+// ==============================================================================
+// 7. Eliminate Double Dropdown Carets
+// ==============================================================================
+.dropdown-toggle::after {
+  display: none !important;
+}
+
+// ==============================================================================
+// 8. Restore Active Item Accent Border in Repository / Deployments
+// ==============================================================================
+.deployments-list .deployment.active,
+.repository-resources .resource.active {
+  border-left: 3px solid #e05f1b !important;
+}
+
+// ==============================================================================
+// 9. Process Instance Action Toolbar & Buttons (.ctn-toolbar)
+// Restores 1.0.3 solid white, compact 34px height, and #ccc borders
+// ==============================================================================
+.ctn-toolbar {
+  a.btn,
+  button.btn,
+  .btn-toolbar {
+    background-color: #ffffff !important;
+    border: 1px solid #cccccc !important;
+    color: #333333 !important;
+    border-radius: 2px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    width: 40px !important;
+    padding: 6px 12px !important;
+    margin: 5px 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: none !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: #e6e6e6 !important;
+      border-color: #adadad !important;
+      color: #333333 !important;
+    }
+
+    .glyphicon,
+    [class*="bi"],
+    [class*="icon"],
+    svg {
+      color: #333333 !important;
+      font-size: 16px !important;
+      line-height: 1 !important;
+      width: 16px !important;
+      height: 16px !important;
+    }
+
+    // Bold stroke reinforcement for line-drawn toolbar icons (Delete/X, Retry, Add Variable/+)
+    // Bootstrap Icons uses very thin 1px/1.5px stroke weights for line icons compared to solid 1.0.3 Glyphicons.
+    .glyphicon-remove,
+    .glyphicon-repeat,
+    .glyphicon-plus {
+      -webkit-text-stroke: 0.8px currentColor !important;
+      font-weight: 900 !important;
+    }
+
+    // Match 1.0.3 glyphicon-repeat geometry (single clockwise circle arrow)
+    .glyphicon-repeat {
+      font-size: 18px !important;
+      width: 18px !important;
+      height: 18px !important;
+      &::before {
+        content: "\f116" !important; // bi-arrow-clockwise
+      }
+    }
+
+    // Match 1.0.3 glyphicon-plus solid bold cross geometry
+    .glyphicon-plus {
+      font-size: 18px !important;
+      width: 18px !important;
+      height: 18px !important;
+      -webkit-text-stroke: 1px currentColor !important;
+    }
+
+    // Match 1.0.3 glyphicon-remove solid bold cross geometry
+    .glyphicon-remove {
+      font-size: 16px !important;
+      -webkit-text-stroke: 0.85px currentColor !important;
+    }
+  }
+}
+
+// ==============================================================================
+// 10. Icon Optical Scaling (Compensates for Bootstrap Icons Viewbox Padding)
+// ==============================================================================
+// Bootstrap Icons has ~2-3px internal viewbox padding and thinner stroke weight
+// than legacy Glyphicons. Scaling up by ~15-20% restores the solid, clear visibility
+// and perceived optical size of 1.0.3.
+.glyphicon,
+[class*="bi"] {
+  display: inline-block;
+  font-size: 1.15em;
+  vertical-align: -0.1em;
+}
+
+// Keep button icons proportioned and vertically centered
+.btn .glyphicon,
+.btn [class*="bi"] {
+  font-size: 16px !important;
+  vertical-align: middle !important;
+}
+
+.btn-xs .glyphicon,
+.btn-xs [class*="bi"],
+.action-button .glyphicon,
+.action-button [class*="bi"] {
+  font-size: 13px !important;
+}
