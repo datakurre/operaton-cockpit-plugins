@@ -3,7 +3,16 @@
  *
  * @module
  */
-import { headers, get, post, setFetchFunction, resetFetchFunction, getFetchFunction, ApiError } from '../api';
+import {
+  headers,
+  get,
+  post,
+  getActivityHistoryPage,
+  setFetchFunction,
+  resetFetchFunction,
+  getFetchFunction,
+  ApiError,
+} from '../api';
 import { createMockApi } from '../../__mocks__/api';
 
 describe('utils/api', () => {
@@ -185,6 +194,61 @@ describe('utils/api', () => {
       await get(mockApi, '/test');
 
       expect(global.fetch).toHaveBeenCalledWith('/api/engine/default/test', expect.any(Object));
+    });
+  });
+
+  describe('getActivityHistoryPage', () => {
+    /** Mock fetch returning `count` activity records. */
+    function respondWith(count: number) {
+      const records = Array.from({ length: count }, (_, i) => ({ id: `a${i}`, activityId: `Task_${i}` }));
+      const fetchMock = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: { get: (name: string) => (name === 'Content-Type' ? 'application/json' : null) },
+        json: async () => records,
+        text: async () => JSON.stringify(records),
+      });
+      setFetchFunction(fetchMock);
+      return fetchMock;
+    }
+
+    it('requests one more record than it keeps, oldest first', async () => {
+      const fetchMock = respondWith(3);
+
+      await getActivityHistoryPage(mockApi, 'instance-1', 10);
+
+      const url = String(fetchMock.mock.calls[0]?.[0]);
+      expect(url).toContain('maxResults=11');
+      expect(url).toContain('sortBy=startTime');
+      expect(url).toContain('sortOrder=asc');
+      expect(url).toContain('processInstanceId=instance-1');
+    });
+
+    it('reports a complete history when fewer records come back than the bound', async () => {
+      respondWith(3);
+
+      const page = await getActivityHistoryPage(mockApi, 'instance-1', 10);
+
+      expect(page.activities).toHaveLength(3);
+      expect(page.truncated).toBe(false);
+    });
+
+    it('reports a complete history when exactly the bound comes back', async () => {
+      respondWith(10);
+
+      const page = await getActivityHistoryPage(mockApi, 'instance-1', 10);
+
+      expect(page.activities).toHaveLength(10);
+      expect(page.truncated).toBe(false);
+    });
+
+    it('trims the probe record and reports truncation when the instance has more', async () => {
+      respondWith(11);
+
+      const page = await getActivityHistoryPage(mockApi, 'instance-1', 10);
+
+      expect(page.activities).toHaveLength(10);
+      expect(page.truncated).toBe(true);
     });
   });
 

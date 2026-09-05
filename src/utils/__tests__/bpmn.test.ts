@@ -7,6 +7,7 @@
  * @module
  */
 import { createCurve } from 'svg-curves';
+import { create as svgCreate } from 'tiny-svg';
 
 import { renderSequenceFlow, clearSequenceFlow, getStrokeWidth, renderActivities } from '../bpmn';
 import { EXECUTED_PATH_STROKE_WIDTH, EXECUTED_PATH_STROKE_WIDTH_MAX } from '../constants';
@@ -237,53 +238,53 @@ describe('utils/bpmn', () => {
     });
   });
 
+  /** Two tasks wired both ways, so the forward and back edges get different counts. */
+  function createLoopViewer() {
+    const taskA = { id: 'Task_A', type: 'bpmn:Task', x: 0, y: 0, width: 80, height: 60, incoming: [], outgoing: [] };
+    const taskB = {
+      id: 'Task_B',
+      type: 'bpmn:Task',
+      x: 200,
+      y: 0,
+      width: 80,
+      height: 60,
+      incoming: [],
+      outgoing: [],
+    };
+    const forward = {
+      id: 'Flow_Forward',
+      source: taskA,
+      target: taskB,
+      waypoints: [
+        { x: 80, y: 30 },
+        { x: 200, y: 30 },
+      ],
+    };
+    const back = {
+      id: 'Flow_Back',
+      source: taskB,
+      target: taskA,
+      waypoints: [
+        { x: 200, y: 50 },
+        { x: 80, y: 50 },
+      ],
+    };
+    taskA.outgoing.push(forward as never);
+    taskA.incoming.push(back as never);
+    taskB.outgoing.push(back as never);
+    taskB.incoming.push(forward as never);
+
+    return createMockViewer({
+      elements: new Map<string, unknown>([
+        ['Task_A', taskA],
+        ['Task_B', taskB],
+      ]),
+    });
+  }
+
+  const at = (minute: number) => `2024-01-01T10:0${minute}:00.000+0000`;
+
   describe('renderSequenceFlow weighting', () => {
-    /** Two tasks wired both ways, so the forward and back edges get different counts. */
-    function createLoopViewer() {
-      const taskA = { id: 'Task_A', type: 'bpmn:Task', x: 0, y: 0, width: 80, height: 60, incoming: [], outgoing: [] };
-      const taskB = {
-        id: 'Task_B',
-        type: 'bpmn:Task',
-        x: 200,
-        y: 0,
-        width: 80,
-        height: 60,
-        incoming: [],
-        outgoing: [],
-      };
-      const forward = {
-        id: 'Flow_Forward',
-        source: taskA,
-        target: taskB,
-        waypoints: [
-          { x: 80, y: 30 },
-          { x: 200, y: 30 },
-        ],
-      };
-      const back = {
-        id: 'Flow_Back',
-        source: taskB,
-        target: taskA,
-        waypoints: [
-          { x: 200, y: 50 },
-          { x: 80, y: 50 },
-        ],
-      };
-      taskA.outgoing.push(forward as never);
-      taskA.incoming.push(back as never);
-      taskB.outgoing.push(back as never);
-      taskB.incoming.push(forward as never);
-
-      return createMockViewer({
-        elements: new Map<string, unknown>([
-          ['Task_A', taskA],
-          ['Task_B', taskB],
-        ]),
-      });
-    }
-
-    const at = (minute: number) => `2024-01-01T10:0${minute}:00.000+0000`;
-
     it('draws a repeatedly executed flow more heavily than a single pass', () => {
       const mockViewer = createLoopViewer();
       (createCurve as jest.Mock).mockClear();
@@ -322,6 +323,41 @@ describe('utils/bpmn', () => {
 
       expect(first).toMatch(/^url\(#executed-path-arrow-\d+\)$/);
       expect(second).not.toBe(first);
+    });
+  });
+
+  describe('renderSequenceFlow truncation', () => {
+    /** Text of every <title> element the render created. */
+    function titlesFrom(create: jest.Mock): string[] {
+      return create.mock.results
+        .map(result => result.value as SVGElement | undefined)
+        .filter((el): el is SVGElement => el?.tagName === 'title')
+        .map(el => el.textContent ?? '');
+    }
+
+    const activities = [
+      { activityId: 'Task_A', activityType: 'userTask', startTime: at(1), endTime: at(1) },
+      { activityId: 'Task_B', activityType: 'userTask', startTime: at(2), endTime: at(2) },
+    ];
+
+    it('states the exact count when the history is complete', () => {
+      const mockViewer = createLoopViewer();
+      (svgCreate as jest.Mock).mockClear();
+
+      renderSequenceFlow(mockViewer, activities);
+
+      expect(titlesFrom(svgCreate as jest.Mock)).toContain('Executed once');
+    });
+
+    it('states the count as a lower bound when the history was truncated', () => {
+      const mockViewer = createLoopViewer();
+      (svgCreate as jest.Mock).mockClear();
+
+      renderSequenceFlow(mockViewer, activities, { truncated: true });
+
+      const titles = titlesFrom(svgCreate as jest.Mock);
+      expect(titles).toContain('Executed at least once');
+      expect(titles).not.toContain('Executed once');
     });
   });
 
