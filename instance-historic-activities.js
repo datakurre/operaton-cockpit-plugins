@@ -1691,226 +1691,6 @@ var get = function (api, path, params, options) { return __awaiter(void 0, void 
 }); };
 
 /**
- * Flatten array, one level deep.
- *
- * @template T
- *
- * @param {T[][] | T[] | null} [arr]
- *
- * @return {T[]}
- */
-
-const nativeToString$1 = Object.prototype.toString;
-const nativeHasOwnProperty$1 = Object.prototype.hasOwnProperty;
-
-function isUndefined$1(obj) {
-  return obj === undefined;
-}
-
-function isNil(obj) {
-  return obj == null;
-}
-
-function isArray$1(obj) {
-  return nativeToString$1.call(obj) === '[object Array]';
-}
-
-/**
- * @param {any} obj
- *
- * @return {boolean}
- */
-function isFunction(obj) {
-  const tag = nativeToString$1.call(obj);
-
-  return (
-    tag === '[object Function]' ||
-    tag === '[object AsyncFunction]' ||
-    tag === '[object GeneratorFunction]' ||
-    tag === '[object AsyncGeneratorFunction]' ||
-    tag === '[object Proxy]'
-  );
-}
-
-/**
- * Return true, if target owns a property with the given key.
- *
- * @param {Object} target
- * @param {String} key
- *
- * @return {Boolean}
- */
-function has$1(target, key) {
-  return !isNil(target) && nativeHasOwnProperty$1.call(target, key);
-}
-
-
-/**
- * Filter elements in collection.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param {Matcher<T>} matcher
- *
- * @return {T[]} result
- */
-function filter(collection, matcher) {
-
-  const matchFn = toMatcher(matcher);
-
-  let result = [];
-
-  forEach$1(collection, function(val, key) {
-    if (matchFn(val, key)) {
-      result.push(val);
-    }
-  });
-
-  return result;
-}
-
-
-/**
- * Iterate over collection; returning something
- * (non-undefined) will stop iteration.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
- *
- * @return {T} return result that stopped the iteration
- */
-function forEach$1(collection, iterator) {
-
-  let val,
-      result;
-
-  if (isUndefined$1(collection)) {
-    return;
-  }
-
-  const convertKey = isArray$1(collection) ? toNum$1 : identity$1;
-
-  for (let key in collection) {
-
-    if (has$1(collection, key)) {
-      val = collection[key];
-
-      result = iterator(val, convertKey(key));
-
-      if (result === false) {
-        return val;
-      }
-    }
-  }
-}
-
-
-/**
- * Transform a collection into another collection
- * by piping each member through the given fn.
- *
- * @param  {Object|Array}   collection
- * @param  {Function} fn
- *
- * @return {Array} transformed collection
- */
-function map$1(collection, fn) {
-
-  let result = [];
-
-  forEach$1(collection, function(val, key) {
-    result.push(fn(val, key));
-  });
-
-  return result;
-}
-
-
-/**
- * Group collection members by attribute.
- *
- * @param {Object|Array} collection
- * @param {Extractor} extractor
- *
- * @return {Object} map with { attrValue => [ a, b, c ] }
- */
-function groupBy(collection, extractor, grouped = {}) {
-
-  extractor = toExtractor(extractor);
-
-  forEach$1(collection, function(val) {
-    let discriminator = extractor(val) || '_';
-
-    let group = grouped[discriminator];
-
-    if (!group) {
-      group = grouped[discriminator] = [];
-    }
-
-    group.push(val);
-  });
-
-  return grouped;
-}
-
-
-function uniqueBy(extractor, ...collections) {
-
-  extractor = toExtractor(extractor);
-
-  let grouped = {};
-
-  forEach$1(collections, (c) => groupBy(c, extractor, grouped));
-
-  let result = map$1(grouped, function(val, key) {
-    return val[0];
-  });
-
-  return result;
-}
-
-
-/**
- * @param {string | ((e: any) => any) } extractor
- *
- * @return { (e: any) => any }
- */
-function toExtractor(extractor) {
-
-  /**
-   * @satisfies { (e: any) => any }
-   */
-  return isFunction(extractor) ? extractor : (e) => {
-
-    // @ts-ignore: just works
-    return e[extractor];
-  };
-}
-
-
-/**
- * @template T
- * @param {Matcher<T>} matcher
- *
- * @return {MatchFn<T>}
- */
-function toMatcher(matcher) {
-  return isFunction(matcher) ? matcher : (e) => {
-    return e === matcher;
-  };
-}
-
-
-function identity$1(arg) {
-  return arg;
-}
-
-function toNum$1(arg) {
-  return Number(arg);
-}
-
-/**
  * Gets the midpoint of a BPMN shape.
  * @param shape - Shape bounds with x, y, width, height
  * @returns Center point coordinates
@@ -1924,133 +1704,200 @@ var getMid$1 = function (shape) {
 /** Types that should not have dotted connections drawn through them */
 var notDottedTypes = ['bpmn:SubProcess'];
 /**
- * Computes dotted connections between activities that share the same element.
- * These represent loops or repeated executions through the same node.
- * @param connections - Array of BPMN connections
- * @returns Array of dotted connection objects with waypoints
+ * Sentinel end time for an execution that is still running. Sorts after every ISO
+ * timestamp, so an unfinished activity reads as "ended last".
+ */
+var STILL_RUNNING = 'Z';
+/**
+ * Computes dotted connections through the nodes the executed path passes through.
+ *
+ * These bridge the gap inside a shape — from where an executed flow arrives to where
+ * the next executed flow leaves — so the highlighted path reads as continuous, and so
+ * loops back through the same node stay visible.
+ * @param connections - Executed connections to bridge
+ * @returns Array of dotted connection objects with waypoints and traversal counts
  */
 var getDottedConnections = function (connections) {
+    var _a;
     var dottedConnections = [];
-    connections.forEach(function (connection) {
-        var conn = connection;
-        var target = conn.target;
-        connections.forEach(function (c) {
-            var c2 = c;
-            var source = c2.source;
-            if (source === target && !notDottedTypes.includes(source.type)) {
-                dottedConnections.push({
-                    waypoints: [
-                        conn.waypoints[conn.waypoints.length - 1],
-                        getMid$1(target),
-                        c2.waypoints[0],
-                    ],
-                });
+    var seen = new Set();
+    for (var _i = 0, connections_1 = connections; _i < connections_1.length; _i++) {
+        var incoming = connections_1[_i];
+        var node = incoming.element.target;
+        if (notDottedTypes.includes((_a = node.type) !== null && _a !== void 0 ? _a : '')) {
+            continue;
+        }
+        for (var _b = 0, connections_2 = connections; _b < connections_2.length; _b++) {
+            var outgoing = connections_2[_b];
+            if (outgoing.element.source.id !== node.id) {
+                continue;
             }
-        });
-    });
+            var key = "".concat(incoming.element.id, "->").concat(outgoing.element.id);
+            if (seen.has(key)) {
+                continue;
+            }
+            seen.add(key);
+            var from = incoming.element.waypoints[incoming.element.waypoints.length - 1];
+            var to = outgoing.element.waypoints[0];
+            if (!from || !to) {
+                continue;
+            }
+            dottedConnections.push({
+                waypoints: [from, getMid$1(node), to],
+                count: Math.min(incoming.count, outgoing.count),
+            });
+        }
+    }
     return dottedConnections;
 };
 /**
- * Builds a map of activity IDs to their end times from historic activities.
- * @param activities - Historic activity instances
- * @returns Map of activity ID to array of end times
+ * Strips the execution scope suffix the engine appends to an activity id
+ * (`Task_1#multiInstanceBody`), leaving the diagram element id.
+ * @param activityId - Historic activity id
+ * @returns The BPMN element id
  */
-function buildEndTimesMap(activities) {
-    var _a, _b, _c, _d;
-    var endTimesById = new Map();
+var toElementId = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
+/**
+ * Multi-instance bodies wrap the real executions of an activity rather than being one
+ * of them, so counting them would inflate every multi-instance activity by one.
+ */
+var isMultiInstanceBody = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
+/**
+ * A canceled activity did not complete, so nothing flowed out of it. Gateways are the
+ * exception: cancelation is recorded on them even when the token passed through.
+ * @param activity - Historic activity instance
+ * @returns True when the activity was canceled and is not a gateway
+ */
+var isCanceled = function (activity) { var _a; return activity.canceled === true && !((_a = activity.activityType) !== null && _a !== void 0 ? _a : '').endsWith('Gateway'); };
+/**
+ * Appends a time to the array stored under an element id.
+ */
+function push(times, elementId, time) {
+    var existing = times.get(elementId);
+    if (existing) {
+        existing.push(time);
+    }
+    else {
+        times.set(elementId, [time]);
+    }
+}
+/**
+ * Indexes the execution times of every activity by diagram element id.
+ * @param activities - Historic activity instances
+ * @returns Sorted time index
+ */
+function buildActivityTimeIndex(activities) {
+    var _a, _b, _c;
+    var index = {
+        sourceEndTimes: new Map(),
+        targetEndTimes: new Map(),
+        startTimes: new Map(),
+        endTimes: new Map(),
+        executedElementIds: new Set(),
+    };
     for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
         var activity = activities_1[_i];
         var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        if (endTimesById.has(activityId)) {
-            var endTimes = (_b = endTimesById.get(activityId)) !== null && _b !== void 0 ? _b : [];
-            endTimes.push((_c = activity.endTime) !== null && _c !== void 0 ? _c : 'Z');
+        if (isMultiInstanceBody(activityId)) {
+            continue;
         }
-        else {
-            endTimesById.set(activityId, [(_d = activity.endTime) !== null && _d !== void 0 ? _d : 'Z']);
+        var elementId = toElementId(activityId);
+        var endTime = (_b = activity.endTime) !== null && _b !== void 0 ? _b : STILL_RUNNING;
+        index.executedElementIds.add(elementId);
+        push(index.startTimes, elementId, (_c = activity.startTime) !== null && _c !== void 0 ? _c : STILL_RUNNING);
+        push(index.endTimes, elementId, endTime);
+        if (isCanceled(activity)) {
+            continue;
         }
-    }
-    return endTimesById;
-}
-/**
- * Builds a map of activity IDs to their start times from historic activities.
- * @param activities - Historic activity instances
- * @returns Map of activity ID to array of start times
- */
-function buildStartTimesMap(activities) {
-    var _a, _b, _c, _d;
-    var startTimesById = new Map();
-    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
-        var activity = activities_2[_i];
-        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        if (startTimesById.has(activityId)) {
-            var startTimes = (_b = startTimesById.get(activityId)) !== null && _b !== void 0 ? _b : [];
-            startTimes.push((_c = activity.startTime) !== null && _c !== void 0 ? _c : 'Z');
-        }
-        else {
-            startTimesById.set(activityId, [(_d = activity.startTime) !== null && _d !== void 0 ? _d : 'Z']);
+        push(index.targetEndTimes, elementId, endTime);
+        if (activity.endTime) {
+            push(index.sourceEndTimes, elementId, activity.endTime);
         }
     }
-    return startTimesById;
+    for (var _d = 0, _e = [index.sourceEndTimes, index.targetEndTimes, index.startTimes, index.endTimes]; _d < _e.length; _d++) {
+        var times = _e[_d];
+        for (var _f = 0, _g = Array.from(times.values()); _f < _g.length; _f++) {
+            var values = _g[_f];
+            values.sort();
+        }
+    }
+    return index;
 }
 /**
- * Determines which activities are valid (completed and not canceled).
- * @param activities - Historic activity instances
- * @returns Map of activity ID to validity boolean
+ * Counts how often a flow was traversed, by greedily pairing each source execution
+ * with the earliest later target execution.
+ *
+ * The pairing is one-to-one, so the count can never exceed either side's execution
+ * count: a task that ran three times downstream of a gateway that ran five times
+ * yields three traversals, not fifteen.
+ *
+ * @param sourceEndTimes - Ascending end times of the source's completed executions
+ * @param targetEndTimes - Ascending end times of the target's executions
+ * @returns Number of traversals, zero when the flow was never taken
  */
-function buildValidActivityMap(activities) {
+function countTraversals(sourceEndTimes, targetEndTimes) {
     var _a, _b;
-    var validActivity = new Map();
-    for (var _i = 0, activities_3 = activities; _i < activities_3.length; _i++) {
-        var activity = activities_3[_i];
-        if (activity.endTime && !(activity.canceled && !((_a = activity.activityType) !== null && _a !== void 0 ? _a : '').endsWith('Gateway'))) {
-            validActivity.set((_b = activity.activityId) !== null && _b !== void 0 ? _b : '', true);
+    var source = 0;
+    var target = 0;
+    var traversals = 0;
+    while (source < sourceEndTimes.length && target < targetEndTimes.length) {
+        if (((_a = targetEndTimes[target]) !== null && _a !== void 0 ? _a : '') >= ((_b = sourceEndTimes[source]) !== null && _b !== void 0 ? _b : '')) {
+            traversals++;
+            source++;
         }
+        target++;
     }
-    return validActivity;
+    return traversals;
 }
 /**
  * Builds a deny list of connections that should not be highlighted for exclusive gateways.
- * For exclusive gateways, only the first taken path should be highlighted.
+ * For each execution of the gateway only the branch that was taken is kept.
  * @param activities - Historic activity instances
  * @param elementRegistry - BPMN element registry
- * @param startTimesById - Map of activity ID to start times
- * @param endTimesById - Map of activity ID to end times
+ * @param index - Execution time index
  * @returns Set of connection IDs to exclude from highlighting
  */
-function buildConnectionDenyList(activities, elementRegistry, startTimesById, endTimesById) {
-    var _a, _b, _c, _d;
+function buildConnectionDenyList(activities, elementRegistry, index) {
+    var _a, _b, _c;
     var connectionDenyList = new Set();
-    for (var _i = 0, activities_4 = activities; _i < activities_4.length; _i++) {
-        var activity = activities_4[_i];
+    var visited = new Set();
+    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
+        var activity = activities_2[_i];
         if (activity.activityType !== 'exclusiveGateway') {
             continue;
         }
-        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        var element = elementRegistry.get(activityId);
-        if (!(element === null || element === void 0 ? void 0 : element.outgoing) || element.outgoing.length === 0) {
+        var elementId = toElementId((_a = activity.activityId) !== null && _a !== void 0 ? _a : '');
+        if (visited.has(elementId)) {
             continue;
         }
-        var activeConnections = [];
-        var myEndTimes = (_b = endTimesById.get(activityId)) !== null && _b !== void 0 ? _b : [];
+        visited.add(elementId);
+        var element = elementRegistry.get(elementId);
+        var outgoing = element === null || element === void 0 ? void 0 : element.outgoing;
+        if (!outgoing || outgoing.length === 0) {
+            continue;
+        }
+        var activeConnections = new Set();
+        var gatewayEndTimes = (_b = index.endTimes.get(elementId)) !== null && _b !== void 0 ? _b : [];
         var _loop_1 = function (idx) {
-            var myEndTime = (_c = myEndTimes[idx]) !== null && _c !== void 0 ? _c : 'Z';
-            // Sort outgoing connections by their target's start time
-            element.outgoing.sort(function (a, b) {
+            var gatewayEndTime = (_c = gatewayEndTimes[idx]) !== null && _c !== void 0 ? _c : STILL_RUNNING;
+            // Rank a copy of the outgoing flows by their target's start time. Sorting the
+            // registry's own array would reorder the shared bpmn-js model.
+            var ranked = __spreadArray([], outgoing, true).sort(function (a, b) {
                 var _a, _b, _c, _d;
-                var startTimesA = (_a = startTimesById.get(a.target.id)) !== null && _a !== void 0 ? _a : [];
-                var startTimesB = (_b = startTimesById.get(b.target.id)) !== null && _b !== void 0 ? _b : [];
-                var startA = (_c = startTimesA[idx]) !== null && _c !== void 0 ? _c : 'Z';
-                var startB = (_d = startTimesB[idx]) !== null && _d !== void 0 ? _d : 'Z';
+                var startTimesA = (_a = index.startTimes.get(a.target.id)) !== null && _a !== void 0 ? _a : [];
+                var startTimesB = (_b = index.startTimes.get(b.target.id)) !== null && _b !== void 0 ? _b : [];
+                var startA = (_c = startTimesA[idx]) !== null && _c !== void 0 ? _c : STILL_RUNNING;
+                var startB = (_d = startTimesB[idx]) !== null && _d !== void 0 ? _d : STILL_RUNNING;
                 if (startTimesA.length <= idx) {
                     return 1;
                 }
                 else if (startTimesB.length <= idx) {
                     return -1;
                 }
-                else if (startA < myEndTime) {
+                else if (startA < gatewayEndTime) {
                     return 1;
                 }
-                else if (startB < myEndTime) {
+                else if (startB < gatewayEndTime) {
                     return -1;
                 }
                 else if (startA > startB) {
@@ -2061,17 +1908,17 @@ function buildConnectionDenyList(activities, elementRegistry, startTimesById, en
                 }
                 return 0;
             });
-            if (element.outgoing[0]) {
-                activeConnections.push(element.outgoing[0].id);
+            var taken = ranked[0];
+            if (taken) {
+                activeConnections.add(taken.id);
             }
         };
-        for (var idx = 0; idx < myEndTimes.length; idx++) {
+        for (var idx = 0; idx < gatewayEndTimes.length; idx++) {
             _loop_1(idx);
         }
-        for (var _e = 0, _f = element.outgoing; _e < _f.length; _e++) {
-            var connection = _f[_e];
-            var connWithTarget = connection;
-            if (!activeConnections.includes(connection.id) && ((_d = connWithTarget.target) === null || _d === void 0 ? void 0 : _d.type) !== 'bpmn:ParallelGateway') {
+        for (var _d = 0, outgoing_1 = outgoing; _d < outgoing_1.length; _d++) {
+            var connection = outgoing_1[_d];
+            if (!activeConnections.has(connection.id) && connection.target.type !== 'bpmn:ParallelGateway') {
                 connectionDenyList.add(connection.id);
             }
         }
@@ -2079,76 +1926,87 @@ function buildConnectionDenyList(activities, elementRegistry, startTimesById, en
     return connectionDenyList;
 }
 /**
- * Extracts connected BPMN elements based on historic activities.
+ * Resolves the sequence flows an instance actually took, with traversal counts.
  *
- * This function analyzes historic activity instances and determines which
- * sequence flows were actually executed, handling special cases like:
+ * Analyzes historic activity instances and determines which sequence flows were
+ * executed, handling special cases like:
  * - Exclusive gateways (only highlighting the taken path)
- * - Canceled activities
- * - Multiple executions of the same activity
+ * - Canceled activities (nothing flows out of them, and nothing flows into them)
+ * - Multiple executions of the same activity (counted, so loops can be weighted)
  *
  * @param activities - Historic activity instances to analyze
  * @param elementRegistry - BPMN element registry from viewer
- * @returns Array of connected BPMN activity elements representing executed flows
+ * @returns Executed connections with the number of times each was traversed
  */
-var getConnections = function (activities, elementRegistry) {
-    var validActivity = buildValidActivityMap(activities);
-    var startTimesById = buildStartTimesMap(activities);
-    var endTimesById = buildEndTimesMap(activities);
-    var connectionDenyList = buildConnectionDenyList(activities, elementRegistry, startTimesById, endTimesById);
-    // Build element map
-    var elementById = new Map(map$1(activities, function (activity) {
-        var _a;
-        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        var element = elementRegistry.get(activityId);
-        return [activityId, element];
-    }));
-    /**
-     * Gets valid connections for a single activity.
-     */
-    var getActivityConnections = function (activityId) {
-        var current = elementById.get(activityId);
-        var currentEndTimesResult = endTimesById.get(activityId);
-        var currentEndTimes = currentEndTimesResult !== null && currentEndTimesResult !== void 0 ? currentEndTimesResult : [];
-        if (!current || !validActivity.get(activityId)) {
-            return [];
+var getExecutedConnections = function (activities, elementRegistry) {
+    var _a, _b, _c, _d;
+    var index = buildActivityTimeIndex(activities);
+    var connectionDenyList = buildConnectionDenyList(activities, elementRegistry, index);
+    // Every flow touching an executed element is a candidate, scored once below.
+    var candidates = new Map();
+    for (var _i = 0, _e = Array.from(index.executedElementIds); _i < _e.length; _i++) {
+        var elementId = _e[_i];
+        var element = elementRegistry.get(elementId);
+        if (!element) {
+            continue;
         }
-        // Extract connections before filtering to satisfy type narrowing
-        // Use Array.isArray to force TypeScript to narrow the type correctly
-        var rawIncoming = current.incoming;
-        var rawOutgoing = current.outgoing;
-        var incomingList = Array.isArray(rawIncoming) ? rawIncoming : [];
-        var outgoingList = Array.isArray(rawOutgoing) ? rawOutgoing : [];
-        var incoming = filter(incomingList, function (connection) {
-            if (connectionDenyList.has(connection.id)) {
-                return false;
-            }
-            var sourceEndTimes = endTimesById.get(connection.source.id);
-            var incomingEndTimes = [];
-            if (validActivity.get(connection.source.id)) {
-                incomingEndTimes = sourceEndTimes !== null && sourceEndTimes !== void 0 ? sourceEndTimes : [];
-            }
-            return incomingEndTimes.reduce(function (acc, iET) {
-                return acc || currentEndTimes.reduce(function (acc_, cET) { return acc_ || iET <= cET; }, false);
-            }, false);
+        for (var _f = 0, _g = __spreadArray(__spreadArray([], ((_a = element.incoming) !== null && _a !== void 0 ? _a : []), true), ((_b = element.outgoing) !== null && _b !== void 0 ? _b : []), true); _f < _g.length; _f++) {
+            var connection = _g[_f];
+            candidates.set(connection.id, connection);
+        }
+    }
+    var executed = [];
+    for (var _h = 0, _j = Array.from(candidates.values()); _h < _j.length; _h++) {
+        var connection = _j[_h];
+        if (connectionDenyList.has(connection.id)) {
+            continue;
+        }
+        var count = countTraversals((_c = index.sourceEndTimes.get(connection.source.id)) !== null && _c !== void 0 ? _c : [], (_d = index.targetEndTimes.get(connection.target.id)) !== null && _d !== void 0 ? _d : []);
+        if (count > 0) {
+            executed.push({ element: connection, count: count });
+        }
+    }
+    return executed;
+};
+
+/**
+ * Renders activity count badges on the BPMN diagram overlays.
+ * Shows how many times each activity was executed.
+ * @param viewer - The BPMN viewer instance
+ * @param activities - Historic activity instances to count
+ */
+var renderActivities = function (viewer, activities) {
+    var _a, _b, _c, _d;
+    var counter = {};
+    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
+        var activity = activities_1[_i];
+        var id = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
+        var current = counter[id];
+        counter[id] = current !== undefined ? current + 1 : 1;
+    }
+    var seen = {};
+    var overlays = viewer.get('overlays');
+    for (var _e = 0, activities_2 = activities; _e < activities_2.length; _e++) {
+        var activity = activities_2[_e];
+        var id = (_b = activity.activityId) !== null && _b !== void 0 ? _b : '';
+        if (seen[id]) {
+            continue;
+        }
+        else {
+            seen[id] = true;
+        }
+        var overlay = document.createElement('span');
+        overlay.innerText = String((_c = counter[id]) !== null && _c !== void 0 ? _c : 0);
+        overlay.className = 'badge';
+        overlay.style.cssText = "\n      background: lightgray;\n      border: 1px solid #143d52;\n      color: #143d52;\n    ";
+        overlays.add((_d = id.split('#')[0]) !== null && _d !== void 0 ? _d : '', {
+            position: {
+                bottom: 17,
+                right: 10,
+            },
+            html: overlay,
         });
-        var outgoing = filter(outgoingList, function (connection) {
-            if (connectionDenyList.has(connection.id)) {
-                return false;
-            }
-            var targetEndTimes = endTimesById.get(connection.target.id);
-            var outgoingEndTimes = targetEndTimes !== null && targetEndTimes !== void 0 ? targetEndTimes : [];
-            return outgoingEndTimes.reduce(function (acc, oET) {
-                return acc || currentEndTimes.reduce(function (acc_, cET) { return acc_ || oET >= cET; }, false);
-            }, false);
-        });
-        return __spreadArray(__spreadArray([], incoming, true), outgoing, true);
-    };
-    var connections = [];
-    forEach$1(Array.from(elementById.keys()), function (activityId) {
-        connections = uniqueBy('id', __spreadArray(__spreadArray([], connections, true), getActivityConnections(activityId), true));
-    });
-    return connections;
+    }
 };
 
 var componentEvent = {};
@@ -2941,16 +2799,29 @@ function remove(element) {
 }
 
 /**
- * BPMN SVG rendering utilities.
- *
- * Handles rendering sequence flow paths and other SVG elements on the BPMN diagram.
- * @module
+ * UI and timing constants used across the application.
+ * Centralizes magic numbers for easier maintenance and configuration.
  */
+// =============================================================================
+// UI Constants
+// =============================================================================
+/** Modal overlay z-index to ensure modals appear above other content */
+// =============================================================================
+// Executed Path Constants
+// =============================================================================
+/** Stroke width of an executed sequence flow that was traversed once */
+var EXECUTED_PATH_STROKE_WIDTH = 4;
+/** Stroke width added per doubling of the traversal count */
+var EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
+/** Upper bound on the stroke width of an executed sequence flow */
+var EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
+
 /** Fill color for sequence flow highlighting */
 var FILL = '#52B415';
+/** Class set on every path this module draws, so the overlay stays identifiable */
+var EXECUTED_PATH_CLASS = 'executed-sequence-flow';
 /** Marker SVG attributes configuration */
 var MARKER_ATTRS = {
-    id: 'arrow',
     viewBox: '0 0 10 10',
     refX: 7,
     refY: 5,
@@ -2966,22 +2837,69 @@ var ARROW_PATH_ATTRS = {
     strokeWidth: 0,
 };
 /**
+ * Counter behind the per-render marker id. Two viewers can share a document — the
+ * instance diagram and the history route — so a fixed id would make one steal the
+ * other's arrowheads.
+ */
+var markerSequence = 0;
+/**
+ * Scales the stroke width with the number of traversals, logarithmically so that a
+ * long-running loop stays a line rather than becoming a slab.
+ * @param count - Number of times the flow was traversed
+ * @returns Stroke width in diagram units, capped at EXECUTED_PATH_STROKE_WIDTH_MAX
+ */
+var getStrokeWidth = function (count) {
+    if (count <= 1) {
+        return EXECUTED_PATH_STROKE_WIDTH;
+    }
+    var width = EXECUTED_PATH_STROKE_WIDTH + EXECUTED_PATH_STROKE_WIDTH_STEP * Math.log2(count);
+    return Math.min(EXECUTED_PATH_STROKE_WIDTH_MAX, Math.round(width));
+};
+/**
+ * Adds a native tooltip naming the exact traversal count, since the stroke width only
+ * shows it approximately and saturates at the cap.
+ * @param path - The path element to describe
+ * @param count - Number of times the flow was traversed
+ */
+function appendTraversalTitle(path, count) {
+    var title = create('title');
+    title.textContent = count === 1 ? 'Executed once' : "Executed ".concat(count, " times");
+    append(path, title);
+}
+/**
  * Creates and appends the arrow marker definition to the SVG defs element.
  * @param defs - The defs element to append to
+ * @param id - Unique id to reference the marker by
  * @returns The created marker element
  */
-function createArrowMarker(defs) {
+function createArrowMarker(defs, id) {
     var marker = create('marker');
     var path = create('path');
-    attr(marker, MARKER_ATTRS);
+    attr(marker, __assign(__assign({}, MARKER_ATTRS), { id: id }));
     attr(path, ARROW_PATH_ATTRS);
     append(marker, path);
     append(defs, marker);
     return marker;
 }
 /**
+ * Finds the SVG's defs element, creating it when the diagram has none yet.
+ * @param canvas - The viewer canvas
+ * @returns The defs element to hold marker definitions
+ */
+function resolveDefs(canvas) {
+    // Cast SVG to HTMLElement for domQuery, which expects HTMLElement
+    var existing = query('defs', canvas._svg);
+    if (existing !== null) {
+        return existing;
+    }
+    var defs = create('defs');
+    append(canvas._svg, defs);
+    return defs;
+}
+/**
  * Renders sequence flow highlighting on the BPMN diagram based on historic activities.
- * Draws colored arrows showing the execution path through the process.
+ * Draws colored arrows showing the execution path through the process, weighted by how
+ * often each flow was traversed.
  * @param viewer - The BPMN viewer instance
  * @param activities - Historic activity instances to visualize
  * @returns Array of SVG elements that were added (for later cleanup)
@@ -2990,36 +2908,35 @@ var renderSequenceFlow = function (viewer, activities) {
     var registry = viewer.get('elementRegistry');
     var canvas = viewer.get('canvas');
     var layer = canvas.getLayer('processInstance', 1);
-    var connections = getConnections(activities, registry);
+    var connections = getExecutedConnections(activities, registry);
     var paths = [];
-    // Query for existing defs element - cast SVG to HTMLElement for domQuery which expects HTMLElement
-    var defs = query('defs', canvas._svg);
-    if (defs === null) {
-        defs = create('defs');
-        append(canvas._svg, defs);
-    }
-    var marker = createArrowMarker(defs);
+    var markerId = "executed-path-arrow-".concat(markerSequence++);
+    var marker = createArrowMarker(resolveDefs(canvas), markerId);
     paths.push(marker);
     for (var _i = 0, connections_1 = connections; _i < connections_1.length; _i++) {
-        var connection = connections_1[_i];
-        var connWithWaypoints = connection;
-        var curve = createCurve(connWithWaypoints.waypoints, {
-            markerEnd: 'url(#arrow)',
+        var _a = connections_1[_i], element = _a.element, count = _a.count;
+        // The arrowhead inherits strokeWidth units, so it grows with the line.
+        var curve = createCurve(element.waypoints, {
+            markerEnd: "url(#".concat(markerId, ")"),
             stroke: FILL,
-            strokeWidth: 4,
+            strokeWidth: getStrokeWidth(count),
         });
+        attr(curve, { class: EXECUTED_PATH_CLASS });
+        appendTraversalTitle(curve, count);
         append(layer, curve);
         paths.push(curve);
     }
     var dottedConnections = getDottedConnections(connections);
-    for (var _a = 0, dottedConnections_1 = dottedConnections; _a < dottedConnections_1.length; _a++) {
-        var connection = dottedConnections_1[_a];
-        var curve = createCurve(connection.waypoints, {
+    for (var _b = 0, dottedConnections_1 = dottedConnections; _b < dottedConnections_1.length; _b++) {
+        var _c = dottedConnections_1[_b], waypoints = _c.waypoints, count = _c.count;
+        var curve = createCurve(waypoints, {
             strokeDasharray: '1 8',
             strokeLinecap: 'round',
             stroke: FILL,
-            strokeWidth: 4,
+            strokeWidth: getStrokeWidth(count),
         });
+        attr(curve, { class: EXECUTED_PATH_CLASS });
+        appendTraversalTitle(curve, count);
         append(layer, curve);
         paths.push(curve);
     }
@@ -3044,8 +2961,11 @@ var InstanceDiagramHistoricActivities = function (_a) {
     var api = _a.api, processInstanceId = _a.processInstanceId, viewer = _a.viewer;
     var _b = reactExports.useState([]), activities = _b[0], setActivities = _b[1];
     var _c = reactExports.useState(true), isLoading = _c[0], setIsLoading = _c[1];
-    var _d = reactExports.useState([]), sequenceFlow = _d[0], setSequenceFlow = _d[1];
-    var _e = reactExports.useState(false), hasOverlaysRendered = _e[0], setHasOverlaysRendered = _e[1];
+    // The drawn paths live in a ref rather than in state: the toggle callback has to see
+    // its own last write synchronously, or StrictMode's double effect run draws twice and
+    // leaks the first set of curves.
+    var sequenceFlowRef = reactExports.useRef([]);
+    var hasOverlaysRendered = reactExports.useRef(false);
     reactExports.useEffect(function () {
         var fetchActivities = function () { return __awaiter(void 0, void 0, void 0, function () {
             var data, err_1;
@@ -3073,58 +2993,27 @@ var InstanceDiagramHistoricActivities = function (_a) {
         void fetchActivities();
     }, [api, processInstanceId]);
     reactExports.useEffect(function () {
-        var _a;
-        if (isLoading || hasOverlaysRendered || activities.length === 0) {
+        if (isLoading || hasOverlaysRendered.current || activities.length === 0) {
             return;
         }
-        var overlays = viewer.get('overlays');
-        var counter = {};
-        for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
-            var activity = activities_1[_i];
-            var id = activity.activityId;
-            counter[id] = counter[id] !== undefined ? counter[id] + 1 : 1;
-        }
-        var seen = {};
-        for (var _b = 0, activities_2 = activities; _b < activities_2.length; _b++) {
-            var activity = activities_2[_b];
-            var id = activity.activityId;
-            if (seen[id] === true) {
-                continue;
-            }
-            else {
-                seen[id] = true;
-            }
-            var overlay = document.createElement('span');
-            overlay.innerText = String((_a = counter[id]) !== null && _a !== void 0 ? _a : 0);
-            overlay.className = 'badge';
-            overlay.style.cssText = "\n        background: lightgray;\n      ";
-            var elementId = id.split('#')[0];
-            if (elementId !== undefined) {
-                overlays.add(elementId, {
-                    position: {
-                        bottom: 17,
-                        right: 10,
-                    },
-                    html: overlay,
-                });
-            }
-        }
-        setHasOverlaysRendered(true);
-    }, [isLoading, activities, viewer, hasOverlaysRendered]);
-    var handleToggleSequenceFlow = function (value) {
+        renderActivities(viewer, activities);
+        hasOverlaysRendered.current = true;
+    }, [isLoading, activities, viewer]);
+    reactExports.useEffect(function () { return function () {
+        clearSequenceFlow(sequenceFlowRef.current);
+        sequenceFlowRef.current = [];
+    }; }, []);
+    var handleToggleSequenceFlow = reactExports.useCallback(function (value) {
         if (value) {
-            if (sequenceFlow.length === 0) {
-                var newSequenceFlow = renderSequenceFlow(viewer, activities);
-                setSequenceFlow(newSequenceFlow);
+            if (sequenceFlowRef.current.length === 0) {
+                sequenceFlowRef.current = renderSequenceFlow(viewer, activities);
             }
         }
-        else {
-            if (sequenceFlow.length > 0) {
-                clearSequenceFlow(sequenceFlow);
-                setSequenceFlow([]);
-            }
+        else if (sequenceFlowRef.current.length > 0) {
+            clearSequenceFlow(sequenceFlowRef.current);
+            sequenceFlowRef.current = [];
         }
-    };
+    }, [viewer, activities]);
     if (isLoading) {
         return null;
     }
