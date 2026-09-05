@@ -276,6 +276,28 @@ describe('BPMN Component', () => {
     });
   });
 
+  describe('Cockpit layout interop', () => {
+    it('should pin the offsets that the process-diagram attribute would otherwise activate', () => {
+      // The attribute buys Cockpit's own badge styling, but it also brings
+      // `position: relative`. Cockpit's page-level classes carry offsets for the app
+      // chrome (`.ctn-content` is `left: 280px; right: 56px`); inert while the
+      // container is static, they shove the diagram sideways the moment it is
+      // positioned. Pin them so borrowing such a class stays a styling decision.
+      const { container } = render(<BPMNViewer diagramXML="" className="ctn-content" showRuntimeToggle={false} />);
+
+      const host = container.firstElementChild as HTMLElement;
+      expect(host).toHaveAttribute('process-diagram');
+      expect(host.style.left).toBe('0px');
+      expect(host.style.right).toBe('0px');
+    });
+
+    it('should let a caller override the pinned offsets', () => {
+      const { container } = render(<BPMNViewer diagramXML="" style={{ left: '10px' }} showRuntimeToggle={false} />);
+
+      expect((container.firstElementChild as HTMLElement).style.left).toBe('10px');
+    });
+  });
+
   describe('time heatmap', () => {
     const sampleBpmnXml = `<?xml version="1.0" encoding="UTF-8"?>
       <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL">
