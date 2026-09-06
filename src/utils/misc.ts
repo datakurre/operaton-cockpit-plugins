@@ -212,3 +212,28 @@ export const saveSettings = (settings: PluginSettings): void => {
   const storage = getStorage();
   storage.set(SETTINGS_KEY, JSON.stringify(settings));
 };
+
+/**
+ * Checks whether a process instance is still running (active or suspended, not ended).
+ * An instance is considered running if:
+ * 1. State is explicitly ACTIVE or SUSPENDED
+ * 2. Or endTime is not set, and state is not a terminated/completed state
+ *
+ * @param instance - Process instance with optional state and endTime
+ * @param instance.state - The state of the process instance
+ * @param instance.endTime - The end time of the process instance
+ * @returns True if the process instance is still running
+ */
+export const isProcessInstanceRunning = (instance: {
+  state?: string | null | undefined;
+  endTime?: string | null | undefined;
+}): boolean => {
+  const stateUpper = instance.state?.toUpperCase();
+  if (stateUpper === 'ACTIVE' || stateUpper === 'SUSPENDED') {
+    return true;
+  }
+  if (stateUpper === 'COMPLETED' || stateUpper === 'EXTERNALLY_TERMINATED' || stateUpper === 'INTERNALLY_TERMINATED') {
+    return false;
+  }
+  return !instance.endTime;
+};

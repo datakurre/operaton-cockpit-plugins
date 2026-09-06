@@ -44,6 +44,8 @@ jest.mock('../utils/bpmn', () => ({
   renderSequenceFlow: jest.fn(() => []),
   clearSequenceFlow: jest.fn(),
   renderActivities: jest.fn(() => []),
+  renderHeatmap: jest.fn(() => []),
+  clearHeatmap: jest.fn(),
 }));
 
 // Import all plugin modules after mocking

@@ -23,10 +23,13 @@ AllotmentMock.Pane = ({ children }: { children: React.ReactNode }) => (
   <div data-testid="allotment-pane">{children}</div>
 );
 
-// Mock the child components to simplify testing
 jest.mock('../BPMN', () => ({
   __esModule: true,
-  default: () => <div data-testid="bpmn-viewer">BPMN Viewer</div>,
+  default: ({ showRuntimeToggle }: { showRuntimeToggle?: boolean }) => (
+    <div data-testid="bpmn-viewer" data-show-runtime-toggle={showRuntimeToggle ? 'true' : 'false'}>
+      BPMN Viewer
+    </div>
+  ),
 }));
 
 jest.mock('../ProcessInfoPanel', () => ({
@@ -52,6 +55,7 @@ jest.mock('../VariablesTable', () => ({
 
 // Mock settings utilities
 jest.mock('../../utils/misc', () => ({
+  ...jest.requireActual('../../utils/misc'),
   loadSettings: jest.fn(() => ({})),
   saveSettings: jest.fn(),
 }));
@@ -225,6 +229,48 @@ describe('HistoryViewLayout', () => {
       fireEvent.click(variablesTab);
 
       expect(screen.getByText(/Variables: 4 variables/)).toBeInTheDocument();
+    });
+  });
+
+  describe('runtime toggle button visibility', () => {
+    it('should enable runtime toggle for ACTIVE instance', () => {
+      render(<HistoryViewLayout {...defaultProps} instance={{ ...mockInstance, state: 'ACTIVE', endTime: null }} />);
+      const viewer = screen.getByTestId('bpmn-viewer');
+      expect(viewer).toHaveAttribute('data-show-runtime-toggle', 'true');
+    });
+
+    it('should enable runtime toggle for SUSPENDED instance', () => {
+      render(<HistoryViewLayout {...defaultProps} instance={{ ...mockInstance, state: 'SUSPENDED', endTime: null }} />);
+      const viewer = screen.getByTestId('bpmn-viewer');
+      expect(viewer).toHaveAttribute('data-show-runtime-toggle', 'true');
+    });
+
+    it('should enable runtime toggle when endTime is null and state is undefined', () => {
+      render(<HistoryViewLayout {...defaultProps} instance={{ ...mockInstance, state: undefined, endTime: null }} />);
+      const viewer = screen.getByTestId('bpmn-viewer');
+      expect(viewer).toHaveAttribute('data-show-runtime-toggle', 'true');
+    });
+
+    it('should disable runtime toggle for COMPLETED instance', () => {
+      render(
+        <HistoryViewLayout
+          {...defaultProps}
+          instance={{ ...mockInstance, state: 'COMPLETED', endTime: '2024-01-15T11:00:00.000+0000' }}
+        />
+      );
+      const viewer = screen.getByTestId('bpmn-viewer');
+      expect(viewer).toHaveAttribute('data-show-runtime-toggle', 'false');
+    });
+
+    it('should disable runtime toggle for EXTERNALLY_TERMINATED instance', () => {
+      render(
+        <HistoryViewLayout
+          {...defaultProps}
+          instance={{ ...mockInstance, state: 'EXTERNALLY_TERMINATED', endTime: '2024-01-15T11:00:00.000+0000' }}
+        />
+      );
+      const viewer = screen.getByTestId('bpmn-viewer');
+      expect(viewer).toHaveAttribute('data-show-runtime-toggle', 'false');
     });
   });
 });

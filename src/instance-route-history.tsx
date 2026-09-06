@@ -410,7 +410,7 @@ export default [
       viewer._container.appendChild(mountPoint);
       createRoot(mountPoint).render(
         <React.StrictMode>
-          <ViewerButtonsPortal viewer={viewer} position={{ right: '15px', top: '60px' }}>
+          <ViewerButtonsPortal viewer={viewer} position={{ right: '15px', top: '105px' }}>
             <ToggleHistoryViewButton
               onToggleHistoryView={(value: boolean): void => {
                 if (value) {
