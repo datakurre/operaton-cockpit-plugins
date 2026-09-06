@@ -78,15 +78,41 @@ export function durationOf(activity: HistoricActivityInstance): number {
 }
 
 /**
- * Sums the time spent per diagram element.
+ * Milliseconds an activity has occupied *so far*, counting one that has not finished.
  *
- * Still-running activities contribute nothing: they have no duration yet, and guessing
- * one would make the hottest spot of a diagram the thing that simply has not finished.
+ * `durationOf` answers "how long did this take", which is only meaningful once the
+ * activity ends. The heatmap asks a different question — where is this process spending
+ * time — and a token that has been parked on a task for two days is the truest answer
+ * it has. Treating that as zero is what left the map blank for every process still
+ * running: a fresh instance's only finished activity is usually an instant start event,
+ * so nothing had any time against it at all.
+ *
+ * @param activity - Historic activity instance
+ * @param now - Clock reading to measure an unfinished activity against
+ * @returns Elapsed milliseconds, or 0 when there is nothing to measure from
+ */
+export function elapsedOf(activity: HistoricActivityInstance, now: number = Date.now()): number {
+  // Either signal means the activity is over, and the engine's own figure is better
+  // than anything measured against a browser clock.
+  if (typeof activity.durationInMillis === 'number' || activity.endTime) {
+    return durationOf(activity);
+  }
+  if (!activity.startTime) {
+    return 0;
+  }
+  const running = now - Date.parse(activity.startTime);
+  // A clock skewed behind the engine's would otherwise subtract heat.
+  return Number.isNaN(running) || running < 0 ? 0 : running;
+}
+
+/**
+ * Sums the time spent per diagram element, including time still being spent.
  *
  * @param activities - Historic activity instances to aggregate
+ * @param now - Clock reading for activities that have not finished
  * @returns One cell per element that consumed time, hottest first
  */
-export function aggregateDurations(activities: HistoricActivityInstance[]): HeatmapCell[] {
+export function aggregateDurations(activities: HistoricActivityInstance[], now: number = Date.now()): HeatmapCell[] {
   const totals = new Map<string, number>();
 
   for (const activity of activities) {
@@ -95,7 +121,7 @@ export function aggregateDurations(activities: HistoricActivityInstance[]): Heat
       continue;
     }
     const elementId = toElementId(activityId);
-    totals.set(elementId, (totals.get(elementId) ?? 0) + durationOf(activity));
+    totals.set(elementId, (totals.get(elementId) ?? 0) + elapsedOf(activity, now));
   }
 
   const cells: HeatmapCell[] = [];

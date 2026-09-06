@@ -842,15 +842,15 @@ export function getDefaultActivityInstanceQuery(maxResults: number): Record<stri
   const DAYS_PER_WEEK = 7;
 
   const weekAgoMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_PER_WEEK;
-  const oneDayMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY;
   const weekAgo = new Date(Date.now() - weekAgoMs).toISOString().split('T')[0] ?? '';
-  const tomorrow = new Date(Date.now() + oneDayMs).toISOString().split('T')[0] ?? '';
 
+  // No finishedBefore: the engine reads it as "must have a finish time", so it drops
+  // every activity still running and leaves the statistics blind to work in progress.
+  // startedAfter already bounds the query.
   return {
     sortBy: 'endTime',
     sortOrder: 'desc',
     startedAfter: `${weekAgo}T00:00:00.000+0000`,
-    finishedBefore: `${tomorrow}T00:00:00.000+0000`,
     maxResults: String(maxResults),
   };
 }
