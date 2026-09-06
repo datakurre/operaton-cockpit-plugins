@@ -136,7 +136,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-heatmap-button,\n.toggle-sequence-flow-button,\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-heatmap-button:hover,\n.toggle-sequence-flow-button:hover,\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
+___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-heatmap-button,\n.toggle-sequence-flow-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-heatmap-button:hover,\n.toggle-sequence-flow-button:hover {\n  background: #e6e6e6;\n}\n\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 0;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n  box-shadow: none;\n}\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
 
 ___$insertStylesToHeader("/**\n * Shared Resizable Layout Styles\n *\n * Common styles for Allotment-based resizable layouts used across plugins.\n * Used by: instance-route-history.scss, admin-route-authorization.scss\n */\n.Pane.vertical.Pane1 {\n  border-right: 1px solid #ddd;\n}\n\n.Resizer {\n  background: rgba(255, 255, 255, 0);\n  opacity: 0.2;\n  z-index: 1;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  -moz-background-clip: padding;\n  -webkit-background-clip: padding;\n  background-clip: padding-box;\n}\n\n.Resizer:hover {\n  -webkit-transition: all 2s ease;\n  transition: all 2s ease;\n}\n\n.Resizer.horizontal {\n  height: 11px;\n  margin: -5px 0;\n  border-top: 5px solid rgba(255, 255, 255, 0);\n  border-bottom: 5px solid rgba(255, 255, 255, 0);\n  cursor: row-resize;\n  width: 100%;\n}\n\n.Resizer.horizontal:hover {\n  border-top: 5px solid rgba(0, 0, 0, 0.5);\n  border-bottom: 5px solid rgba(0, 0, 0, 0.5);\n}\n\n.Resizer.vertical {\n  width: 11px;\n  margin: 0 -5px;\n  border-left: 5px solid rgba(255, 255, 255, 0);\n  border-right: 5px solid rgba(255, 255, 255, 0);\n  cursor: col-resize;\n}\n\n.Resizer.vertical:hover {\n  border-left: 5px solid rgba(0, 0, 0, 0.5);\n  border-right: 5px solid rgba(0, 0, 0, 0.5);\n}\n\n.Resizer.disabled {\n  cursor: not-allowed;\n}\n\n.Resizer.disabled:hover {\n  border-color: transparent;\n}\n\n.react-tabs__tab a {\n  cursor: pointer;\n}\n.react-tabs__tab.active a {\n  cursor: none;\n}\n\n.react-tabs__tab-panel--selected {\n  z-index: 1;\n}\n\n.split-view-view:has(.ctn-tabbed) {\n  border-left: 1px solid #ccc;\n}");
 
@@ -80544,8 +80544,11 @@ var HistoryViewLayout = function (_a) {
                                 cursor: 'pointer',
                                 padding: '4px 3px',
                                 lineHeight: '1',
-                                zIndex: 10,
+                                zIndex: 20,
                                 boxShadow: '-2px 2px 4px rgba(0,0,0,0.1)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                             }, title: infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel', "aria-label": infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel' }, infoPaneSize < INFO_WIDTH_THRESHOLD ? React.createElement(GoChevronRight, null) : React.createElement(GoChevronLeft, null)))),
                 React.createElement(Ve.Pane, null,
                     React.createElement(Ve, { ref: verticalRef, vertical: true, onChange: function (numbers) {
@@ -80571,8 +80574,11 @@ var HistoryViewLayout = function (_a) {
                                         cursor: 'pointer',
                                         padding: '3px 4px',
                                         lineHeight: '1',
-                                        zIndex: 10,
+                                        zIndex: 20,
                                         boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }, title: tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel', "aria-label": tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel' }, tabsPaneSize < TABS_HEIGHT_THRESHOLD ? React.createElement(GoChevronUp, null) : React.createElement(GoChevronDown, null)),
                                 React.createElement("button", { type: "button", onClick: toggleAllPanels, style: {
                                         position: 'absolute',
@@ -80586,8 +80592,11 @@ var HistoryViewLayout = function (_a) {
                                         cursor: 'pointer',
                                         padding: '3px 4px',
                                         lineHeight: '1',
-                                        zIndex: 10,
+                                        zIndex: 20,
                                         boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }, title: infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
                                         ? 'Restore side panels'
                                         : 'Maximize diagram', "aria-label": infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
