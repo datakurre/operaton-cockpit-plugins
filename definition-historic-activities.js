@@ -22327,10 +22327,9 @@ var hooks = {
  * canvas underneath by time.
  * @param overlays - The viewer's overlay manager
  * @param activities - Historic activity instances to summarise
- * @param mode - Which figure the badge should carry
  * @returns The overlay ids created, so they can be removed again
  */
-function renderBadges(overlays, activities, mode) {
+function renderBadges(overlays, activities) {
     var _a, _b, _c, _d, _e;
     var counts = {};
     for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
@@ -22348,12 +22347,10 @@ function renderBadges(overlays, activities, mode) {
         overlay.className = 'badge';
         overlay.style.cssText = 'background: lightgray;';
         overlay.innerText = String((_d = counts[elementId]) !== null && _d !== void 0 ? _d : 0);
-        if (mode === 'heat') {
-            var total = (_e = durations.get(elementId)) !== null && _e !== void 0 ? _e : 0;
-            // "so far" because a token still sitting here is counted: the heat is about where
-            // time is going, not only where it went.
-            overlay.title = "Cumulative time in this element so far: ".concat(asctime(total));
-        }
+        // The badge is the token count and its tooltip the time those tokens spent, in both
+        // modes and on every view. "so far" because a token still sitting here is counted:
+        // the heat is about where time is going, not only where it went.
+        overlay.title = "Cumulative time in this element so far: ".concat(asctime((_e = durations.get(elementId)) !== null && _e !== void 0 ? _e : 0));
         try {
             ids.push(overlays.add(elementId, { position: { bottom: 17, right: 10 }, html: overlay }));
         }
@@ -22559,7 +22556,7 @@ var Plugin = function (_a) {
         // cumulative time is read from a badge's tooltip, so a hot element without one has
         // no way to say how long it has been hot. In counts mode they stay finished-only,
         // agreeing with the table.
-        setOverlayIds(overlays ? renderBadges(overlays, mode === 'heat' ? activities : finished, mode) : []);
+        setOverlayIds(overlays ? renderBadges(overlays, mode === 'heat' ? activities : finished) : []);
         setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, activities) : []);
     }, [viewer, activities, finished, mode]);
     /* eslint-enable react-hooks/exhaustive-deps */
