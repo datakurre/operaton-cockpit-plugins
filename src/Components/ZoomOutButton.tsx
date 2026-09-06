@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import { FaMinus } from 'react-icons/fa';
 
 interface ZoomOutButtonProps {
   onZoomOut: () => void;
@@ -18,12 +17,12 @@ const ZoomOutButton: React.FC<ZoomOutButtonProps> = memo(({ onZoomOut }) => {
       onClick={onZoomOut}
       title="Zoom Out"
       aria-label="Zoom Out"
-      className="zoom-out-button"
+      className="btn btn-default zoom-out-button out"
       style={{
         marginTop: -1,
       }}
     >
-      <FaMinus size={20} />
+      <span className="glyphicon glyphicon-minus" />
     </button>
   );
 });

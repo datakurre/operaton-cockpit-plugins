@@ -32,8 +32,25 @@
   align-items: center;
   justify-content: center;
   box-shadow: none;
-  &:hover {
-    background: #e6e6e6;
+  font-size: 20px;
+  line-height: 1;
+  color: #333333;
+
+  &:hover,
+  &:focus {
+    background-color: #e6e6e6;
+    color: #333333;
+  }
+
+  span.glyphicon {
+    position: static;
+    top: 0;
+    margin: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-text-stroke: 0.7px currentColor;
   }
 }
 

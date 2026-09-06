@@ -1,5 +1,4 @@
 import React, { memo } from 'react';
-import { IoMdLocate } from 'react-icons/io';
 
 interface ResetZoomButtonProps {
   onResetZoom: () => void;
@@ -14,8 +13,13 @@ interface ResetZoomButtonProps {
  */
 const ResetZoomButton: React.FC<ResetZoomButtonProps> = memo(({ onResetZoom }) => {
   return (
-    <button onClick={onResetZoom} title="Reset Zoom" aria-label="Reset Zoom" className="reset-zoom-button">
-      <IoMdLocate size={25} />
+    <button
+      onClick={onResetZoom}
+      title="Reset Zoom"
+      aria-label="Reset Zoom"
+      className="btn btn-default reset-zoom-button"
+    >
+      <span className="glyphicon glyphicon-screenshot" />
     </button>
   );
 });

@@ -29,12 +29,14 @@ describe('ResetZoomButton', () => {
     expect(onResetZoom).toHaveBeenCalledTimes(1);
   });
 
-  it('should have correct class name', () => {
+  it('should have correct class name and icon', () => {
     const onResetZoom = jest.fn();
-    render(<ResetZoomButton onResetZoom={onResetZoom} />);
+    const { container } = render(<ResetZoomButton onResetZoom={onResetZoom} />);
 
     const button = screen.getByRole('button', { name: 'Reset Zoom' });
-    expect(button).toHaveClass('reset-zoom-button');
+    expect(button).toHaveClass('btn', 'btn-default', 'reset-zoom-button');
+    const icon = container.querySelector('span.glyphicon.glyphicon-screenshot');
+    expect(icon).toBeInTheDocument();
   });
 });
 
@@ -57,12 +59,14 @@ describe('ZoomInButton', () => {
     expect(onZoomIn).toHaveBeenCalledTimes(1);
   });
 
-  it('should have correct class name', () => {
+  it('should have correct class name and icon', () => {
     const onZoomIn = jest.fn();
-    render(<ZoomInButton onZoomIn={onZoomIn} />);
+    const { container } = render(<ZoomInButton onZoomIn={onZoomIn} />);
 
     const button = screen.getByRole('button', { name: 'Zoom In' });
-    expect(button).toHaveClass('zoom-in-button');
+    expect(button).toHaveClass('btn', 'btn-default', 'zoom-in-button', 'in');
+    const icon = container.querySelector('span.glyphicon.glyphicon-plus');
+    expect(icon).toBeInTheDocument();
   });
 
   it('should call callback multiple times on multiple clicks', async () => {
@@ -98,12 +102,14 @@ describe('ZoomOutButton', () => {
     expect(onZoomOut).toHaveBeenCalledTimes(1);
   });
 
-  it('should have correct class name', () => {
+  it('should have correct class name and icon', () => {
     const onZoomOut = jest.fn();
-    render(<ZoomOutButton onZoomOut={onZoomOut} />);
+    const { container } = render(<ZoomOutButton onZoomOut={onZoomOut} />);
 
     const button = screen.getByRole('button', { name: 'Zoom Out' });
-    expect(button).toHaveClass('zoom-out-button');
+    expect(button).toHaveClass('btn', 'btn-default', 'zoom-out-button', 'out');
+    const icon = container.querySelector('span.glyphicon.glyphicon-minus');
+    expect(icon).toBeInTheDocument();
   });
 
   it('should call callback multiple times on multiple clicks', async () => {
