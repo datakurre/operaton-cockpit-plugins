@@ -333,7 +333,7 @@ describe('definition-historic-activities integration', () => {
         createActivity({ activityId: 'Task_2', durationInMillis: 5000, endTime: '2024-01-01T10:03:00Z' }),
       ];
 
-      const ids = renderBadges(mockOverlays as any, activities, 'counts');
+      const ids = renderBadges(mockOverlays as any, activities);
       expect(ids).toHaveLength(2);
       expect(mockOverlays.add).toHaveBeenCalledTimes(2);
 
@@ -341,6 +341,7 @@ describe('definition-historic-activities integration', () => {
       expect(task1Call).toBeDefined();
       const task1Html = task1Call[1].html as HTMLElement;
       expect(task1Html.innerText).toBe('2');
+      expect(task1Html.title).toBe('Cumulative time in this element so far: 00:00:03.0');
 
       const task2Call = mockOverlays.add.mock.calls.find((c: any[]) => c[0] === 'Task_2');
       expect(task2Call).toBeDefined();
@@ -348,7 +349,7 @@ describe('definition-historic-activities integration', () => {
       expect(task2Html.innerText).toBe('1');
     });
 
-    it('should render token counts in heat mode (not duration string), with cumulative time in title', async () => {
+    it('should render the token count, never a duration string, with the time in the title', async () => {
       const { renderBadges } = await import('../definition-historic-activities');
       const mockOverlays = {
         add: jest.fn().mockReturnValue('overlay-1'),
@@ -360,18 +361,18 @@ describe('definition-historic-activities integration', () => {
         createActivity({ activityId: 'Task_1', durationInMillis: 45000, endTime: '2024-01-01T10:02:00Z' }),
       ];
 
-      const ids = renderBadges(mockOverlays as any, activities, 'heat');
+      const ids = renderBadges(mockOverlays as any, activities);
       expect(ids).toHaveLength(1);
       expect(mockOverlays.add).toHaveBeenCalledTimes(1);
 
       const task1Call = mockOverlays.add.mock.calls[0];
       expect(task1Call[0]).toBe('Task_1');
       const task1Html = task1Call[1].html as HTMLElement;
-      // Badge must show token count '2', not time string like '1m' or '60s'
+      // The badge is the token count, never a time string like '1m' or '60s'. The
+      // heatmap already carries time as colour; the badge says how many tokens made it,
+      // and the tooltip is where the figure behind the colour can be read.
       expect(task1Html.innerText).toBe('2');
-      // Tooltip carries cumulative time
-      // "so far" because a token still sitting on the element is counted too.
-      expect(task1Html.title).toContain('Cumulative time in this element so far:');
+      expect(task1Html.title).toBe('Cumulative time in this element so far: 00:01:00.0');
     });
   });
 });

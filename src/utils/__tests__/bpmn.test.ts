@@ -471,6 +471,53 @@ describe('utils/bpmn', () => {
       expect(mockViewer.overlaysMock.add).toHaveBeenCalledWith('SubProcess_1', expect.any(Object));
     });
 
+    it('should fold scope-suffixed ids into one badge, as the heatmap folds them', () => {
+      const mockViewer = createMockViewer();
+
+      // Counting raw ids put a second badge on top of the first for a scoped activity,
+      // each showing part of the total. The count has to belong to the blob it sits on.
+      const activities = [{ activityId: 'Task_1' }, { activityId: 'Task_1#scope' }, { activityId: 'Task_1' }];
+
+      renderActivities(mockViewer, activities);
+
+      expect(mockViewer.overlaysMock.add).toHaveBeenCalledTimes(1);
+      const html = mockViewer.overlaysMock.add.mock.calls[0][1].html as HTMLElement;
+      expect(html.innerText).toBe('3');
+    });
+
+    it('should skip the multi-instance body so it is not counted as its own token', () => {
+      const mockViewer = createMockViewer();
+
+      const activities = [
+        { activityId: 'Task_MI' },
+        { activityId: 'Task_MI' },
+        { activityId: 'Task_MI#multiInstanceBody' },
+      ];
+
+      renderActivities(mockViewer, activities);
+
+      expect(mockViewer.overlaysMock.add).toHaveBeenCalledTimes(1);
+      const html = mockViewer.overlaysMock.add.mock.calls[0][1].html as HTMLElement;
+      expect(html.innerText).toBe('2');
+    });
+
+    it('should carry the cumulative time in the badge tooltip', () => {
+      const mockViewer = createMockViewer();
+
+      // The heatmap colours by time; the badge counts tokens. The tooltip is where the
+      // figure behind a blob's colour can actually be read, so the two views agree.
+      const activities = [
+        { activityId: 'Task_1', durationInMillis: 1500, endTime: '2024-01-01T10:00:01.500Z' },
+        { activityId: 'Task_1', durationInMillis: 500, endTime: '2024-01-01T10:00:02.000Z' },
+      ];
+
+      renderActivities(mockViewer, activities);
+
+      const html = mockViewer.overlaysMock.add.mock.calls[0][1].html as HTMLElement;
+      expect(html.innerText).toBe('2');
+      expect(html.title).toBe('Cumulative time in this element so far: 00:00:02.0');
+    });
+
     it('should create badge with correct position', () => {
       const mockViewer = createMockViewer();
 
