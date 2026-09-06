@@ -76100,103 +76100,6 @@ var getExecutedConnections = function (activities, elementRegistry) {
 };
 
 /**
- * Whether an activity is one the instance is currently sitting on: started, not
- * finished, and not canceled.
- * @param activity - Historic activity instance
- * @returns True when the activity is still running
- */
-var isRunning = function (activity) { return !activity.endTime && activity.canceled !== true; };
-/**
- * Draws Cockpit's own blue token badge on the activities a running instance is
- * currently sitting on.
- *
- * The markup is Cockpit's, deliberately: `.badge.instance-count` inside
- * `.activity-bottom-left-position.instances-overlay` picks up the webapp's own styling,
- * so the token matches the runtime view exactly and follows any theming rather than
- * being a lookalike drawn with inline colours. Bottom-left is where Cockpit puts it,
- * which also keeps it clear of the execution-count badge at bottom-right.
- *
- * A finished instance has no unfinished activities, so this draws nothing.
- *
- * @param viewer - The BPMN viewer instance
- * @param activities - Historic activity instances for the process instance
- * @returns The overlay ids created, so they can be removed again
- */
-var renderRunningTokens = function (viewer, activities) {
-    var _a, _b, _c, _d;
-    var running = {};
-    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
-        var activity = activities_1[_i];
-        if (!isRunning(activity)) {
-            continue;
-        }
-        var elementId = (_b = ((_a = activity.activityId) !== null && _a !== void 0 ? _a : '').split('#')[0]) !== null && _b !== void 0 ? _b : '';
-        if (elementId !== '') {
-            running[elementId] = ((_c = running[elementId]) !== null && _c !== void 0 ? _c : 0) + 1;
-        }
-    }
-    var overlays = viewer.get('overlays');
-    var ids = [];
-    for (var _e = 0, _f = Object.keys(running); _e < _f.length; _e++) {
-        var elementId = _f[_e];
-        var count = (_d = running[elementId]) !== null && _d !== void 0 ? _d : 0;
-        var wrapper = document.createElement('div');
-        wrapper.className = 'activity-bottom-left-position instances-overlay';
-        var badge = document.createElement('span');
-        badge.className = 'badge instance-count';
-        badge.innerText = String(count);
-        badge.title = count === 1 ? 'One running activity instance' : "".concat(count, " running activity instances");
-        wrapper.appendChild(badge);
-        try {
-            ids.push(overlays.add(elementId, { position: { bottom: 0, left: 0 }, html: wrapper }));
-        }
-        catch (_g) {
-            // Silently skip elements that can't have overlays
-        }
-    }
-    return ids;
-};
-/**
- * Renders activity count badges on the BPMN diagram overlays.
- * Shows how many times each activity was executed.
- * @param viewer - The BPMN viewer instance
- * @param activities - Historic activity instances to count
- */
-var renderActivities = function (viewer, activities) {
-    var _a, _b, _c, _d;
-    var counter = {};
-    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
-        var activity = activities_2[_i];
-        var id = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        var current = counter[id];
-        counter[id] = current !== undefined ? current + 1 : 1;
-    }
-    var seen = {};
-    var overlays = viewer.get('overlays');
-    for (var _e = 0, activities_3 = activities; _e < activities_3.length; _e++) {
-        var activity = activities_3[_e];
-        var id = (_b = activity.activityId) !== null && _b !== void 0 ? _b : '';
-        if (seen[id]) {
-            continue;
-        }
-        else {
-            seen[id] = true;
-        }
-        var overlay = document.createElement('span');
-        overlay.innerText = String((_c = counter[id]) !== null && _c !== void 0 ? _c : 0);
-        overlay.className = 'badge';
-        overlay.style.cssText = "\n      background: lightgray;\n      border: 1px solid #143d52;\n      color: #143d52;\n    ";
-        overlays.add((_d = id.split('#')[0]) !== null && _d !== void 0 ? _d : '', {
-            position: {
-                bottom: 17,
-                right: 10,
-            },
-            html: overlay,
-        });
-    }
-};
-
-/**
  * Flatten array, one level deep.
  *
  * @param {Array<?>} arr
@@ -77216,6 +77119,117 @@ var clearHeatmap = function (nodes) {
     for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
         var node = nodes_1[_i];
         remove(node);
+    }
+};
+
+/**
+ * Whether an activity is one the instance is currently sitting on: started, not
+ * finished, and not canceled.
+ * @param activity - Historic activity instance
+ * @returns True when the activity is still running
+ */
+var isRunning = function (activity) { return !activity.endTime && activity.canceled !== true; };
+/**
+ * Draws Cockpit's own blue token badge on the activities a running instance is
+ * currently sitting on.
+ *
+ * The markup is Cockpit's, deliberately: `.badge.instance-count` inside
+ * `.activity-bottom-left-position.instances-overlay` picks up the webapp's own styling,
+ * so the token matches the runtime view exactly and follows any theming rather than
+ * being a lookalike drawn with inline colours. Bottom-left is where Cockpit puts it,
+ * which also keeps it clear of the execution-count badge at bottom-right.
+ *
+ * A finished instance has no unfinished activities, so this draws nothing.
+ *
+ * @param viewer - The BPMN viewer instance
+ * @param activities - Historic activity instances for the process instance
+ * @returns The overlay ids created, so they can be removed again
+ */
+var renderRunningTokens = function (viewer, activities) {
+    var _a, _b, _c, _d;
+    var running = {};
+    for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
+        var activity = activities_1[_i];
+        if (!isRunning(activity)) {
+            continue;
+        }
+        var elementId = (_b = ((_a = activity.activityId) !== null && _a !== void 0 ? _a : '').split('#')[0]) !== null && _b !== void 0 ? _b : '';
+        if (elementId !== '') {
+            running[elementId] = ((_c = running[elementId]) !== null && _c !== void 0 ? _c : 0) + 1;
+        }
+    }
+    var overlays = viewer.get('overlays');
+    var ids = [];
+    for (var _e = 0, _f = Object.keys(running); _e < _f.length; _e++) {
+        var elementId = _f[_e];
+        var count = (_d = running[elementId]) !== null && _d !== void 0 ? _d : 0;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'activity-bottom-left-position instances-overlay';
+        var badge = document.createElement('span');
+        badge.className = 'badge instance-count';
+        badge.innerText = String(count);
+        badge.title = count === 1 ? 'One running activity instance' : "".concat(count, " running activity instances");
+        wrapper.appendChild(badge);
+        try {
+            ids.push(overlays.add(elementId, { position: { bottom: 0, left: 0 }, html: wrapper }));
+        }
+        catch (_g) {
+            // Silently skip elements that can't have overlays
+        }
+    }
+    return ids;
+};
+/**
+ * Renders activity count badges on the BPMN diagram overlays.
+ *
+ * The badge is the token count for the element — how many times a token has been
+ * through it — and its tooltip carries the cumulative time those tokens spent there.
+ * That pairing is deliberate: the heatmap colours by time, and the badge is where the
+ * figure behind a blob can actually be read. It matches the definition diagram's
+ * statistics badges, so the same element means the same thing on every view.
+ *
+ * Ids are folded exactly as the heatmap folds them — execution scope suffixes stripped,
+ * multi-instance bodies skipped — so the count belongs to the blob it sits on. Counting
+ * raw ids instead put a second badge on top of the first for any scoped activity, each
+ * showing part of the total.
+ *
+ * @param viewer - The BPMN viewer instance
+ * @param activities - Historic activity instances to count
+ */
+var renderActivities = function (viewer, activities) {
+    var _a, _b, _c, _d, _e;
+    var counter = {};
+    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
+        var activity = activities_2[_i];
+        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
+        if (activityId === '' || activityId.endsWith('#multiInstanceBody')) {
+            continue;
+        }
+        var elementId = (_b = activityId.split('#')[0]) !== null && _b !== void 0 ? _b : '';
+        counter[elementId] = ((_c = counter[elementId]) !== null && _c !== void 0 ? _c : 0) + 1;
+    }
+    var totals = new Map(aggregateDurations(activities).map(function (cell) { return [cell.elementId, cell.totalMillis]; }));
+    var overlays = viewer.get('overlays');
+    for (var _f = 0, _g = Object.keys(counter); _f < _g.length; _f++) {
+        var elementId = _g[_f];
+        var overlay = document.createElement('span');
+        overlay.innerText = String((_d = counter[elementId]) !== null && _d !== void 0 ? _d : 0);
+        overlay.className = 'badge';
+        // "so far" because a token still sitting on the element is counted too.
+        overlay.title = "Cumulative time in this element so far: ".concat(asctime((_e = totals.get(elementId)) !== null && _e !== void 0 ? _e : 0));
+        overlay.style.cssText = "\n      background: lightgray;\n      border: 1px solid #143d52;\n      color: #143d52;\n    ";
+        try {
+            overlays.add(elementId, {
+                position: {
+                    bottom: 17,
+                    right: 10,
+                },
+                html: overlay,
+            });
+        }
+        catch (_h) {
+            // Silently skip elements that can't have overlays
+        }
     }
 };
 

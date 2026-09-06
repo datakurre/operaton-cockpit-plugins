@@ -2139,51 +2139,334 @@ var getExecutedConnections = function (activities, elementRegistry) {
     return executed;
 };
 
-/**
- * Whether an activity is one the instance is currently sitting on: started, not
- * finished, and not canceled.
- * @param activity - Historic activity instance
- * @returns True when the activity is still running
- */
-/**
- * Renders activity count badges on the BPMN diagram overlays.
- * Shows how many times each activity was executed.
- * @param viewer - The BPMN viewer instance
- * @param activities - Historic activity instances to count
- */
-var renderActivities = function (viewer, activities) {
-    var _a, _b, _c, _d;
-    var counter = {};
-    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
-        var activity = activities_2[_i];
-        var id = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
-        var current = counter[id];
-        counter[id] = current !== undefined ? current + 1 : 1;
+function ensureImported(element, target) {
+
+  if (element.ownerDocument !== target.ownerDocument) {
+    try {
+
+      // may fail on webkit
+      return target.ownerDocument.importNode(element, true);
+    } catch (e) {
+
+      // ignore
     }
-    var seen = {};
-    var overlays = viewer.get('overlays');
-    for (var _e = 0, activities_3 = activities; _e < activities_3.length; _e++) {
-        var activity = activities_3[_e];
-        var id = (_b = activity.activityId) !== null && _b !== void 0 ? _b : '';
-        if (seen[id]) {
-            continue;
-        }
-        else {
-            seen[id] = true;
-        }
-        var overlay = document.createElement('span');
-        overlay.innerText = String((_c = counter[id]) !== null && _c !== void 0 ? _c : 0);
-        overlay.className = 'badge';
-        overlay.style.cssText = "\n      background: lightgray;\n      border: 1px solid #143d52;\n      color: #143d52;\n    ";
-        overlays.add((_d = id.split('#')[0]) !== null && _d !== void 0 ? _d : '', {
-            position: {
-                bottom: 17,
-                right: 10,
-            },
-            html: overlay,
-        });
-    }
+  }
+
+  return element;
+}
+
+/**
+ * appendTo utility
+ */
+
+
+/**
+ * Append a node to a target element and return the appended node.
+ *
+ * @param  {SVGElement} element
+ * @param  {SVGElement} target
+ *
+ * @return {SVGElement} the appended node
+ */
+function appendTo(element, target) {
+  return target.appendChild(ensureImported(element, target));
+}
+
+/**
+ * append utility
+ */
+
+
+/**
+ * Append a node to an element
+ *
+ * @param  {SVGElement} element
+ * @param  {SVGElement} node
+ *
+ * @return {SVGElement} the element
+ */
+function append(target, node) {
+  appendTo(node, target);
+  return target;
+}
+
+/**
+ * attribute accessor utility
+ */
+
+var LENGTH_ATTR$1 = 2;
+
+var CSS_PROPERTIES$1 = {
+  'alignment-baseline': 1,
+  'baseline-shift': 1,
+  'clip': 1,
+  'clip-path': 1,
+  'clip-rule': 1,
+  'color': 1,
+  'color-interpolation': 1,
+  'color-interpolation-filters': 1,
+  'color-profile': 1,
+  'color-rendering': 1,
+  'cursor': 1,
+  'direction': 1,
+  'display': 1,
+  'dominant-baseline': 1,
+  'enable-background': 1,
+  'fill': 1,
+  'fill-opacity': 1,
+  'fill-rule': 1,
+  'filter': 1,
+  'flood-color': 1,
+  'flood-opacity': 1,
+  'font': 1,
+  'font-family': 1,
+  'font-size': LENGTH_ATTR$1,
+  'font-size-adjust': 1,
+  'font-stretch': 1,
+  'font-style': 1,
+  'font-variant': 1,
+  'font-weight': 1,
+  'glyph-orientation-horizontal': 1,
+  'glyph-orientation-vertical': 1,
+  'image-rendering': 1,
+  'kerning': 1,
+  'letter-spacing': 1,
+  'lighting-color': 1,
+  'marker': 1,
+  'marker-end': 1,
+  'marker-mid': 1,
+  'marker-start': 1,
+  'mask': 1,
+  'opacity': 1,
+  'overflow': 1,
+  'pointer-events': 1,
+  'shape-rendering': 1,
+  'stop-color': 1,
+  'stop-opacity': 1,
+  'stroke': 1,
+  'stroke-dasharray': 1,
+  'stroke-dashoffset': 1,
+  'stroke-linecap': 1,
+  'stroke-linejoin': 1,
+  'stroke-miterlimit': 1,
+  'stroke-opacity': 1,
+  'stroke-width': LENGTH_ATTR$1,
+  'text-anchor': 1,
+  'text-decoration': 1,
+  'text-rendering': 1,
+  'unicode-bidi': 1,
+  'visibility': 1,
+  'word-spacing': 1,
+  'writing-mode': 1
 };
+
+
+function getAttribute$1(node, name) {
+  if (CSS_PROPERTIES$1[name]) {
+    return node.style[name];
+  } else {
+    return node.getAttributeNS(null, name);
+  }
+}
+
+function setAttribute$1(node, name, value) {
+  var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+  var type = CSS_PROPERTIES$1[hyphenated];
+
+  if (type) {
+
+    // append pixel unit, unless present
+    if (type === LENGTH_ATTR$1 && typeof value === 'number') {
+      value = String(value) + 'px';
+    }
+
+    node.style[hyphenated] = value;
+  } else {
+    node.setAttributeNS(null, name, value);
+  }
+}
+
+function setAttributes$1(node, attrs) {
+
+  var names = Object.keys(attrs), i, name;
+
+  for (i = 0, name; (name = names[i]); i++) {
+    setAttribute$1(node, name, attrs[name]);
+  }
+}
+
+/**
+ * Gets or sets raw attributes on a node.
+ *
+ * @param  {SVGElement} node
+ * @param  {Object} [attrs]
+ * @param  {String} [name]
+ * @param  {String} [value]
+ *
+ * @return {String}
+ */
+function attr$1(node, name, value) {
+  if (typeof name === 'string') {
+    {
+      return getAttribute$1(node, name);
+    }
+  } else {
+    setAttributes$1(node, name);
+  }
+
+  return node;
+}
+
+var ns$1 = {
+  svg: 'http://www.w3.org/2000/svg'
+};
+
+/**
+ * DOM parsing utility
+ */
+
+
+var SVG_START$1 = '<svg xmlns="' + ns$1.svg + '"';
+
+function parse$1(svg) {
+
+  var unwrap = false;
+
+  // ensure we import a valid svg document
+  if (svg.substring(0, 4) === '<svg') {
+    if (svg.indexOf(ns$1.svg) === -1) {
+      svg = SVG_START$1 + svg.substring(4);
+    }
+  } else {
+
+    // namespace svg
+    svg = SVG_START$1 + '>' + svg + '</svg>';
+    unwrap = true;
+  }
+
+  var parsed = parseDocument$1(svg);
+
+  if (!unwrap) {
+    return parsed;
+  }
+
+  var fragment = document.createDocumentFragment();
+
+  var parent = parsed.firstChild;
+
+  while (parent.firstChild) {
+    fragment.appendChild(parent.firstChild);
+  }
+
+  return fragment;
+}
+
+function parseDocument$1(svg) {
+
+  var parser;
+
+  // parse
+  parser = new DOMParser();
+  parser.async = false;
+
+  return parser.parseFromString(svg, 'text/xml');
+}
+
+/**
+ * Create utility for SVG elements
+ */
+
+
+
+/**
+ * Create a specific type from name or SVG markup.
+ *
+ * @param {String} name the name or markup of the element
+ * @param {Object} [attrs] attributes to set on the element
+ *
+ * @returns {SVGElement}
+ */
+function create$1(name, attrs) {
+  var element;
+
+  name = name.trim();
+
+  if (name.charAt(0) === '<') {
+    element = parse$1(name).firstChild;
+    element = document.importNode(element, true);
+  } else {
+    element = document.createElementNS(ns$1.svg, name);
+  }
+
+  return element;
+}
+
+function remove(element) {
+  var parent = element.parentNode;
+
+  if (parent) {
+    parent.removeChild(element);
+  }
+
+  return element;
+}
+
+/**
+ * UI and timing constants used across the application.
+ * Centralizes magic numbers for easier maintenance and configuration.
+ */
+// =============================================================================
+// UI Constants
+// =============================================================================
+/** Modal overlay z-index to ensure modals appear above other content */
+// =============================================================================
+// Executed Path Constants
+// =============================================================================
+/** Stroke width of an executed sequence flow that was traversed once */
+var EXECUTED_PATH_STROKE_WIDTH = 4;
+/** Stroke width added per doubling of the traversal count */
+var EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
+/** Upper bound on the stroke width of an executed sequence flow */
+var EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
+// =============================================================================
+// Heatmap Constants
+// =============================================================================
+/**
+ * Layer index of the heatmap. Negative puts it *below* diagram-js's base layer, so
+ * element borders, labels and flows stay crisp on top of the heat rather than being
+ * tinted by it. Shapes paint a near-opaque white fill, so the heat reads as a halo
+ * around them rather than a wash over them.
+ */
+var HEATMAP_LAYER_INDEX = -1;
+/** Opacity of the heatmap layer. It sits behind the diagram, so it can be strong */
+var HEATMAP_OPACITY = 0.85;
+/** Gaussian blur applied to the whole heatmap group, in diagram units */
+var HEATMAP_BLUR = 12;
+/** Blob radius as a multiple of half the element's longest side */
+var HEATMAP_RADIUS_SCALE = 2.1;
+/** Smallest blob radius, so events and gateways still register */
+var HEATMAP_MIN_RADIUS = 46;
+/** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
+var HEATMAP_GAMMA = 0.7;
+/** How much of a blob's radius follows intensity rather than the element's size */
+var HEATMAP_BLOOM = 0.35;
+/** Samples taken from the colour ramp to build the filter's transfer tables */
+var HEATMAP_RAMP_SAMPLES = 12;
+/** Width of the density smear drawn along a sequence flow, in diagram units */
+var HEATMAP_PATH_WIDTH = 30;
+/** Density floor, so a cold-but-executed element still joins the field */
+var HEATMAP_MIN_DENSITY = 0.1;
+/**
+ * Amplifies the density field before it is coloured. Blurring spreads each
+ * contribution and so lowers its peak; without a gain the hottest element never
+ * reaches the top of the ramp and the map tops out orange.
+ */
+var HEATMAP_DENSITY_GAIN = 1.25;
+/** Exponent on the opacity curve; above 1 it holds cold regions back */
+var HEATMAP_ALPHA_EXPONENT = 1.6;
+/** Slope of the opacity curve once it starts rising */
+var HEATMAP_ALPHA_SLOPE = 2.1;
 
 var componentEvent = {};
 
@@ -2367,9 +2650,9 @@ function assign(target) {
  * attribute accessor utility
  */
 
-var LENGTH_ATTR$1 = 2;
+var LENGTH_ATTR = 2;
 
-var CSS_PROPERTIES$1 = {
+var CSS_PROPERTIES = {
   'alignment-baseline': 1,
   'baseline-shift': 1,
   'clip': 1,
@@ -2393,7 +2676,7 @@ var CSS_PROPERTIES$1 = {
   'flood-opacity': 1,
   'font': 1,
   'font-family': 1,
-  'font-size': LENGTH_ATTR$1,
+  'font-size': LENGTH_ATTR,
   'font-size-adjust': 1,
   'font-stretch': 1,
   'font-style': 1,
@@ -2423,7 +2706,7 @@ var CSS_PROPERTIES$1 = {
   'stroke-linejoin': 1,
   'stroke-miterlimit': 1,
   'stroke-opacity': 1,
-  'stroke-width': LENGTH_ATTR$1,
+  'stroke-width': LENGTH_ATTR,
   'text-anchor': 1,
   'text-decoration': 1,
   'text-rendering': 1,
@@ -2434,22 +2717,22 @@ var CSS_PROPERTIES$1 = {
 };
 
 
-function getAttribute$1(node, name) {
-  if (CSS_PROPERTIES$1[name]) {
+function getAttribute(node, name) {
+  if (CSS_PROPERTIES[name]) {
     return node.style[name];
   } else {
     return node.getAttributeNS(null, name);
   }
 }
 
-function setAttribute$1(node, name, value) {
+function setAttribute(node, name, value) {
   var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 
-  var type = CSS_PROPERTIES$1[hyphenated];
+  var type = CSS_PROPERTIES[hyphenated];
 
   if (type) {
     // append pixel unit, unless present
-    if (type === LENGTH_ATTR$1 && typeof value === 'number') {
+    if (type === LENGTH_ATTR && typeof value === 'number') {
       value = String(value) + 'px';
     }
 
@@ -2459,12 +2742,12 @@ function setAttribute$1(node, name, value) {
   }
 }
 
-function setAttributes$1(node, attrs) {
+function setAttributes(node, attrs) {
 
   var names = Object.keys(attrs), i, name;
 
   for (i = 0, name; (name = names[i]); i++) {
-    setAttribute$1(node, name, attrs[name]);
+    setAttribute(node, name, attrs[name]);
   }
 }
 
@@ -2478,19 +2761,19 @@ function setAttributes$1(node, attrs) {
  *
  * @return {String}
  */
-function attr$1(node, name, value) {
+function attr(node, name, value) {
   if (typeof name === 'string') {
     {
-      return getAttribute$1(node, name);
+      return getAttribute(node, name);
     }
   } else {
-    setAttributes$1(node, name);
+    setAttributes(node, name);
   }
 
   return node;
 }
 
-var ns$1 = {
+var ns = {
   svg: 'http://www.w3.org/2000/svg'
 };
 
@@ -2498,24 +2781,24 @@ var ns$1 = {
  * DOM parsing utility
  */
 
-var SVG_START$1 = '<svg xmlns="' + ns$1.svg + '"';
+var SVG_START = '<svg xmlns="' + ns.svg + '"';
 
-function parse$1(svg) {
+function parse(svg) {
 
   var unwrap = false;
 
   // ensure we import a valid svg document
   if (svg.substring(0, 4) === '<svg') {
-    if (svg.indexOf(ns$1.svg) === -1) {
-      svg = SVG_START$1 + svg.substring(4);
+    if (svg.indexOf(ns.svg) === -1) {
+      svg = SVG_START + svg.substring(4);
     }
   } else {
     // namespace svg
-    svg = SVG_START$1 + '>' + svg + '</svg>';
+    svg = SVG_START + '>' + svg + '</svg>';
     unwrap = true;
   }
 
-  var parsed = parseDocument$1(svg);
+  var parsed = parseDocument(svg);
 
   if (!unwrap) {
     return parsed;
@@ -2532,7 +2815,7 @@ function parse$1(svg) {
   return fragment;
 }
 
-function parseDocument$1(svg) {
+function parseDocument(svg) {
 
   var parser;
 
@@ -2556,14 +2839,14 @@ function parseDocument$1(svg) {
  *
  * @returns {SVGElement}
  */
-function create$1(name, attrs) {
+function create(name, attrs) {
   var element;
 
   if (name.charAt(0) === '<') {
-    element = parse$1(name).firstChild;
+    element = parse(name).firstChild;
     element = document.importNode(element, true);
   } else {
-    element = document.createElementNS(ns$1.svg, name);
+    element = document.createElementNS(ns.svg, name);
   }
 
   return element;
@@ -2589,11 +2872,11 @@ var DEFAULT_ATTRS = {
  * @param {Object} [attrs]
  */
 function createCurve(points, attrs = {}) {
-  var path = create$1('path');
+  var path = create('path');
 
   var data = getData(points);
 
-  attr$1(path, assign({}, DEFAULT_ATTRS, attrs, {
+  attr(path, assign({}, DEFAULT_ATTRS, attrs, {
     d: data
   }));
 
@@ -2701,335 +2984,6 @@ function getMid(a, b) {
   };
 }
 
-function ensureImported(element, target) {
-
-  if (element.ownerDocument !== target.ownerDocument) {
-    try {
-
-      // may fail on webkit
-      return target.ownerDocument.importNode(element, true);
-    } catch (e) {
-
-      // ignore
-    }
-  }
-
-  return element;
-}
-
-/**
- * appendTo utility
- */
-
-
-/**
- * Append a node to a target element and return the appended node.
- *
- * @param  {SVGElement} element
- * @param  {SVGElement} target
- *
- * @return {SVGElement} the appended node
- */
-function appendTo(element, target) {
-  return target.appendChild(ensureImported(element, target));
-}
-
-/**
- * append utility
- */
-
-
-/**
- * Append a node to an element
- *
- * @param  {SVGElement} element
- * @param  {SVGElement} node
- *
- * @return {SVGElement} the element
- */
-function append(target, node) {
-  appendTo(node, target);
-  return target;
-}
-
-/**
- * attribute accessor utility
- */
-
-var LENGTH_ATTR = 2;
-
-var CSS_PROPERTIES = {
-  'alignment-baseline': 1,
-  'baseline-shift': 1,
-  'clip': 1,
-  'clip-path': 1,
-  'clip-rule': 1,
-  'color': 1,
-  'color-interpolation': 1,
-  'color-interpolation-filters': 1,
-  'color-profile': 1,
-  'color-rendering': 1,
-  'cursor': 1,
-  'direction': 1,
-  'display': 1,
-  'dominant-baseline': 1,
-  'enable-background': 1,
-  'fill': 1,
-  'fill-opacity': 1,
-  'fill-rule': 1,
-  'filter': 1,
-  'flood-color': 1,
-  'flood-opacity': 1,
-  'font': 1,
-  'font-family': 1,
-  'font-size': LENGTH_ATTR,
-  'font-size-adjust': 1,
-  'font-stretch': 1,
-  'font-style': 1,
-  'font-variant': 1,
-  'font-weight': 1,
-  'glyph-orientation-horizontal': 1,
-  'glyph-orientation-vertical': 1,
-  'image-rendering': 1,
-  'kerning': 1,
-  'letter-spacing': 1,
-  'lighting-color': 1,
-  'marker': 1,
-  'marker-end': 1,
-  'marker-mid': 1,
-  'marker-start': 1,
-  'mask': 1,
-  'opacity': 1,
-  'overflow': 1,
-  'pointer-events': 1,
-  'shape-rendering': 1,
-  'stop-color': 1,
-  'stop-opacity': 1,
-  'stroke': 1,
-  'stroke-dasharray': 1,
-  'stroke-dashoffset': 1,
-  'stroke-linecap': 1,
-  'stroke-linejoin': 1,
-  'stroke-miterlimit': 1,
-  'stroke-opacity': 1,
-  'stroke-width': LENGTH_ATTR,
-  'text-anchor': 1,
-  'text-decoration': 1,
-  'text-rendering': 1,
-  'unicode-bidi': 1,
-  'visibility': 1,
-  'word-spacing': 1,
-  'writing-mode': 1
-};
-
-
-function getAttribute(node, name) {
-  if (CSS_PROPERTIES[name]) {
-    return node.style[name];
-  } else {
-    return node.getAttributeNS(null, name);
-  }
-}
-
-function setAttribute(node, name, value) {
-  var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-
-  var type = CSS_PROPERTIES[hyphenated];
-
-  if (type) {
-
-    // append pixel unit, unless present
-    if (type === LENGTH_ATTR && typeof value === 'number') {
-      value = String(value) + 'px';
-    }
-
-    node.style[hyphenated] = value;
-  } else {
-    node.setAttributeNS(null, name, value);
-  }
-}
-
-function setAttributes(node, attrs) {
-
-  var names = Object.keys(attrs), i, name;
-
-  for (i = 0, name; (name = names[i]); i++) {
-    setAttribute(node, name, attrs[name]);
-  }
-}
-
-/**
- * Gets or sets raw attributes on a node.
- *
- * @param  {SVGElement} node
- * @param  {Object} [attrs]
- * @param  {String} [name]
- * @param  {String} [value]
- *
- * @return {String}
- */
-function attr(node, name, value) {
-  if (typeof name === 'string') {
-    {
-      return getAttribute(node, name);
-    }
-  } else {
-    setAttributes(node, name);
-  }
-
-  return node;
-}
-
-var ns = {
-  svg: 'http://www.w3.org/2000/svg'
-};
-
-/**
- * DOM parsing utility
- */
-
-
-var SVG_START = '<svg xmlns="' + ns.svg + '"';
-
-function parse(svg) {
-
-  var unwrap = false;
-
-  // ensure we import a valid svg document
-  if (svg.substring(0, 4) === '<svg') {
-    if (svg.indexOf(ns.svg) === -1) {
-      svg = SVG_START + svg.substring(4);
-    }
-  } else {
-
-    // namespace svg
-    svg = SVG_START + '>' + svg + '</svg>';
-    unwrap = true;
-  }
-
-  var parsed = parseDocument(svg);
-
-  if (!unwrap) {
-    return parsed;
-  }
-
-  var fragment = document.createDocumentFragment();
-
-  var parent = parsed.firstChild;
-
-  while (parent.firstChild) {
-    fragment.appendChild(parent.firstChild);
-  }
-
-  return fragment;
-}
-
-function parseDocument(svg) {
-
-  var parser;
-
-  // parse
-  parser = new DOMParser();
-  parser.async = false;
-
-  return parser.parseFromString(svg, 'text/xml');
-}
-
-/**
- * Create utility for SVG elements
- */
-
-
-
-/**
- * Create a specific type from name or SVG markup.
- *
- * @param {String} name the name or markup of the element
- * @param {Object} [attrs] attributes to set on the element
- *
- * @returns {SVGElement}
- */
-function create(name, attrs) {
-  var element;
-
-  name = name.trim();
-
-  if (name.charAt(0) === '<') {
-    element = parse(name).firstChild;
-    element = document.importNode(element, true);
-  } else {
-    element = document.createElementNS(ns.svg, name);
-  }
-
-  return element;
-}
-
-function remove(element) {
-  var parent = element.parentNode;
-
-  if (parent) {
-    parent.removeChild(element);
-  }
-
-  return element;
-}
-
-/**
- * UI and timing constants used across the application.
- * Centralizes magic numbers for easier maintenance and configuration.
- */
-// =============================================================================
-// UI Constants
-// =============================================================================
-/** Modal overlay z-index to ensure modals appear above other content */
-// =============================================================================
-// Executed Path Constants
-// =============================================================================
-/** Stroke width of an executed sequence flow that was traversed once */
-var EXECUTED_PATH_STROKE_WIDTH = 4;
-/** Stroke width added per doubling of the traversal count */
-var EXECUTED_PATH_STROKE_WIDTH_STEP = 2;
-/** Upper bound on the stroke width of an executed sequence flow */
-var EXECUTED_PATH_STROKE_WIDTH_MAX = 12;
-// =============================================================================
-// Heatmap Constants
-// =============================================================================
-/**
- * Layer index of the heatmap. Negative puts it *below* diagram-js's base layer, so
- * element borders, labels and flows stay crisp on top of the heat rather than being
- * tinted by it. Shapes paint a near-opaque white fill, so the heat reads as a halo
- * around them rather than a wash over them.
- */
-var HEATMAP_LAYER_INDEX = -1;
-/** Opacity of the heatmap layer. It sits behind the diagram, so it can be strong */
-var HEATMAP_OPACITY = 0.85;
-/** Gaussian blur applied to the whole heatmap group, in diagram units */
-var HEATMAP_BLUR = 12;
-/** Blob radius as a multiple of half the element's longest side */
-var HEATMAP_RADIUS_SCALE = 2.1;
-/** Smallest blob radius, so events and gateways still register */
-var HEATMAP_MIN_RADIUS = 46;
-/** Exponent lifting mid-range heat; 1 is a straight ratio, lower spreads the middle */
-var HEATMAP_GAMMA = 0.7;
-/** How much of a blob's radius follows intensity rather than the element's size */
-var HEATMAP_BLOOM = 0.35;
-/** Samples taken from the colour ramp to build the filter's transfer tables */
-var HEATMAP_RAMP_SAMPLES = 12;
-/** Width of the density smear drawn along a sequence flow, in diagram units */
-var HEATMAP_PATH_WIDTH = 30;
-/** Density floor, so a cold-but-executed element still joins the field */
-var HEATMAP_MIN_DENSITY = 0.1;
-/**
- * Amplifies the density field before it is coloured. Blurring spreads each
- * contribution and so lowers its peak; without a gain the hottest element never
- * reaches the top of the ramp and the map tops out orange.
- */
-var HEATMAP_DENSITY_GAIN = 1.25;
-/** Exponent on the opacity curve; above 1 it holds cold regions back */
-var HEATMAP_ALPHA_EXPONENT = 1.6;
-/** Slope of the opacity curve once it starts rising */
-var HEATMAP_ALPHA_SLOPE = 2.1;
-
 /** Fill color for sequence flow highlighting. Darker than the diagram's own green
  * so the executed path reads clearly against the white canvas it is drawn over. */
 var FILL = '#429111';
@@ -3079,7 +3033,7 @@ var getStrokeWidth = function (count) {
  *   every count a lower bound rather than the real figure
  */
 function appendTraversalTitle(path, count, truncated) {
-    var title = create('title');
+    var title = create$1('title');
     if (truncated) {
         title.textContent = count === 1 ? 'Executed at least once' : "Executed at least ".concat(count, " times");
     }
@@ -3095,10 +3049,10 @@ function appendTraversalTitle(path, count, truncated) {
  * @returns The created marker element
  */
 function createArrowMarker(defs, id) {
-    var marker = create('marker');
-    var path = create('path');
-    attr(marker, __assign(__assign({}, MARKER_ATTRS), { id: id }));
-    attr(path, ARROW_PATH_ATTRS);
+    var marker = create$1('marker');
+    var path = create$1('path');
+    attr$1(marker, __assign(__assign({}, MARKER_ATTRS), { id: id }));
+    attr$1(path, ARROW_PATH_ATTRS);
     append(marker, path);
     append(defs, marker);
     return marker;
@@ -3115,7 +3069,7 @@ function resolveDefs(canvas) {
     if (existing !== null) {
         return existing;
     }
-    var defs = create('defs');
+    var defs = create$1('defs');
     append(canvas._svg, defs);
     return defs;
 }
@@ -3147,7 +3101,7 @@ var renderSequenceFlow = function (viewer, activities, options) {
             stroke: FILL,
             strokeWidth: getStrokeWidth(count),
         });
-        attr(curve, { class: EXECUTED_PATH_CLASS });
+        attr$1(curve, { class: EXECUTED_PATH_CLASS });
         appendTraversalTitle(curve, count, isTruncated);
         append(layer, curve);
         paths.push(curve);
@@ -3161,7 +3115,7 @@ var renderSequenceFlow = function (viewer, activities, options) {
             stroke: FILL,
             strokeWidth: getStrokeWidth(count),
         });
-        attr(curve, { class: EXECUTED_PATH_CLASS });
+        attr$1(curve, { class: EXECUTED_PATH_CLASS });
         appendTraversalTitle(curve, count, isTruncated);
         append(layer, curve);
         paths.push(curve);
@@ -3344,8 +3298,8 @@ function getIntensity(totalMillis, maxMillis) {
  */
 function createHeatFilter(defs, id) {
     var _a;
-    var filterEl = create('filter');
-    attr(filterEl, {
+    var filterEl = create$1('filter');
+    attr$1(filterEl, {
         id: id,
         x: '-25%',
         y: '-25%',
@@ -3354,12 +3308,12 @@ function createHeatFilter(defs, id) {
         // Without this the browser interpolates in linearRGB and the ramp washes out.
         'color-interpolation-filters': 'sRGB',
     });
-    var blur = create('feGaussianBlur');
-    attr(blur, { in: 'SourceGraphic', stdDeviation: HEATMAP_BLUR, result: 'density' });
+    var blur = create$1('feGaussianBlur');
+    attr$1(blur, { in: 'SourceGraphic', stdDeviation: HEATMAP_BLUR, result: 'density' });
     append(filterEl, blur);
     // Copy the density (alpha) into R, G and B so the transfer tables below all read it.
-    var spread = create('feColorMatrix');
-    attr(spread, {
+    var spread = create$1('feColorMatrix');
+    attr$1(spread, {
         in: 'density',
         type: 'matrix',
         // The gain in every row lifts the blurred peak back to the top of the ramp.
@@ -3378,15 +3332,15 @@ function createHeatFilter(defs, id) {
         // Cold density fades out rather than hazing blue across the whole canvas.
         alphas.push(Math.min(1, Math.pow(along, HEATMAP_ALPHA_EXPONENT) * HEATMAP_ALPHA_SLOPE));
     }
-    var transfer = create('feComponentTransfer');
-    attr(transfer, { in: 'grey' });
+    var transfer = create$1('feComponentTransfer');
+    attr$1(transfer, { in: 'grey' });
     ['feFuncR', 'feFuncG', 'feFuncB'].forEach(function (name, channel) {
-        var func = create(name);
-        attr(func, { type: 'table', tableValues: channels[channel].join(' ') });
+        var func = create$1(name);
+        attr$1(func, { type: 'table', tableValues: channels[channel].join(' ') });
         append(transfer, func);
     });
-    var funcA = create('feFuncA');
-    attr(funcA, { type: 'table', tableValues: alphas.join(' ') });
+    var funcA = create$1('feFuncA');
+    attr$1(funcA, { type: 'table', tableValues: alphas.join(' ') });
     append(transfer, funcA);
     append(filterEl, transfer);
     append(defs, filterEl);
@@ -3398,12 +3352,12 @@ function createHeatFilter(defs, id) {
  * is carried by the blob's own opacity, not by its colour.
  */
 function createDensityGradient(defs, id) {
-    var gradient = create('radialGradient');
-    attr(gradient, { id: id });
-    var inner = create('stop');
-    attr(inner, { offset: '0%', 'stop-color': 'white', 'stop-opacity': 1 });
-    var outer = create('stop');
-    attr(outer, { offset: '100%', 'stop-color': 'white', 'stop-opacity': 0 });
+    var gradient = create$1('radialGradient');
+    attr$1(gradient, { id: id });
+    var inner = create$1('stop');
+    attr$1(inner, { offset: '0%', 'stop-color': 'white', 'stop-opacity': 1 });
+    var outer = create$1('stop');
+    attr$1(outer, { offset: '100%', 'stop-color': 'white', 'stop-opacity': 0 });
     append(gradient, inner);
     append(gradient, outer);
     append(defs, gradient);
@@ -3422,8 +3376,8 @@ function densityOf(intensity) {
  * The gradient fading a flow from its source's density to its target's.
  */
 function createFlowGradient(defs, id, smear) {
-    var gradient = create('linearGradient');
-    attr(gradient, {
+    var gradient = create$1('linearGradient');
+    attr$1(gradient, {
         id: id,
         gradientUnits: 'userSpaceOnUse',
         x1: smear.start.x,
@@ -3431,10 +3385,10 @@ function createFlowGradient(defs, id, smear) {
         x2: smear.end.x,
         y2: smear.end.y,
     });
-    var first = create('stop');
-    attr(first, { offset: '0%', 'stop-color': 'white', 'stop-opacity': smear.from });
-    var last = create('stop');
-    attr(last, { offset: '100%', 'stop-color': 'white', 'stop-opacity': smear.to });
+    var first = create$1('stop');
+    attr$1(first, { offset: '0%', 'stop-color': 'white', 'stop-opacity': smear.from });
+    var last = create$1('stop');
+    attr$1(last, { offset: '100%', 'stop-color': 'white', 'stop-opacity': smear.to });
     append(gradient, first);
     append(gradient, last);
     append(defs, gradient);
@@ -3444,8 +3398,8 @@ function createFlowGradient(defs, id, smear) {
  * The thick soft stroke that carries a flow's density along its waypoints.
  */
 function createFlowSmear(waypoints, gradientId) {
-    var line = create('path');
-    attr(line, {
+    var line = create$1('path');
+    attr$1(line, {
         d: waypoints.map(function (point, at) { return "".concat(at === 0 ? 'M' : 'L', " ").concat(point.x, " ").concat(point.y); }).join(' '),
         fill: 'none',
         stroke: "url(#".concat(gradientId, ")"),
@@ -3509,8 +3463,8 @@ function createDensityBlob(registry, cell, maxMillis, gradientId) {
     // Hot spots bloom a little wider as well as denser, so they read first.
     var spread = 1 - HEATMAP_BLOOM + HEATMAP_BLOOM * intensity;
     var radius = Math.max(HEATMAP_MIN_RADIUS, (Math.max(width, height) / 2) * HEATMAP_RADIUS_SCALE) * spread;
-    var blob = create('ellipse');
-    attr(blob, {
+    var blob = create$1('ellipse');
+    attr$1(blob, {
         cx: ((_a = element.x) !== null && _a !== void 0 ? _a : 0) + width / 2,
         cy: ((_b = element.y) !== null && _b !== void 0 ? _b : 0) + height / 2,
         rx: radius,
@@ -3560,8 +3514,8 @@ var renderHeatmap = function (viewer, activities) {
     var sequence = heatmapSequence++;
     var _c = prepareHeatDefs(defs, sequence), filterId = _c.filterId, gradientId = _c.gradientId, nodes = _c.nodes;
     added.push.apply(added, nodes);
-    var group = create('g');
-    attr(group, {
+    var group = create$1('g');
+    attr$1(group, {
         class: 'history-heatmap',
         filter: "url(#".concat(filterId, ")"),
         opacity: HEATMAP_OPACITY,
@@ -3593,6 +3547,60 @@ var clearHeatmap = function (nodes) {
     for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
         var node = nodes_1[_i];
         remove(node);
+    }
+};
+
+/**
+ * Renders activity count badges on the BPMN diagram overlays.
+ *
+ * The badge is the token count for the element — how many times a token has been
+ * through it — and its tooltip carries the cumulative time those tokens spent there.
+ * That pairing is deliberate: the heatmap colours by time, and the badge is where the
+ * figure behind a blob can actually be read. It matches the definition diagram's
+ * statistics badges, so the same element means the same thing on every view.
+ *
+ * Ids are folded exactly as the heatmap folds them — execution scope suffixes stripped,
+ * multi-instance bodies skipped — so the count belongs to the blob it sits on. Counting
+ * raw ids instead put a second badge on top of the first for any scoped activity, each
+ * showing part of the total.
+ *
+ * @param viewer - The BPMN viewer instance
+ * @param activities - Historic activity instances to count
+ */
+var renderActivities = function (viewer, activities) {
+    var _a, _b, _c, _d, _e;
+    var counter = {};
+    for (var _i = 0, activities_2 = activities; _i < activities_2.length; _i++) {
+        var activity = activities_2[_i];
+        var activityId = (_a = activity.activityId) !== null && _a !== void 0 ? _a : '';
+        if (activityId === '' || activityId.endsWith('#multiInstanceBody')) {
+            continue;
+        }
+        var elementId = (_b = activityId.split('#')[0]) !== null && _b !== void 0 ? _b : '';
+        counter[elementId] = ((_c = counter[elementId]) !== null && _c !== void 0 ? _c : 0) + 1;
+    }
+    var totals = new Map(aggregateDurations(activities).map(function (cell) { return [cell.elementId, cell.totalMillis]; }));
+    var overlays = viewer.get('overlays');
+    for (var _f = 0, _g = Object.keys(counter); _f < _g.length; _f++) {
+        var elementId = _g[_f];
+        var overlay = document.createElement('span');
+        overlay.innerText = String((_d = counter[elementId]) !== null && _d !== void 0 ? _d : 0);
+        overlay.className = 'badge';
+        // "so far" because a token still sitting on the element is counted too.
+        overlay.title = "Cumulative time in this element so far: ".concat(asctime((_e = totals.get(elementId)) !== null && _e !== void 0 ? _e : 0));
+        overlay.style.cssText = "\n      background: lightgray;\n      border: 1px solid #143d52;\n      color: #143d52;\n    ";
+        try {
+            overlays.add(elementId, {
+                position: {
+                    bottom: 17,
+                    right: 10,
+                },
+                html: overlay,
+            });
+        }
+        catch (_h) {
+            // Silently skip elements that can't have overlays
+        }
     }
 };
 
