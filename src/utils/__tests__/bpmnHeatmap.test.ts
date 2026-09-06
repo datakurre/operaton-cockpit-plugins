@@ -3,7 +3,7 @@
  *
  * @module
  */
-import { aggregateDurations, getHeatColor, getIntensity } from '../bpmn/heatmap';
+import { aggregateDurations, elapsedOf, getHeatColor, getIntensity } from '../bpmn/heatmap';
 import { HEATMAP_GAMMA } from '../constants';
 import type { HistoricActivityInstance } from '../../types';
 
@@ -29,10 +29,32 @@ describe('utils/bpmn/heatmap', () => {
       expect(cells).toEqual([{ elementId: 'Task_A', totalMillis: 50 }]);
     });
 
-    it('ignores a still-running activity rather than guessing its duration', () => {
-      // Left as null by the engine until it finishes; inventing "now minus start"
-      // would make the unfinished thing the hottest spot on every diagram.
-      const cells = aggregateDurations([activity('Task_A', null, { startTime: '2024-01-01T10:00:00.000+0000' })]);
+    it('counts the time a still-running activity has already consumed', () => {
+      // The engine leaves durationInMillis null until an activity ends. Reading that as
+      // zero is what left the map blank for every process still running: a fresh
+      // instance's only finished activity is usually an instant start event, so nothing
+      // had any time against it. A token parked on a task is where the time is going.
+      const now = Date.parse('2024-01-01T10:00:05.000+0000');
+      const cells = aggregateDurations([activity('Task_A', null, { startTime: '2024-01-01T10:00:00.000+0000' })], now);
+
+      expect(cells).toEqual([{ elementId: 'Task_A', totalMillis: 5000 }]);
+    });
+
+    it('mixes finished and running time on the same element', () => {
+      const now = Date.parse('2024-01-01T10:00:10.000+0000');
+      const cells = aggregateDurations(
+        [
+          activity('Task_A', 2000, { endTime: '2024-01-01T09:00:02.000+0000' }),
+          activity('Task_A', null, { startTime: '2024-01-01T10:00:07.000+0000' }),
+        ],
+        now
+      );
+
+      expect(cells).toEqual([{ elementId: 'Task_A', totalMillis: 5000 }]);
+    });
+
+    it('still ignores an activity with no start time to measure from', () => {
+      const cells = aggregateDurations([activity('Task_A', null)], Date.parse('2024-01-01T10:00:05.000+0000'));
 
       expect(cells).toEqual([]);
     });
@@ -67,6 +89,29 @@ describe('utils/bpmn/heatmap', () => {
 
     it('returns nothing for an empty history', () => {
       expect(aggregateDurations([])).toEqual([]);
+    });
+  });
+
+  describe('elapsedOf', () => {
+    it('uses the engine figure once the activity has finished', () => {
+      const finished = activity('Task_A', 1200, { endTime: '2024-01-01T10:00:01.200+0000' });
+      expect(elapsedOf(finished, Date.parse('2024-01-01T12:00:00.000+0000'))).toBe(1200);
+    });
+
+    it('measures a running activity against the clock', () => {
+      const running = activity('Task_A', null, { startTime: '2024-01-01T10:00:00.000+0000' });
+      expect(elapsedOf(running, Date.parse('2024-01-01T10:00:03.000+0000'))).toBe(3000);
+    });
+
+    it('never returns negative time when the clock is behind the engine', () => {
+      // Browser and engine clocks are not the same clock. A skewed one would otherwise
+      // subtract heat from the element it is sitting on.
+      const running = activity('Task_A', null, { startTime: '2024-01-01T10:00:05.000+0000' });
+      expect(elapsedOf(running, Date.parse('2024-01-01T10:00:00.000+0000'))).toBe(0);
+    });
+
+    it('returns zero when there is nothing to measure from', () => {
+      expect(elapsedOf(activity('Task_A', null), Date.now())).toBe(0);
     });
   });
 

@@ -20303,20 +20303,20 @@ function validateFilterConflicts(expressions, conflicts) {
  * @returns Default query parameters
  */
 function getDefaultActivityInstanceQuery(maxResults) {
-    var _a, _b;
+    var _a;
     var MS_PER_SECOND = 1000;
     var SECONDS_PER_HOUR = 3600;
     var HOURS_PER_DAY = 24;
     var DAYS_PER_WEEK = 7;
     var weekAgoMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_PER_WEEK;
-    var oneDayMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY;
     var weekAgo = (_a = new Date(Date.now() - weekAgoMs).toISOString().split('T')[0]) !== null && _a !== void 0 ? _a : '';
-    var tomorrow = (_b = new Date(Date.now() + oneDayMs).toISOString().split('T')[0]) !== null && _b !== void 0 ? _b : '';
+    // No finishedBefore: the engine reads it as "must have a finish time", so it drops
+    // every activity still running and leaves the statistics blind to work in progress.
+    // startedAfter already bounds the query.
     return {
         sortBy: 'endTime',
         sortOrder: 'desc',
         startedAfter: "".concat(weekAgo, "T00:00:00.000+0000"),
-        finishedBefore: "".concat(tomorrow, "T00:00:00.000+0000"),
         maxResults: String(maxResults),
     };
 }
@@ -20995,16 +20995,43 @@ function durationOf(activity) {
     return Number.isNaN(elapsed) ? 0 : elapsed;
 }
 /**
- * Sums the time spent per diagram element.
+ * Milliseconds an activity has occupied *so far*, counting one that has not finished.
  *
- * Still-running activities contribute nothing: they have no duration yet, and guessing
- * one would make the hottest spot of a diagram the thing that simply has not finished.
+ * `durationOf` answers "how long did this take", which is only meaningful once the
+ * activity ends. The heatmap asks a different question — where is this process spending
+ * time — and a token that has been parked on a task for two days is the truest answer
+ * it has. Treating that as zero is what left the map blank for every process still
+ * running: a fresh instance's only finished activity is usually an instant start event,
+ * so nothing had any time against it at all.
+ *
+ * @param activity - Historic activity instance
+ * @param now - Clock reading to measure an unfinished activity against
+ * @returns Elapsed milliseconds, or 0 when there is nothing to measure from
+ */
+function elapsedOf(activity, now) {
+    if (now === void 0) { now = Date.now(); }
+    // Either signal means the activity is over, and the engine's own figure is better
+    // than anything measured against a browser clock.
+    if (typeof activity.durationInMillis === 'number' || activity.endTime) {
+        return durationOf(activity);
+    }
+    if (!activity.startTime) {
+        return 0;
+    }
+    var running = now - Date.parse(activity.startTime);
+    // A clock skewed behind the engine's would otherwise subtract heat.
+    return Number.isNaN(running) || running < 0 ? 0 : running;
+}
+/**
+ * Sums the time spent per diagram element, including time still being spent.
  *
  * @param activities - Historic activity instances to aggregate
+ * @param now - Clock reading for activities that have not finished
  * @returns One cell per element that consumed time, hottest first
  */
-function aggregateDurations(activities) {
+function aggregateDurations(activities, now) {
     var _a, _b;
+    if (now === void 0) { now = Date.now(); }
     var totals = new Map();
     for (var _i = 0, activities_1 = activities; _i < activities_1.length; _i++) {
         var activity = activities_1[_i];
@@ -21013,7 +21040,7 @@ function aggregateDurations(activities) {
             continue;
         }
         var elementId = toElementId(activityId);
-        totals.set(elementId, ((_b = totals.get(elementId)) !== null && _b !== void 0 ? _b : 0) + durationOf(activity));
+        totals.set(elementId, ((_b = totals.get(elementId)) !== null && _b !== void 0 ? _b : 0) + elapsedOf(activity, now));
     }
     var cells = [];
     for (var _c = 0, _d = Array.from(totals.entries()); _c < _d.length; _c++) {
@@ -22323,7 +22350,9 @@ function renderBadges(overlays, activities, mode) {
         overlay.innerText = String((_d = counts[elementId]) !== null && _d !== void 0 ? _d : 0);
         if (mode === 'heat') {
             var total = (_e = durations.get(elementId)) !== null && _e !== void 0 ? _e : 0;
-            overlay.title = "Cumulative time in this element: ".concat(asctime(total));
+            // "so far" because a token still sitting here is counted: the heat is about where
+            // time is going, not only where it went.
+            overlay.title = "Cumulative time in this element so far: ".concat(asctime(total));
         }
         try {
             ids.push(overlays.add(elementId, { position: { bottom: 17, right: 10 }, html: overlay }));
@@ -22392,19 +22421,21 @@ var Plugin = function (_a) {
     }, [api.engineApi, processDefinitionId]);
     // Set initial predefined filter once version is loaded
     reactExports.useEffect(function () {
-        var _a, _b;
+        var _a;
         if (!initialFilterSet && processVersion !== null) {
             var MS_PER_SECOND = 1000;
             var SECONDS_PER_HOUR = 3600;
             var HOURS_PER_DAY = 24;
             var DAYS_PER_WEEK = 7;
             var weekAgoMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_PER_WEEK;
-            var oneDayMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY;
             var weekAgo = (_a = new Date(Date.now() - weekAgoMs).toISOString().split('T')[0]) !== null && _a !== void 0 ? _a : '';
-            var tomorrow = (_b = new Date(Date.now() + oneDayMs).toISOString().split('T')[0]) !== null && _b !== void 0 ? _b : '';
+            // No `finished before` here on purpose. The engine reads it as "must have a finish
+            // time", so it dropped every activity still running — measured on a definition with
+            // four live instances, the query returned 4 records instead of 8, all of them
+            // instant start events. That left the tab blind to exactly the work in progress,
+            // and the heatmap with nothing to draw. `started after` already bounds the query.
             var defaultExpressions = [
                 { category: 'started', operator: 'after', value: weekAgo },
-                { category: 'finished', operator: 'before', value: tomorrow },
                 { category: 'version', operator: '==', value: String(processVersion) },
                 { category: 'maxResults', operator: 'is', value: String(DEFAULT_MAX_RESULTS) },
             ];
@@ -22501,9 +22532,13 @@ var Plugin = function (_a) {
                     setMode(next);
                 } })));
     }, [viewer, truncated]);
-    // The table, the badges and the heat all have to describe the same set of records, or
-    // a badge reads 3 where the table reads 2 and neither is wrong. Unfinished executions
-    // are the ones to leave out: they have no duration to total, average or colour by.
+    // The table and the count badges describe finished executions, and describe the same
+    // set of them, or a badge reads 3 where the table reads 2 and neither is wrong. An
+    // unfinished execution has no duration to average or take a median of.
+    //
+    // The heatmap deliberately does not share that filter. It answers a different
+    // question — where is this process spending time — and time being spent right now
+    // counts. Filtering it the same way is what made it blank until something completed.
     var finished = reactExports.useMemo(function () { return filter(activities, function (activity) { return Boolean(activity.endTime); }); }, [activities]);
     /* eslint-disable react-hooks/exhaustive-deps */
     // Note: overlayIds and heatmapNodes are intentionally excluded from deps — the effect
@@ -22515,14 +22550,18 @@ var Plugin = function (_a) {
             overlays === null || overlays === void 0 ? void 0 : overlays.remove(id);
         }
         clearHeatmap(heatmapNodes);
-        if (mode === 'off' || viewer === null || finished.length === 0) {
+        if (mode === 'off' || viewer === null || activities.length === 0) {
             setOverlayIds([]);
             setHeatmapNodes([]);
             return;
         }
-        setOverlayIds(overlays ? renderBadges(overlays, finished, mode) : []);
-        setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, finished) : []);
-    }, [viewer, finished, mode]);
+        // In heat mode the badges have to cover the same elements the heat does: the
+        // cumulative time is read from a badge's tooltip, so a hot element without one has
+        // no way to say how long it has been hot. In counts mode they stay finished-only,
+        // agreeing with the table.
+        setOverlayIds(overlays ? renderBadges(overlays, mode === 'heat' ? activities : finished, mode) : []);
+        setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, activities) : []);
+    }, [viewer, activities, finished, mode]);
     /* eslint-enable react-hooks/exhaustive-deps */
     // Hack to ensure long living HTML node for filter box
     if (statistics && !Array.from(statistics.children).includes(root)) {
