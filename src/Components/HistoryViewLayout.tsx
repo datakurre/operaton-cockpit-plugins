@@ -195,8 +195,11 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                   cursor: 'pointer',
                   padding: '4px 3px',
                   lineHeight: '1',
-                  zIndex: 10,
+                  zIndex: 20,
                   boxShadow: '-2px 2px 4px rgba(0,0,0,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
                 title={infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel'}
                 aria-label={infoPaneSize < INFO_WIDTH_THRESHOLD ? 'Maximize info panel' : 'Minimize info panel'}
@@ -246,8 +249,11 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                       cursor: 'pointer',
                       padding: '3px 4px',
                       lineHeight: '1',
-                      zIndex: 10,
+                      zIndex: 20,
                       boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                     title={tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel'}
                     aria-label={tabsPaneSize < TABS_HEIGHT_THRESHOLD ? 'Maximize tabs panel' : 'Minimize tabs panel'}
@@ -270,8 +276,11 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                       cursor: 'pointer',
                       padding: '3px 4px',
                       lineHeight: '1',
-                      zIndex: 10,
+                      zIndex: 20,
                       boxShadow: '2px -2px 4px rgba(0,0,0,0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                     title={
                       infoPaneSize < INFO_WIDTH_THRESHOLD && tabsPaneSize < TABS_HEIGHT_THRESHOLD
