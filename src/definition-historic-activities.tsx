@@ -78,7 +78,9 @@ export function renderBadges(
     overlay.innerText = String(counts[elementId] ?? 0);
     if (mode === 'heat') {
       const total = durations.get(elementId) ?? 0;
-      overlay.title = `Cumulative time in this element: ${asctime(total)}`;
+      // "so far" because a token still sitting here is counted: the heat is about where
+      // time is going, not only where it went.
+      overlay.title = `Cumulative time in this element so far: ${asctime(total)}`;
     }
     try {
       ids.push(overlays.add(elementId, { position: { bottom: 17, right: 10 }, html: overlay }));
@@ -147,13 +149,15 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
       const DAYS_PER_WEEK = 7;
 
       const weekAgoMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY * DAYS_PER_WEEK;
-      const oneDayMs = MS_PER_SECOND * SECONDS_PER_HOUR * HOURS_PER_DAY;
       const weekAgo = new Date(Date.now() - weekAgoMs).toISOString().split('T')[0] ?? '';
-      const tomorrow = new Date(Date.now() + oneDayMs).toISOString().split('T')[0] ?? '';
 
+      // No `finished before` here on purpose. The engine reads it as "must have a finish
+      // time", so it dropped every activity still running — measured on a definition with
+      // four live instances, the query returned 4 records instead of 8, all of them
+      // instant start events. That left the tab blind to exactly the work in progress,
+      // and the heatmap with nothing to draw. `started after` already bounds the query.
       const defaultExpressions: LegacyExpression[] = [
         { category: 'started', operator: 'after', value: weekAgo },
-        { category: 'finished', operator: 'before', value: tomorrow },
         { category: 'version', operator: '==', value: String(processVersion) },
         { category: 'maxResults', operator: 'is', value: String(DEFAULT_MAX_RESULTS) },
       ];
@@ -258,9 +262,13 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
     );
   }, [viewer, truncated]);
 
-  // The table, the badges and the heat all have to describe the same set of records, or
-  // a badge reads 3 where the table reads 2 and neither is wrong. Unfinished executions
-  // are the ones to leave out: they have no duration to total, average or colour by.
+  // The table and the count badges describe finished executions, and describe the same
+  // set of them, or a badge reads 3 where the table reads 2 and neither is wrong. An
+  // unfinished execution has no duration to average or take a median of.
+  //
+  // The heatmap deliberately does not share that filter. It answers a different
+  // question — where is this process spending time — and time being spent right now
+  // counts. Filtering it the same way is what made it blank until something completed.
   const finished = useMemo(() => filter(activities, activity => Boolean(activity.endTime)), [activities]);
 
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -273,15 +281,19 @@ const Plugin: React.FC<DefinitionPluginParams> = ({ root, api, processDefinition
     }
     clearHeatmap(heatmapNodes);
 
-    if (mode === 'off' || viewer === null || finished.length === 0) {
+    if (mode === 'off' || viewer === null || activities.length === 0) {
       setOverlayIds([]);
       setHeatmapNodes([]);
       return;
     }
 
-    setOverlayIds(overlays ? renderBadges(overlays, finished, mode) : []);
-    setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, finished) : []);
-  }, [viewer, finished, mode]);
+    // In heat mode the badges have to cover the same elements the heat does: the
+    // cumulative time is read from a badge's tooltip, so a hot element without one has
+    // no way to say how long it has been hot. In counts mode they stay finished-only,
+    // agreeing with the table.
+    setOverlayIds(overlays ? renderBadges(overlays, mode === 'heat' ? activities : finished, mode) : []);
+    setHeatmapNodes(mode === 'heat' ? renderHeatmap(viewer, activities) : []);
+  }, [viewer, activities, finished, mode]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
   // Hack to ensure long living HTML node for filter box
