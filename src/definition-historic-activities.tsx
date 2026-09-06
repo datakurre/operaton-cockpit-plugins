@@ -48,14 +48,15 @@ const hooks: PluginHooks = {
 };
 
 /**
- * Draws one badge per activity: how many times it ran in `counts` mode, and how long it
- * took in total in `heat` mode, where the badge is what makes the colour readable.
+ * Draws one badge per activity: how many times it ran. In `heat` mode, the badge
+ * also carries the cumulative duration in its tooltip while the heatmap layer colours the
+ * canvas underneath by time.
  * @param overlays - The viewer's overlay manager
  * @param activities - Historic activity instances to summarise
  * @param mode - Which figure the badge should carry
  * @returns The overlay ids created, so they can be removed again
  */
-function renderBadges(
+export function renderBadges(
   overlays: OverlayManager,
   activities: HistoricActivityInstance[],
   mode: StatisticsMode
@@ -74,12 +75,10 @@ function renderBadges(
     const overlay = document.createElement('span');
     overlay.className = 'badge';
     overlay.style.cssText = 'background: lightgray;';
+    overlay.innerText = String(counts[elementId] ?? 0);
     if (mode === 'heat') {
       const total = durations.get(elementId) ?? 0;
-      overlay.innerText = asctime(total);
       overlay.title = `Cumulative time in this element: ${asctime(total)}`;
-    } else {
-      overlay.innerText = String(counts[elementId] ?? 0);
     }
     try {
       ids.push(overlays.add(elementId, { position: { bottom: 17, right: 10 }, html: overlay }));

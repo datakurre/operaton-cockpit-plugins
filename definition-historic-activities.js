@@ -136,7 +136,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-heatmap-button,\n.toggle-sequence-flow-button,\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-heatmap-button:hover,\n.toggle-sequence-flow-button:hover,\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
+___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-heatmap-button,\n.toggle-sequence-flow-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-heatmap-button:hover,\n.toggle-sequence-flow-button:hover {\n  background: #e6e6e6;\n}\n\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 0;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n  box-shadow: none;\n}\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
 
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
@@ -22295,8 +22295,9 @@ var hooks = {
     },
 };
 /**
- * Draws one badge per activity: how many times it ran in `counts` mode, and how long it
- * took in total in `heat` mode, where the badge is what makes the colour readable.
+ * Draws one badge per activity: how many times it ran. In `heat` mode, the badge
+ * also carries the cumulative duration in its tooltip while the heatmap layer colours the
+ * canvas underneath by time.
  * @param overlays - The viewer's overlay manager
  * @param activities - Historic activity instances to summarise
  * @param mode - Which figure the badge should carry
@@ -22319,13 +22320,10 @@ function renderBadges(overlays, activities, mode) {
         var overlay = document.createElement('span');
         overlay.className = 'badge';
         overlay.style.cssText = 'background: lightgray;';
+        overlay.innerText = String((_d = counts[elementId]) !== null && _d !== void 0 ? _d : 0);
         if (mode === 'heat') {
-            var total = (_d = durations.get(elementId)) !== null && _d !== void 0 ? _d : 0;
-            overlay.innerText = asctime(total);
+            var total = (_e = durations.get(elementId)) !== null && _e !== void 0 ? _e : 0;
             overlay.title = "Cumulative time in this element: ".concat(asctime(total));
-        }
-        else {
-            overlay.innerText = String((_e = counts[elementId]) !== null && _e !== void 0 ? _e : 0);
         }
         try {
             ids.push(overlays.add(elementId, { position: { bottom: 17, right: 10 }, html: overlay }));
@@ -22573,4 +22571,4 @@ var definitionHistoricActivities = [
     },
 ];
 
-export { definitionHistoricActivities as default };
+export { definitionHistoricActivities as default, renderBadges };
