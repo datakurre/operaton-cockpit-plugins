@@ -5,6 +5,8 @@
  * @module
  */
 import type { BpmnViewerInstance, HistoricActivityInstance, OverlayManager } from '../../types';
+import { asctime } from '../misc';
+import { aggregateDurations } from './heatmap';
 
 /**
  * Whether an activity is one the instance is currently sitting on: started, not
@@ -67,42 +69,56 @@ export const renderRunningTokens = (viewer: BpmnViewerInstance, activities: Hist
 
 /**
  * Renders activity count badges on the BPMN diagram overlays.
- * Shows how many times each activity was executed.
+ *
+ * The badge is the token count for the element — how many times a token has been
+ * through it — and its tooltip carries the cumulative time those tokens spent there.
+ * That pairing is deliberate: the heatmap colours by time, and the badge is where the
+ * figure behind a blob can actually be read. It matches the definition diagram's
+ * statistics badges, so the same element means the same thing on every view.
+ *
+ * Ids are folded exactly as the heatmap folds them — execution scope suffixes stripped,
+ * multi-instance bodies skipped — so the count belongs to the blob it sits on. Counting
+ * raw ids instead put a second badge on top of the first for any scoped activity, each
+ * showing part of the total.
+ *
  * @param viewer - The BPMN viewer instance
  * @param activities - Historic activity instances to count
  */
 export const renderActivities = (viewer: BpmnViewerInstance, activities: HistoricActivityInstance[]): void => {
   const counter: Record<string, number> = {};
   for (const activity of activities) {
-    const id = activity.activityId ?? '';
-    const current = counter[id];
-    counter[id] = current !== undefined ? current + 1 : 1;
+    const activityId = activity.activityId ?? '';
+    if (activityId === '' || activityId.endsWith('#multiInstanceBody')) {
+      continue;
+    }
+    const elementId = activityId.split('#')[0] ?? '';
+    counter[elementId] = (counter[elementId] ?? 0) + 1;
   }
 
-  const seen: Record<string, boolean> = {};
+  const totals = new Map(aggregateDurations(activities).map(cell => [cell.elementId, cell.totalMillis]));
   const overlays = viewer.get('overlays') as OverlayManager;
-  for (const activity of activities) {
-    const id = activity.activityId ?? '';
-    if (seen[id]) {
-      continue;
-    } else {
-      seen[id] = true;
-    }
 
+  for (const elementId of Object.keys(counter)) {
     const overlay = document.createElement('span');
-    overlay.innerText = String(counter[id] ?? 0);
+    overlay.innerText = String(counter[elementId] ?? 0);
     overlay.className = 'badge';
+    // "so far" because a token still sitting on the element is counted too.
+    overlay.title = `Cumulative time in this element so far: ${asctime(totals.get(elementId) ?? 0)}`;
     overlay.style.cssText = `
       background: lightgray;
       border: 1px solid #143d52;
       color: #143d52;
     `;
-    overlays.add(id.split('#')[0] ?? '', {
-      position: {
-        bottom: 17,
-        right: 10,
-      },
-      html: overlay,
-    });
+    try {
+      overlays.add(elementId, {
+        position: {
+          bottom: 17,
+          right: 10,
+        },
+        html: overlay,
+      });
+    } catch {
+      // Silently skip elements that can't have overlays
+    }
   }
 };
