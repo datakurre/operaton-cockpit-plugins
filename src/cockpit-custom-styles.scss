@@ -216,20 +216,43 @@
         overflow-y: auto !important;
         max-height: 450px !important;
         padding: 6px 0 !important;
+    }
+
+    // In narrow repository sidebar (deployments column), constrain popup to 215px so it does not extend offscreen
+    .deployments &,
+    .column-left & {
+        .stored-criteria .dropdown-menu {
+            min-width: 0 !important;
+            max-width: 215px !important;
+            width: 215px !important;
+            right: 0 !important;
+            left: auto !important;
+        }
+    }
+
+    .stored-criteria .dropdown-menu {
 
         .input-group-sm {
             display: flex !important;
             align-items: stretch !important;
+            margin: 0 10px 6px 10px !important;
+            width: calc(100% - 20px) !important;
+            box-sizing: border-box !important;
 
             .form-control {
+                flex: 1 1 auto !important;
+                width: 1% !important;
+                min-width: 0 !important;
                 height: 31px !important;
                 border-top-right-radius: 0 !important;
                 border-bottom-right-radius: 0 !important;
             }
 
             .input-group-btn {
+                flex: 0 0 auto !important;
                 display: flex !important;
                 align-items: stretch !important;
+                width: auto !important;
 
                 .btn {
                     height: 31px !important;
@@ -246,10 +269,46 @@
             }
         }
 
-        .stored-criteria-set > div {
-            white-space: normal !important;
-            word-break: break-word !important;
-            overflow-wrap: break-word !important;
+        .stored-criteria-set {
+            a,
+            a:hover,
+            a:focus,
+            a:active {
+                border-left: none !important;
+                border: none !important;
+                outline: none !important;
+                box-shadow: none !important;
+                margin-left: 0 !important;
+                padding-left: 0 !important;
+            }
+
+            a.glyphicon-remove-sign {
+                padding-right: 9px !important;
+                text-decoration: none !important;
+                color: #888888 !important;
+
+                &:hover,
+                &:focus {
+                    color: #cc0000 !important;
+                }
+            }
+
+            > div {
+                white-space: normal !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+                border-left: 3px solid transparent !important;
+                padding: 4px 12px 4px 8px !important;
+                cursor: pointer !important;
+                margin-left: 0 !important;
+            }
+
+            &:hover > div,
+            > div:hover,
+            > div:focus-within {
+                border-left: 3px solid #155cb5 !important;
+                background-color: #f5f5f5 !important;
+            }
         }
     }
 }
@@ -815,5 +874,139 @@ body,
     font-size: 14px !important;
     line-height: 21px !important;
     margin: 0 0 10px !important;
+  }
+
+  // Definition Version split-button selector
+  .definition-version {
+    .dropdown {
+      display: inline-block !important;
+
+      > span {
+        display: inline-flex !important;
+        vertical-align: middle !important;
+
+        [change-version],
+        span[change-version] {
+          display: inline-flex !important;
+        }
+
+        button.btn,
+        a.btn,
+        .btn {
+          background-color: #ffffff !important;
+          border: 1px solid #cccccc !important;
+          color: #333333 !important;
+          height: 22px !important;
+          min-height: 22px !important;
+          padding: 1px 7px !important;
+          font-size: 12px !important;
+          line-height: 18px !important;
+          box-shadow: none !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          border-radius: 3px !important;
+          margin: 0 !important;
+
+          &:hover,
+          &:focus {
+            background-color: #e6e6e6 !important;
+            border-color: #adadad !important;
+            color: #333333 !important;
+            text-decoration: none !important;
+          }
+
+          &:active {
+            background-color: #d4d4d4 !important;
+            border-color: #8c8c8c !important;
+          }
+        }
+
+        // Left button (version number)
+        button.btn,
+        [change-version] button.btn {
+          border-top-right-radius: 0 !important;
+          border-bottom-right-radius: 0 !important;
+        }
+
+        // Right button (dropdown toggle)
+        .dropdown-toggle {
+          border-top-left-radius: 0 !important;
+          border-bottom-left-radius: 0 !important;
+          margin-left: -1px !important;
+          padding: 1px 6px !important;
+
+          .caret {
+            display: inline-block !important;
+            width: 0 !important;
+            height: 0 !important;
+            vertical-align: middle !important;
+            border-top: 4px solid #333333 !important;
+            border-right: 4px solid transparent !important;
+            border-left: 4px solid transparent !important;
+            border-bottom: 0 !important;
+            content: "" !important;
+            margin: 0 !important;
+          }
+        }
+      }
+
+      .dropdown-menu {
+        min-width: 50px !important;
+        padding: 4px 0 !important;
+        font-size: 12px !important;
+        margin-top: 2px !important;
+
+        > li > a {
+          padding: 3px 12px !important;
+          color: #333333 !important;
+          font-size: 12px !important;
+          display: block !important;
+          clear: both !important;
+          font-weight: 400 !important;
+          line-height: 1.42857143 !important;
+          white-space: nowrap !important;
+
+          &:hover,
+          &:focus {
+            background-color: #f5f5f5 !important;
+            color: #155cb5 !important;
+            text-decoration: none !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ==============================================================================
+// 12. BPMN Diagram Navigation Controls (.navigation.reset, .navigation.zoom)
+// Removes rounded corners, vertically centers icons, and strengthens stroke weight
+// ==============================================================================
+.navigation.reset button,
+.navigation.zoom button {
+  border-radius: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+
+  &:hover,
+  &:focus {
+    background-color: #e6e6e6 !important;
+    color: #333333 !important;
+  }
+
+  span.glyphicon {
+    position: static !important;
+    top: 0 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    -webkit-text-stroke: 0.7px currentColor !important;
   }
 }
