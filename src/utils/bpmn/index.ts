@@ -20,5 +20,13 @@ export { renderActivities, renderRunningTokens } from './overlays';
 export { clearSequenceFlow, getStrokeWidth, renderSequenceFlow } from './svg';
 
 // Heatmap rendering utilities
-export { aggregateDurations, clearHeatmap, durationOf, getHeatColor, getIntensity, renderHeatmap } from './heatmap';
+export {
+  aggregateDurations,
+  clearHeatmap,
+  durationOf,
+  elapsedOf,
+  getHeatColor,
+  getIntensity,
+  renderHeatmap,
+} from './heatmap';
 export type { HeatmapCell } from './heatmap';

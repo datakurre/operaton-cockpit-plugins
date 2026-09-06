@@ -42,294 +42,405 @@
 .col-xs-10,
 .col-xs-11,
 .col-xs-12 {
-    position: relative;
-    min-height: 1px;
-    padding-right: 15px;
-    padding-left: 15px;
-    float: left;
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+  float: left;
 }
 
-.col-xs-1  { width: 8.33333333%; }
-.col-xs-2  { width: 16.66666667%; }
-.col-xs-3  { width: 25%; }
-.col-xs-4  { width: 33.33333333%; }
-.col-xs-5  { width: 41.66666667%; }
-.col-xs-6  { width: 50%; }
-.col-xs-7  { width: 58.33333333%; }
-.col-xs-8  { width: 66.66666667%; }
-.col-xs-9  { width: 75%; }
-.col-xs-10 { width: 83.33333333%; }
-.col-xs-11 { width: 91.66666667%; }
-.col-xs-12 { width: 100%; }
+.col-xs-1 {
+  width: 8.33333333%;
+}
+.col-xs-2 {
+  width: 16.66666667%;
+}
+.col-xs-3 {
+  width: 25%;
+}
+.col-xs-4 {
+  width: 33.33333333%;
+}
+.col-xs-5 {
+  width: 41.66666667%;
+}
+.col-xs-6 {
+  width: 50%;
+}
+.col-xs-7 {
+  width: 58.33333333%;
+}
+.col-xs-8 {
+  width: 66.66666667%;
+}
+.col-xs-9 {
+  width: 75%;
+}
+.col-xs-10 {
+  width: 83.33333333%;
+}
+.col-xs-11 {
+  width: 91.66666667%;
+}
+.col-xs-12 {
+  width: 100%;
+}
 
-.col-xs-offset-0  { margin-left: 0; }
-.col-xs-offset-1  { margin-left: 8.33333333%; }
-.col-xs-offset-2  { margin-left: 16.66666667%; }
-.col-xs-offset-3  { margin-left: 25%; }
-.col-xs-offset-4  { margin-left: 33.33333333%; }
-.col-xs-offset-5  { margin-left: 41.66666667%; }
-.col-xs-offset-6  { margin-left: 50%; }
-.col-xs-offset-7  { margin-left: 58.33333333%; }
-.col-xs-offset-8  { margin-left: 66.66666667%; }
-.col-xs-offset-9  { margin-left: 75%; }
-.col-xs-offset-10 { margin-left: 83.33333333%; }
-.col-xs-offset-11 { margin-left: 91.66666667%; }
-.col-xs-offset-12 { margin-left: 100%; }
+.col-xs-offset-0 {
+  margin-left: 0;
+}
+.col-xs-offset-1 {
+  margin-left: 8.33333333%;
+}
+.col-xs-offset-2 {
+  margin-left: 16.66666667%;
+}
+.col-xs-offset-3 {
+  margin-left: 25%;
+}
+.col-xs-offset-4 {
+  margin-left: 33.33333333%;
+}
+.col-xs-offset-5 {
+  margin-left: 41.66666667%;
+}
+.col-xs-offset-6 {
+  margin-left: 50%;
+}
+.col-xs-offset-7 {
+  margin-left: 58.33333333%;
+}
+.col-xs-offset-8 {
+  margin-left: 66.66666667%;
+}
+.col-xs-offset-9 {
+  margin-left: 75%;
+}
+.col-xs-offset-10 {
+  margin-left: 83.33333333%;
+}
+.col-xs-offset-11 {
+  margin-left: 91.66666667%;
+}
+.col-xs-offset-12 {
+  margin-left: 100%;
+}
 
-.col-xs-pull-0  { right: auto; }
-.col-xs-pull-1  { right: 8.33333333%; }
-.col-xs-pull-2  { right: 16.66666667%; }
-.col-xs-pull-3  { right: 25%; }
-.col-xs-pull-4  { right: 33.33333333%; }
-.col-xs-pull-5  { right: 41.66666667%; }
-.col-xs-pull-6  { right: 50%; }
-.col-xs-pull-7  { right: 58.33333333%; }
-.col-xs-pull-8  { right: 66.66666667%; }
-.col-xs-pull-9  { right: 75%; }
-.col-xs-pull-10 { right: 83.33333333%; }
-.col-xs-pull-11 { right: 91.66666667%; }
-.col-xs-pull-12 { right: 100%; }
+.col-xs-pull-0 {
+  right: auto;
+}
+.col-xs-pull-1 {
+  right: 8.33333333%;
+}
+.col-xs-pull-2 {
+  right: 16.66666667%;
+}
+.col-xs-pull-3 {
+  right: 25%;
+}
+.col-xs-pull-4 {
+  right: 33.33333333%;
+}
+.col-xs-pull-5 {
+  right: 41.66666667%;
+}
+.col-xs-pull-6 {
+  right: 50%;
+}
+.col-xs-pull-7 {
+  right: 58.33333333%;
+}
+.col-xs-pull-8 {
+  right: 66.66666667%;
+}
+.col-xs-pull-9 {
+  right: 75%;
+}
+.col-xs-pull-10 {
+  right: 83.33333333%;
+}
+.col-xs-pull-11 {
+  right: 91.66666667%;
+}
+.col-xs-pull-12 {
+  right: 100%;
+}
 
-.col-xs-push-0  { left: auto; }
-.col-xs-push-1  { left: 8.33333333%; }
-.col-xs-push-2  { left: 16.66666667%; }
-.col-xs-push-3  { left: 25%; }
-.col-xs-push-4  { left: 33.33333333%; }
-.col-xs-push-5  { left: 41.66666667%; }
-.col-xs-push-6  { left: 50%; }
-.col-xs-push-7  { left: 58.33333333%; }
-.col-xs-push-8  { left: 66.66666667%; }
-.col-xs-push-9  { left: 75%; }
-.col-xs-push-10 { left: 83.33333333%; }
-.col-xs-push-11 { left: 91.66666667%; }
-.col-xs-push-12 { left: 100%; }
+.col-xs-push-0 {
+  left: auto;
+}
+.col-xs-push-1 {
+  left: 8.33333333%;
+}
+.col-xs-push-2 {
+  left: 16.66666667%;
+}
+.col-xs-push-3 {
+  left: 25%;
+}
+.col-xs-push-4 {
+  left: 33.33333333%;
+}
+.col-xs-push-5 {
+  left: 41.66666667%;
+}
+.col-xs-push-6 {
+  left: 50%;
+}
+.col-xs-push-7 {
+  left: 58.33333333%;
+}
+.col-xs-push-8 {
+  left: 66.66666667%;
+}
+.col-xs-push-9 {
+  left: 75%;
+}
+.col-xs-push-10 {
+  left: 83.33333333%;
+}
+.col-xs-push-11 {
+  left: 91.66666667%;
+}
+.col-xs-push-12 {
+  left: 100%;
+}
 
 // Adjust table column widths in process definitions list
 // to give more space for important columns
 
 .cam-table.process-definitions-list.search-results {
-    th:first-child, td:first-child {
-        width: 30px;
+  th:first-child,
+  td:first-child {
+    width: 30px;
+  }
+  td:first-child {
+    text-align: center;
+  }
+  th:nth-child(2),
+  td:nth-child(2),
+  th.incidents,
+  td.incidents {
+    width: 105px !important;
+    min-width: 105px !important;
+    white-space: nowrap !important;
+  }
+  th:nth-child(2),
+  th.incidents {
+    .incidents-label {
+      white-space: nowrap !important;
     }
-    td:first-child {
-        text-align: center;
+    a {
+      white-space: nowrap !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
     }
-    th:nth-child(2), td:nth-child(2),
-    th.incidents, td.incidents {
-        width: 105px !important;
-        min-width: 105px !important;
-        white-space: nowrap !important;
-    }
-    th:nth-child(2),
-    th.incidents {
-        .incidents-label {
-            white-space: nowrap !important;
-        }
-        a {
-            white-space: nowrap !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
-        }
+  }
+
+  th:nth-child(3),
+  td:nth-child(3),
+  th.instances,
+  td.instances {
+    width: 110px !important;
+    max-width: 120px !important;
+  }
+  th:nth-child(3),
+  th.instances {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    position: relative !important;
+    padding-right: 22px !important;
+
+    .instances-label {
+      display: block !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
     }
 
-    th:nth-child(3), td:nth-child(3),
-    th.instances, td.instances {
-        width: 110px !important;
-        max-width: 120px !important;
+    a[ng-click],
+    a.sortable,
+    a {
+      position: absolute !important;
+      right: 5px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      margin: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      white-space: nowrap !important;
     }
-    th:nth-child(3),
-    th.instances {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        position: relative !important;
-        padding-right: 22px !important;
-
-        .instances-label {
-            display: block !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            white-space: nowrap !important;
-        }
-
-        a[ng-click], a.sortable, a {
-            position: absolute !important;
-            right: 5px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            margin: 0 !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            white-space: nowrap !important;
-        }
+  }
+  th:last-child,
+  td:last-child,
+  th.tenantID,
+  td.tenantID,
+  th.tenant-id,
+  td.tenant-id {
+    width: 105px !important;
+    min-width: 105px !important;
+    white-space: nowrap !important;
+  }
+  th:last-child,
+  th.tenantID,
+  th.tenant-id {
+    .tenantID-label,
+    .tenant-id-label {
+      white-space: nowrap !important;
     }
-    th:last-child, td:last-child,
-    th.tenantID, td.tenantID,
-    th.tenant-id, td.tenant-id {
-        width: 105px !important;
-        min-width: 105px !important;
-        white-space: nowrap !important;
+    a {
+      white-space: nowrap !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
     }
-    th:last-child,
-    th.tenantID,
-    th.tenant-id {
-        .tenantID-label,
-        .tenant-id-label {
-            white-space: nowrap !important;
-        }
-        a {
-            white-space: nowrap !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
-        }
-    }
+  }
 }
 
 // Fix criteria search box controls: prevent dropdown-toggle button from overflowing search container
 [cam-widget-search] .controls,
 .search-field .controls {
-    top: 0 !important;
-    bottom: 0 !important;
-    display: flex !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  right: 4px !important;
+
+  .stored-criteria {
+    display: inline-flex !important;
     align-items: center !important;
-    right: 4px !important;
+  }
 
-    .stored-criteria {
-        display: inline-flex !important;
-        align-items: center !important;
-    }
+  .stored-criteria .dropdown-toggle {
+    padding: 2px 6px !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    height: 26px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 3px !important;
+  }
 
-    .stored-criteria .dropdown-toggle {
-        padding: 2px 6px !important;
-        font-size: 13px !important;
-        line-height: 1.2 !important;
-        height: 26px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border-radius: 3px !important;
-    }
+  .stored-criteria .dropdown-menu {
+    min-width: 280px !important;
+    max-width: 400px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    max-height: 450px !important;
+    padding: 6px 0 !important;
+  }
 
+  // In narrow repository sidebar (deployments column), constrain popup to 215px so it does not extend offscreen
+  .deployments &,
+  .column-left & {
     .stored-criteria .dropdown-menu {
-        min-width: 280px !important;
-        max-width: 400px !important;
-        overflow-x: hidden !important;
-        overflow-y: auto !important;
-        max-height: 450px !important;
-        padding: 6px 0 !important;
+      min-width: 0 !important;
+      max-width: 215px !important;
+      width: 215px !important;
+      right: 0 !important;
+      left: auto !important;
+    }
+  }
+
+  .stored-criteria .dropdown-menu {
+    .input-group-sm {
+      display: flex !important;
+      align-items: stretch !important;
+      margin: 0 10px 6px 10px !important;
+      width: calc(100% - 20px) !important;
+      box-sizing: border-box !important;
+
+      .form-control {
+        flex: 1 1 auto !important;
+        width: 1% !important;
+        min-width: 0 !important;
+        height: 31px !important;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+      }
+
+      .input-group-btn {
+        flex: 0 0 auto !important;
+        display: flex !important;
+        align-items: stretch !important;
+        width: auto !important;
+
+        .btn {
+          height: 31px !important;
+          min-height: 31px !important;
+          padding: 4px 10px !important;
+          font-size: 13px !important;
+          line-height: 1 !important;
+          border-top-left-radius: 0 !important;
+          border-bottom-left-radius: 0 !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+      }
     }
 
-    // In narrow repository sidebar (deployments column), constrain popup to 215px so it does not extend offscreen
-    .deployments &,
-    .column-left & {
-        .stored-criteria .dropdown-menu {
-            min-width: 0 !important;
-            max-width: 215px !important;
-            width: 215px !important;
-            right: 0 !important;
-            left: auto !important;
+    .stored-criteria-set {
+      a,
+      a:hover,
+      a:focus,
+      a:active {
+        border-left: none !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+      }
+
+      a.glyphicon-remove-sign {
+        padding-right: 9px !important;
+        text-decoration: none !important;
+        color: #888888 !important;
+
+        &:hover,
+        &:focus {
+          color: #cc0000 !important;
         }
+      }
+
+      > div {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+        border-left: 3px solid transparent !important;
+        padding: 4px 12px 4px 8px !important;
+        cursor: pointer !important;
+        margin-left: 0 !important;
+      }
+
+      &:hover > div,
+      > div:hover,
+      > div:focus-within {
+        border-left: 3px solid #155cb5 !important;
+        background-color: #f5f5f5 !important;
+      }
     }
-
-    .stored-criteria .dropdown-menu {
-
-        .input-group-sm {
-            display: flex !important;
-            align-items: stretch !important;
-            margin: 0 10px 6px 10px !important;
-            width: calc(100% - 20px) !important;
-            box-sizing: border-box !important;
-
-            .form-control {
-                flex: 1 1 auto !important;
-                width: 1% !important;
-                min-width: 0 !important;
-                height: 31px !important;
-                border-top-right-radius: 0 !important;
-                border-bottom-right-radius: 0 !important;
-            }
-
-            .input-group-btn {
-                flex: 0 0 auto !important;
-                display: flex !important;
-                align-items: stretch !important;
-                width: auto !important;
-
-                .btn {
-                    height: 31px !important;
-                    min-height: 31px !important;
-                    padding: 4px 10px !important;
-                    font-size: 13px !important;
-                    line-height: 1 !important;
-                    border-top-left-radius: 0 !important;
-                    border-bottom-left-radius: 0 !important;
-                    display: inline-flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                }
-            }
-        }
-
-        .stored-criteria-set {
-            a,
-            a:hover,
-            a:focus,
-            a:active {
-                border-left: none !important;
-                border: none !important;
-                outline: none !important;
-                box-shadow: none !important;
-                margin-left: 0 !important;
-                padding-left: 0 !important;
-            }
-
-            a.glyphicon-remove-sign {
-                padding-right: 9px !important;
-                text-decoration: none !important;
-                color: #888888 !important;
-
-                &:hover,
-                &:focus {
-                    color: #cc0000 !important;
-                }
-            }
-
-            > div {
-                white-space: normal !important;
-                word-break: break-word !important;
-                overflow-wrap: break-word !important;
-                border-left: 3px solid transparent !important;
-                padding: 4px 12px 4px 8px !important;
-                cursor: pointer !important;
-                margin-left: 0 !important;
-            }
-
-            &:hover > div,
-            > div:hover,
-            > div:focus-within {
-                border-left: 3px solid #155cb5 !important;
-                background-color: #f5f5f5 !important;
-            }
-        }
-    }
+  }
 }
 
 .dashboard .inner {
-    min-height: 0 !important;
+  min-height: 0 !important;
 }
 
 .dashboard section.deprecate {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .decisions-dashboard .dashboard-view + .dashboard-view {
-    margin-top: -15px;
+  margin-top: -15px;
 }
 
 .dashboard .deprecate-dashboard-view > * {
-    width: 100%;
-    .section-toggle {
-        display: none;
-    }
+  width: 100%;
+  .section-toggle {
+    display: none;
+  }
 }
 
 // ==============================================================================
@@ -472,13 +583,12 @@
   }
 }
 
-
 // ==============================================================================
 // 2. Token Badges in BPMN Diagrams & Global Badges
 // ==============================================================================
 // Hide empty badge elements to prevent phantom red/gray circles
 .bjs-container .djs-overlay .instances-overlay .badge:empty,
-.bjs-container .djs-overlay .instances-overlay .badge[style*="display: none"],
+.bjs-container .djs-overlay .instances-overlay .badge[style*='display: none'],
 .bjs-container .djs-overlay .instances-overlay .badge.ng-hide {
   display: none !important;
 }
@@ -518,8 +628,8 @@
     vertical-align: middle !important;
 
     // Interactive sort links and chevron/minus symbols
-    a[ng-click*="changeOrder"],
-    a[ng-click*="order"],
+    a[ng-click*='changeOrder'],
+    a[ng-click*='order'],
     a.sortable {
       color: #155cb5 !important;
       text-decoration: none !important;
@@ -529,8 +639,8 @@
 
       .glyphicon,
       .bi,
-      [class^="bi-"],
-      [class*=" bi-"] {
+      [class^='bi-'],
+      [class*=' bi-'] {
         color: #155cb5 !important;
         font-size: 13px !important;
         font-weight: bold !important;
@@ -550,7 +660,7 @@
         border-radius: 1px !important;
 
         &::before {
-          content: "" !important;
+          content: '' !important;
           display: none !important;
         }
       }
@@ -569,8 +679,8 @@
 
         .glyphicon,
         .bi,
-        [class^="bi-"],
-        [class*=" bi-"] {
+        [class^='bi-'],
+        [class*=' bi-'] {
           color: #0b4c8c !important;
         }
       }
@@ -600,15 +710,24 @@
   }
 
   // Specific cells that should NOT wrap (atomic timestamps, actions, checkboxes)
-  td.action, th.action,
-  td.select, th.select,
-  td.date, td.timestamp,
-  td.start-time, th.start-time,
-  td.end-time, th.end-time,
-  td.deployment-time, th.deployment-time,
-  td.due-date, td.creation-date, td.follow-up-date,
+  td.action,
+  th.action,
+  td.select,
+  th.select,
+  td.date,
+  td.timestamp,
+  td.start-time,
+  th.start-time,
+  td.end-time,
+  th.end-time,
+  td.deployment-time,
+  th.deployment-time,
+  td.due-date,
+  td.creation-date,
+  td.follow-up-date,
   td.variable-type,
-  td.state, th.state {
+  td.state,
+  th.state {
     white-space: nowrap !important;
   }
 
@@ -622,8 +741,13 @@
   td.state {
     white-space: nowrap !important;
 
-    [state-circle],
-    .badge-suspended {
+    // `:not(.ng-hide)` is load-bearing, not decoration. AngularJS hides an element by
+    // adding .ng-hide, whose `display: none !important` has specificity (0,2,0). This
+    // selector is (0,3,1), so forcing `display` here out-ranks it and un-hides whatever
+    // Angular meant to keep out of the way — which is how every running instance ended
+    // up wearing a "Suspended" badge.
+    [state-circle]:not(.ng-hide),
+    .badge-suspended:not(.ng-hide) {
       vertical-align: middle !important;
       display: inline-block !important;
       white-space: nowrap !important;
@@ -635,7 +759,6 @@
     }
   }
 
-
   // Prevent UUID columns in instance tables from expanding beyond bounds
   td.uuid:not(.task-id) {
     max-width: 140px !important;
@@ -645,13 +768,15 @@
   }
 
   // Guarantee breathing room between adjacent table cells
-  th, td {
+  th,
+  td {
     padding-left: 8px !important;
     padding-right: 8px !important;
   }
 
   // Stack Action buttons vertically in User Tasks table like 1.0.3
-  th.action, td.action {
+  th.action,
+  td.action {
     width: 60px !important;
     min-width: 60px !important;
     white-space: nowrap !important;
@@ -745,11 +870,13 @@ body,
 // ==============================================================================
 // 6. Float Utilities (.pull-right, .pull-left)
 // ==============================================================================
-.pull-right, .float-right {
+.pull-right,
+.float-right {
   float: right !important;
 }
 
-.pull-left, .float-left {
+.pull-left,
+.float-left {
   float: left !important;
 }
 
@@ -773,9 +900,12 @@ body,
 // Restores 1.0.3 solid white, compact 34px height, and #ccc borders
 // ==============================================================================
 .ctn-toolbar {
-  a.btn,
-  button.btn,
-  .btn-toolbar {
+  // `:not(.ng-hide)` for the same reason as the suspended badge above: forcing
+  // `display` at a specificity above Angular's own .ng-hide rule un-hides the toolbar
+  // actions it wanted out of the way for this instance's state.
+  a.btn:not(.ng-hide),
+  button.btn:not(.ng-hide),
+  .btn-toolbar:not(.ng-hide) {
     background-color: #ffffff !important;
     border: 1px solid #cccccc !important;
     color: #333333 !important;
@@ -800,9 +930,9 @@ body,
 
     .glyphicon,
     .bi,
-    [class^="bi-"],
-    [class*=" bi-"],
-    [class*="icon"],
+    [class^='bi-'],
+    [class*=' bi-'],
+    [class*='icon'],
     svg {
       color: #333333 !important;
       font-size: 16px !important;
@@ -826,7 +956,7 @@ body,
       width: 18px !important;
       height: 18px !important;
       &::before {
-        content: "\f116" !important; // bi-arrow-clockwise
+        content: '\f116' !important; // bi-arrow-clockwise
       }
     }
 
@@ -854,8 +984,8 @@ body,
 // and perceived optical size of 1.0.3.
 .glyphicon,
 .bi,
-[class^="bi-"],
-[class*=" bi-"] {
+[class^='bi-'],
+[class*=' bi-'] {
   display: inline-block;
   font-size: 1.15em;
   vertical-align: -0.1em;
@@ -864,20 +994,20 @@ body,
 // Keep button icons proportioned and vertically centered
 .btn .glyphicon,
 .btn .bi,
-.btn [class^="bi-"],
-.btn [class*=" bi-"] {
+.btn [class^='bi-'],
+.btn [class*=' bi-'] {
   font-size: 16px !important;
   vertical-align: middle !important;
 }
 
 .btn-xs .glyphicon,
 .btn-xs .bi,
-.btn-xs [class^="bi-"],
-.btn-xs [class*=" bi-"],
+.btn-xs [class^='bi-'],
+.btn-xs [class*=' bi-'],
 .action-button .glyphicon,
 .action-button .bi,
-.action-button [class^="bi-"],
-.action-button [class*=" bi-"] {
+.action-button [class^='bi-'],
+.action-button [class*=' bi-'] {
   font-size: 13px !important;
 }
 
@@ -981,7 +1111,7 @@ body,
             border-right: 4px solid transparent !important;
             border-left: 4px solid transparent !important;
             border-bottom: 0 !important;
-            content: "" !important;
+            content: '' !important;
             margin: 0 !important;
           }
         }

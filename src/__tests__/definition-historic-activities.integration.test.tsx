@@ -283,6 +283,40 @@ describe('definition-historic-activities integration', () => {
       const url = mockFetch.mock.calls[0]?.[0] as string;
       expect(url).toContain(`maxResults=${DEFAULT_MAX_RESULTS + 1}`);
     });
+
+    it('should not ask the engine for finished activities only', async () => {
+      mockFetch.mockResolvedValue({
+        status: 200,
+        ok: true,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        json: async () => [],
+      });
+
+      const definitionHistoricActivities = await import('../definition-historic-activities');
+      const Plugin = definitionHistoricActivities.default;
+      const actionPlugin = Plugin.find(p => p.pluginPoint === 'cockpit.processDefinition.runtime.action');
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+
+      await act(async () => {
+        actionPlugin?.render(container, {
+          api: mockApi,
+          processDefinitionId: 'test-def:1:xyz',
+          root: container,
+        });
+      });
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalled();
+      });
+
+      // The engine reads finishedBefore as "must have a finish time" and drops every
+      // running activity: measured against a definition with four live instances it
+      // returned 4 records instead of 8, all of them instant start events. That is what
+      // left the heatmap with nothing to draw until something completed.
+      const url = mockFetch.mock.calls[0]?.[0] as string;
+      expect(url).not.toContain('finishedBefore');
+      expect(url).toContain('startedAfter');
+    });
   });
 
   describe('renderBadges', () => {
@@ -336,7 +370,8 @@ describe('definition-historic-activities integration', () => {
       // Badge must show token count '2', not time string like '1m' or '60s'
       expect(task1Html.innerText).toBe('2');
       // Tooltip carries cumulative time
-      expect(task1Html.title).toContain('Cumulative time in this element:');
+      // "so far" because a token still sitting on the element is counted too.
+      expect(task1Html.title).toContain('Cumulative time in this element so far:');
     });
   });
 });

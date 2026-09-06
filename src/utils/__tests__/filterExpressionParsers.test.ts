@@ -1056,9 +1056,11 @@ describe('getDefaultActivityInstanceQuery', () => {
     expect(result).toHaveProperty('sortOrder', 'desc');
     expect(result).toHaveProperty('maxResults', '1000');
     expect(result).toHaveProperty('startedAfter');
-    expect(result).toHaveProperty('finishedBefore');
+    // Deliberately absent: the engine reads finishedBefore as "must have a finish time",
+    // so including it drops every running activity and leaves the statistics — and the
+    // heatmap drawn from them — blind to work in progress.
+    expect(result).not.toHaveProperty('finishedBefore');
     expect(result.startedAfter).toMatch(/T00:00:00\.000\+0000$/);
-    expect(result.finishedBefore).toMatch(/T00:00:00\.000\+0000$/);
   });
 
   it('should use provided maxResults', () => {

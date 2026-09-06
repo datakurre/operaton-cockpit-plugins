@@ -322,17 +322,20 @@ These are current gaps, not bugs to report:
   the oldest records, which skews the figures towards recent activity rather than merely shortening
   them.
 
-* **Statistics cover finished executions only.** An activity still running has no duration to total,
-  average or colour by, so it is left out of the table, the badges and the heatmap alike rather than
-  being counted in one and not the others. Activities with no name are listed under their element id.
+* **The table counts finished executions; the heatmap counts time being spent.** An activity still
+  running has no duration to average or take a median of, so the *Statistics* table and its count
+  badges cover completed executions only. The heatmap deliberately does not share that filter: it
+  answers where a process is spending time, and a token parked on a task for two days is the truest
+  answer it has, so an unfinished activity contributes the time elapsed since it started. Activities
+  with no name are listed under their element id.
 
 * **The heatmap ranks elements against each other, not against a target.** Colour is the element's
   share of the slowest element's cumulative time, so the hottest spot is always red however fast the
   process is overall. It answers "where does this process spend its time", not "is this fast enough".
-  Elements that consumed no measurable time — start and end events, and activities still running —
-  get no blob at all, since they have no duration to rank. On a single instance this has a visible
-  consequence: an instance whose only finished activity is an instant start event draws nothing at
-  all, so the button lights up but the diagram does not change.
+  Elements that consumed no measurable time — instant start and end events, gateways — get no blob
+  at all, since they have no time to rank. Activities still running do get one, measured against the
+  browser's clock, so a process that has not finished anything yet still shows where its tokens are
+  sitting.
 
   The two heatmaps answer different questions and have separate toggles and separate settings. On a
   definition diagram the heat is cumulative across every instance in the current filter, ranking the
