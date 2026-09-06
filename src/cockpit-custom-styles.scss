@@ -465,6 +465,14 @@
   }
 }
 
+// Navbar & Header Layout: ensure symmetric right spacing for the app-switch menu
+[cam-widget-header] .navbar.app-menu {
+  li.app-switch {
+    margin-right: 8px !important;
+  }
+}
+
+
 // ==============================================================================
 // 2. Token Badges in BPMN Diagrams & Global Badges
 // ==============================================================================
@@ -595,10 +603,38 @@
   td.action, th.action,
   td.select, th.select,
   td.date, td.timestamp,
+  td.start-time, th.start-time,
+  td.end-time, th.end-time,
+  td.deployment-time, th.deployment-time,
   td.due-date, td.creation-date, td.follow-up-date,
-  td.variable-type {
+  td.variable-type,
+  td.state, th.state {
     white-space: nowrap !important;
   }
+
+  // Prevent clipboard copy widgets inside table cells from wrapping onto a phantom second line
+  [cam-widget-clipboard],
+  td[cam-widget-clipboard] {
+    white-space: nowrap !important;
+  }
+
+  // Vertical alignment and no-wrap for state circle and suspended badge in instance tables
+  td.state {
+    white-space: nowrap !important;
+
+    [state-circle],
+    .badge-suspended {
+      vertical-align: middle !important;
+      display: inline-block !important;
+      white-space: nowrap !important;
+    }
+
+    .badge-suspended {
+      margin-left: 4px !important;
+      margin-top: -2px !important;
+    }
+  }
+
 
   // Prevent UUID columns in instance tables from expanding beyond bounds
   td.uuid:not(.task-id) {
@@ -984,7 +1020,10 @@ body,
 // Removes rounded corners, vertically centers icons, and strengthens stroke weight
 // ==============================================================================
 .navigation.reset button,
-.navigation.zoom button {
+.navigation.zoom button,
+.reset-zoom-button,
+.zoom-in-button,
+.zoom-out-button {
   border-radius: 0 !important;
   display: flex !important;
   align-items: center !important;
@@ -1009,4 +1048,10 @@ body,
     justify-content: center !important;
     -webkit-text-stroke: 0.7px currentColor !important;
   }
+}
+
+// Vertically collapse 1px between zoom in and zoom out buttons so they share a single border
+.navigation.zoom button.out {
+  top: 30px !important;
+  bottom: auto !important;
 }
