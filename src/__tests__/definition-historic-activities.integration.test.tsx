@@ -284,4 +284,59 @@ describe('definition-historic-activities integration', () => {
       expect(url).toContain(`maxResults=${DEFAULT_MAX_RESULTS + 1}`);
     });
   });
+
+  describe('renderBadges', () => {
+    it('should render token counts in counts mode', async () => {
+      const { renderBadges } = await import('../definition-historic-activities');
+      const mockOverlays = {
+        add: jest.fn().mockReturnValue('overlay-1'),
+        remove: jest.fn(),
+      };
+
+      const activities = [
+        createActivity({ activityId: 'Task_1', durationInMillis: 1000, endTime: '2024-01-01T10:01:00Z' }),
+        createActivity({ activityId: 'Task_1', durationInMillis: 2000, endTime: '2024-01-01T10:02:00Z' }),
+        createActivity({ activityId: 'Task_2', durationInMillis: 5000, endTime: '2024-01-01T10:03:00Z' }),
+      ];
+
+      const ids = renderBadges(mockOverlays as any, activities, 'counts');
+      expect(ids).toHaveLength(2);
+      expect(mockOverlays.add).toHaveBeenCalledTimes(2);
+
+      const task1Call = mockOverlays.add.mock.calls.find((c: any[]) => c[0] === 'Task_1');
+      expect(task1Call).toBeDefined();
+      const task1Html = task1Call[1].html as HTMLElement;
+      expect(task1Html.innerText).toBe('2');
+
+      const task2Call = mockOverlays.add.mock.calls.find((c: any[]) => c[0] === 'Task_2');
+      expect(task2Call).toBeDefined();
+      const task2Html = task2Call[1].html as HTMLElement;
+      expect(task2Html.innerText).toBe('1');
+    });
+
+    it('should render token counts in heat mode (not duration string), with cumulative time in title', async () => {
+      const { renderBadges } = await import('../definition-historic-activities');
+      const mockOverlays = {
+        add: jest.fn().mockReturnValue('overlay-1'),
+        remove: jest.fn(),
+      };
+
+      const activities = [
+        createActivity({ activityId: 'Task_1', durationInMillis: 15000, endTime: '2024-01-01T10:01:00Z' }),
+        createActivity({ activityId: 'Task_1', durationInMillis: 45000, endTime: '2024-01-01T10:02:00Z' }),
+      ];
+
+      const ids = renderBadges(mockOverlays as any, activities, 'heat');
+      expect(ids).toHaveLength(1);
+      expect(mockOverlays.add).toHaveBeenCalledTimes(1);
+
+      const task1Call = mockOverlays.add.mock.calls[0];
+      expect(task1Call[0]).toBe('Task_1');
+      const task1Html = task1Call[1].html as HTMLElement;
+      // Badge must show token count '2', not time string like '1m' or '60s'
+      expect(task1Html.innerText).toBe('2');
+      // Tooltip carries cumulative time
+      expect(task1Html.title).toContain('Cumulative time in this element:');
+    });
+  });
 });
