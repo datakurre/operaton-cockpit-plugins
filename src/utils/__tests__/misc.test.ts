@@ -3,7 +3,7 @@
  *
  * @module
  */
-import { asctime, filter, loadSettings, saveSettings, PluginSettings } from '../misc';
+import { asctime, filter, loadSettings, saveSettings, isProcessInstanceRunning, PluginSettings } from '../misc';
 
 describe('utils/misc', () => {
   describe('asctime', () => {
@@ -246,6 +246,44 @@ describe('utils/misc', () => {
 
       expect(localStorage.setItem).toHaveBeenCalledTimes(2);
       expect(localStorage.setItem).toHaveBeenLastCalledWith('minimal-history-plugin', JSON.stringify(secondSettings));
+    });
+  });
+
+  describe('isProcessInstanceRunning', () => {
+    it('should return true for ACTIVE instance', () => {
+      expect(isProcessInstanceRunning({ state: 'ACTIVE', endTime: null })).toBe(true);
+    });
+
+    it('should return true for active instance with lowercase state', () => {
+      expect(isProcessInstanceRunning({ state: 'active', endTime: null })).toBe(true);
+    });
+
+    it('should return true for SUSPENDED instance', () => {
+      expect(isProcessInstanceRunning({ state: 'SUSPENDED', endTime: null })).toBe(true);
+    });
+
+    it('should return true when endTime is null and state is undefined', () => {
+      expect(isProcessInstanceRunning({ endTime: null })).toBe(true);
+    });
+
+    it('should return false for COMPLETED instance', () => {
+      expect(isProcessInstanceRunning({ state: 'COMPLETED', endTime: '2026-09-06T10:00:00.000+0000' })).toBe(false);
+    });
+
+    it('should return false for EXTERNALLY_TERMINATED instance', () => {
+      expect(
+        isProcessInstanceRunning({ state: 'EXTERNALLY_TERMINATED', endTime: '2026-09-06T10:00:00.000+0000' })
+      ).toBe(false);
+    });
+
+    it('should return false for INTERNALLY_TERMINATED instance', () => {
+      expect(
+        isProcessInstanceRunning({ state: 'INTERNALLY_TERMINATED', endTime: '2026-09-06T10:00:00.000+0000' })
+      ).toBe(false);
+    });
+
+    it('should return false when endTime is provided even if state is missing', () => {
+      expect(isProcessInstanceRunning({ endTime: '2026-09-06T10:00:00.000+0000' })).toBe(false);
     });
   });
 });

@@ -136,7 +136,7 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
-___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-heatmap-button,\n.toggle-sequence-flow-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-heatmap-button:hover,\n.toggle-sequence-flow-button:hover {\n  background: #e6e6e6;\n}\n\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 0;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n  box-shadow: none;\n}\n.zoom-in-button:hover,\n.zoom-out-button:hover,\n.reset-zoom-button:hover {\n  background: #e6e6e6;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
+___$insertStylesToHeader(".toggle-auto-refresh-button,\n.toggle-history-view-button,\n.toggle-history-statistics-button,\n.toggle-heatmap-button,\n.toggle-sequence-flow-button {\n  background: #ffffff;\n  border-radius: 2px;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n}\n.toggle-auto-refresh-button:hover,\n.toggle-history-view-button:hover,\n.toggle-history-statistics-button:hover,\n.toggle-heatmap-button:hover,\n.toggle-sequence-flow-button:hover {\n  background: #e6e6e6;\n}\n\n.zoom-in-button,\n.zoom-out-button,\n.reset-zoom-button {\n  background: #ffffff;\n  border-radius: 0;\n  border: 1px solid #cccccc;\n  padding: 0;\n  width: 30px;\n  height: 30px;\n  display: flex;\n  margin-bottom: 15px;\n  align-items: center;\n  justify-content: center;\n  box-shadow: none;\n  font-size: 20px;\n  line-height: 1;\n  color: #333333;\n}\n.zoom-in-button:hover, .zoom-in-button:focus,\n.zoom-out-button:hover,\n.zoom-out-button:focus,\n.reset-zoom-button:hover,\n.reset-zoom-button:focus {\n  background-color: #e6e6e6;\n  color: #333333;\n}\n.zoom-in-button span.glyphicon,\n.zoom-out-button span.glyphicon,\n.reset-zoom-button span.glyphicon {\n  position: static;\n  top: 0;\n  margin: 0;\n  line-height: 1;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  -webkit-text-stroke: 0.7px currentColor;\n}\n\n/**\n * Container for positioning buttons inside BPMN viewer.\n * Used to group toggle buttons (sequence flow, history view, etc.) \n * in a consistent position on the diagram.\n */\n.viewer-button-container {\n  position: absolute;\n  right: 15px;\n  display: flex;\n  flex-direction: column;\n  z-index: 10;\n}\n.viewer-button-container--top {\n  top: 15px;\n}\n.viewer-button-container--top-60 {\n  top: 60px;\n}\n.viewer-button-container--bottom {\n  bottom: 15px;\n}\n.viewer-button-container--bottom-120 {\n  bottom: 120px;\n}");
 
 ___$insertStylesToHeader("/**\n * Shared Resizable Layout Styles\n *\n * Common styles for Allotment-based resizable layouts used across plugins.\n * Used by: instance-route-history.scss, admin-route-authorization.scss\n */\n.Pane.vertical.Pane1 {\n  border-right: 1px solid #ddd;\n}\n\n.Resizer {\n  background: rgba(255, 255, 255, 0);\n  opacity: 0.2;\n  z-index: 1;\n  -moz-box-sizing: border-box;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  -moz-background-clip: padding;\n  -webkit-background-clip: padding;\n  background-clip: padding-box;\n}\n\n.Resizer:hover {\n  -webkit-transition: all 2s ease;\n  transition: all 2s ease;\n}\n\n.Resizer.horizontal {\n  height: 11px;\n  margin: -5px 0;\n  border-top: 5px solid rgba(255, 255, 255, 0);\n  border-bottom: 5px solid rgba(255, 255, 255, 0);\n  cursor: row-resize;\n  width: 100%;\n}\n\n.Resizer.horizontal:hover {\n  border-top: 5px solid rgba(0, 0, 0, 0.5);\n  border-bottom: 5px solid rgba(0, 0, 0, 0.5);\n}\n\n.Resizer.vertical {\n  width: 11px;\n  margin: 0 -5px;\n  border-left: 5px solid rgba(255, 255, 255, 0);\n  border-right: 5px solid rgba(255, 255, 255, 0);\n  cursor: col-resize;\n}\n\n.Resizer.vertical:hover {\n  border-left: 5px solid rgba(0, 0, 0, 0.5);\n  border-right: 5px solid rgba(0, 0, 0, 0.5);\n}\n\n.Resizer.disabled {\n  cursor: not-allowed;\n}\n\n.Resizer.disabled:hover {\n  border-color: transparent;\n}\n\n.react-tabs__tab a {\n  cursor: pointer;\n}\n.react-tabs__tab.active a {\n  cursor: none;\n}\n\n.react-tabs__tab-panel--selected {\n  z-index: 1;\n}\n\n.split-view-view:has(.ctn-tabbed) {\n  border-left: 1px solid #ccc;\n}");
 
@@ -3931,6 +3931,28 @@ var loadSettings = function () {
 var saveSettings = function (settings) {
     var storage = getStorage();
     storage.set(SETTINGS_KEY, JSON.stringify(settings));
+};
+/**
+ * Checks whether a process instance is still running (active or suspended, not ended).
+ * An instance is considered running if:
+ * 1. State is explicitly ACTIVE or SUSPENDED
+ * 2. Or endTime is not set, and state is not a terminated/completed state
+ *
+ * @param instance - Process instance with optional state and endTime
+ * @param instance.state - The state of the process instance
+ * @param instance.endTime - The end time of the process instance
+ * @returns True if the process instance is still running
+ */
+var isProcessInstanceRunning = function (instance) {
+    var _a;
+    var stateUpper = (_a = instance.state) === null || _a === void 0 ? void 0 : _a.toUpperCase();
+    if (stateUpper === 'ACTIVE' || stateUpper === 'SUSPENDED') {
+        return true;
+    }
+    if (stateUpper === 'COMPLETED' || stateUpper === 'EXTERNALLY_TERMINATED' || stateUpper === 'INTERNALLY_TERMINATED') {
+        return false;
+    }
+    return !instance.endTime;
 };
 
 /**
@@ -77170,11 +77192,6 @@ var clearHeatmap = function (nodes) {
     }
 };
 
-// THIS FILE IS AUTO GENERATED
-function IoMdLocate (props) {
-  return GenIcon({"attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M256 176c-44.004 0-80.001 36-80.001 80 0 44.004 35.997 80 80.001 80 44.005 0 79.999-35.996 79.999-80 0-44-35.994-80-79.999-80zm190.938 58.667c-9.605-88.531-81.074-160-169.605-169.599V32h-42.666v33.067c-88.531 9.599-160 81.068-169.604 169.599H32v42.667h33.062c9.604 88.531 81.072 160 169.604 169.604V480h42.666v-33.062c88.531-9.604 160-81.073 169.605-169.604H480v-42.667h-33.062zM256 405.333c-82.137 0-149.334-67.198-149.334-149.333 0-82.136 67.197-149.333 149.334-149.333 82.135 0 149.332 67.198 149.332 149.333S338.135 405.333 256 405.333z"},"child":[]}]})(props);
-}
-
 /**
  * Button to reset BPMN diagram zoom to fit viewport.
  * Memoized to prevent unnecessary re-renders.
@@ -77184,8 +77201,8 @@ function IoMdLocate (props) {
  */
 var ResetZoomButton = reactExports.memo(function (_a) {
     var onResetZoom = _a.onResetZoom;
-    return (React.createElement("button", { onClick: onResetZoom, title: "Reset Zoom", "aria-label": "Reset Zoom", className: "reset-zoom-button" },
-        React.createElement(IoMdLocate, { size: 25 })));
+    return (React.createElement("button", { onClick: onResetZoom, title: "Reset Zoom", "aria-label": "Reset Zoom", className: "btn btn-default reset-zoom-button" },
+        React.createElement("span", { className: "glyphicon glyphicon-screenshot" })));
 });
 ResetZoomButton.displayName = 'ResetZoomButton';
 
@@ -77194,10 +77211,6 @@ function FaFire (props) {
   return GenIcon({"attr":{"viewBox":"0 0 384 512"},"child":[{"tag":"path","attr":{"d":"M216 23.86c0-23.8-30.65-32.77-44.15-13.04C48 191.85 224 200 224 288c0 35.63-29.11 64.46-64.85 63.99-35.17-.45-63.15-29.77-63.15-64.94v-85.51c0-21.7-26.47-32.23-41.43-16.5C27.8 213.16 0 261.33 0 320c0 105.87 86.13 192 192 192s192-86.13 192-192c0-170.29-168-193-168-296.14z"},"child":[]}]})(props);
 }function FaHistory (props) {
   return GenIcon({"attr":{"viewBox":"0 0 512 512"},"child":[{"tag":"path","attr":{"d":"M504 255.531c.253 136.64-111.18 248.372-247.82 248.468-59.015.042-113.223-20.53-155.822-54.911-11.077-8.94-11.905-25.541-1.839-35.607l11.267-11.267c8.609-8.609 22.353-9.551 31.891-1.984C173.062 425.135 212.781 440 256 440c101.705 0 184-82.311 184-184 0-101.705-82.311-184-184-184-48.814 0-93.149 18.969-126.068 49.932l50.754 50.754c10.08 10.08 2.941 27.314-11.313 27.314H24c-8.837 0-16-7.163-16-16V38.627c0-14.254 17.234-21.393 27.314-11.314l49.372 49.372C129.209 34.136 189.552 8 256 8c136.81 0 247.747 110.78 248 247.531zm-180.912 78.784l9.823-12.63c8.138-10.463 6.253-25.542-4.21-33.679L288 256.349V152c0-13.255-10.745-24-24-24h-16c-13.255 0-24 10.745-24 24v135.651l65.409 50.874c10.463 8.137 25.541 6.253 33.679-4.21z"},"child":[]}]})(props);
-}function FaMinus (props) {
-  return GenIcon({"attr":{"viewBox":"0 0 448 512"},"child":[{"tag":"path","attr":{"d":"M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"},"child":[]}]})(props);
-}function FaPlus (props) {
-  return GenIcon({"attr":{"viewBox":"0 0 448 512"},"child":[{"tag":"path","attr":{"d":"M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"},"child":[]}]})(props);
 }
 
 /** Colour of the icon when the heatmap is on, taken from the hot end of the ramp. */
@@ -77372,10 +77385,10 @@ var ViewerButtonsPortal = function (_a) {
  */
 var ZoomInButton = reactExports.memo(function (_a) {
     var onZoomIn = _a.onZoomIn;
-    return (React.createElement("button", { onClick: onZoomIn, title: "Zoom In", "aria-label": "Zoom In", className: "zoom-in-button", style: {
+    return (React.createElement("button", { onClick: onZoomIn, title: "Zoom In", "aria-label": "Zoom In", className: "btn btn-default zoom-in-button in", style: {
             marginBottom: 0,
         } },
-        React.createElement(FaPlus, { size: 20 })));
+        React.createElement("span", { className: "glyphicon glyphicon-plus" })));
 });
 ZoomInButton.displayName = 'ZoomInButton';
 
@@ -77388,10 +77401,10 @@ ZoomInButton.displayName = 'ZoomInButton';
  */
 var ZoomOutButton = reactExports.memo(function (_a) {
     var onZoomOut = _a.onZoomOut;
-    return (React.createElement("button", { onClick: onZoomOut, title: "Zoom Out", "aria-label": "Zoom Out", className: "zoom-out-button", style: {
+    return (React.createElement("button", { onClick: onZoomOut, title: "Zoom Out", "aria-label": "Zoom Out", className: "btn btn-default zoom-out-button out", style: {
             marginTop: -1,
         } },
-        React.createElement(FaMinus, { size: 20 })));
+        React.createElement("span", { className: "glyphicon glyphicon-minus" })));
 });
 ZoomOutButton.displayName = 'ZoomOutButton';
 
@@ -80561,7 +80574,7 @@ var HistoryViewLayout = function (_a) {
                         } },
                         React.createElement(Ve.Pane, { preferredSize: (_c = settings.topPaneSize) !== null && _c !== void 0 ? _c : '66%' },
                             React.createElement("div", { style: { height: '100%', position: 'relative' } },
-                                React.createElement(BPMNViewer, { activities: activities, activitiesTruncated: activitiesTruncated, diagramXML: diagramXML, className: "ctn-content", style: { width: '100%', height: '100%' }, showRuntimeToggle: instance.state === 'ACTIVE' }),
+                                React.createElement(BPMNViewer, { activities: activities, activitiesTruncated: activitiesTruncated, diagramXML: diagramXML, className: "ctn-content", style: { width: '100%', height: '100%' }, showRuntimeToggle: isProcessInstanceRunning(instance) }),
                                 React.createElement("button", { type: "button", onClick: toggleTabsPanel, style: {
                                         position: 'absolute',
                                         left: '10px',
@@ -80609,7 +80622,7 @@ var HistoryViewLayout = function (_a) {
                                         React.createElement(AuditLogTable, { activities: activities, decisions: decisionByActivity })),
                                     React.createElement(Tab, { label: "Variables" },
                                         React.createElement(VariablesTable, { instance: historicInstance, activities: activityById, variables: variables })),
-                                    instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (React.createElement(Tab, { label: "Terminated" },
+                                    !isProcessInstanceRunning(instance) && (React.createElement(Tab, { label: "Terminated" },
                                         React.createElement(RestartProcessForm, { api: api, processDefinitionId: instance.processDefinitionId, processInstanceId: instance.id, processInstanceState: (_d = instance.state) !== null && _d !== void 0 ? _d : '', processInstanceBusinessKey: (_e = instance.businessKey) !== null && _e !== void 0 ? _e : null }))))))))))));
 };
 
@@ -81203,7 +81216,7 @@ var instanceRouteHistory = [
             mountPoint.style.display = 'contents';
             viewer._container.appendChild(mountPoint);
             clientExports.createRoot(mountPoint).render(React.createElement(React.StrictMode, null,
-                React.createElement(ViewerButtonsPortal, { viewer: viewer, position: { right: '15px', top: '60px' } },
+                React.createElement(ViewerButtonsPortal, { viewer: viewer, position: { right: '15px', top: '105px' } },
                     React.createElement(ToggleHistoryViewButton, { onToggleHistoryView: function (value) {
                             var _a;
                             if (value) {

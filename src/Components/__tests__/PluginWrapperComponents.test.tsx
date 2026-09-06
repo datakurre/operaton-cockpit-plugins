@@ -5,7 +5,7 @@ import { InstanceDiagramHistoricActivities } from '../InstanceDiagramHistoricAct
 import { InstanceTabAuditLog } from '../InstanceTabAuditLog';
 import { TasklistTabAuditLog } from '../TasklistTabAuditLog';
 import { setFetchFunction, resetFetchFunction } from '../../utils/api';
-import { renderActivities, renderSequenceFlow } from '../../utils/bpmn';
+import { clearHeatmap, clearSequenceFlow, renderActivities, renderHeatmap, renderSequenceFlow } from '../../utils/bpmn';
 import { MemoryStorage, resetStorage, setStorage } from '../../utils/storage';
 import { mockApi } from '../../__mocks__/api';
 
@@ -14,6 +14,8 @@ jest.mock('../../utils/bpmn', () => ({
   renderSequenceFlow: jest.fn().mockReturnValue([]),
   clearSequenceFlow: jest.fn(),
   renderActivities: jest.fn(),
+  renderHeatmap: jest.fn().mockReturnValue([]),
+  clearHeatmap: jest.fn(),
 }));
 
 /**
@@ -106,10 +108,9 @@ describe('InstanceDiagramHistoricActivities', () => {
     render(<InstanceDiagramHistoricActivities api={mockApi} processInstanceId="test-id" viewer={mockViewer} />);
 
     await waitFor(() => {
-      expect(screen.getByRole('button')).toBeInTheDocument();
+      expect(screen.getByTitle('Show sequence flow')).toBeInTheDocument();
+      expect(screen.getByTitle('Show time heatmap')).toBeInTheDocument();
     });
-
-    expect(screen.getByTitle('Show sequence flow')).toBeInTheDocument();
   });
 
   it('should not render anything while loading', () => {
@@ -138,11 +139,32 @@ describe('InstanceDiagramHistoricActivities', () => {
     render(<InstanceDiagramHistoricActivities api={mockApi} processInstanceId="test-id" viewer={mockViewer} />);
 
     await waitFor(() => {
-      expect(screen.getByRole('button')).toBeInTheDocument();
+      expect(screen.getAllByRole('button').length).toBeGreaterThanOrEqual(2);
     });
 
     // Badge counting itself lives in utils/bpmn; here we only own the delegation.
     expect(renderActivities).toHaveBeenCalledWith(mockViewer, activities);
+  });
+
+  it('should toggle heatmap on click', async () => {
+    const activities = [{ activityId: 'task1', activityName: 'Task 1', endTime: '2024-01-01T10:00:00.000Z' }];
+    setFetchFunction(
+      createRoutedMockFetch({
+        'activity-instance': activities,
+      })
+    );
+
+    render(<InstanceDiagramHistoricActivities api={mockApi} processInstanceId="test-id" viewer={mockViewer} />);
+
+    await waitFor(() => {
+      expect(screen.getByTitle('Show time heatmap')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTitle('Show time heatmap'));
+    expect(renderHeatmap).toHaveBeenCalledWith(mockViewer, activities);
+
+    fireEvent.click(screen.getByTitle('Hide time heatmap'));
+    expect(clearHeatmap).toHaveBeenCalled();
   });
 
   it('should draw the executed path once when mounted with the toggle already on', async () => {

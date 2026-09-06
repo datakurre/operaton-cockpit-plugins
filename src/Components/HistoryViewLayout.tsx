@@ -16,7 +16,7 @@ import ProcessInfoPanel, { type ProcessInstance } from './ProcessInfoPanel';
 import RestartProcessForm from './RestartProcessForm';
 import { Tab, Tabs } from './Tabs';
 import VariablesTable from './VariablesTable';
-import { loadSettings, saveSettings } from '../utils/misc';
+import { loadSettings, saveSettings, isProcessInstanceRunning } from '../utils/misc';
 import type { components } from '../operaton';
 import type { API } from '../types';
 
@@ -231,8 +231,9 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                     diagramXML={diagramXML}
                     className="ctn-content"
                     style={{ width: '100%', height: '100%' }}
-                    showRuntimeToggle={instance.state === 'ACTIVE'}
+                    showRuntimeToggle={isProcessInstanceRunning(instance)}
                   />
+
                   {/* Chevron to collapse/expand tabs panel */}
                   <button
                     type="button"
@@ -310,7 +311,7 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
                     <Tab label="Variables">
                       <VariablesTable instance={historicInstance} activities={activityById} variables={variables} />
                     </Tab>
-                    {instance.state !== 'ACTIVE' && instance.state !== 'SUSPENDED' && (
+                    {!isProcessInstanceRunning(instance) && (
                       <Tab label="Terminated">
                         <RestartProcessForm
                           api={api}

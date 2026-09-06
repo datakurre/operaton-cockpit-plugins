@@ -206,6 +206,15 @@ describe('BPMN Component', () => {
       });
     });
 
+    it('should place heatmap button before runtime toggle button', async () => {
+      render(<BPMNViewer diagramXML={sampleBpmnXml} showRuntimeToggle />);
+
+      const heatmapBtn = await screen.findByRole('button', { name: /show time heatmap/i });
+      const runtimeBtn = await screen.findByRole('button', { name: /show runtime view/i });
+
+      expect(heatmapBtn.compareDocumentPosition(runtimeBtn) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
     it('should reactively clear and redraw overlays and active sequence flow when activities change', async () => {
       const initialActivities = [{ activityId: 'StartEvent_1', activityName: 'Start' }];
       const updatedActivities = [
