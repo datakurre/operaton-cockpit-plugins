@@ -774,7 +774,8 @@
     padding-right: 8px !important;
   }
 
-  // Stack Action buttons vertically in User Tasks table like 1.0.3
+  // Stack Action buttons vertically in User Tasks table like 1.0.3.
+  // :not(.ng-hide) prevents overriding AngularJS ng-hide (e.g. failedJob vs failedExternalTask incident actions)
   th.action,
   td.action {
     width: 60px !important;
@@ -783,7 +784,7 @@
     text-align: center !important;
   }
 
-  td.action .action-button {
+  td.action .action-button:not(.ng-hide) {
     display: block !important;
     margin: 2px auto !important;
     padding: 2px 6px !important;
