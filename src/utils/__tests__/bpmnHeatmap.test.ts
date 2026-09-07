@@ -3,9 +3,17 @@
  *
  * @module
  */
-import { aggregateDurations, elapsedOf, getHeatColor, getIntensity } from '../bpmn/heatmap';
+import {
+  aggregateDurations,
+  clearHeatmap,
+  elapsedOf,
+  escapeCssId,
+  getHeatColor,
+  getIntensity,
+  renderHeatmap,
+} from '../bpmn/heatmap';
 import { HEATMAP_GAMMA } from '../constants';
-import type { HistoricActivityInstance } from '../../types';
+import type { BpmnViewerInstance, Canvas, ElementRegistry, HistoricActivityInstance } from '../../types';
 
 /** Builds a historic activity record with an explicit duration. */
 function activity(activityId: string, durationInMillis: number | null, extra = {}): HistoricActivityInstance {
@@ -159,6 +167,62 @@ describe('utils/bpmn/heatmap', () => {
       const red = (c: string): number => Number(/rgb\((\d+)/.exec(c)?.[1] ?? 0);
       expect(red(getHeatColor(1))).toBeGreaterThan(red(getHeatColor(0.5)));
       expect(red(getHeatColor(0.5))).toBeGreaterThan(red(getHeatColor(0)));
+    });
+  });
+
+  describe('escapeCssId', () => {
+    it('escapes special characters such as colons and dots', () => {
+      const escaped = escapeCssId('Participant:123.456');
+      expect(escaped).toContain('\\:');
+    });
+
+    it('leaves alphanumeric and hyphens untouched', () => {
+      expect(escapeCssId('Participant_1-abc')).toBe('Participant_1-abc');
+    });
+  });
+
+  describe('renderHeatmap container transparency', () => {
+    it('injects fill-opacity 0 style for pools and lanes and cleans them up', () => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      svg.appendChild(defs);
+      const layer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+      const mockViewer = {
+        get: jest.fn((service: string) => {
+          if (service === 'elementRegistry') {
+            return {
+              getAll: () => [
+                { id: 'Participant_1', type: 'bpmn:Participant' },
+                { id: 'Lane_1', type: 'bpmn:Lane' },
+                { id: 'Task_A', type: 'bpmn:UserTask' },
+              ],
+              get: (id: string) => {
+                if (id === 'Task_A') {
+                  return { id: 'Task_A', x: 10, y: 10, width: 100, height: 80, outgoing: [] };
+                }
+                return undefined;
+              },
+            } as unknown as ElementRegistry;
+          }
+          if (service === 'canvas') {
+            return {
+              _svg: svg,
+              getLayer: jest.fn().mockReturnValue(layer),
+            } as unknown as Canvas;
+          }
+          return undefined;
+        }),
+      } as unknown as BpmnViewerInstance;
+
+      const nodes = renderHeatmap(mockViewer, [activity('Task_A', 1000)]);
+      const styleNode = nodes.find(n => n.tagName.toLowerCase() === 'style');
+      expect(styleNode).toBeDefined();
+      expect(styleNode?.textContent).toContain('[data-element-id="Participant_1"] > .djs-visual > rect');
+      expect(styleNode?.textContent).toContain('[data-element-id="Lane_1"] > .djs-visual > rect');
+      expect(styleNode?.textContent).toContain('fill-opacity: 0 !important;');
+
+      clearHeatmap(nodes);
     });
   });
 });

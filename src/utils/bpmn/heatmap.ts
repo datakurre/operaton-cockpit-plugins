@@ -56,6 +56,16 @@ let heatmapSequence = 0;
 const toElementId = (activityId: string): string => activityId.split('#')[0] ?? '';
 
 /**
+ * Safely escapes an element identifier for use in a CSS selector.
+ */
+export function escapeCssId(id: string): string {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(id);
+  }
+  return id.replace(/([^\w-])/g, '\\$1');
+}
+
+/**
  * Multi-instance bodies span their instances, so counting both double-counts the time.
  */
 const isMultiInstanceBody = (activityId: string): boolean => activityId.endsWith('#multiInstanceBody');
@@ -474,6 +484,30 @@ export const renderHeatmap = (viewer: BpmnViewerInstance, activities: HistoricAc
   const sequence = heatmapSequence++;
   const { filterId, gradientId, nodes } = prepareHeatDefs(defs, sequence);
   added.push(...nodes);
+
+  // Participants (pools), lanes and expanded subprocesses paint opaque fills on
+  // diagram-js's base layer, which sits above the negative-index heatmap layer and
+  // occludes the heat. Make their background rects transparent while the heatmap is
+  // shown so the heat shines through from behind, while tasks keep their solid fill
+  // to maintain the halo effect.
+  const containerElements = typeof registry.getAll === 'function' ? registry.getAll() : [];
+  const containerSelectors = containerElements
+    .filter(
+      element =>
+        Boolean(element.id) &&
+        (element.type === 'bpmn:Participant' ||
+          element.type === 'bpmn:Lane' ||
+          (element.type === 'bpmn:SubProcess' && (element as { collapsed?: boolean }).collapsed !== true))
+    )
+    .map(element => `[data-element-id="${escapeCssId(element.id)}"] > .djs-visual > rect`)
+    .join(', ');
+
+  if (containerSelectors.length > 0) {
+    const style = svgCreate('style');
+    style.textContent = `${containerSelectors} { fill-opacity: 0 !important; }`;
+    svgAppend(defs, style);
+    added.push(style);
+  }
 
   const group = svgCreate('g');
   svgAttr(group, {
