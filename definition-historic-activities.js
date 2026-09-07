@@ -20975,6 +20975,15 @@ var heatmapSequence = 0;
  */
 var toElementId = function (activityId) { var _a; return (_a = activityId.split('#')[0]) !== null && _a !== void 0 ? _a : ''; };
 /**
+ * Safely escapes an element identifier for use in a CSS selector.
+ */
+function escapeCssId(id) {
+    if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+        return CSS.escape(id);
+    }
+    return id.replace(/([^\w-])/g, '\\$1');
+}
+/**
  * Multi-instance bodies span their instances, so counting both double-counts the time.
  */
 var isMultiInstanceBody = function (activityId) { return activityId.endsWith('#multiInstanceBody'); };
@@ -21328,6 +21337,27 @@ var renderHeatmap = function (viewer, activities) {
     var sequence = heatmapSequence++;
     var _c = prepareHeatDefs(defs, sequence), filterId = _c.filterId, gradientId = _c.gradientId, nodes = _c.nodes;
     added.push.apply(added, nodes);
+    // Participants (pools), lanes and expanded subprocesses paint opaque fills on
+    // diagram-js's base layer, which sits above the negative-index heatmap layer and
+    // occludes the heat. Make their background rects transparent while the heatmap is
+    // shown so the heat shines through from behind, while tasks keep their solid fill
+    // to maintain the halo effect.
+    var containerElements = typeof registry.getAll === 'function' ? registry.getAll() : [];
+    var containerSelectors = containerElements
+        .filter(function (element) {
+        return Boolean(element.id) &&
+            (element.type === 'bpmn:Participant' ||
+                element.type === 'bpmn:Lane' ||
+                (element.type === 'bpmn:SubProcess' && element.collapsed !== true));
+    })
+        .map(function (element) { return "[data-element-id=\"".concat(escapeCssId(element.id), "\"] > .djs-visual > rect"); })
+        .join(', ');
+    if (containerSelectors.length > 0) {
+        var style = create('style');
+        style.textContent = "".concat(containerSelectors, " { fill-opacity: 0 !important; }");
+        append(defs, style);
+        added.push(style);
+    }
     var group = create('g');
     attr(group, {
         class: 'history-heatmap',
