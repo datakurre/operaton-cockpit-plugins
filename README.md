@@ -69,11 +69,9 @@ They are for deployments where authentication happens outside the webapp (SSO, a
 pre-authentication) and the login form would only confuse users. They do **not** provide
 authentication and they do **not** protect anything: the form is hidden with CSS, nothing more.
 
-Only `admin-nologin.js` and `tasklist-nologin.js` are part of the default Docker image, because they
-are listed in [admin-config.js](admin-config.js) and [tasklist-config.js](tasklist-config.js). To hide
-the Cockpit or Welcome login form, deploy `cockpit-nologin.js` with
-[cockpit-nologin-config.js](cockpit-nologin-config.js), or `welcome-nologin.js` with
-[welcome-config.js](welcome-config.js), yourself.
+The no-login plugins are not part of the default Docker image. To hide the login form for any
+webapp, deploy the corresponding no-login plugin yourself (for Cockpit, using
+[cockpit-nologin-config.js](cockpit-nologin-config.js)).
 
 ### Not included
 
@@ -159,8 +157,8 @@ docker build \
 docker run --rm -p 8080:8080 operaton-with-plugins
 ```
 
-The image covers Cockpit, Admin and Tasklist. It does not include the Welcome app plugin or the
-Cockpit no-login plugin; add those yourself if you need them.
+The image covers Cockpit, Admin, Tasklist and Welcome. It does not include the no-login plugins;
+add those yourself if you need them.
 
 ### Spring Boot
 
@@ -192,13 +190,17 @@ src/main/resources/
                     ├── admin
                     │   └── scripts
                     │       ├── config.js                          # from admin-config.js
-                    │       ├── admin-nologin.js
+                    │       ├── admin-custom-styles.js
                     │       └── admin-route-authorization.js
-                    └── tasklist
+                    ├── tasklist
+                    │   └── scripts
+                    │       ├── config.js                          # from tasklist-config.js
+                    │       ├── tasklist-audit-log.js
+                    │       └── tasklist-custom-styles.js
+                    └── welcome
                         └── scripts
-                            ├── config.js                          # from tasklist-config.js
-                            ├── tasklist-audit-log.js
-                            └── tasklist-nologin.js
+                            ├── config.js                          # from welcome-config.js
+                            └── welcome-custom-styles.js
 ```
 
 After this you can start the project and the plugins should be loaded. Usually you customize
@@ -225,9 +227,9 @@ repository ships one configuration file per webapp:
 | File | Webapp | Loads |
 |------|--------|-------|
 | [config.js](config.js) | Cockpit | the ten Cockpit plugins plus `robot-module.js` as a `bpmnJs.additionalModules` entry |
-| [admin-config.js](admin-config.js) | Admin | `admin-nologin.js`, `admin-route-authorization.js` |
-| [tasklist-config.js](tasklist-config.js) | Tasklist | `tasklist-nologin.js`, `tasklist-audit-log.js` |
-| [welcome-config.js](welcome-config.js) | Welcome | `welcome-nologin.js` |
+| [admin-config.js](admin-config.js) | Admin | `admin-route-authorization.js`, `admin-custom-styles.js` |
+| [tasklist-config.js](tasklist-config.js) | Tasklist | `tasklist-audit-log.js`, `tasklist-custom-styles.js` |
+| [welcome-config.js](welcome-config.js) | Welcome | `welcome-custom-styles.js` |
 | [cockpit-nologin-config.js](cockpit-nologin-config.js) | Cockpit | `cockpit-nologin.js` only — an alternative to `config.js` |
 
 The Cockpit configuration is:

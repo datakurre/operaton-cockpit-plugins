@@ -35,15 +35,12 @@ RUN mkdir -p cockpit/scripts admin/scripts tasklist/scripts welcome/scripts && \
        /tmp/plugins-src/robot-module.js \
        cockpit/scripts/ && \
     cp /tmp/plugins-src/admin-route-authorization.js \
-       /tmp/plugins-src/admin-nologin.js \
        /tmp/plugins-src/admin-custom-styles.js \
        admin/scripts/ && \
     cp /tmp/plugins-src/tasklist-audit-log.js \
-       /tmp/plugins-src/tasklist-nologin.js \
        /tmp/plugins-src/tasklist-custom-styles.js \
        tasklist/scripts/ && \
-    cp /tmp/plugins-src/welcome-nologin.js \
-       /tmp/plugins-src/welcome-custom-styles.js \
+    cp /tmp/plugins-src/welcome-custom-styles.js \
        welcome/scripts/
 
 # 2. Copy webapp configurations from repository
@@ -52,9 +49,10 @@ RUN cp /tmp/plugins-src/admin-config.js admin/scripts/config.js && \
     cp /tmp/plugins-src/welcome-config.js welcome/scripts/config.js && \
     cp /tmp/plugins-src/config.js cockpit/scripts/config.js
 
-# Ensure Cockpit config strictly references plugins from operaton-cockpit-plugins
-# (stripping the local JupyterLite script reference if jupyter assets are not bundled)
-RUN sed -i '/jupyter/d' cockpit/scripts/config.js
+# Ensure webapp configs strictly reference bundled plugins
+# (stripping nologin plugins and optional JupyterLite script reference)
+RUN sed -i '/nologin/d' admin/scripts/config.js tasklist/scripts/config.js welcome/scripts/config.js && \
+    sed -i '/jupyter/d' cockpit/scripts/config.js
 
 # 3. Mirror the structure into app/ for WAR packaging
 RUN mkdir -p /overlay/app && \

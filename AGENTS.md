@@ -21,9 +21,9 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [README.md](README.md): Usage and deployment instructions
 - [config.js](config.js): Cockpit plugin configuration (defines `customScripts` and `bpmnJs.additionalModules`)
 - [cockpit-nologin-config.js](cockpit-nologin-config.js): Alternative Cockpit configuration that only loads `cockpit-nologin.js`
-- [tasklist-config.js](tasklist-config.js): Tasklist configuration (`tasklist-nologin.js`, `tasklist-audit-log.js`)
-- [admin-config.js](admin-config.js): Admin configuration (`admin-nologin.js`, `admin-route-authorization.js`)
-- [welcome-config.js](welcome-config.js): Welcome configuration (`welcome-nologin.js`)
+- [tasklist-config.js](tasklist-config.js): Tasklist configuration (`tasklist-audit-log.js`, `tasklist-custom-styles.js`)
+- [admin-config.js](admin-config.js): Admin configuration (`admin-route-authorization.js`, `admin-custom-styles.js`)
+- [welcome-config.js](welcome-config.js): Welcome configuration (`welcome-custom-styles.js`)
 - [Dockerfile](Dockerfile): Standalone Operaton Docker image build (context-free); its `cp` list is the
   authoritative statement of which bundles ship
 
@@ -315,11 +315,11 @@ as of `e95c20b`, so a failure is yours.
 
 ### Tasklist
 - Plugins listed in [tasklist-config.js](tasklist-config.js) are loaded by Tasklist
-- Copy `tasklist-config.js` (as `config.js`) plus `tasklist-audit-log.js` and `tasklist-nologin.js` into the scripts directory
+- Copy `tasklist-config.js` (as `config.js`) plus `tasklist-audit-log.js` and `tasklist-custom-styles.js` into the scripts directory
 
 ### Admin and Welcome
-- [admin-config.js](admin-config.js) loads `admin-nologin.js` and `admin-route-authorization.js`
-- [welcome-config.js](welcome-config.js) loads `welcome-nologin.js`
+- [admin-config.js](admin-config.js) loads `admin-route-authorization.js` and `admin-custom-styles.js`
+- [welcome-config.js](welcome-config.js) loads `welcome-custom-styles.js`
 - Each is copied into the corresponding webapp's scripts directory as `config.js`
 
 ### Docker
