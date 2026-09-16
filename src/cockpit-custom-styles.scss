@@ -888,6 +888,18 @@ body,
   display: none !important;
 }
 
+// Keep the home app-switch control's single dropdown indicator visible.
+[cam-widget-header] .app-switch > .dropdown-toggle::after {
+  display: inline-block !important;
+  margin-left: 0.255em !important;
+  vertical-align: 0.255em !important;
+  content: '' !important;
+  border-top: 0.3em solid !important;
+  border-right: 0.3em solid transparent !important;
+  border-bottom: 0 !important;
+  border-left: 0.3em solid transparent !important;
+}
+
 // ==============================================================================
 // 8. Restore Active Item Accent Border in Repository / Deployments
 // ==============================================================================
