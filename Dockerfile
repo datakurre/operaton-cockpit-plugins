@@ -73,12 +73,15 @@ RUN apk add --no-cache zip
 # Copy the prepared overlay from Stage 1
 COPY --from=plugin-builder /overlay /overlay
 
-# Update the internal webapps archives with the configs and plugin scripts
+# Update the internal webapps archives with the configs and plugin scripts.
+# Plain `zip` (not `zip -u`): -u skips entries whose file is not newer than the
+# archived one, and the tarball carries the commit time, so the stock config.js
+# would silently win whenever the base image is newer than the last commit.
 RUN cd /overlay && \
     for jar in /operaton/internal/webapps/operaton-webapp-webjar-*.jar; do \
       if [ -f "$jar" ]; then \
         echo "Updating $jar with plugins and config.js ..."; \
-        zip -u "$jar" \
+        zip "$jar" \
           META-INF/resources/webjars/operaton/app/cockpit/scripts/* \
           META-INF/resources/webjars/operaton/app/admin/scripts/* \
           META-INF/resources/webjars/operaton/app/tasklist/scripts/* \
@@ -88,7 +91,7 @@ RUN cd /overlay && \
     for war in /operaton/internal/webapps/operaton-webapp-*.war; do \
       if [ -f "$war" ]; then \
         echo "Updating $war with plugins and config.js ..."; \
-        zip -u "$war" \
+        zip "$war" \
           app/cockpit/scripts/* \
           app/admin/scripts/* \
           app/tasklist/scripts/* \
