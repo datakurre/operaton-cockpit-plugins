@@ -97,6 +97,9 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [bpmn.ts](src/utils/bpmn.ts): Re-exports from `bpmn/` submodule for backwards compatibility
 - [bpmnParsing.ts](src/utils/bpmnParsing.ts): BPMN XML parsing for extracting activities, sequence flows, and message definitions
 - [batchOperations.ts](src/utils/batchOperations.ts): Instance targeting helpers and the request builders behind the definition-level batch operations. Every dry run and every submit goes through these, so the previewed request is the sent request
+- [instanceOperations.ts](src/utils/instanceOperations.ts): The same, for the operations on one instance — modification, message correlation and restart
+- [instanceLookup.ts](src/utils/instanceLookup.ts): Dry run lookup of the instances a batch selection targets; reports entered ids that are not running instances of the definition
+- [submitGuard.ts](src/utils/submitGuard.ts): Pure rules of the guarded submit — whether a preview still matches the request the form would send (`isPreviewCurrent`), and each request's risk and acknowledgement (`describeRisk`), including the refusal of cancel-only batches
 - [constants.ts](src/utils/constants.ts): Centralized UI, timing, pagination, retry, and validation constants
 - [datePickerWidget.tsx](src/utils/datePickerWidget.tsx) / [datePickerWidget.scss](src/utils/datePickerWidget.scss): Date picker widget used inside FilterBox tokens
 - [filterExpressionParsers.ts](src/utils/filterExpressionParsers.ts): Pure functions for parsing FilterBox expressions to API query parameters. Provides `parseActivityInstanceExpressions()`, `parseProcessInstanceExpressions()`, `parseAuthorizationExpressions()` with typed interfaces for each query type.
@@ -118,6 +121,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [useData.ts](src/hooks/useData.ts): Data fetching hooks (`useActivities`, `useVariables`, `useBpmnElements`, `useSettings`)
 - [useFilterState.ts](src/hooks/useFilterState.ts): FilterBox expression state, query-parameter building, and URL/localStorage persistence
 - [usePagination.ts](src/hooks/usePagination.ts): Page navigation state and `firstResult` calculation
+- [useGuardedSubmit.ts](src/hooks/useGuardedSubmit.ts): Guarded submit shared by every state-changing form — see [Dangerous operations and dry runs](#dangerous-operations-and-dry-runs)
 
 ### Reusable UI components (`src/Components/`)
 
@@ -169,13 +173,14 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [FilterBox.tsx](src/Components/FilterBox.tsx): Token-based filter builder using react-select-filter-box with schema-based configuration, saved searches persistence, and legacy expression conversion
 - [FilterBox.scss](src/Components/FilterBox.scss): Styles for FilterBox and saved searches dropdown
 - [VariableBuilder.tsx](src/Components/VariableBuilder.tsx): Dynamic variable input builder with type-specific controls (String, Integer, Boolean, JSON, Date, etc.) and form validation
-- [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Single-instance message correlation form with BPMN message parsing, variable configuration, and a business key field for message start events
-- [RestartProcessForm.tsx](src/Components/RestartProcessForm.tsx): Restart form for externally/internally terminated instances, either picking one from a list or targeting the instance currently open in the history view
+- [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx): Single-instance message correlation form with BPMN message parsing, variable configuration, and a business key field for message start events. No message is preselected, and a start-event message is flagged as starting a new, unrelated instance
+- [RestartProcessForm.tsx](src/Components/RestartProcessForm.tsx): Restart form for the finished instance open in the history view. No starting point is preselected; the dry run also finds earlier restarts, and after the restart it navigates only to the instance whose `restartedProcessInstanceId` points back
 - [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx): Batch process modification form with instance selection, dry-run preview, and modification instructions
 - [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx): Definition-level message form — correlates asynchronously to a selected set of instances (all, by activity/state query, or by explicit ids), or starts one new instance with a business key when the selected message sits on a start event
 - [InstanceSelectionFields.tsx](src/Components/InstanceSelectionFields.tsx): Shared "select instances by" fields (all / query / specific ids) used by the batch modify and message forms
 - [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx): Batch signal broadcast form for broadcasting signals globally
 - [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx): Dry-run preview showing the affected process instances and the request the real run would send
+- [ConfirmSubmit.tsx](src/Components/ConfirmSubmit.tsx): Submit area of a guarded form — stale-preview and refusal notices, the acknowledgement checkbox, and the submit button
 - [IdentityAutocomplete.tsx](src/Components/IdentityAutocomplete.tsx): Autocomplete input for users/groups in authorization forms
 - [ResourceAutocomplete.tsx](src/Components/ResourceAutocomplete.tsx): Autocomplete input for resource IDs in authorization forms
 - [AuthorizationFormModal.tsx](src/Components/AuthorizationFormModal.tsx): Modal form for creating/editing authorizations with type, identity, permissions, and resource ID selection
@@ -408,29 +413,44 @@ The rule for anything with such a blast radius:
 3. **It must carry a `WarningBox`** stating the scope in plain words, especially when the scope is wider than
    the view the user is standing in (e.g. `BatchSignalForm` broadcasts engine-wide, not just to this
    definition).
+4. **Submit only what was previewed, once.** Every form below goes through
+   [useGuardedSubmit](src/hooks/useGuardedSubmit.ts) and [ConfirmSubmit](src/Components/ConfirmSubmit.tsx):
+   submit stays disabled until a dry run exists, the user has ticked the acknowledgement that
+   [describeRisk()](src/utils/submitGuard.ts) words for that request, and the form still builds exactly the
+   previewed request. Any edit after the dry run marks the preview out of date and disables submit. A
+   successful submit clears the preview, so the same request needs a new dry run to go again, and an
+   in-flight ref stops a double click in the same tick.
+5. **No mass removal.** A batch modification that only cancels — no start instruction to move the token —
+   can end every targeted instance, so `describeRisk()` refuses it outright. Moving tokens (cancel plus
+   start) is allowed. The single-instance modify form only warns about a cancel-only request, in its
+   acknowledgement.
 
-Current state, and the gap to close:
+| Form | Request | Dry run shows | Also guarded by |
+|------|---------|---------------|-----------------|
+| [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx) | `POST /modification/executeAsync` | instances and request | cancel-only refused; ids outside the definition refused |
+| [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx) | `POST /process-instance/message-async`, `POST /message` | instances (correlation) and request | ids outside the definition refused |
+| [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx) | `POST /signal` | this definition's instances, a note that the reach is engine-wide, and request | engine-wide acknowledgement |
+| Modify Instance tab ([instance-tab-modify.tsx](src/instance-tab-modify.tsx)) | `POST /process-instance/{id}/modification` | request | cancel-only acknowledgement |
+| [MessageCorrelationForm.tsx](src/Components/MessageCorrelationForm.tsx) | `POST /message` | request | start-event warning |
+| [RestartProcessForm.tsx](src/Components/RestartProcessForm.tsx) | `POST /process-definition/{id}/restart` | request, earlier restarts | completed / already-restarted acknowledgement |
 
-| Form | Dry run | Shows affected instances | Shows the request |
-|------|---------|--------------------------|-------------------|
-| [BatchModifyForm.tsx](src/Components/BatchModifyForm.tsx) (`POST /modification/executeAsync`) | "Dry Run" | yes | yes |
-| [BatchMessageForm.tsx](src/Components/BatchMessageForm.tsx) (`POST /process-instance/message-async`, `POST /message`) | "Dry Run" | yes, for correlation; a start message creates an instance and has none | yes, both paths |
-| [BatchSignalForm.tsx](src/Components/BatchSignalForm.tsx) (`POST /signal`) | "Dry Run" | this definition's instances only, with a note that the broadcast is engine-wide | yes |
+"All active instances" really is `active: true`: suspended instances would only fail as batch jobs. Batch
+modification instructions carry no variables — the batch API's instruction type has no such field — so the
+batch form does not offer them.
 
 The per-instance actions — external task retry/unlock ([instance-action-unlock.tsx](src/instance-action-unlock.tsx),
-[dashboard-integrations.tsx](src/dashboard-integrations.tsx)) and restart
-([RestartProcessForm.tsx](src/Components/RestartProcessForm.tsx)) — act on an explicit selection the user can
+[dashboard-integrations.tsx](src/dashboard-integrations.tsx)) — act on an explicit selection the user can
 see in a table, which satisfies rule 1 for them. They still send a body worth showing, so if you touch them,
 surface it too.
 
-This is wired so it cannot drift. [src/utils/batchOperations.ts](src/utils/batchOperations.ts) holds the pure
-targeting helpers and one request builder per operation, each returning a `BatchRequest`
-(`{ method, path, payload }`). The dry run renders that value through
+This is wired so it cannot drift. [src/utils/batchOperations.ts](src/utils/batchOperations.ts) and
+[src/utils/instanceOperations.ts](src/utils/instanceOperations.ts) hold the pure targeting helpers and one
+request builder per operation, each returning a `BatchRequest` (`{ method, path, payload }`). The dry run renders that value through
 [DryRunResultPreview.tsx](src/Components/DryRunResultPreview.tsx) and the submit handler posts the same
 value — there is no second "what we would send" serializer to fall out of step. When you add an operation,
-follow the same shape: builder in `batchOperations.ts`, unit tests beside it in
-[src/utils/__tests__/batchOperations.test.ts](src/utils/__tests__/batchOperations.test.ts), and never
-construct a payload inline in a form.
+follow the same shape: builder in `batchOperations.ts` or `instanceOperations.ts` with unit tests beside it,
+a risk entry in `describeRisk()`, `useGuardedSubmit` plus `ConfirmSubmit` in the form, and never construct a
+payload inline in a form.
 
 ## Testing
 

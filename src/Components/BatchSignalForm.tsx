@@ -7,16 +7,19 @@
 import React, { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
+import ConfirmSubmit from './ConfirmSubmit';
 import DryRunResultPreview, { type DryRunResult } from './DryRunResultPreview';
 import ErrorMessage from './ErrorMessage';
 import FormButton from './FormButton';
 import SuccessMessage from './SuccessMessage';
 import VariableBuilder from './VariableBuilder';
 import WarningBox from './WarningBox';
+import { useGuardedSubmit } from '../hooks/useGuardedSubmit';
 import type { API } from '../types';
 import { ProcessInstance } from '../types';
 import { get, post } from '../utils/api';
-import { buildSignalRequest, type BatchRequest, type SignalRequestInput } from '../utils/batchOperations';
+import { buildSignalRequest, type SignalRequestInput } from '../utils/batchOperations';
+import { tryBuild } from '../utils/submitGuard';
 
 /** Maximum number of instances to show in dry-run preview */
 const MAX_PREVIEW_INSTANCES = 10;
@@ -32,13 +35,12 @@ interface BatchSignalFormProps {
  * Batch signal broadcast form component.
  * Allows broadcasting signals to multiple process instances.
  */
+// eslint-disable-next-line max-lines-per-function -- Form with dry run, guarded submit and variables
 const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitionId }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDryRun, setIsDryRun] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
-  const [dryRunRequest, setDryRunRequest] = useState<BatchRequest | null>(null);
 
   const methods = useForm<SignalFormData>({
     defaultValues: {
@@ -47,7 +49,10 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
     },
   });
 
-  const { handleSubmit, reset } = methods;
+  const { handleSubmit, reset, watch } = methods;
+
+  const formValues = watch();
+  const guard = useGuardedSubmit(tryBuild(() => buildSignalRequest(formValues)));
 
   /**
    * Preview the broadcast: the request it would send, and the instances of *this*
@@ -57,28 +62,26 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
     try {
       setIsDryRun(true);
       setError(null);
+      setSuccessMessage(null);
       setDryRunResult(null);
-      setDryRunRequest(null);
+      guard.clearPreview();
 
       const request = buildSignalRequest(data);
       if (!request) {
         setError('Please enter a signal name.');
         return;
       }
-      setDryRunRequest(request);
 
       const instances = (await get(api, '/process-instance', {
         processDefinitionId,
       })) as ProcessInstance[];
 
+      // Zero instances here does not mean zero reach: the signal may be caught elsewhere.
       setDryRunResult({
         count: instances.length,
         instances: instances.slice(0, MAX_PREVIEW_INSTANCES),
       });
-
-      if (instances.length === 0) {
-        setError('No active instances found for this definition.');
-      }
+      guard.markPreviewed(request);
     } catch (err) {
       console.error('Dry run error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -89,34 +92,23 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
   };
 
   /**
-   * Submit the signal broadcast request
+   * Broadcast the previewed signal
    */
   const onSubmit = async (data: SignalFormData): Promise<void> => {
     try {
-      setIsSubmitting(true);
       setError(null);
       setSuccessMessage(null);
-      setDryRunResult(null);
-      setDryRunRequest(null);
-
-      const request = buildSignalRequest(data);
-      if (!request) {
-        setError('Please enter a signal name.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      await post(api, request.path, {}, JSON.stringify(request.payload));
-
-      setSuccessMessage(
-        `Signal "${data.signalName}" broadcast engine-wide. All matching signal catch events across all process definitions have been triggered.`
-      );
+      await guard.submit(async request => {
+        await post(api, request.path, {}, JSON.stringify(request.payload));
+        setDryRunResult(null);
+        setSuccessMessage(
+          `Signal "${data.signalName}" broadcast engine-wide. All matching signal catch events across all process definitions have been triggered.`
+        );
+      });
     } catch (err) {
       console.error('Signal broadcast error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`Failed to broadcast signal: ${errorMessage}. Check console for details.`);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -128,7 +120,7 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
     setError(null);
     setSuccessMessage(null);
     setDryRunResult(null);
-    setDryRunRequest(null);
+    guard.clearPreview();
   };
 
   return (
@@ -176,7 +168,7 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
 
           <DryRunResultPreview
             result={dryRunResult}
-            request={dryRunRequest}
+            request={guard.previewedRequest}
             maxInstances={MAX_PREVIEW_INSTANCES}
             instanceLabel="active instance of this definition"
             instanceNote={
@@ -192,14 +184,11 @@ const BatchSignalForm: React.FC<BatchSignalFormProps> = ({ api, processDefinitio
         {error && <ErrorMessage message={error} />}
         {successMessage && <SuccessMessage message={successMessage} />}
 
-        <div className="modify-form__actions">
-          <FormButton type="submit" disabled={isSubmitting} variant="primary" minWidth={160}>
-            {isSubmitting ? 'Broadcasting...' : 'Broadcast Signal'}
-          </FormButton>
+        <ConfirmSubmit guard={guard} submitLabel="Broadcast Signal" submittingLabel="Broadcasting...">
           <FormButton type="button" variant="secondary" onClick={handleReset} minWidth={100}>
             Reset
           </FormButton>
-        </div>
+        </ConfirmSubmit>
       </form>
     </FormProvider>
   );

@@ -41,6 +41,20 @@ const mockGet = get as jest.MockedFunction<typeof get>;
 const mockPost = post as jest.MockedFunction<typeof post>;
 const mockGetBpmnElements = getBpmnElements as jest.MockedFunction<typeof getBpmnElements>;
 
+/**
+ * Walk the guarded submit: choose the message, run the dry run, acknowledge, submit.
+ */
+async function sendMessage(
+  user: ReturnType<typeof userEvent.setup>,
+  messageName = 'OrderReceived',
+  submitLabel = 'Correlate Message'
+): Promise<void> {
+  await user.selectOptions(screen.getByRole('combobox'), messageName);
+  await user.click(screen.getByRole('button', { name: 'Dry Run' }));
+  await user.click(await screen.findByRole('checkbox', { name: /I have reviewed|I understand/ }));
+  await user.click(screen.getByRole('button', { name: submitLabel }));
+}
+
 describe('MessageCorrelationForm', () => {
   const defaultProps = {
     api: mockApi,
@@ -86,9 +100,11 @@ describe('MessageCorrelationForm', () => {
       expect(select).toBeInTheDocument();
 
       const options = screen.getAllByRole('option');
-      expect(options).toHaveLength(2);
-      expect(options[0]).toHaveValue('OrderReceived');
-      expect(options[1]).toHaveValue('CancelOrder');
+      expect(options).toHaveLength(3);
+      // Nothing is preselected: sending a message is a choice.
+      expect(select).toHaveValue('');
+      expect(options[1]).toHaveValue('OrderReceived');
+      expect(options[2]).toHaveValue('CancelOrder');
     });
 
     it('should show loading state initially', async () => {
@@ -143,8 +159,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      const submitButton = screen.getByRole('button', { name: 'Correlate Message' });
-      await user.click(submitButton);
+      await sendMessage(user);
 
       await waitFor(() => {
         expect(mockPost).toHaveBeenCalledWith(
@@ -164,7 +179,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Correlate Message' }));
+      await sendMessage(user);
 
       await waitFor(() => {
         expect(mockPost).toHaveBeenCalledWith(
@@ -194,10 +209,61 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      const submitButton = screen.getByRole('button', { name: 'Correlate Message' });
-      await user.click(submitButton);
+      await sendMessage(user);
 
       expect(screen.getByRole('button', { name: 'Correlating...' })).toBeDisabled();
+    });
+
+    it('should keep submit disabled until a dry run has been acknowledged', async () => {
+      const user = userEvent.setup();
+      render(<MessageCorrelationForm {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
+      });
+      await user.selectOptions(screen.getByRole('combobox'), 'OrderReceived');
+      expect(screen.getByRole('button', { name: 'Correlate Message' })).toBeDisabled();
+
+      await user.click(screen.getByRole('button', { name: 'Dry Run' }));
+      expect(screen.getByLabelText('Request preview')).toHaveTextContent('"processInstanceId": "instance-123"');
+      expect(screen.getByRole('button', { name: 'Correlate Message' })).toBeDisabled();
+
+      await user.click(screen.getByRole('checkbox', { name: /I have reviewed/ }));
+      expect(screen.getByRole('button', { name: 'Correlate Message' })).toBeEnabled();
+    });
+
+    it('should disable submit again when the form changes after the dry run', async () => {
+      const user = userEvent.setup();
+      render(<MessageCorrelationForm {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
+      });
+      await user.selectOptions(screen.getByRole('combobox'), 'OrderReceived');
+      await user.click(screen.getByRole('button', { name: 'Dry Run' }));
+      await user.click(screen.getByRole('checkbox', { name: /I have reviewed/ }));
+
+      await user.selectOptions(screen.getByRole('combobox'), 'CancelOrder');
+
+      expect(screen.getByText(/Preview out of date/)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Correlate Message' })).toBeDisabled();
+    });
+
+    it('should not send the same request twice', async () => {
+      const user = userEvent.setup();
+      render(<MessageCorrelationForm {...defaultProps} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
+      });
+      await sendMessage(user);
+      await waitFor(() => {
+        expect(screen.getByText(/Message correlated successfully/i)).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('button', { name: 'Correlate Message' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Dry Run' })).toBeDisabled();
+      expect(mockPost).toHaveBeenCalledTimes(1);
     });
 
     it('should allow selecting different message from dropdown', async () => {
@@ -208,10 +274,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      const select = screen.getByRole('combobox');
-      await user.selectOptions(select, 'CancelOrder');
-
-      await user.click(screen.getByRole('button', { name: 'Correlate Message' }));
+      await sendMessage(user, 'CancelOrder');
 
       await waitFor(() => {
         expect(mockPost).toHaveBeenCalledWith(
@@ -286,21 +349,25 @@ describe('MessageCorrelationForm', () => {
     });
 
     it('should show the business key field for start event messages', async () => {
+      const user = userEvent.setup();
       render(<MessageCorrelationForm {...defaultProps} />);
 
       await waitFor(() => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
+      await user.selectOptions(screen.getByRole('combobox'), 'StartOrder');
 
       expect(screen.getByLabelText('Business Key')).toBeInTheDocument();
     });
 
     it('should pre-fill the business key field with a generated UUID', async () => {
+      const user = userEvent.setup();
       render(<MessageCorrelationForm {...defaultProps} />);
 
       await waitFor(() => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
+      await user.selectOptions(screen.getByRole('combobox'), 'StartOrder');
 
       await waitFor(() => {
         expect(screen.getByLabelText('Business Key')).toHaveValue('00000000-0000-4000-8000-000000000000');
@@ -308,23 +375,28 @@ describe('MessageCorrelationForm', () => {
     });
 
     it('should hide advanced correlation options for start event messages', async () => {
+      const user = userEvent.setup();
       render(<MessageCorrelationForm {...defaultProps} />);
 
       await waitFor(() => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
+      await user.selectOptions(screen.getByRole('combobox'), 'StartOrder');
 
       expect(screen.queryByRole('checkbox', { name: /advanced correlation options/i })).not.toBeInTheDocument();
     });
 
-    it('should show Start Process Instance button for start event messages', async () => {
+    it('should show Start Process Instance button and a warning for start event messages', async () => {
+      const user = userEvent.setup();
       render(<MessageCorrelationForm {...defaultProps} />);
 
       await waitFor(() => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
+      await user.selectOptions(screen.getByRole('combobox'), 'StartOrder');
 
       expect(screen.getByRole('button', { name: 'Start Process Instance' })).toBeInTheDocument();
+      expect(screen.getByText(/not related to the instance you are viewing/i)).toBeInTheDocument();
     });
 
     it('should submit without processInstanceId and include businessKey for start event messages', async () => {
@@ -335,11 +407,12 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
+      await user.selectOptions(screen.getByRole('combobox'), 'StartOrder');
       await waitFor(() => {
         expect(screen.getByLabelText('Business Key')).toHaveValue('00000000-0000-4000-8000-000000000000');
       });
 
-      await user.click(screen.getByRole('button', { name: 'Start Process Instance' }));
+      await sendMessage(user, 'StartOrder', 'Start Process Instance');
 
       await waitFor(() => {
         const body = (mockPost as jest.Mock).mock.calls[0]?.[3] as string | undefined;
@@ -390,7 +463,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Correlate Message' }));
+      await sendMessage(user);
 
       await waitFor(() => {
         expect(screen.getByText(/Failed to correlate message/i)).toBeInTheDocument();
@@ -408,7 +481,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Correlate Message' }));
+      await sendMessage(user);
 
       await waitFor(() => {
         const errorDiv = screen.getByText(/Failed to correlate message/i).closest('div');
@@ -434,7 +507,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Correlate Message' }));
+      await sendMessage(user);
 
       await waitFor(() => {
         expect(screen.getByText(/Message correlated successfully/i)).toBeInTheDocument();
@@ -449,7 +522,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Correlate Message' }));
+      await sendMessage(user);
 
       await waitFor(() => {
         const successDiv = screen.getByText(/Message correlated successfully/i).closest('div');
@@ -465,7 +538,7 @@ describe('MessageCorrelationForm', () => {
         expect(screen.queryByText('Loading messages...')).not.toBeInTheDocument();
       });
 
-      await user.click(screen.getByRole('button', { name: 'Correlate Message' }));
+      await sendMessage(user);
 
       await waitFor(() => {
         expect(screen.getByText(/Message correlated successfully/i)).toBeInTheDocument();
@@ -490,7 +563,7 @@ describe('MessageCorrelationForm', () => {
       });
 
       // Submit form with default values
-      await user.click(screen.getByRole('button', { name: 'Correlate Message' }));
+      await sendMessage(user);
 
       await waitFor(() => {
         expect(mockPost).toHaveBeenCalledWith(mockApi, '/message', {}, expect.stringContaining('"correlationKeys":{}'));

@@ -330,7 +330,8 @@ describe('definition-tab-modify integration', () => {
       });
       const idsField = container.querySelector('textarea[name="specificInstanceIds"]') as HTMLTextAreaElement;
       await act(async () => {
-        fireEvent.change(idsField, { target: { value: 'pi-1, pi-2' } });
+        // Ids the lookup returns as running instances of this definition; unknown ids are refused.
+        fireEvent.change(idsField, { target: { value: 'instance-1, instance-2' } });
       });
 
       const dryRun = Array.from(container.querySelectorAll('button')).find(b => /dry run/i.test(b.textContent ?? ''));
@@ -347,7 +348,7 @@ describe('definition-tab-modify integration', () => {
 
       expect(preview.textContent).toContain('POST /process-instance/message-async');
       const body = JSON.parse((preview.textContent ?? '').slice((preview.textContent ?? '').indexOf('{')));
-      expect(body).toEqual({ messageName: 'OrderReceived', processInstanceIds: ['pi-1', 'pi-2'] });
+      expect(body).toEqual({ messageName: 'OrderReceived', processInstanceIds: ['instance-1', 'instance-2'] });
     });
 
     it('offers a business key and previews the start request for a start message', async () => {
@@ -429,6 +430,42 @@ describe('definition-tab-modify integration', () => {
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /Broadcast Signal/i })).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Signal guarded submit', () => {
+    it('asks to acknowledge the engine-wide reach before broadcasting', async () => {
+      setupMockFetch();
+      const container = await renderPlugin();
+      await waitFor(() => {
+        expect(screen.getByText('Signal')).toBeInTheDocument();
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByText('Signal'));
+      });
+      const broadcast = (): HTMLElement => screen.getByRole('button', { name: /Broadcast Signal/i });
+
+      const nameInput = container.querySelector('input[name="signalName"]') as HTMLInputElement;
+      await act(async () => {
+        fireEvent.change(nameInput, { target: { value: 'Alarm' } });
+      });
+      expect(broadcast()).toBeDisabled();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Dry Run' }));
+      });
+      const acknowledgement = await screen.findByRole('checkbox', { name: /delivered to every matching catch event/ });
+      await act(async () => {
+        fireEvent.click(acknowledgement);
+      });
+      expect(broadcast()).toBeEnabled();
+
+      // Renaming the signal after the dry run disarms the submit.
+      await act(async () => {
+        fireEvent.change(nameInput, { target: { value: 'Alarm2' } });
+      });
+      expect(broadcast()).toBeDisabled();
+      expect(screen.getByText(/Preview out of date/)).toBeInTheDocument();
     });
   });
 

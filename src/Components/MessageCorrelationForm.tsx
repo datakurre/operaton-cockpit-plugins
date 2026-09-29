@@ -8,35 +8,26 @@ import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
 // Local components
+import ConfirmSubmit from './ConfirmSubmit';
+import DryRunResultPreview from './DryRunResultPreview';
 import { ErrorMessage } from './ErrorMessage';
 import { SuccessMessage } from './SuccessMessage';
 import VariableBuilder from './VariableBuilder';
+import WarningBox from './WarningBox';
 
-// Local utilities
+// Local hooks and utilities
+import { useGuardedSubmit } from '../hooks/useGuardedSubmit';
 import { get, post } from '../utils/api';
 import { reloadAngularRoute } from '../utils/angular';
 import { getBpmnElements, BpmnMessage } from '../utils/bpmnParsing';
 import { RELOAD_DELAY_MS } from '../utils/constants';
-import { transformVariables as transformVariablesUtil } from '../utils/variables';
+import { buildInstanceMessageRequest, type InstanceMessageInput } from '../utils/instanceOperations';
+import { tryBuild } from '../utils/submitGuard';
 
 // Types
 import { InstancePluginParams } from '../types';
 
-interface Variable {
-  name: string;
-  type: string;
-  value: string | boolean;
-  local?: boolean;
-}
-
-interface CorrelationFormData {
-  messageName: string;
-  businessKey: string;
-  correlationKeys: Variable[];
-  localCorrelationKeys: Variable[];
-  processVariables: Variable[];
-  processVariablesLocal: Variable[];
-}
+type CorrelationFormData = InstanceMessageInput;
 
 /** Success message shown after correlating a message */
 const SUCCESS_MESSAGE = 'Message correlated successfully! The page will refresh to show updates.';
@@ -62,13 +53,15 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
 }) => {
   const [messages, setMessages] = useState<BpmnMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
   const methods = useForm<CorrelationFormData>({
     defaultValues: {
       messageName: '',
+      isStartEvent: false,
       businessKey: '',
       correlationKeys: [],
       localCorrelationKeys: [],
@@ -80,6 +73,9 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
   const watchedMessageName = methods.watch('messageName');
   const selectedMessage = messages.find(msg => msg.name === watchedMessageName);
   const isStartEvent = selectedMessage?.isStartEvent === true;
+
+  const formValues = methods.watch();
+  const guard = useGuardedSubmit(tryBuild(() => buildInstanceMessageRequest(formValues, processInstanceId)));
 
   useEffect(() => {
     const loadMessages = async (): Promise<void> => {
@@ -110,20 +106,10 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
     void loadMessages();
   }, [api, processInstanceId, processDefinitionId, processData]);
 
-  // Set a default messageName once messages are loaded so isStartEvent is computed correctly
+  // Keep the derived flag in form state so the request builder sees it, and give a start
+  // message a fresh business key. No message is preselected: sending one is a choice.
   useEffect(() => {
-    if (messages.length > 0 && methods.getValues('messageName') === '') {
-      const first = messages[0];
-      if (first !== undefined) {
-        methods.setValue('messageName', first.name);
-      }
-    }
-    // methods is a stable reference from useForm
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]);
-
-  // Generate a fresh business key whenever the user selects a start event message
-  useEffect(() => {
+    methods.setValue('isStartEvent', isStartEvent);
     if (isStartEvent) {
       methods.setValue('businessKey', generateUUID());
     }
@@ -131,44 +117,37 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStartEvent]);
 
-  const transformVariables = (vars: Variable[]): Record<string, { value: unknown; type: string }> =>
-    transformVariablesUtil(vars, false);
+  /**
+   * Show the request a real run would send, and arm the submit for exactly that request.
+   */
+  const runDryRun = (data: CorrelationFormData): void => {
+    setError(null);
+    setSuccessMessage(null);
+    guard.clearPreview();
+    const request = buildInstanceMessageRequest(data, processInstanceId);
+    if (!request) {
+      setError('Please select a message.');
+      return;
+    }
+    guard.markPreviewed(request);
+  };
 
-  const onSubmit = async (data: CorrelationFormData): Promise<void> => {
+  const onSubmit = async (): Promise<void> => {
     try {
-      setIsSubmitted(true);
       setError(null);
-
-      const payload: Record<string, unknown> = isStartEvent
-        ? {
-            messageName: data.messageName,
-            businessKey: data.businessKey,
-            processVariables: transformVariables(data.processVariables),
-          }
-        : {
-            messageName: data.messageName,
-            processInstanceId,
-            all: false,
-            correlationKeys: transformVariables(data.correlationKeys),
-            localCorrelationKeys: transformVariables(data.localCorrelationKeys),
-            processVariables: transformVariables(data.processVariables),
-            processVariablesLocal: transformVariables(data.processVariablesLocal),
-          };
-
-      await post(api, '/message', {}, JSON.stringify(payload));
-
-      // Show success message instead of immediate refresh
-      setError(SUCCESS_MESSAGE);
-
-      // Delay refresh to allow user to see success message
-      setTimeout(() => {
-        reloadAngularRoute();
-      }, RELOAD_DELAY_MS);
+      setSuccessMessage(null);
+      await guard.submit(async request => {
+        await post(api, request.path, {}, JSON.stringify(request.payload));
+        setSuccessMessage(SUCCESS_MESSAGE);
+        // The sent preview is cleared; keep the dry run disabled too until the view reloads.
+        setIsReloading(true);
+        setTimeout(() => {
+          reloadAngularRoute();
+        }, RELOAD_DELAY_MS);
+      });
     } catch (err) {
       setError('Failed to correlate message.');
       console.error(err);
-    } finally {
-      setIsSubmitted(false);
     }
   };
 
@@ -188,8 +167,8 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
     );
   }
 
-  // Show error during initial load (not post-submission errors/success)
-  if (messages.length === 0 && error && error !== SUCCESS_MESSAGE) {
+  // Show error during initial load
+  if (messages.length === 0 && error) {
     return (
       <div className="message-correlation-form">
         <ErrorMessage message={error} />
@@ -210,6 +189,7 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
         <div className="form-group">
           <label>Message Name</label>
           <select {...methods.register('messageName')} className="form-control">
+            <option value="">Select a message...</option>
             {messages.map(msg => (
               <option key={msg.id} value={msg.name}>
                 {msg.name}
@@ -275,11 +255,32 @@ const MessageCorrelationForm: React.FC<InstancePluginParams> = ({
           </>
         )}
 
-        {error && (error === SUCCESS_MESSAGE ? <SuccessMessage message={error} /> : <ErrorMessage message={error} />)}
+        {isStartEvent && (
+          <WarningBox>
+            This message is configured on a start event. Sending it starts a new process instance, which is not related
+            to the instance you are viewing.
+          </WarningBox>
+        )}
 
-        <button type="submit" className="btn btn-primary" disabled={isSubmitted}>
-          {isSubmitted ? 'Correlating...' : submitLabel}
-        </button>
+        <div className="form-group">
+          <button
+            type="button"
+            className="btn btn-default"
+            disabled={isReloading}
+            onClick={() => {
+              void methods.handleSubmit(runDryRun)();
+            }}
+          >
+            Dry Run
+          </button>
+        </div>
+
+        <DryRunResultPreview request={guard.previewedRequest} />
+
+        {error && <ErrorMessage message={error} />}
+        {successMessage && <SuccessMessage message={successMessage} />}
+
+        <ConfirmSubmit guard={guard} submitLabel={submitLabel} submittingLabel="Correlating..." />
       </form>
     </FormProvider>
   );

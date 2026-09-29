@@ -1,65 +1,81 @@
 /**
- * Restart Terminated Process Form Component
+ * Restart form for a finished process instance, shown in its history view.
  *
- * Allows restarting externally terminated process instances from a process definition.
- * Based on the Jupyter notebook example in TODO-restart-terminated-process.ipynb.
+ * Like the modify forms, it only sends the request its user previewed and acknowledged.
+ * The dry run also looks for an earlier restart of the same instance, and after the
+ * restart the form navigates only to an instance the engine links back to this one.
  */
 
-/* eslint-disable max-lines-per-function -- Form with complex data loading and restart logic */
+/* eslint-disable max-lines-per-function -- Form with loading, dry run and restart logic */
 import React, { useEffect, useState } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 
+import ConfirmSubmit from './ConfirmSubmit';
+import DryRunResultPreview from './DryRunResultPreview';
 import ErrorMessage from './ErrorMessage';
 import FormButton from './FormButton';
 import SearchableSelect from './SearchableSelect';
 import SuccessMessage from './SuccessMessage';
 import WarningBox from './WarningBox';
+import { useGuardedSubmit } from '../hooks/useGuardedSubmit';
 import { get, post } from '../utils/api';
 import { getBpmnElements, type BpmnElement } from '../utils/bpmnParsing';
 import { SUBMIT_FEEDBACK_DELAY_MS } from '../utils/constants';
 import { buildProcessInstanceUrl, formatLabelWithId } from '../utils/formatting';
+import { buildRestartRequest, RESTART_AT_DEFAULT_START, type RestartInput } from '../utils/instanceOperations';
+import { tryBuild } from '../utils/submitGuard';
 import type { API } from '../types';
 
-/** Historic process instance from API */
-interface HistoricProcessInstance {
+/** How many recent instances the dry run searches for an earlier restart */
+const EARLIER_RESTART_SEARCH_LIMIT = 50;
+
+/** How many recent running instances are searched for the one just restarted */
+const NEW_INSTANCE_SEARCH_LIMIT = 10;
+
+/** Historic process instance fields the restart form reads */
+interface HistoricInstanceLink {
   id: string;
-  businessKey: string | null;
-  endTime: string;
-  processDefinitionId: string;
-  state: string;
-  /** Termination type: 'external', 'internal', or 'completed' */
-  terminationType?: 'external' | 'internal' | 'completed';
+  restartedProcessInstanceId?: string | null;
 }
 
 interface RestartProcessFormProps {
   api: API;
   processDefinitionId: string;
-  /** When provided, skip instance selection and restart this specific instance. */
-  processInstanceId?: string;
-  /** State of the specific instance (e.g. EXTERNALLY_TERMINATED). Used to derive termination type. */
+  /** The finished instance to restart. */
+  processInstanceId: string;
+  /** State of the instance (e.g. EXTERNALLY_TERMINATED). Used to derive termination type. */
   processInstanceState?: string;
-  /** Business key of the specific instance, used to locate the new instance after restart. */
+  /** Business key of the instance, used to narrow the search for its restarts. */
   processInstanceBusinessKey?: string | null;
 }
 
 /**
- * Derive termination type from process instance state string.
+ * Whether a finished instance completed normally rather than being terminated.
  * @param state - The state string from the API
- * @returns The termination type category
+ * @returns True unless the state says the instance was terminated
  */
-function deriveTerminationType(state: string): 'external' | 'internal' | 'completed' {
-  if (state.includes('EXTERNALLY_TERMINATED')) {
-    return 'external';
-  }
-  if (state.includes('INTERNALLY_TERMINATED')) {
-    return 'internal';
-  }
-  return 'completed';
+function isCompletedNormally(state: string): boolean {
+  return !state.includes('TERMINATED');
 }
 
 /**
- * Form for restarting terminated process instances.
- * When processInstanceId is provided, restarts that specific instance directly.
- * Otherwise fetches terminated instances for the definition and allows selecting one.
+ * Find recent instances the engine records as restarts of the given one.
+ * @param api - The API configuration
+ * @param params - Query parameters narrowing the search
+ * @param processInstanceId - The restarted instance
+ * @returns The ids of the matching instances, newest first
+ */
+async function findRestartsOf(api: API, params: Record<string, string>, processInstanceId: string): Promise<string[]> {
+  const instances = (await get(api, '/history/process-instance', {
+    sortBy: 'startTime',
+    sortOrder: 'desc',
+    ...params,
+  })) as HistoricInstanceLink[];
+  return instances.filter(inst => inst.restartedProcessInstanceId === processInstanceId).map(inst => inst.id);
+}
+
+/**
+ * Form for restarting one finished process instance.
  */
 const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
   api,
@@ -68,90 +84,37 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
   processInstanceState,
   processInstanceBusinessKey,
 }) => {
-  const isSingleInstanceMode = processInstanceId !== undefined;
-  const [terminatedInstances, setTerminatedInstances] = useState<HistoricProcessInstance[]>([]);
-  const [selectedInstance, setSelectedInstance] = useState<HistoricProcessInstance | null>(null);
   const [activities, setActivities] = useState<BpmnElement[]>([]);
-  const [selectedActivity, setSelectedActivity] = useState<string>('');
-  const [isAcknowledgeCompleted, setIsAcknowledgeCompleted] = useState(false);
+  const [earlierRestarts, setEarlierRestarts] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDryRun, setIsDryRun] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Load data on mount
+  const methods = useForm<RestartInput>({
+    defaultValues: { startActivityId: '', skipCustomListeners: false, skipIoMappings: false },
+  });
+  const { control, handleSubmit, register, watch } = methods;
+
+  const formValues = watch();
+  const guard = useGuardedSubmit(
+    tryBuild(() => buildRestartRequest(formValues, processDefinitionId, processInstanceId))
+  );
+
+  const isCompleted = isCompletedNormally(processInstanceState ?? '');
+  const searchParams: Record<string, string> = { processDefinitionId };
+  if (processInstanceBusinessKey) {
+    searchParams['processInstanceBusinessKey'] = processInstanceBusinessKey;
+  }
+
   useEffect(() => {
-    const loadData = async (): Promise<void> => {
+    const loadActivities = async (): Promise<void> => {
       try {
         setIsLoading(true);
         setError(null);
-
-        // Load BPMN activities (always needed)
         const { activities: bpmnActivities } = await getBpmnElements(processDefinitionId, api);
         setActivities(bpmnActivities);
-        if (bpmnActivities.length > 0 && bpmnActivities[0]) {
-          setSelectedActivity(bpmnActivities[0].id);
-        }
-
-        if (isSingleInstanceMode) {
-          // Use the specific instance passed in via props — no list fetch needed
-          const terminationType = deriveTerminationType(processInstanceState ?? '');
-          setSelectedInstance({
-            id: processInstanceId,
-            businessKey: processInstanceBusinessKey ?? null,
-            endTime: '',
-            processDefinitionId,
-            state: processInstanceState ?? '',
-            terminationType,
-          });
-        } else {
-          // Get process definition to extract key
-          const processDefResponse = await get(api, `/process-definition/${processDefinitionId}`);
-          const processDefinition = processDefResponse as { key?: string; id: string } | null;
-          if (!processDefinition?.key) {
-            throw new Error('Could not determine process definition key');
-          }
-
-          // Fetch externally terminated, internally terminated, AND completed instances for this process definition
-          const [externallyTerminatedResponse, internallyTerminatedResponse, completedResponse] = await Promise.all([
-            get(api, '/history/process-instance', {
-              processDefinitionKey: processDefinition.key,
-              externallyTerminated: 'true',
-            }),
-            get(api, '/history/process-instance', {
-              processDefinitionKey: processDefinition.key,
-              internallyTerminated: 'true',
-            }),
-            get(api, '/history/process-instance', {
-              processDefinitionKey: processDefinition.key,
-              completed: 'true',
-            }),
-          ]);
-          const externallyTerminated = (externallyTerminatedResponse as HistoricProcessInstance[]).map(inst => ({
-            ...inst,
-            terminationType: 'external' as const,
-          }));
-          const internallyTerminated = (internallyTerminatedResponse as HistoricProcessInstance[]).map(inst => ({
-            ...inst,
-            terminationType: 'internal' as const,
-          }));
-          const completed = (completedResponse as HistoricProcessInstance[])
-            .filter(inst => !inst.state.includes('TERMINATED'))
-            .map(inst => ({
-              ...inst,
-              terminationType: 'completed' as const,
-            }));
-          // Combine and sort by endTime (most recent first)
-          const allInstances = [...externallyTerminated, ...internallyTerminated, ...completed].sort((a, b) => {
-            const aTime = a.endTime ? new Date(a.endTime).getTime() : 0;
-            const bTime = b.endTime ? new Date(b.endTime).getTime() : 0;
-            return bTime - aTime;
-          });
-          setTerminatedInstances(allInstances);
-          if (allInstances.length > 0 && allInstances[0]) {
-            setSelectedInstance(allInstances[0]);
-          }
-        }
       } catch (err) {
         console.error('Error loading data:', err);
         const errorMessage = err instanceof Error ? err.message : String(err);
@@ -161,201 +124,175 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
       }
     };
 
-    void loadData();
+    void loadActivities();
   }, [api, processDefinitionId]);
 
   /**
-   * Handle restart submission
+   * Show the request, look for earlier restarts, and arm the submit for that request.
    */
-  const handleRestart = async (): Promise<void> => {
-    if (!selectedInstance || !selectedActivity) {
-      setError('Please select an instance and starting activity');
-      return;
-    }
-
-    // Require acknowledgment for completed processes (not terminated ones)
-    if (selectedInstance.terminationType === 'completed' && !isAcknowledgeCompleted) {
-      setError('Please acknowledge that this process completed normally before restarting');
-      return;
-    }
-
+  const runDryRun = async (data: RestartInput): Promise<void> => {
     try {
-      setIsSubmitting(true);
+      setIsDryRun(true);
       setError(null);
       setSuccess(null);
+      setEarlierRestarts([]);
+      guard.clearPreview();
 
-      // POST to /process-definition/{id}/restart with instructions
-      await post(
+      const request = buildRestartRequest(data, processDefinitionId, processInstanceId);
+      if (!request) {
+        setError('Please choose where the restarted instance starts.');
+        return;
+      }
+
+      const restarts = await findRestartsOf(
         api,
-        `/process-definition/${selectedInstance.processDefinitionId}/restart`,
-        {},
-        JSON.stringify({
-          processInstanceIds: [selectedInstance.id],
-          instructions: [{ type: 'startBeforeActivity', activityId: selectedActivity }],
-        })
+        { ...searchParams, maxResults: String(EARLIER_RESTART_SEARCH_LIMIT) },
+        processInstanceId
       );
+      setEarlierRestarts(restarts);
+      guard.markPreviewed(request);
+    } catch (err) {
+      console.error('Dry run error:', err);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(`Failed to prepare the restart: ${errorMessage}`);
+    } finally {
+      setIsDryRun(false);
+    }
+  };
 
-      // Query for the newly created process instance using history endpoint
-      // The restart creates a new instance with the same business key (if present)
-      // Use history endpoint to sort by startTime (most recent first)
-      const queryBody: {
-        processDefinitionId: string;
-        unfinished: boolean;
-        sorting: { sortBy: string; sortOrder: string }[];
-        processInstanceBusinessKey?: string;
-      } = {
-        processDefinitionId: selectedInstance.processDefinitionId,
-        unfinished: true,
-        sorting: [{ sortBy: 'startTime', sortOrder: 'desc' }],
-      };
+  /**
+   * Send the previewed restart, then open the instance it created.
+   */
+  const onSubmit = async (): Promise<void> => {
+    try {
+      setError(null);
+      setSuccess(null);
+      await guard.submit(async request => {
+        await post(api, request.path, {}, JSON.stringify(request.payload));
 
-      // If the terminated instance had a business key, use it to find the new instance
-      if (selectedInstance.businessKey) {
-        queryBody.processInstanceBusinessKey = selectedInstance.businessKey;
-      }
-
-      const newInstances = (await post(
-        api,
-        '/history/process-instance?maxResults=1',
-        {},
-        JSON.stringify(queryBody)
-      )) as HistoricProcessInstance[];
-
-      if (newInstances.length > 0 && newInstances[0]) {
-        const newInstanceId = newInstances[0].id;
+        // The engine links the new instance back to this one; never guess by recency alone.
+        const [newInstanceId] = await findRestartsOf(
+          api,
+          { ...searchParams, unfinished: 'true', maxResults: String(NEW_INSTANCE_SEARCH_LIMIT) },
+          processInstanceId
+        );
+        if (newInstanceId === undefined) {
+          setSuccess('Process instance restarted successfully!');
+          return;
+        }
         setSuccess('Process instance restarted successfully! Navigating to runtime view...');
-
-        // Navigate to the runtime view of the new instance after delay
+        setIsNavigating(true);
         setTimeout(() => {
-          const runtimeUrl = buildProcessInstanceUrl(window.location.href, newInstanceId);
-          window.location.href = runtimeUrl;
+          window.location.href = buildProcessInstanceUrl(window.location.href, newInstanceId);
         }, SUBMIT_FEEDBACK_DELAY_MS);
-      } else {
-        // Fallback: If we can't find the new instance, show a generic success message
-        setSuccess('Process instance restarted successfully!');
-      }
+      });
     } catch (err) {
       console.error('Restart error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`Failed to restart process instance: ${errorMessage}`);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="modify-form__loading">
-        {isSingleInstanceMode ? 'Loading activities...' : 'Loading terminated instances and activities...'}
-      </div>
-    );
+    return <div className="modify-form__loading">Loading activities...</div>;
   }
 
-  if (!isSingleInstanceMode && terminatedInstances.length === 0) {
-    return (
-      <div className="modify-form__info">
-        <p>No terminated or completed process instances found for this process definition.</p>
-        <p>
-          Externally terminated, internally terminated, and normally completed process instances can be restarted from
-          this view.
-        </p>
-      </div>
-    );
+  const acknowledgements = [
+    isCompleted
+      ? 'I acknowledge that this process completed normally and understand that restarting it may have unintended side effects.'
+      : 'I understand this starts a new process instance from the history of this one.',
+  ];
+  if (earlierRestarts.length > 0) {
+    acknowledgements.push('I understand it has already been restarted before.');
   }
+
+  const startOptions = [
+    { value: RESTART_AT_DEFAULT_START, label: 'Default start event' },
+    ...activities.map(act => ({ value: act.id, label: formatLabelWithId(act.name, act.id) })),
+  ];
 
   return (
-    <div className="modify-form">
-      <h4>Restart Process Instance</h4>
-      <p>Select a terminated or completed instance and the activity to restart from.</p>
+    <FormProvider {...methods}>
+      <form
+        className="modify-form"
+        onSubmit={e => {
+          e.preventDefault();
+          void handleSubmit(onSubmit)(e);
+        }}
+      >
+        <h4>Restart Process Instance</h4>
+        <p>Choose where the restarted instance starts. It gets the last variables and the business key of this one.</p>
 
-      {!isSingleInstanceMode && (
         <div className="form-group" style={{ marginBottom: '10px' }}>
-          <label htmlFor="restart-instance-select">Terminated or Completed Instance: </label>
-          <SearchableSelect
-            id="restart-instance-select"
-            value={selectedInstance ? selectedInstance.id : ''}
-            onChange={value => {
-              const instance = terminatedInstances.find(i => i.id === value);
-              setSelectedInstance(instance ?? null);
-              // Reset acknowledge checkbox when changing instances
-              setIsAcknowledgeCompleted(false);
-            }}
-            options={terminatedInstances.map(inst => {
-              const terminationLabels: Record<string, string> = {
-                external: 'EXTERNALLY TERMINATED',
-                internal: 'INTERNALLY TERMINATED',
-                completed: 'COMPLETED',
-              };
-              const statusLabel = terminationLabels[inst.terminationType ?? 'completed'] ?? 'COMPLETED';
-              const baseLabel = inst.businessKey ?? inst.id;
-              const endTimeStr = inst.endTime ? new Date(inst.endTime).toLocaleString() : 'N/A';
-              return {
-                value: inst.id,
-                label: `[${statusLabel}] ${baseLabel} (ended ${endTimeStr})`,
-              };
-            })}
-            style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
+          <label htmlFor="restart-activity-select">Start At: </label>
+          <Controller
+            name="startActivityId"
+            control={control}
+            render={({ field }) => (
+              <SearchableSelect
+                id="restart-activity-select"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                name={field.name}
+                options={startOptions}
+                placeholder="-- Select Starting Point --"
+                style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
+              />
+            )}
           />
         </div>
-      )}
 
-      <div className="form-group" style={{ marginBottom: '10px' }}>
-        <label htmlFor="restart-activity-select">Starting Activity: </label>
-        <SearchableSelect
-          id="restart-activity-select"
-          value={selectedActivity}
-          onChange={value => {
-            setSelectedActivity(value);
-          }}
-          options={activities.map(act => ({
-            value: act.id,
-            label: formatLabelWithId(act.name, act.id),
-          }))}
-          style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
-        />
-      </div>
-
-      {selectedInstance?.terminationType === 'completed' && (
-        <div className="form-group" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={isAcknowledgeCompleted}
-              onChange={e => {
-                setIsAcknowledgeCompleted(e.target.checked);
-              }}
-              style={{ cursor: 'pointer' }}
-            />
-            <span>
-              I acknowledge that this process completed normally and understand that restarting it may have unintended
-              side effects.
-            </span>
+        <div style={{ marginBottom: '15px' }}>
+          <label>
+            <input type="checkbox" {...register('skipCustomListeners')} /> Skip Custom Listeners
+          </label>
+          <br />
+          <label>
+            <input type="checkbox" {...register('skipIoMappings')} /> Skip I/O Mappings
           </label>
         </div>
-      )}
 
-      <WarningBox>
-        Restarting a process instance will create a new execution context. For completed processes, this may cause
-        duplicate operations or side effects. Ensure the selected starting activity is appropriate for the process
-        state.
-      </WarningBox>
+        <div className="modify-form__actions">
+          <FormButton
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              void handleSubmit(runDryRun)();
+            }}
+            disabled={isDryRun || isNavigating}
+            minWidth={120}
+          >
+            {isDryRun ? 'Checking...' : 'Dry Run'}
+          </FormButton>
+        </div>
 
-      {error && <ErrorMessage message={error} />}
-      {success && <SuccessMessage message={success} />}
+        <DryRunResultPreview request={guard.previewedRequest} />
 
-      <FormButton
-        variant="primary"
-        onClick={() => void handleRestart()}
-        disabled={
-          isSubmitting ||
-          !selectedInstance ||
-          (selectedInstance.terminationType === 'completed' && !isAcknowledgeCompleted)
-        }
-        minWidth={160}
-      >
-        {isSubmitting ? 'Restarting...' : 'Restart Instance'}
-      </FormButton>
-    </div>
+        {earlierRestarts.length > 0 && (
+          <WarningBox title="Already restarted">
+            This instance has already been restarted as {earlierRestarts.join(', ')}. Restarting it again starts another
+            instance.
+          </WarningBox>
+        )}
+
+        <WarningBox>
+          Restarting a process instance will create a new execution context. For completed processes, this may cause
+          duplicate operations or side effects. Ensure the selected starting activity is appropriate for the process
+          state.
+        </WarningBox>
+
+        {error && <ErrorMessage message={error} />}
+        {success && <SuccessMessage message={success} />}
+
+        <ConfirmSubmit
+          guard={guard}
+          submitLabel="Restart Instance"
+          submittingLabel="Restarting..."
+          acknowledgement={acknowledgements.join(' ')}
+        />
+      </form>
+    </FormProvider>
   );
 };
 

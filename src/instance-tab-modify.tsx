@@ -9,6 +9,8 @@ import { createRoot } from 'react-dom/client';
 import { useForm, useFieldArray, FormProvider } from 'react-hook-form';
 
 // Local components
+import ConfirmSubmit from './Components/ConfirmSubmit';
+import DryRunResultPreview from './Components/DryRunResultPreview';
 import ErrorMessage from './Components/ErrorMessage';
 import FormButton from './Components/FormButton';
 import InstructionCard from './Components/InstructionCard';
@@ -18,42 +20,20 @@ import SuccessMessage from './Components/SuccessMessage';
 import { Tabs, Tab } from './Components/Tabs';
 import WarningBox from './Components/WarningBox';
 
-// Local utilities
+// Local hooks and utilities
+import { useGuardedSubmit } from './hooks/useGuardedSubmit';
 import { get, post } from './utils/api';
 import { reloadAngularRoute } from './utils/angular';
 import { getBpmnElements, BpmnElement } from './utils/bpmnParsing';
 import { SUBMIT_FEEDBACK_DELAY_MS } from './utils/constants';
-import { transformVariables as transformVariablesUtil, VariableInput } from './utils/variables';
+import { buildInstanceModificationRequest, type InstanceModificationInput } from './utils/instanceOperations';
+import { tryBuild } from './utils/submitGuard';
 
 // Types
 import { InstancePluginParams } from './types';
 import type { ActiveActivityInstance } from './Components/InstructionFields';
 
-interface ModificationInstruction {
-  type: 'startBeforeActivity' | 'startAfterActivity' | 'startTransition' | 'cancel';
-  activityId?: string;
-  transitionId?: string;
-  activityInstanceId?: string;
-  ancestorActivityInstanceId?: string;
-  variables?: VariableInput[];
-}
-
-/** Type for the modification instruction payload to API */
-interface ModificationInstructionPayload {
-  type: string;
-  activityId?: string;
-  transitionId?: string;
-  activityInstanceId?: string;
-  ancestorActivityInstanceId?: string;
-  variables?: Record<string, { value: unknown; type: string }>;
-}
-
-interface ModifyFormData {
-  instructions: ModificationInstruction[];
-  annotation: string;
-  skipCustomListeners: boolean;
-  skipIoMappings: boolean;
-}
+type ModifyFormData = InstanceModificationInput;
 
 /**
  * Process modification form component.
@@ -67,7 +47,7 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
   const [activityCounts, setActivityCounts] = useState<Map<string, number>>(new Map());
   const [cancelMethods, setCancelMethods] = useState<Map<number, string>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [actualProcessDefId, setActualProcessDefId] = useState<string | null>(null);
@@ -81,7 +61,10 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
     },
   });
 
-  const { control, handleSubmit } = methods;
+  const { control, handleSubmit, watch } = methods;
+
+  const formValues = watch();
+  const guard = useGuardedSubmit(tryBuild(() => buildInstanceModificationRequest(formValues, processInstanceId)));
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -153,67 +136,38 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
     void loadActivities();
   }, [api, processInstanceId, processDefinitionId, processData]);
 
-  const transformVariables = (vars: VariableInput[]): Record<string, { value: unknown; type: string }> =>
-    transformVariablesUtil(vars, true);
+  /**
+   * Show the request a real run would send, and arm the submit for exactly that request.
+   */
+  const runDryRun = (data: ModifyFormData): void => {
+    setError(null);
+    setSuccessMessage(null);
+    guard.clearPreview();
+    const request = buildInstanceModificationRequest(data, processInstanceId);
+    if (!request) {
+      setError('Please complete at least one instruction.');
+      return;
+    }
+    guard.markPreviewed(request);
+  };
 
-  const onSubmit = async (data: ModifyFormData): Promise<void> => {
+  const onSubmit = async (): Promise<void> => {
     try {
-      setIsSubmitted(true);
       setError(null);
       setSuccessMessage(null);
-
-      const payload = {
-        skipCustomListeners: data.skipCustomListeners,
-        skipIoMappings: data.skipIoMappings,
-        instructions: data.instructions
-          .filter(inst => {
-            if (inst.type === 'startTransition') {
-              return inst.transitionId !== undefined && inst.transitionId !== '';
-            } else if (inst.type === 'cancel') {
-              return (
-                (inst.activityInstanceId !== undefined && inst.activityInstanceId !== '') ||
-                (inst.activityId !== undefined && inst.activityId !== '')
-              );
-            } else {
-              return inst.activityId !== undefined && inst.activityId !== '';
-            }
-          })
-          .map((inst): ModificationInstructionPayload => {
-            const instruction: ModificationInstructionPayload = { type: inst.type };
-            if (inst.activityId !== undefined && inst.activityId !== '') {
-              instruction.activityId = inst.activityId;
-            }
-            if (inst.transitionId !== undefined && inst.transitionId !== '') {
-              instruction.transitionId = inst.transitionId;
-            }
-            if (inst.activityInstanceId !== undefined && inst.activityInstanceId !== '') {
-              instruction.activityInstanceId = inst.activityInstanceId;
-            }
-            if (inst.ancestorActivityInstanceId !== undefined && inst.ancestorActivityInstanceId !== '') {
-              instruction.ancestorActivityInstanceId = inst.ancestorActivityInstanceId;
-            }
-            if (inst.variables !== undefined && inst.variables.length > 0) {
-              instruction.variables = transformVariables(inst.variables);
-            }
-            return instruction;
-          }),
-        annotation: data.annotation !== '' ? data.annotation : 'Modified via Cockpit plugin',
-      };
-
-      await post(api, `/process-instance/${processInstanceId}/modification`, {}, JSON.stringify(payload));
-
-      setSuccessMessage('Process instance modified successfully! The page will refresh to show updates.');
-      setIsSubmitted(false);
-
-      // Delay refresh to allow user to see success message
-      setTimeout(() => {
-        reloadAngularRoute();
-      }, SUBMIT_FEEDBACK_DELAY_MS);
+      await guard.submit(async request => {
+        await post(api, request.path, {}, JSON.stringify(request.payload));
+        setSuccessMessage('Process instance modified successfully! The page will refresh to show updates.');
+        // The sent preview is cleared; keep the dry run disabled too until the view reloads.
+        setIsReloading(true);
+        setTimeout(() => {
+          reloadAngularRoute();
+        }, SUBMIT_FEEDBACK_DELAY_MS);
+      });
     } catch (err) {
       console.error('Modification error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`Failed to modify process instance: ${errorMessage}. Check console for details.`);
-      setIsSubmitted(false);
     }
   };
 
@@ -276,6 +230,22 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
 
         <ModifyFormOptions />
 
+        <div className="modify-form__actions">
+          <FormButton
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              void handleSubmit(runDryRun)();
+            }}
+            disabled={isReloading}
+            minWidth={120}
+          >
+            Dry Run
+          </FormButton>
+        </div>
+
+        <DryRunResultPreview request={guard.previewedRequest} />
+
         <WarningBox>
           Process instance modification is a powerful operation that can lead to inconsistent process states. Use with
           extreme care and only if you understand the consequences.
@@ -284,9 +254,7 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
         {error !== null && <ErrorMessage message={error} />}
         {successMessage !== null && <SuccessMessage message={successMessage} />}
 
-        <FormButton type="submit" disabled={isSubmitted} variant="primary" minWidth={160}>
-          {isSubmitted ? 'Modifying...' : 'Apply Modifications'}
-        </FormButton>
+        <ConfirmSubmit guard={guard} submitLabel="Apply Modifications" submittingLabel="Modifying..." />
       </form>
     </FormProvider>
   );

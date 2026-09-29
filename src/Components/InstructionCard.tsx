@@ -36,6 +36,8 @@ interface InstructionCardProps {
   cancelMethods: Map<number, string>;
   /** Callback to update the cancel methods map. */
   setCancelMethods: (methods: Map<number, string>) => void;
+  /** Whether start instructions offer variables; the batch API has none per instruction. */
+  showVariables?: boolean;
 }
 
 /**
@@ -53,6 +55,7 @@ const InstructionCard: React.FC<InstructionCardProps> = ({
   activityCounts,
   cancelMethods,
   setCancelMethods,
+  showVariables = true,
 }) => {
   const { control, watch } = useFormContext();
   const instructionType = watch(`instructions.${index}.type`) as string;
@@ -90,6 +93,7 @@ const InstructionCard: React.FC<InstructionCardProps> = ({
         activities={activities}
         activeInstances={activeInstances}
         activityCounts={activityCounts}
+        showVariables={showVariables}
       />
     );
   };

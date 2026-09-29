@@ -227,11 +227,22 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
   );
 };
 
+/** Props for StartActivityFields component. */
+interface StartActivityFieldsProps extends InstructionFieldsProps {
+  /** Whether to offer variables for the started activity. */
+  showVariables?: boolean;
+}
+
 /**
  * Renders fields for starting before or after an activity.
  * Includes activity selection, optional ancestor, and variable configuration.
  */
-export const StartActivityFields: React.FC<InstructionFieldsProps> = ({ index, activities, activeInstances }) => {
+export const StartActivityFields: React.FC<StartActivityFieldsProps> = ({
+  index,
+  activities,
+  activeInstances,
+  showVariables = true,
+}) => {
   const { control } = useFormContext();
 
   const potentialAncestors = activeInstances.filter(inst => {
@@ -287,10 +298,12 @@ export const StartActivityFields: React.FC<InstructionFieldsProps> = ({ index, a
           )}
         />
       </div>
-      <div style={{ marginBottom: '10px' }}>
-        <h5>Variables</h5>
-        <VariableBuilder name={`instructions.${index}.variables`} showLocalFlag />
-      </div>
+      {showVariables && (
+        <div style={{ marginBottom: '10px' }}>
+          <h5>Variables</h5>
+          <VariableBuilder name={`instructions.${index}.variables`} showLocalFlag />
+        </div>
+      )}
     </>
   );
 };

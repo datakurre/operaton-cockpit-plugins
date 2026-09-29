@@ -12,6 +12,7 @@ import {
   buildMessageRequest,
   buildModificationRequest,
   buildSignalRequest,
+  findMissingInstanceIds,
   getSelectedInstanceIds,
   type InstanceSelection,
 } from '../batchOperations';
@@ -50,8 +51,12 @@ describe('getSelectedInstanceIds', () => {
 });
 
 describe('buildInstanceQuery', () => {
-  it('targets the whole definition in "all" mode', () => {
-    expect(buildInstanceQuery(selection(), DEFINITION_ID)).toEqual({ processDefinitionId: DEFINITION_ID });
+  it('targets the active instances of the definition in "all" mode', () => {
+    // The mode is labelled "All active instances"; suspended ones would only fail as batch jobs.
+    expect(buildInstanceQuery(selection(), DEFINITION_ID)).toEqual({
+      processDefinitionId: DEFINITION_ID,
+      active: true,
+    });
   });
 
   it('adds activity and state filters in "query" mode', () => {
@@ -83,13 +88,31 @@ describe('buildInstanceLookupParams', () => {
     ).toEqual({ processDefinitionId: DEFINITION_ID, activityIdIn: 'Task_1', active: 'true' });
   });
 
-  it('lists ids when selecting specific instances', () => {
+  it('lists ids when selecting specific instances, scoped to the definition', () => {
     expect(
       buildInstanceLookupParams(
         selection({ instanceSelectionMode: 'specific', specificInstanceIds: 'a,b' }),
         DEFINITION_ID
       )
-    ).toEqual({ processInstanceIds: 'a,b' });
+    ).toEqual({ processInstanceIds: 'a,b', processDefinitionId: DEFINITION_ID });
+  });
+});
+
+describe('findMissingInstanceIds', () => {
+  it('lists the entered ids the lookup did not return', () => {
+    expect(
+      findMissingInstanceIds(selection({ instanceSelectionMode: 'specific', specificInstanceIds: 'a, b, c' }), ['b'])
+    ).toEqual(['a', 'c']);
+  });
+
+  it('is empty when every entered id was found', () => {
+    expect(
+      findMissingInstanceIds(selection({ instanceSelectionMode: 'specific', specificInstanceIds: 'a,b' }), ['a', 'b'])
+    ).toEqual([]);
+  });
+
+  it('is empty when not selecting by id', () => {
+    expect(findMissingInstanceIds(selection(), [])).toEqual([]);
   });
 });
 
@@ -113,8 +136,24 @@ describe('buildModificationRequest', () => {
     expect(request).not.toBeNull();
     expect(request?.method).toBe('POST');
     expect(request?.path).toBe('/modification/executeAsync');
-    expect(request?.payload['processInstanceQuery']).toEqual({ processDefinitionId: DEFINITION_ID });
+    expect(request?.payload['processInstanceQuery']).toEqual({ processDefinitionId: DEFINITION_ID, active: true });
     expect(request?.payload['processInstanceIds']).toBeUndefined();
+    expect(request?.payload['instructions']).toEqual([{ type: 'startBeforeActivity', activityId: 'Task_1' }]);
+  });
+
+  it('does not send per-instruction variables, which the batch API does not have', () => {
+    const request = buildModificationRequest(
+      modifyData({
+        instructions: [
+          {
+            type: 'startBeforeActivity' as const,
+            activityId: 'Task_1',
+            variables: [{ name: 'amount', value: '10', type: 'Integer' }],
+          },
+        ],
+      }),
+      DEFINITION_ID
+    );
     expect(request?.payload['instructions']).toEqual([{ type: 'startBeforeActivity', activityId: 'Task_1' }]);
   });
 
@@ -180,7 +219,7 @@ describe('buildMessageRequest', () => {
     expect(request?.path).toBe('/process-instance/message-async');
     expect(request?.payload).toEqual({
       messageName: 'PaymentReceived',
-      processInstanceQuery: { processDefinitionId: DEFINITION_ID },
+      processInstanceQuery: { processDefinitionId: DEFINITION_ID, active: true },
     });
   });
 

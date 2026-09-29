@@ -7,6 +7,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray, FormProvider } from 'react-hook-form';
 
+import ConfirmSubmit from './ConfirmSubmit';
 import DryRunResultPreview, { type DryRunResult } from './DryRunResultPreview';
 import ErrorMessage from './ErrorMessage';
 import FormButton from './FormButton';
@@ -16,16 +17,13 @@ import LoadingSpinner from './LoadingSpinner';
 import ModifyFormOptions from './ModifyFormOptions';
 import SuccessMessage from './SuccessMessage';
 import WarningBox from './WarningBox';
+import { useGuardedSubmit } from '../hooks/useGuardedSubmit';
 import type { API } from '../types';
-import { ProcessInstance } from '../types';
-import { get, post } from '../utils/api';
-import {
-  buildInstanceLookupParams,
-  buildModificationRequest,
-  type BatchRequest,
-  type ModificationRequestInput,
-} from '../utils/batchOperations';
+import { post } from '../utils/api';
+import { buildModificationRequest, type ModificationRequestInput } from '../utils/batchOperations';
 import { getBpmnElements, BpmnElement } from '../utils/bpmnParsing';
+import { describeLookupProblem, lookupTargetInstances } from '../utils/instanceLookup';
+import { tryBuild } from '../utils/submitGuard';
 import { createHistoryService } from '../services/HistoryService';
 
 /** Maximum number of instances to show in dry-run preview */
@@ -48,12 +46,10 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
   const [sequenceFlows, setSequenceFlows] = useState<BpmnElement[]>([]);
   const [activityCounts, setActivityCounts] = useState<Map<string, number>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDryRun, setIsDryRun] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
-  const [dryRunRequest, setDryRunRequest] = useState<BatchRequest | null>(null);
 
   const methods = useForm<ModifyFormData>({
     defaultValues: {
@@ -68,7 +64,10 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
     },
   });
 
-  const { control, handleSubmit, reset } = methods;
+  const { control, handleSubmit, reset, watch } = methods;
+
+  const formValues = watch();
+  const guard = useGuardedSubmit(tryBuild(() => buildModificationRequest(formValues, processDefinitionId)));
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -112,34 +111,34 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
 
   /**
    * Run a dry run: read back the targeted instances and show the request that a real
-   * run would send. Both use the same builders as onSubmit, so the preview cannot drift
-   * from what is actually posted.
+   * run would send. Only a dry run that found every targeted instance arms the submit.
    */
   const runDryRun = async (data: ModifyFormData): Promise<void> => {
     try {
       setIsDryRun(true);
       setError(null);
+      setSuccessMessage(null);
       setDryRunResult(null);
-      setDryRunRequest(null);
+      guard.clearPreview();
 
       const request = buildModificationRequest(data, processDefinitionId);
       if (!request) {
         setError('Please select instances to modify.');
         return;
       }
-      setDryRunRequest(request);
 
-      const params = buildInstanceLookupParams(data, processDefinitionId);
-      const instances = params ? ((await get(api, '/process-instance', params)) as ProcessInstance[]) : [];
-
+      const lookup = await lookupTargetInstances(api, data, processDefinitionId);
       setDryRunResult({
-        count: instances.length,
-        instances: instances.slice(0, MAX_PREVIEW_INSTANCES),
+        count: lookup.instances.length,
+        instances: lookup.instances.slice(0, MAX_PREVIEW_INSTANCES),
       });
 
-      if (instances.length === 0) {
-        setError('No instances found matching the selection criteria.');
+      const problem = describeLookupProblem(lookup);
+      if (problem !== null) {
+        setError(problem);
+        return;
       }
+      guard.markPreviewed(request, lookup.instances.length);
     } catch (err) {
       console.error('Dry run error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -150,35 +149,24 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
   };
 
   /**
-   * Submit the batch modification request
+   * Submit the previewed batch modification request
    */
-  const onSubmit = async (data: ModifyFormData): Promise<void> => {
+  const onSubmit = async (): Promise<void> => {
     try {
-      setIsSubmitting(true);
       setError(null);
       setSuccessMessage(null);
-      setDryRunResult(null);
-      setDryRunRequest(null);
-
-      const request = buildModificationRequest(data, processDefinitionId);
-      if (!request) {
-        setError('Please select instances to modify.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      await post(api, request.path, {}, JSON.stringify(request.payload));
-
-      setSuccessMessage(
-        `Batch modification submitted successfully! The modification will be executed asynchronously. ` +
-          `Check the batch operations view for progress.`
-      );
+      await guard.submit(async request => {
+        await post(api, request.path, {}, JSON.stringify(request.payload));
+        setDryRunResult(null);
+        setSuccessMessage(
+          `Batch modification submitted successfully! The modification will be executed asynchronously. ` +
+            `Check the batch operations view for progress.`
+        );
+      });
     } catch (err) {
       console.error('Modification error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`Failed to execute batch modification: ${errorMessage}. Check console for details.`);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -190,7 +178,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
     setError(null);
     setSuccessMessage(null);
     setDryRunResult(null);
-    setDryRunRequest(null);
+    guard.clearPreview();
   };
 
   if (isLoading) {
@@ -244,7 +232,11 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
             </FormButton>
           </div>
 
-          <DryRunResultPreview result={dryRunResult} request={dryRunRequest} maxInstances={MAX_PREVIEW_INSTANCES} />
+          <DryRunResultPreview
+            result={dryRunResult}
+            request={guard.previewedRequest}
+            maxInstances={MAX_PREVIEW_INSTANCES}
+          />
         </div>
 
         {fields.map((field, index) => (
@@ -264,6 +256,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
             setCancelMethods={() => {
               /* no-op for batch modification */
             }}
+            showVariables={false}
           />
         ))}
 
@@ -282,22 +275,20 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
         <ModifyFormOptions />
 
         <WarningBox>
-          Batch modification is a powerful operation that affects multiple process instances simultaneously. Always use
-          dry-run mode first to verify the affected instances. The operation will be executed asynchronously as a batch
-          job.
+          Batch modification is a powerful operation that affects multiple process instances simultaneously. Run the dry
+          run first to review the affected instances and the request; submit stays disabled until you have. The
+          operation will be executed asynchronously as a batch job. Batches that only cancel are refused, because they
+          can end every targeted instance.
         </WarningBox>
 
         {error && <ErrorMessage message={error} />}
         {successMessage && <SuccessMessage message={successMessage} />}
 
-        <div className="modify-form__actions">
-          <FormButton type="submit" disabled={isSubmitting} variant="primary" minWidth={160}>
-            {isSubmitting ? 'Submitting...' : 'Execute Batch Modification'}
-          </FormButton>
+        <ConfirmSubmit guard={guard} submitLabel="Execute Batch Modification" submittingLabel="Submitting...">
           <FormButton type="button" variant="secondary" onClick={handleReset} minWidth={100}>
             Reset
           </FormButton>
-        </div>
+        </ConfirmSubmit>
       </form>
     </FormProvider>
   );

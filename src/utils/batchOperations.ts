@@ -42,8 +42,6 @@ export interface ModificationInstructionPayload {
   transitionId?: string;
   /** Whether to cancel currently active instances of the activity */
   cancelCurrentActiveActivityInstances?: boolean;
-  /** Variables to set with the instruction */
-  variables?: Record<string, { value: unknown; type: string }>;
 }
 
 /** A modification instruction as held in form state. */
@@ -56,7 +54,7 @@ export interface ModificationInstructionInput {
   transitionId?: string;
   /** Whether to cancel currently active instances of the activity */
   cancelCurrentActiveActivityInstances?: boolean;
-  /** Variables to set with the instruction */
+  /** Variables held in form state; not sent, the batch API has no per-instruction variables */
   variables?: VariableInput[];
 }
 
@@ -87,7 +85,9 @@ export function buildInstanceQuery(
   processDefinitionId: string
 ): Record<string, unknown> | null {
   if (selection.instanceSelectionMode === 'all') {
-    return { processDefinitionId };
+    // "All active instances": suspended instances cannot be modified or receive a message,
+    // so including them would only produce failed batch jobs.
+    return { processDefinitionId, active: true };
   }
   if (selection.instanceSelectionMode === 'query') {
     const query: Record<string, unknown> = { processDefinitionId };
@@ -118,7 +118,9 @@ export function buildInstanceLookupParams(
 ): Record<string, string> | null {
   const instanceIds = getSelectedInstanceIds(selection);
   if (instanceIds) {
-    return { processInstanceIds: instanceIds.join(',') };
+    // Scoped to the definition, so an id of another process is reported as not found
+    // rather than silently previewed; see findMissingInstanceIds().
+    return { processInstanceIds: instanceIds.join(','), processDefinitionId };
   }
 
   const query = buildInstanceQuery(selection, processDefinitionId);
@@ -137,6 +139,22 @@ export function buildInstanceLookupParams(
     }
   }
   return params;
+}
+
+/**
+ * List the entered instance ids the dry run did not find under this definition.
+ *
+ * An id that is mistyped, already finished, or belongs to another process definition is
+ * not in the lookup result. The engine would still accept it in `processInstanceIds`, so
+ * the form refuses to send until the list is empty.
+ * @param selection - The form's instance selection
+ * @param foundIds - Ids returned by the dry run lookup
+ * @returns The entered ids that were not found, empty when not selecting by id
+ */
+export function findMissingInstanceIds(selection: InstanceSelection, foundIds: readonly string[]): string[] {
+  const instanceIds = getSelectedInstanceIds(selection) ?? [];
+  const found = new Set(foundIds);
+  return instanceIds.filter(id => !found.has(id));
 }
 
 /**
@@ -194,9 +212,8 @@ function toInstructionPayload(instruction: ModificationInstructionInput): Modifi
   if (instruction.type === 'cancel' && instruction.cancelCurrentActiveActivityInstances === true) {
     payload.cancelCurrentActiveActivityInstances = true;
   }
-  if (instruction.variables !== undefined && instruction.variables.length > 0) {
-    payload.variables = transformVariablesUtil(instruction.variables, true);
-  }
+  // No variables: the batch instruction (MultipleProcessInstanceModificationInstructionDto)
+  // has no such field, so the engine would not set them.
   return payload;
 }
 

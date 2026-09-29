@@ -10,6 +10,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 
+import ConfirmSubmit from './ConfirmSubmit';
 import DryRunResultPreview, { type DryRunResult } from './DryRunResultPreview';
 import ErrorMessage from './ErrorMessage';
 import FormButton from './FormButton';
@@ -18,16 +19,13 @@ import LoadingSpinner from './LoadingSpinner';
 import SuccessMessage from './SuccessMessage';
 import VariableBuilder from './VariableBuilder';
 import WarningBox from './WarningBox';
+import { useGuardedSubmit } from '../hooks/useGuardedSubmit';
 import type { API } from '../types';
-import { ProcessInstance } from '../types';
-import { get, post } from '../utils/api';
-import {
-  buildInstanceLookupParams,
-  buildMessageRequest,
-  type BatchRequest,
-  type MessageRequestInput,
-} from '../utils/batchOperations';
+import { post } from '../utils/api';
+import { buildMessageRequest, type MessageRequestInput } from '../utils/batchOperations';
 import { getBpmnElements, BpmnElement, BpmnMessage } from '../utils/bpmnParsing';
+import { describeLookupProblem, lookupTargetInstances } from '../utils/instanceLookup';
+import { tryBuild } from '../utils/submitGuard';
 
 /** Maximum number of instances to show in dry-run preview */
 const MAX_PREVIEW_INSTANCES = 10;
@@ -61,17 +59,15 @@ interface BatchMessageFormProps {
 /**
  * Form for sending a BPMN message from a process definition.
  */
-// eslint-disable-next-line max-lines-per-function -- Two message paths with targeting, dry run and validation
+// eslint-disable-next-line max-lines-per-function, max-statements -- Two message paths with targeting, dry run and validation
 const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinitionId }) => {
   const [messages, setMessages] = useState<BpmnMessage[]>([]);
   const [activities, setActivities] = useState<BpmnElement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDryRun, setIsDryRun] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [dryRunResult, setDryRunResult] = useState<DryRunResult | null>(null);
-  const [dryRunRequest, setDryRunRequest] = useState<BatchRequest | null>(null);
 
   const methods = useForm<MessageFormData>({
     defaultValues: {
@@ -91,6 +87,10 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
   const selectedMessageName = watch('messageName');
   const selectedMessage = messages.find(m => m.name === selectedMessageName);
   const isStartEvent = selectedMessage?.isStartEvent === true;
+
+  const formValues = watch();
+  const guard = useGuardedSubmit(tryBuild(() => buildMessageRequest(formValues, processDefinitionId)));
+  const { clearPreview } = guard;
 
   useEffect(() => {
     const loadDefinition = async (): Promise<void> => {
@@ -120,21 +120,21 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
       setValue('businessKey', generateBusinessKey());
     }
     setDryRunResult(null);
-    setDryRunRequest(null);
-  }, [isStartEvent, setValue]);
+    clearPreview();
+  }, [isStartEvent, setValue, clearPreview]);
 
   /**
    * Preview the request, and for a correlation also the instances it would reach.
    *
-   * The request comes from the same builder onSubmit uses, so the preview cannot drift
-   * from what is actually posted.
+   * Only a dry run that found every targeted instance arms the submit.
    */
   const runDryRun = async (data: MessageFormData): Promise<void> => {
     try {
       setIsDryRun(true);
       setError(null);
+      setSuccessMessage(null);
       setDryRunResult(null);
-      setDryRunRequest(null);
+      clearPreview();
 
       const request = buildMessageRequest(data, processDefinitionId);
       if (!request) {
@@ -145,24 +145,25 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
         );
         return;
       }
-      setDryRunRequest(request);
 
       // A start message creates an instance rather than targeting existing ones.
       if (data.isStartEvent) {
+        guard.markPreviewed(request);
         return;
       }
 
-      const params = buildInstanceLookupParams(data, processDefinitionId);
-      const instances = params ? ((await get(api, '/process-instance', params)) as ProcessInstance[]) : [];
-
+      const lookup = await lookupTargetInstances(api, data, processDefinitionId);
       setDryRunResult({
-        count: instances.length,
-        instances: instances.slice(0, MAX_PREVIEW_INSTANCES),
+        count: lookup.instances.length,
+        instances: lookup.instances.slice(0, MAX_PREVIEW_INSTANCES),
       });
 
-      if (instances.length === 0) {
-        setError('No instances found matching the selection criteria.');
+      const problem = describeLookupProblem(lookup);
+      if (problem !== null) {
+        setError(problem);
+        return;
       }
+      guard.markPreviewed(request, lookup.instances.length);
     } catch (err) {
       console.error('Dry run error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -173,43 +174,29 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
   };
 
   /**
-   * Send the message.
+   * Send the previewed message request.
    */
   const onSubmit = async (data: MessageFormData): Promise<void> => {
     try {
-      setIsSubmitting(true);
       setError(null);
       setSuccessMessage(null);
-      setDryRunResult(null);
-      setDryRunRequest(null);
-
-      const request = buildMessageRequest(data, processDefinitionId);
-      if (!request) {
-        setError(
-          data.messageName === ''
-            ? 'Please select a message to send.'
-            : 'Please select the instances to correlate the message to.'
-        );
-        return;
-      }
-
-      await post(api, request.path, {}, JSON.stringify(request.payload));
-
-      if (data.isStartEvent) {
-        const startedWith = data.businessKey !== '' ? ` with business key "${data.businessKey}"` : '';
-        setSuccessMessage(`Message "${data.messageName}" sent. A new process instance was started${startedWith}.`);
-      } else {
-        setSuccessMessage(
-          `Message "${data.messageName}" correlation submitted as a batch operation. ` +
-            `Check the batch operations view for progress.`
-        );
-      }
+      await guard.submit(async request => {
+        await post(api, request.path, {}, JSON.stringify(request.payload));
+        setDryRunResult(null);
+        if (data.isStartEvent) {
+          const startedWith = data.businessKey !== '' ? ` with business key "${data.businessKey}"` : '';
+          setSuccessMessage(`Message "${data.messageName}" sent. A new process instance was started${startedWith}.`);
+        } else {
+          setSuccessMessage(
+            `Message "${data.messageName}" correlation submitted as a batch operation. ` +
+              `Check the batch operations view for progress.`
+          );
+        }
+      });
     } catch (err) {
       console.error('Message correlation error:', err);
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`Failed to send message: ${errorMessage}. Check console for details.`);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -221,7 +208,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
     setError(null);
     setSuccessMessage(null);
     setDryRunResult(null);
-    setDryRunRequest(null);
+    clearPreview();
   };
 
   if (isLoading) {
@@ -315,7 +302,7 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
 
           <DryRunResultPreview
             result={dryRunResult}
-            request={dryRunRequest}
+            request={guard.previewedRequest}
             maxInstances={MAX_PREVIEW_INSTANCES}
             instanceLabel="active instance"
           />
@@ -338,14 +325,11 @@ const BatchMessageForm: React.FC<BatchMessageFormProps> = ({ api, processDefinit
         {error !== null && <ErrorMessage message={error} />}
         {successMessage !== null && <SuccessMessage message={successMessage} />}
 
-        <div className="modify-form__actions">
-          <FormButton type="submit" disabled={isSubmitting} variant="primary" minWidth={160}>
-            {isSubmitting ? 'Sending...' : submitLabel}
-          </FormButton>
+        <ConfirmSubmit guard={guard} submitLabel={submitLabel} submittingLabel="Sending...">
           <FormButton type="button" variant="secondary" onClick={handleReset} minWidth={100}>
             Reset
           </FormButton>
-        </div>
+        </ConfirmSubmit>
       </form>
     </FormProvider>
   );

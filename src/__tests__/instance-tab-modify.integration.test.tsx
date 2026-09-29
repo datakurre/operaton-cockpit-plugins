@@ -244,6 +244,63 @@ describe('instance-tab-modify integration', () => {
       // The actual submission with payload is covered by unit tests of the form components
     });
 
+    it('sends the modification only after a dry run and an acknowledgement', async () => {
+      const posted: string[] = [];
+      mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
+        const json = (body: unknown) => ({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
+          json: async () => body,
+        });
+        if (url.includes('/xml')) {
+          return json({ id: processDefinitionId, bpmn20Xml: simpleBpmnXml });
+        }
+        if (url.includes('/history/activity-instance')) {
+          return json([{ id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' }]);
+        }
+        if (init?.method?.toUpperCase() === 'POST') {
+          posted.push(url);
+          return json({});
+        }
+        return json({});
+      });
+
+      const container = await renderPlugin();
+      const activityInput = await waitFor(() => {
+        const el = container.querySelector('input[name="instructions.0.activityId"]');
+        expect(el).not.toBeNull();
+        return el as HTMLInputElement;
+      });
+      const submit = (): HTMLElement => screen.getByRole('button', { name: 'Apply Modifications' });
+
+      await act(async () => {
+        fireEvent.focus(activityInput);
+      });
+      await act(async () => {
+        fireEvent.click(await screen.findByRole('option', { name: /Task_1/ }));
+      });
+      expect(submit()).toBeDisabled();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Dry Run' }));
+      });
+      expect(screen.getByLabelText('Request preview')).toHaveTextContent(
+        `POST /process-instance/${processInstanceId}/modification`
+      );
+      await act(async () => {
+        fireEvent.click(screen.getByRole('checkbox', { name: /I have reviewed/ }));
+      });
+      await act(async () => {
+        fireEvent.click(submit());
+      });
+
+      await waitFor(() => {
+        expect(posted).toEqual([expect.stringContaining(`/process-instance/${processInstanceId}/modification`)]);
+      });
+      expect(submit()).toBeDisabled();
+    });
+
     it('should display error when loading activities fails', async () => {
       // Mock API to return error on activity instance fetch
       mockFetch.mockImplementation(async (url: string) => {
