@@ -94,6 +94,16 @@ function __generator(thisArg, body) {
     }
 }
 
+function __spreadArray(to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+}
+
 typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
     var e = new Error(message);
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
@@ -3400,15 +3410,6 @@ function useForm(props = {}) {
     return _formControl.current;
 }
 
-/**
- * Simple error message component for consistent error display.
- * Uses role="alert" with aria-live="assertive" for immediate screen reader announcement.
- */
-var ErrorMessage = function (_a) {
-    var message = _a.message, _b = _a.className, className = _b === void 0 ? 'alert alert-danger' : _b;
-    return (React.createElement("div", { className: className, role: "alert", "aria-live": "assertive" }, message));
-};
-
 /** Style configurations for each button variant */
 var VARIANT_STYLES = {
     primary: { background: '#495057', disabledBackground: '#adb5bd' },
@@ -3447,6 +3448,252 @@ var FormButton = function (_a) {
         minWidth: "".concat(minWidth, "px"),
     };
     return (React.createElement("button", { type: type, onClick: onClick, disabled: disabled, style: style, className: className, "aria-label": ariaLabel, "aria-disabled": disabled }, children));
+};
+
+/** Warning box styling constants */
+var WARNING_STYLES = {
+    padding: '10px',
+    backgroundColor: '#fff3cd',
+    border: '1px solid #ffc107',
+    borderRadius: '2px',
+    marginBottom: '15px',
+};
+/**
+ * Reusable warning box component for displaying cautionary messages.
+ * Uses Bootstrap-like warning colors (yellow/amber).
+ *
+ * @example
+ * ```tsx
+ * <WarningBox>
+ *   Process instance modification is a powerful operation that can lead to
+ *   inconsistent process states. Use with extreme care.
+ * </WarningBox>
+ *
+ * <WarningBox title="Danger Zone">
+ *   This action cannot be undone.
+ * </WarningBox>
+ * ```
+ */
+var WarningBox = function (_a) {
+    var children = _a.children, _b = _a.title, title = _b === void 0 ? 'Warning' : _b, className = _a.className;
+    return (React.createElement("div", { role: "alert", "aria-live": "polite", style: WARNING_STYLES, className: className },
+        React.createElement("strong", null,
+            "\u26A0\uFE0F ",
+            title,
+            ":"),
+        " ",
+        children));
+};
+
+/**
+ * Submit area of a guarded form: says why submit is disabled, asks for the
+ * acknowledgement, and renders the submit button.
+ *
+ * @module
+ */
+/**
+ * Renders the preview status, acknowledgement checkbox and submit button.
+ */
+var ConfirmSubmit = function (_a) {
+    var _b;
+    var guard = _a.guard, submitLabel = _a.submitLabel, submittingLabel = _a.submittingLabel, acknowledgement = _a.acknowledgement, children = _a.children;
+    var previewedRequest = guard.previewedRequest, isPreviewStale = guard.isPreviewStale, risk = guard.risk;
+    var blockedReason = risk === null || risk === void 0 ? void 0 : risk.blockedReason;
+    var acknowledgementText = (_b = acknowledgement !== null && acknowledgement !== void 0 ? acknowledgement : risk === null || risk === void 0 ? void 0 : risk.acknowledgement) !== null && _b !== void 0 ? _b : '';
+    return (React.createElement("div", { className: "modify-form__confirm" },
+        previewedRequest === null && (React.createElement("p", { className: "modify-form__hint" }, "Run a dry run to review the request before sending it.")),
+        isPreviewStale && (React.createElement(WarningBox, { title: "Preview out of date" }, "The form has changed since the dry run. Run the dry run again to review the request that would now be sent.")),
+        blockedReason !== undefined && React.createElement(WarningBox, { title: "Not allowed" }, blockedReason),
+        previewedRequest !== null && !isPreviewStale && blockedReason === undefined && (React.createElement("div", { className: "modify-form__field" },
+            React.createElement("label", { className: "modify-form__acknowledgement" },
+                React.createElement("input", { type: "checkbox", checked: guard.isAcknowledged, onChange: function (e) {
+                        guard.setAcknowledged(e.target.checked);
+                    } }),
+                ' ',
+                acknowledgementText))),
+        React.createElement("div", { className: "modify-form__actions" },
+            React.createElement(FormButton, { type: "submit", disabled: !guard.canSubmit, variant: "primary", minWidth: 160 }, guard.isSubmitting ? submittingLabel : submitLabel),
+            children)));
+};
+
+/**
+ * Dry run preview for the batch operation forms.
+ *
+ * Shows both halves of a dry run: which process instances the operation would reach, and
+ * the request it would send. The request matters as much as the instance list - the
+ * instructions, the variables and their types, and whether the target is a fixed list of
+ * ids or an open-ended query are all decided there, and none of it is visible from a count.
+ *
+ * @module
+ */
+/** Maximum number of instances to show in preview */
+var MAX_PREVIEW_INSTANCES = 10;
+/**
+ * Displays a preview of a batch operation: affected instances and the request body.
+ */
+var DryRunResultPreview = function (_a) {
+    var result = _a.result, request = _a.request, _b = _a.instanceLabel, instanceLabel = _b === void 0 ? 'instance' : _b, instanceNote = _a.instanceNote, _c = _a.maxInstances, maxInstances = _c === void 0 ? MAX_PREVIEW_INSTANCES : _c;
+    if (!result && !request) {
+        return null;
+    }
+    return (React.createElement("div", { className: "modify-form__dry-run-result" },
+        result && (React.createElement(React.Fragment, null,
+            React.createElement("h5", null,
+                "Found ",
+                result.count,
+                " ",
+                instanceLabel,
+                result.count !== 1 ? 's' : ''),
+            result.instances.length > 0 && (React.createElement("ul", { className: "modify-form__instance-list" },
+                result.instances.map(function (inst) { return (React.createElement("li", { key: inst.id },
+                    inst.id,
+                    " ",
+                    inst.businessKey ? "(".concat(inst.businessKey, ")") : '')); }),
+                result.count > maxInstances && React.createElement("li", null,
+                    "...and ",
+                    result.count - maxInstances,
+                    " more"))),
+            instanceNote !== undefined && React.createElement("p", { className: "modify-form__hint" }, instanceNote))),
+        request && (React.createElement(React.Fragment, null,
+            React.createElement("h5", null, "Request that would be sent"),
+            React.createElement("pre", { className: "modify-form__request-preview", "aria-label": "Request preview" },
+                request.method,
+                " ",
+                request.path,
+                '\n',
+                JSON.stringify(request.payload, null, 2))))));
+};
+
+/**
+ * Simple error message component for consistent error display.
+ * Uses role="alert" with aria-live="assertive" for immediate screen reader announcement.
+ */
+var ErrorMessage = function (_a) {
+    var message = _a.message, _b = _a.className, className = _b === void 0 ? 'alert alert-danger' : _b;
+    return (React.createElement("div", { className: className, role: "alert", "aria-live": "assertive" }, message));
+};
+
+___$insertStylesToHeader(".searchable-select__options {\n  position: absolute;\n  top: 100%;\n  left: 0;\n  right: 0;\n  z-index: 1000;\n  background: #fff;\n  border: 1px solid #ccc;\n  border-top: none;\n  max-height: 240px;\n  overflow-y: auto;\n  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n.searchable-select__option {\n  padding: 6px 10px;\n  cursor: pointer;\n  font-size: 13px;\n}\n.searchable-select__option:hover, .searchable-select__option--active {\n  background: #e8f4f8;\n}\n.searchable-select__option--placeholder {\n  color: #767676;\n  border-bottom: 1px solid #eee;\n}\n.searchable-select__option--hint {\n  cursor: default;\n  color: #888;\n  font-style: italic;\n}\n.searchable-select__option--hint:hover {\n  background: transparent;\n}");
+
+/** Options rendered before the list is truncated with a "keep typing" hint. */
+var MAX_VISIBLE_OPTIONS = 50;
+/**
+ * Filterable select. See module doc.
+ */
+/* eslint-disable max-lines-per-function, complexity -- Combobox with filtering and keyboard navigation */
+var SearchableSelect = function (_a) {
+    var _b;
+    var value = _a.value, onChange = _a.onChange, onBlur = _a.onBlur, options = _a.options, placeholder = _a.placeholder, id = _a.id, name = _a.name, _c = _a.required, required = _c === void 0 ? false : _c, _d = _a.disabled, disabled = _d === void 0 ? false : _d, _e = _a.className, className = _e === void 0 ? 'form-control' : _e, style = _a.style;
+    var selectedOption = options.find(function (o) { return o.value === value; });
+    var _f = reactExports.useState((_b = selectedOption === null || selectedOption === void 0 ? void 0 : selectedOption.label) !== null && _b !== void 0 ? _b : ''), text = _f[0], setText = _f[1];
+    var _g = reactExports.useState(false), isOpen = _g[0], setIsOpen = _g[1];
+    var _h = reactExports.useState(false), hasTyped = _h[0], setHasTyped = _h[1];
+    var _j = reactExports.useState(-1), activeIndex = _j[0], setActiveIndex = _j[1];
+    // Resync the displayed text with the selected option while the field isn't being edited
+    // (external value changes, options arriving after an initial empty load, ...).
+    reactExports.useEffect(function () {
+        var _a;
+        if (!isOpen) {
+            setText((_a = selectedOption === null || selectedOption === void 0 ? void 0 : selectedOption.label) !== null && _a !== void 0 ? _a : '');
+        }
+        // selectedOption is derived from value/options each render; only their identity matters here.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value, options]);
+    var clearOption = placeholder !== undefined ? { value: '', label: placeholder } : null;
+    // Once the user is actively narrowing the list by typing, a non-matching entry has no
+    // business anchoring the top of the results — that's also what lets a genuine "no matches"
+    // state surface instead of always showing at least the pinned placeholder.
+    var isFiltering = hasTyped && text.trim() !== '';
+    var matchedOptions = reactExports.useMemo(function () {
+        if (!isFiltering) {
+            return options;
+        }
+        var query = text.toLowerCase();
+        return options.filter(function (o) { return o.label.toLowerCase().includes(query); });
+    }, [isFiltering, text, options]);
+    var visibleMatches = matchedOptions.slice(0, MAX_VISIBLE_OPTIONS);
+    var hiddenCount = matchedOptions.length - visibleMatches.length;
+    var visibleOptions = clearOption && !isFiltering ? __spreadArray([clearOption], visibleMatches, true) : visibleMatches;
+    var inputId = id !== null && id !== void 0 ? id : "searchable-select-".concat(name !== null && name !== void 0 ? name : 'field');
+    var listboxId = "".concat(inputId, "-listbox");
+    var revertText = function () {
+        var _a;
+        setText((_a = selectedOption === null || selectedOption === void 0 ? void 0 : selectedOption.label) !== null && _a !== void 0 ? _a : '');
+    };
+    var closeList = function () {
+        setIsOpen(false);
+        setHasTyped(false);
+        setActiveIndex(-1);
+    };
+    var selectOption = function (option) {
+        onChange(option.value);
+        setText(option.label);
+        closeList();
+    };
+    var handleFocus = function (e) {
+        setIsOpen(true);
+        setHasTyped(false);
+        setActiveIndex(-1);
+        e.target.select();
+    };
+    var handleChange = function (e) {
+        setText(e.target.value);
+        setHasTyped(true);
+        setIsOpen(true);
+        setActiveIndex(0);
+    };
+    var handleBlur = function () {
+        closeList();
+        revertText();
+        onBlur === null || onBlur === void 0 ? void 0 : onBlur();
+    };
+    var handleKeyDown = function (e) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setIsOpen(true);
+            setActiveIndex(function (prev) { return (prev < visibleOptions.length - 1 ? prev + 1 : prev); });
+        }
+        else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveIndex(function (prev) { return (prev > 0 ? prev - 1 : 0); });
+        }
+        else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (isOpen && activeIndex >= 0) {
+                var option = visibleOptions[activeIndex];
+                if (option) {
+                    selectOption(option);
+                }
+            }
+        }
+        else if (e.key === 'Escape') {
+            closeList();
+            revertText();
+        }
+    };
+    return (React.createElement("div", { className: "searchable-select", style: __assign({ position: 'relative' }, style) },
+        React.createElement("input", { id: inputId, name: name, type: "text", role: "combobox", className: className, style: { width: '100%' }, value: text, placeholder: placeholder, onFocus: handleFocus, onChange: handleChange, onBlur: handleBlur, onKeyDown: handleKeyDown, required: required, disabled: disabled, autoComplete: "off", "aria-autocomplete": "list", "aria-expanded": isOpen, "aria-controls": listboxId, "aria-activedescendant": activeIndex >= 0 ? "".concat(listboxId, "-option-").concat(activeIndex) : undefined, "aria-required": required, "aria-disabled": disabled }),
+        isOpen && (React.createElement("div", { id: listboxId, role: "listbox", className: "searchable-select__options" },
+            visibleOptions.length === 0 && (React.createElement("div", { className: "searchable-select__option searchable-select__option--hint" }, "No matches")),
+            visibleOptions.map(function (option, index) { return (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events -- keyboard navigation is handled by the input
+            React.createElement("div", { key: option.value || '__clear__', id: "".concat(listboxId, "-option-").concat(index), role: "option", "aria-selected": option.value === value, className: [
+                    'searchable-select__option',
+                    index === activeIndex ? 'searchable-select__option--active' : '',
+                    clearOption && index === 0 ? 'searchable-select__option--placeholder' : '',
+                ]
+                    .filter(Boolean)
+                    .join(' '), onMouseDown: function (e) {
+                    // Keep focus on the input so this click registers before any blur would fire.
+                    e.preventDefault();
+                }, onClick: function () {
+                    selectOption(option);
+                }, onMouseEnter: function () {
+                    setActiveIndex(index);
+                } }, option.label)); }),
+            hiddenCount > 0 && (React.createElement("div", { className: "searchable-select__option searchable-select__option--hint" },
+                hiddenCount,
+                " more \u2014 keep typing to narrow the list"))))));
 };
 
 var variableTypes = [
@@ -3536,39 +3783,69 @@ var VariableBuilder = function (_a) {
 };
 
 /**
+ * Formatting utilities for dates and URLs
+ *
+ * @module utils/formatting
+ */
+/** Date format pattern for consistent display across the application */
+/**
+ * Format a display label for an id-bearing entity (BPMN element, activity
+ * instance, ...) that may or may not carry a human-readable name.
+ *
+ * Used everywhere a select list offers such entities, so an unlabeled one
+ * never renders as a blank or "undefined" option — its id is always visible,
+ * either alongside the name or on its own.
+ * @param name - Optional display name
+ * @param id - The entity id, always shown or used as the fallback label
+ * @returns "name (id)" when a name is present, otherwise just "id"
+ */
+function formatLabelWithId(name, id) {
+    return name ? "".concat(name, " (").concat(id, ")") : id;
+}
+
+/**
+ * Instruction field components for process modification form.
+ * These components render type-specific form fields for each modification instruction type.
+ */
+/**
+ * Format a select option label for an active activity instance: the
+ * activity's name (or its id, when unlabeled), followed by the instance id.
+ * @param inst - The active activity instance
+ * @returns Display label showing both the activity and the instance id
+ */
+function formatActivityInstanceLabel(inst) {
+    return "".concat(formatLabelWithId(inst.activityName, inst.activityId), " (ID: ").concat(inst.id, ")");
+}
+/**
  * Renders fields for starting a transition (sequence flow).
  * Allows selecting a sequence flow and optionally an ancestor activity instance.
  */
 var TransitionFields = function (_a) {
     var index = _a.index, sequenceFlows = _a.sequenceFlows, activities = _a.activities, activeInstances = _a.activeInstances;
     var control = useFormContext().control;
+    var sequenceFlowOptions = sequenceFlows.map(function (flow) {
+        var _a, _b, _c, _d, _e, _f, _g;
+        var sourceName = (_c = (_b = (_a = activities.find(function (a) { return a.id === flow.sourceRef; })) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : flow.sourceRef) !== null && _c !== void 0 ? _c : 'unknown';
+        var targetName = (_f = (_e = (_d = activities.find(function (a) { return a.id === flow.targetRef; })) === null || _d === void 0 ? void 0 : _d.name) !== null && _e !== void 0 ? _e : flow.targetRef) !== null && _f !== void 0 ? _f : 'unknown';
+        var label = (_g = flow.name) !== null && _g !== void 0 ? _g : "".concat(sourceName, " \u2192 ").concat(targetName);
+        return { value: flow.id, label: formatLabelWithId(label, flow.id) };
+    });
+    var ancestorOptions = activeInstances.map(function (inst) { return ({
+        value: inst.id,
+        label: formatActivityInstanceLabel(inst),
+    }); });
     return (React.createElement(React.Fragment, null,
         React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Sequence Flow (Transition): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".transitionId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- Select Sequence Flow --"),
-                        sequenceFlows.map(function (flow) {
-                            var _a, _b, _c, _d, _e, _f, _g;
-                            var sourceName = (_c = (_b = (_a = activities.find(function (a) { return a.id === flow.sourceRef; })) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : flow.sourceRef) !== null && _c !== void 0 ? _c : 'unknown';
-                            var targetName = (_f = (_e = (_d = activities.find(function (a) { return a.id === flow.targetRef; })) === null || _d === void 0 ? void 0 : _d.name) !== null && _e !== void 0 ? _e : flow.targetRef) !== null && _f !== void 0 ? _f : 'unknown';
-                            return (React.createElement("option", { key: flow.id, value: flow.id }, (_g = flow.name) !== null && _g !== void 0 ? _g : "".concat(sourceName, " \u2192 ").concat(targetName)));
-                        })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: sequenceFlowOptions, placeholder: "-- Select Sequence Flow --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } })),
         React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Ancestor Activity Instance (optional): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".ancestorActivityInstanceId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- None (default scope) --"),
-                        activeInstances.map(function (inst) {
-                            var _a;
-                            return (React.createElement("option", { key: inst.id, value: inst.id }, (_a = inst.activityName) !== null && _a !== void 0 ? _a : inst.activityId,
-                                " (ID: ",
-                                inst.id,
-                                ")"));
-                        })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: ancestorOptions, placeholder: "-- None (default scope) --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } }))));
 };
 /**
@@ -3601,33 +3878,24 @@ var CancelActivityFields = function (_a) {
             React.createElement("label", null, "Activity (cancel all instances): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- Select Active Activity --"),
-                        activities
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: activities
                             .filter(function (activity) { return activityCounts.has(activity.id); })
                             .map(function (activity) {
                             var _a;
-                            return (React.createElement("option", { key: activity.id, value: activity.id },
-                                activity.name,
-                                " (",
-                                activity.type,
-                                ") - ", (_a = activityCounts.get(activity.id)) !== null && _a !== void 0 ? _a : 0,
-                                " active"));
-                        })));
+                            return ({
+                                value: activity.id,
+                                label: "".concat(formatLabelWithId(activity.name, activity.id), " \u2014 ").concat(activity.type, " \u2014 ").concat((_a = activityCounts.get(activity.id)) !== null && _a !== void 0 ? _a : 0, " active"),
+                            });
+                        }), placeholder: "-- Select Active Activity --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } }))),
         currentMethod === 'activityInstance' && (React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Activity Instance (cancel specific): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityInstanceId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- Select Activity Instance --"),
-                        activeInstances.map(function (inst) {
-                            var _a;
-                            return (React.createElement("option", { key: inst.id, value: inst.id }, (_a = inst.activityName) !== null && _a !== void 0 ? _a : inst.activityId,
-                                " (ID: ",
-                                inst.id,
-                                ")"));
-                        })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: activeInstances.map(function (inst) { return ({
+                            value: inst.id,
+                            label: formatActivityInstanceLabel(inst),
+                        }); }), placeholder: "-- Select Activity Instance --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } })))));
 };
 /**
@@ -3635,43 +3903,37 @@ var CancelActivityFields = function (_a) {
  * Includes activity selection, optional ancestor, and variable configuration.
  */
 var StartActivityFields = function (_a) {
-    var index = _a.index, activities = _a.activities, activeInstances = _a.activeInstances;
+    var index = _a.index, activities = _a.activities, activeInstances = _a.activeInstances, _b = _a.showVariables, showVariables = _b === void 0 ? true : _b;
     var control = useFormContext().control;
     var potentialAncestors = activeInstances.filter(function (inst) {
         var _a, _b;
         var activity = activities.find(function (a) { return a.id === inst.activityId; });
         return ((_a = activity === null || activity === void 0 ? void 0 : activity.type.includes('SubProcess')) !== null && _a !== void 0 ? _a : false) || ((_b = activity === null || activity === void 0 ? void 0 : activity.type.includes('Process')) !== null && _b !== void 0 ? _b : false);
     });
+    var activityOptions = activities.map(function (activity) { return ({
+        value: activity.id,
+        label: "".concat(formatLabelWithId(activity.name, activity.id), " \u2014 ").concat(activity.type),
+    }); });
+    var ancestorOptions = potentialAncestors.map(function (inst) { return ({
+        value: inst.id,
+        label: formatActivityInstanceLabel(inst),
+    }); });
     return (React.createElement(React.Fragment, null,
         React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Activity: "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- Select Activity --"),
-                        activities.map(function (activity) { return (React.createElement("option", { key: activity.id, value: activity.id },
-                            activity.name,
-                            " (",
-                            activity.type,
-                            ")")); })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: activityOptions, placeholder: "-- Select Activity --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } })),
         React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Ancestor Activity Instance (optional): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".ancestorActivityInstanceId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- None (default scope) --"),
-                        potentialAncestors.map(function (inst) {
-                            var _a;
-                            return (React.createElement("option", { key: inst.id, value: inst.id }, (_a = inst.activityName) !== null && _a !== void 0 ? _a : inst.activityId,
-                                " (ID: ",
-                                inst.id,
-                                ")"));
-                        })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: ancestorOptions, placeholder: "-- None (default scope) --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } })),
-        React.createElement("div", { style: { marginBottom: '10px' } },
+        showVariables && (React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("h5", null, "Variables"),
-            React.createElement(VariableBuilder, { name: "instructions.".concat(index, ".variables"), showLocalFlag: true }))));
+            React.createElement(VariableBuilder, { name: "instructions.".concat(index, ".variables"), showLocalFlag: true })))));
 };
 
 /**
@@ -3679,8 +3941,8 @@ var StartActivityFields = function (_a) {
  * Includes type selector and type-specific fields for the instruction.
  */
 var InstructionCard = function (_a) {
-    var fieldId = _a.fieldId, index = _a.index, showRemove = _a.showRemove, onRemove = _a.onRemove, activities = _a.activities, sequenceFlows = _a.sequenceFlows, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods;
-    var _b = useFormContext(), control = _b.control, watch = _b.watch;
+    var fieldId = _a.fieldId, index = _a.index, showRemove = _a.showRemove, onRemove = _a.onRemove, activities = _a.activities, sequenceFlows = _a.sequenceFlows, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _b = _a.showVariables, showVariables = _b === void 0 ? true : _b;
+    var _c = useFormContext(), control = _c.control, watch = _c.watch;
     var instructionType = watch("instructions.".concat(index, ".type"));
     var renderInstructionFields = function () {
         if (instructionType === 'startTransition') {
@@ -3690,7 +3952,7 @@ var InstructionCard = function (_a) {
             return (React.createElement(CancelActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, cancelMethods: cancelMethods, setCancelMethods: setCancelMethods }));
         }
         // Default: startBeforeActivity or startAfterActivity
-        return (React.createElement(StartActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts }));
+        return (React.createElement(StartActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, showVariables: showVariables }));
     };
     return (React.createElement("div", { key: fieldId, style: {
             marginBottom: '15px',
@@ -3734,6 +3996,204 @@ var SuccessMessage = function (_a) {
     var message = _a.message, _b = _a.className, className = _b === void 0 ? 'alert alert-success' : _b;
     return (React.createElement("div", { className: className, role: "status", "aria-live": "polite" }, message));
 };
+
+/** Instruction types that start something, as opposed to cancelling it. */
+var START_INSTRUCTION_TYPES = ['startBeforeActivity', 'startAfterActivity', 'startTransition'];
+/**
+ * Serialize a request for comparison.
+ *
+ * The builders are deterministic, so two builds of the same form state serialize to the
+ * same string.
+ * @param request - The request, or null when the form cannot build one
+ * @returns The serialized request, or null
+ */
+function requestKey(request) {
+    if (!request) {
+        return null;
+    }
+    return JSON.stringify({ method: request.method, path: request.path, payload: request.payload });
+}
+/**
+ * Whether the previewed request is still the one submit would send.
+ * @param previewed - The request shown by the last dry run
+ * @param current - The request the form would send now
+ * @returns True when both exist and are identical
+ */
+function isPreviewCurrent(previewed, current) {
+    var previewedKey = requestKey(previewed);
+    return previewedKey !== null && previewedKey === requestKey(current);
+}
+/**
+ * Whether a set of modification instructions only cancels.
+ *
+ * Cancelling without starting anything removes tokens and can end every process instance
+ * whose only token was cancelled.
+ * @param instructions - The instructions of a modification request
+ * @returns True when there is a cancel instruction and no start instruction
+ */
+function isCancelOnly(instructions) {
+    var hasCancel = instructions.some(function (instruction) { return instruction.type === 'cancel'; });
+    var hasStart = instructions.some(function (instruction) { return START_INSTRUCTION_TYPES.includes(instruction.type); });
+    return hasCancel && !hasStart;
+}
+/**
+ * Read the instructions of a modification payload.
+ * @param payload - A request payload
+ * @returns The instructions, or an empty list
+ */
+function instructionsOf(payload) {
+    var instructions = payload['instructions'];
+    return Array.isArray(instructions) ? instructions : [];
+}
+/**
+ * Describe how many instances a mass request reaches.
+ * @param affectedCount - Instances found by the dry run, when known
+ * @returns A phrase naming the instances
+ */
+function describeTargets(affectedCount) {
+    if (affectedCount === undefined) {
+        return 'the selected process instances';
+    }
+    return "".concat(affectedCount, " process instance").concat(affectedCount === 1 ? '' : 's');
+}
+/**
+ * Describe the risk of a request, and whether it may be sent at all.
+ * @param request - The request the form would send
+ * @param affectedCount - Instances found by the dry run, for requests that target instances
+ * @returns The risk level and the statement the user must acknowledge
+ */
+function describeRisk(request, affectedCount) {
+    var path = request.path, payload = request.payload;
+    if (path === '/signal') {
+        return {
+            level: 'engine-wide',
+            acknowledgement: 'I understand this signal is delivered to every matching catch event in the engine, not only to this definition.',
+        };
+    }
+    if (path === '/modification/executeAsync') {
+        if (isCancelOnly(instructionsOf(payload))) {
+            return {
+                level: 'ends-instances',
+                acknowledgement: '',
+                blockedReason: 'A batch that only cancels removes tokens without starting new ones and can end every targeted process ' +
+                    'instance. Add a start instruction to move the tokens instead; cancelling instances in bulk is not ' +
+                    'offered here.',
+            };
+        }
+        return {
+            level: 'mass',
+            acknowledgement: "I have reviewed the request above and want to modify ".concat(describeTargets(affectedCount), "."),
+        };
+    }
+    if (path === '/process-instance/message-async') {
+        return {
+            level: 'mass',
+            acknowledgement: "I have reviewed the request above and want to correlate the message to ".concat(describeTargets(affectedCount), "."),
+        };
+    }
+    if (path === '/message' && payload['processInstanceId'] === undefined) {
+        return {
+            level: 'creates-instance',
+            acknowledgement: 'I understand this message starts a new process instance.',
+        };
+    }
+    if (path.endsWith('/restart')) {
+        return {
+            level: 'creates-instance',
+            acknowledgement: 'I understand this starts a new process instance from the history of this one.',
+        };
+    }
+    if (path.endsWith('/modification') && isCancelOnly(instructionsOf(payload))) {
+        return {
+            level: 'ends-instances',
+            acknowledgement: 'I understand that cancelling without starting anything ends this process instance if no other activity ' +
+                'stays active.',
+        };
+    }
+    return { level: 'single', acknowledgement: 'I have reviewed the request above.' };
+}
+/**
+ * Build a request, treating a builder failure as "nothing to send".
+ *
+ * Forms rebuild their request on every render to compare it with the preview, so a
+ * builder must never throw into rendering.
+ * @param build - The builder call
+ * @returns The request, or null when the builder cannot build one
+ */
+function tryBuild(build) {
+    try {
+        return build();
+    }
+    catch (_a) {
+        return null;
+    }
+}
+
+/**
+ * Guard a form's submit behind a current, acknowledged preview.
+ * @param currentRequest - The request the form would send right now
+ * @returns The guard's state and actions
+ */
+function useGuardedSubmit(currentRequest) {
+    var _this = this;
+    var _a = reactExports.useState(null), previewedRequest = _a[0], setPreviewedRequest = _a[1];
+    var _b = reactExports.useState(null), risk = _b[0], setRisk = _b[1];
+    var _c = reactExports.useState(false), isAcknowledged = _c[0], setAcknowledged = _c[1];
+    var _d = reactExports.useState(false), isSubmitting = _d[0], setIsSubmitting = _d[1];
+    // State updates land on the next render; a ref stops a double click in the same tick.
+    var inFlight = reactExports.useRef(false);
+    var isCurrent = isPreviewCurrent(previewedRequest, currentRequest);
+    var isBlocked = (risk === null || risk === void 0 ? void 0 : risk.blockedReason) !== undefined;
+    var canSubmit = isCurrent && isAcknowledged && !isBlocked && !isSubmitting;
+    var markPreviewed = reactExports.useCallback(function (request, affectedCount) {
+        setPreviewedRequest(request);
+        setRisk(describeRisk(request, affectedCount));
+        setAcknowledged(false);
+    }, []);
+    var clearPreview = reactExports.useCallback(function () {
+        setPreviewedRequest(null);
+        setRisk(null);
+        setAcknowledged(false);
+    }, []);
+    var submit = function (send) { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (inFlight.current || !canSubmit || !previewedRequest) {
+                        return [2 /*return*/];
+                    }
+                    inFlight.current = true;
+                    setIsSubmitting(true);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, , 3, 4]);
+                    return [4 /*yield*/, send(previewedRequest)];
+                case 2:
+                    _a.sent();
+                    // Sent: the same request needs a fresh dry run and acknowledgement to go again.
+                    clearPreview();
+                    return [3 /*break*/, 4];
+                case 3:
+                    inFlight.current = false;
+                    setIsSubmitting(false);
+                    return [7 /*endfinally*/];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); };
+    return {
+        previewedRequest: previewedRequest,
+        isPreviewStale: previewedRequest !== null && !isCurrent,
+        risk: risk,
+        isAcknowledged: isAcknowledged,
+        setAcknowledged: setAcknowledged,
+        isSubmitting: isSubmitting,
+        canSubmit: canSubmit,
+        markPreviewed: markPreviewed,
+        clearPreview: clearPreview,
+        submit: submit,
+    };
+}
 
 const token = '%[a-f0-9]{2}';
 const singleMatcher = new RegExp('(' + token + ')|([^%]+?)', 'gi');
@@ -14635,15 +15095,11 @@ function collectMessagesFromEvents(elements, allMessages, collected, insideEvent
  * @param collected - Array to push discovered activities into
  */
 function collectActivities(elements, collected) {
-    var _a, _b, _c;
+    var _a;
     for (var _i = 0, elements_2 = elements; _i < elements_2.length; _i++) {
         var el = elements_2[_i];
         if (isActivityType(el.$type)) {
-            collected.push({
-                id: (_a = el.id) !== null && _a !== void 0 ? _a : '',
-                name: (_c = (_b = el.name) !== null && _b !== void 0 ? _b : el.id) !== null && _c !== void 0 ? _c : '',
-                type: el.$type.replace('bpmn:', ''),
-            });
+            collected.push(__assign(__assign({ id: (_a = el.id) !== null && _a !== void 0 ? _a : '' }, (el.name !== undefined ? { name: el.name } : {})), { type: el.$type.replace('bpmn:', '') }));
         }
         if (el.flowElements !== undefined) {
             collectActivities(el.flowElements, collected);
@@ -14656,17 +15112,11 @@ function collectActivities(elements, collected) {
  * @param collected - Array to push discovered sequence flows into
  */
 function collectSequenceFlows(elements, collected) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c;
     for (var _i = 0, elements_3 = elements; _i < elements_3.length; _i++) {
         var el = elements_3[_i];
         if (el.$type === 'bpmn:SequenceFlow') {
-            collected.push({
-                id: (_a = el.id) !== null && _a !== void 0 ? _a : '',
-                name: (_c = (_b = el.name) !== null && _b !== void 0 ? _b : el.id) !== null && _c !== void 0 ? _c : '',
-                type: el.$type.replace('bpmn:', ''),
-                sourceRef: (_d = el.sourceRef) === null || _d === void 0 ? void 0 : _d.id,
-                targetRef: (_e = el.targetRef) === null || _e === void 0 ? void 0 : _e.id,
-            });
+            collected.push(__assign(__assign({ id: (_a = el.id) !== null && _a !== void 0 ? _a : '' }, (el.name !== undefined ? { name: el.name } : {})), { type: el.$type.replace('bpmn:', ''), sourceRef: (_b = el.sourceRef) === null || _b === void 0 ? void 0 : _b.id, targetRef: (_c = el.targetRef) === null || _c === void 0 ? void 0 : _c.id }));
         }
         if (el.flowElements !== undefined) {
             collectSequenceFlows(el.flowElements, collected);
@@ -14803,6 +15253,110 @@ function transformVariables(variables, includeLocal) {
     }, {});
 }
 
+/**
+ * Whether an instruction names what it needs to be sent.
+ * @param instruction - Instruction held in form state
+ * @returns True when the instruction is complete
+ */
+function isComplete(instruction) {
+    if (instruction.type === 'startTransition') {
+        return instruction.transitionId !== undefined && instruction.transitionId !== '';
+    }
+    var hasActivityInstance = instruction.activityInstanceId !== undefined && instruction.activityInstanceId !== '';
+    if (instruction.type === 'cancel' && hasActivityInstance) {
+        return true;
+    }
+    return instruction.activityId !== undefined && instruction.activityId !== '';
+}
+/**
+ * Copy the non-empty string fields of an instruction.
+ * @param instruction - Instruction held in form state
+ * @returns The instruction as the engine expects it
+ */
+function toInstructionPayload(instruction) {
+    var payload = { type: instruction.type };
+    var fields = ['activityId', 'transitionId', 'activityInstanceId', 'ancestorActivityInstanceId'];
+    for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
+        var field = fields_1[_i];
+        var value = instruction[field];
+        if (value !== undefined && value !== '') {
+            payload[field] = value;
+        }
+    }
+    if (instruction.variables !== undefined && instruction.variables.length > 0) {
+        payload.variables = transformVariables(instruction.variables, true);
+    }
+    return payload;
+}
+/**
+ * Build the modification request for one process instance.
+ * @param data - The modification form's state
+ * @param processInstanceId - The instance to modify
+ * @returns The request, or null when no instruction is complete
+ */
+function buildInstanceModificationRequest(data, processInstanceId) {
+    var instructions = data.instructions.filter(isComplete).map(toInstructionPayload);
+    if (instructions.length === 0) {
+        return null;
+    }
+    return {
+        method: 'POST',
+        path: "/process-instance/".concat(processInstanceId, "/modification"),
+        payload: {
+            skipCustomListeners: data.skipCustomListeners,
+            skipIoMappings: data.skipIoMappings,
+            instructions: instructions,
+            annotation: data.annotation !== '' ? data.annotation : 'Modified via Cockpit plugin',
+        },
+    };
+}
+/**
+ * Transform variables for a correlation payload.
+ * @param variables - Variables held in form state
+ * @returns The variables as the engine expects them
+ */
+function toVariables(variables) {
+    return transformVariables(variables, false);
+}
+/**
+ * Build the message request of the single-instance message form.
+ *
+ * A message on a start event starts a new, unrelated instance; any other message is
+ * correlated to exactly this instance.
+ * @param data - The message form's state
+ * @param processInstanceId - The instance the form is opened on
+ * @returns The request, or null when no message is selected
+ */
+function buildInstanceMessageRequest(data, processInstanceId) {
+    if (data.messageName === '') {
+        return null;
+    }
+    if (data.isStartEvent) {
+        return {
+            method: 'POST',
+            path: '/message',
+            payload: {
+                messageName: data.messageName,
+                businessKey: data.businessKey,
+                processVariables: toVariables(data.processVariables),
+            },
+        };
+    }
+    return {
+        method: 'POST',
+        path: '/message',
+        payload: {
+            messageName: data.messageName,
+            processInstanceId: processInstanceId,
+            all: false,
+            correlationKeys: toVariables(data.correlationKeys),
+            localCorrelationKeys: toVariables(data.localCorrelationKeys),
+            processVariables: toVariables(data.processVariables),
+            processVariablesLocal: toVariables(data.processVariablesLocal),
+        },
+    };
+}
+
 /** Success message shown after correlating a message */
 var SUCCESS_MESSAGE = 'Message correlated successfully! The page will refresh to show updates.';
 /**
@@ -14821,12 +15375,14 @@ var MessageCorrelationForm = function (_a) {
     var api = _a.api, processInstanceId = _a.processInstanceId, processDefinitionId = _a.processDefinitionId, processData = _a.processData;
     var _b = reactExports.useState([]), messages = _b[0], setMessages = _b[1];
     var _c = reactExports.useState(true), isLoading = _c[0], setIsLoading = _c[1];
-    var _d = reactExports.useState(false), isSubmitted = _d[0], setIsSubmitted = _d[1];
+    var _d = reactExports.useState(false), isReloading = _d[0], setIsReloading = _d[1];
     var _e = reactExports.useState(null), error = _e[0], setError = _e[1];
-    var _f = reactExports.useState(false), showAdvancedOptions = _f[0], setShowAdvancedOptions = _f[1];
+    var _f = reactExports.useState(null), successMessage = _f[0], setSuccessMessage = _f[1];
+    var _g = reactExports.useState(false), showAdvancedOptions = _g[0], setShowAdvancedOptions = _g[1];
     var methods = useForm({
         defaultValues: {
             messageName: '',
+            isStartEvent: false,
             businessKey: '',
             correlationKeys: [],
             localCorrelationKeys: [],
@@ -14837,6 +15393,8 @@ var MessageCorrelationForm = function (_a) {
     var watchedMessageName = methods.watch('messageName');
     var selectedMessage = messages.find(function (msg) { return msg.name === watchedMessageName; });
     var isStartEvent = (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true;
+    var formValues = methods.watch();
+    var guard = useGuardedSubmit(tryBuild(function () { return buildInstanceMessageRequest(formValues, processInstanceId); }));
     reactExports.useEffect(function () {
         var loadMessages = function () { return __awaiter(void 0, void 0, void 0, function () {
             var defId, instanceData, allMessages, err_1;
@@ -14876,70 +15434,63 @@ var MessageCorrelationForm = function (_a) {
         }); };
         void loadMessages();
     }, [api, processInstanceId, processDefinitionId, processData]);
-    // Set a default messageName once messages are loaded so isStartEvent is computed correctly
+    // Keep the derived flag in form state so the request builder sees it, and give a start
+    // message a fresh business key. No message is preselected: sending one is a choice.
     reactExports.useEffect(function () {
-        if (messages.length > 0 && methods.getValues('messageName') === '') {
-            var first = messages[0];
-            if (first !== undefined) {
-                methods.setValue('messageName', first.name);
-            }
-        }
-        // methods is a stable reference from useForm
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [messages]);
-    // Generate a fresh business key whenever the user selects a start event message
-    reactExports.useEffect(function () {
+        methods.setValue('isStartEvent', isStartEvent);
         if (isStartEvent) {
             methods.setValue('businessKey', generateUUID());
         }
         // methods is a stable reference from useForm
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isStartEvent]);
-    var transformVariables$1 = function (vars) {
-        return transformVariables(vars, false);
+    /**
+     * Show the request a real run would send, and arm the submit for exactly that request.
+     */
+    var runDryRun = function (data) {
+        setError(null);
+        setSuccessMessage(null);
+        guard.clearPreview();
+        var request = buildInstanceMessageRequest(data, processInstanceId);
+        if (!request) {
+            setError('Please select a message.');
+            return;
+        }
+        guard.markPreviewed(request);
     };
-    var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var payload, err_2;
+    var onSubmit = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var err_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, 3, 4]);
-                    setIsSubmitted(true);
+                    _a.trys.push([0, 2, , 3]);
                     setError(null);
-                    payload = isStartEvent
-                        ? {
-                            messageName: data.messageName,
-                            businessKey: data.businessKey,
-                            processVariables: transformVariables$1(data.processVariables),
-                        }
-                        : {
-                            messageName: data.messageName,
-                            processInstanceId: processInstanceId,
-                            all: false,
-                            correlationKeys: transformVariables$1(data.correlationKeys),
-                            localCorrelationKeys: transformVariables$1(data.localCorrelationKeys),
-                            processVariables: transformVariables$1(data.processVariables),
-                            processVariablesLocal: transformVariables$1(data.processVariablesLocal),
-                        };
-                    return [4 /*yield*/, post(api, '/message', {}, JSON.stringify(payload))];
+                    setSuccessMessage(null);
+                    return [4 /*yield*/, guard.submit(function (request) { return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
+                                    case 1:
+                                        _a.sent();
+                                        setSuccessMessage(SUCCESS_MESSAGE);
+                                        // The sent preview is cleared; keep the dry run disabled too until the view reloads.
+                                        setIsReloading(true);
+                                        setTimeout(function () {
+                                            reloadAngularRoute();
+                                        }, RELOAD_DELAY_MS);
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); })];
                 case 1:
                     _a.sent();
-                    // Show success message instead of immediate refresh
-                    setError(SUCCESS_MESSAGE);
-                    // Delay refresh to allow user to see success message
-                    setTimeout(function () {
-                        reloadAngularRoute();
-                    }, RELOAD_DELAY_MS);
-                    return [3 /*break*/, 4];
+                    return [3 /*break*/, 3];
                 case 2:
                     err_2 = _a.sent();
                     setError('Failed to correlate message.');
                     console.error(err_2);
-                    return [3 /*break*/, 4];
-                case 3:
-                    setIsSubmitted(false);
-                    return [7 /*endfinally*/];
-                case 4: return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     }); };
@@ -14951,8 +15502,8 @@ var MessageCorrelationForm = function (_a) {
             React.createElement("p", null, "No message events found in the process definition."),
             React.createElement("p", { className: "message-correlation-form__info-text" }, "Message correlation requires the process to have message start events, intermediate catch events, message boundary events, or receive tasks.")));
     }
-    // Show error during initial load (not post-submission errors/success)
-    if (messages.length === 0 && error && error !== SUCCESS_MESSAGE) {
+    // Show error during initial load
+    if (messages.length === 0 && error) {
         return (React.createElement("div", { className: "message-correlation-form" },
             React.createElement(ErrorMessage, { message: error })));
     }
@@ -14963,9 +15514,11 @@ var MessageCorrelationForm = function (_a) {
             }, className: "message-correlation-form" },
             React.createElement("div", { className: "form-group" },
                 React.createElement("label", null, "Message Name"),
-                React.createElement("select", __assign({}, methods.register('messageName'), { className: "form-control" }), messages.map(function (msg) { return (React.createElement("option", { key: msg.id, value: msg.name },
-                    msg.name,
-                    msg.isStartEvent ? ' (Start Event)' : '')); }))),
+                React.createElement("select", __assign({}, methods.register('messageName'), { className: "form-control" }),
+                    React.createElement("option", { value: "" }, "Select a message..."),
+                    messages.map(function (msg) { return (React.createElement("option", { key: msg.id, value: msg.name },
+                        msg.name,
+                        msg.isStartEvent ? ' (Start Event)' : '')); }))),
             isStartEvent && (React.createElement("div", { className: "form-group" },
                 React.createElement("label", { htmlFor: "businessKey" }, "Business Key"),
                 React.createElement("input", __assign({ id: "businessKey", type: "text" }, methods.register('businessKey'), { className: "form-control", placeholder: "Enter business key" })),
@@ -14991,8 +15544,15 @@ var MessageCorrelationForm = function (_a) {
                     React.createElement("div", { className: "form-group" },
                         React.createElement("h5", null, "Local Correlation Keys"),
                         React.createElement(VariableBuilder, { name: "localCorrelationKeys", showLocalFlag: false })))))),
-            error && (error === SUCCESS_MESSAGE ? React.createElement(SuccessMessage, { message: error }) : React.createElement(ErrorMessage, { message: error })),
-            React.createElement("button", { type: "submit", className: "btn btn-primary", disabled: isSubmitted }, isSubmitted ? 'Correlating...' : submitLabel))));
+            isStartEvent && (React.createElement(WarningBox, null, "This message is configured on a start event. Sending it starts a new process instance, which is not related to the instance you are viewing.")),
+            React.createElement("div", { className: "form-group" },
+                React.createElement("button", { type: "button", className: "btn btn-default", disabled: isReloading, onClick: function () {
+                        void methods.handleSubmit(runDryRun)();
+                    } }, "Dry Run")),
+            React.createElement(DryRunResultPreview, { request: guard.previewedRequest }),
+            error && React.createElement(ErrorMessage, { message: error }),
+            successMessage && React.createElement(SuccessMessage, { message: successMessage }),
+            React.createElement(ConfirmSubmit, { guard: guard, submitLabel: submitLabel, submittingLabel: "Correlating..." }))));
 };
 
 /**
@@ -15052,41 +15612,6 @@ var Tabs = function (_a) {
         }))));
 };
 
-/** Warning box styling constants */
-var WARNING_STYLES = {
-    padding: '10px',
-    backgroundColor: '#fff3cd',
-    border: '1px solid #ffc107',
-    borderRadius: '2px',
-    marginBottom: '15px',
-};
-/**
- * Reusable warning box component for displaying cautionary messages.
- * Uses Bootstrap-like warning colors (yellow/amber).
- *
- * @example
- * ```tsx
- * <WarningBox>
- *   Process instance modification is a powerful operation that can lead to
- *   inconsistent process states. Use with extreme care.
- * </WarningBox>
- *
- * <WarningBox title="Danger Zone">
- *   This action cannot be undone.
- * </WarningBox>
- * ```
- */
-var WarningBox = function (_a) {
-    var children = _a.children, _b = _a.title, title = _b === void 0 ? 'Warning' : _b, className = _a.className;
-    return (React.createElement("div", { role: "alert", "aria-live": "polite", style: WARNING_STYLES, className: className },
-        React.createElement("strong", null,
-            "\u26A0\uFE0F ",
-            title,
-            ":"),
-        " ",
-        children));
-};
-
 /**
  * Process modification form component.
  * Allows adding/removing modification instructions and submitting to the API.
@@ -15100,7 +15625,7 @@ var ModifyForm = function (_a) {
     var _e = reactExports.useState(new Map()), activityCounts = _e[0], setActivityCounts = _e[1];
     var _f = reactExports.useState(new Map()), cancelMethods = _f[0], setCancelMethods = _f[1];
     var _g = reactExports.useState(true), isLoading = _g[0], setIsLoading = _g[1];
-    var _h = reactExports.useState(false), isSubmitted = _h[0], setIsSubmitted = _h[1];
+    var _h = reactExports.useState(false), isReloading = _h[0], setIsReloading = _h[1];
     var _j = reactExports.useState(null), error = _j[0], setError = _j[1];
     var _k = reactExports.useState(null), successMessage = _k[0], setSuccessMessage = _k[1];
     var _l = reactExports.useState(null), actualProcessDefId = _l[0], setActualProcessDefId = _l[1];
@@ -15112,7 +15637,9 @@ var ModifyForm = function (_a) {
             skipIoMappings: false,
         },
     });
-    var control = methods.control, handleSubmit = methods.handleSubmit;
+    var control = methods.control, handleSubmit = methods.handleSubmit, watch = methods.watch;
+    var formValues = watch();
+    var guard = useGuardedSubmit(tryBuild(function () { return buildInstanceModificationRequest(formValues, processInstanceId); }));
     var _m = useFieldArray({
         control: control,
         name: 'instructions',
@@ -15186,71 +15713,52 @@ var ModifyForm = function (_a) {
         }); };
         void loadActivities();
     }, [api, processInstanceId, processDefinitionId, processData]);
-    var transformVariables$1 = function (vars) {
-        return transformVariables(vars, true);
+    /**
+     * Show the request a real run would send, and arm the submit for exactly that request.
+     */
+    var runDryRun = function (data) {
+        setError(null);
+        setSuccessMessage(null);
+        guard.clearPreview();
+        var request = buildInstanceModificationRequest(data, processInstanceId);
+        if (!request) {
+            setError('Please complete at least one instruction.');
+            return;
+        }
+        guard.markPreviewed(request);
     };
-    var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var payload, err_1, errorMessage;
+    var onSubmit = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var err_1, errorMessage;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    setIsSubmitted(true);
                     setError(null);
                     setSuccessMessage(null);
-                    payload = {
-                        skipCustomListeners: data.skipCustomListeners,
-                        skipIoMappings: data.skipIoMappings,
-                        instructions: data.instructions
-                            .filter(function (inst) {
-                            if (inst.type === 'startTransition') {
-                                return inst.transitionId !== undefined && inst.transitionId !== '';
-                            }
-                            else if (inst.type === 'cancel') {
-                                return ((inst.activityInstanceId !== undefined && inst.activityInstanceId !== '') ||
-                                    (inst.activityId !== undefined && inst.activityId !== ''));
-                            }
-                            else {
-                                return inst.activityId !== undefined && inst.activityId !== '';
-                            }
-                        })
-                            .map(function (inst) {
-                            var instruction = { type: inst.type };
-                            if (inst.activityId !== undefined && inst.activityId !== '') {
-                                instruction.activityId = inst.activityId;
-                            }
-                            if (inst.transitionId !== undefined && inst.transitionId !== '') {
-                                instruction.transitionId = inst.transitionId;
-                            }
-                            if (inst.activityInstanceId !== undefined && inst.activityInstanceId !== '') {
-                                instruction.activityInstanceId = inst.activityInstanceId;
-                            }
-                            if (inst.ancestorActivityInstanceId !== undefined && inst.ancestorActivityInstanceId !== '') {
-                                instruction.ancestorActivityInstanceId = inst.ancestorActivityInstanceId;
-                            }
-                            if (inst.variables !== undefined && inst.variables.length > 0) {
-                                instruction.variables = transformVariables$1(inst.variables);
-                            }
-                            return instruction;
-                        }),
-                        annotation: data.annotation !== '' ? data.annotation : 'Modified via Cockpit plugin',
-                    };
-                    return [4 /*yield*/, post(api, "/process-instance/".concat(processInstanceId, "/modification"), {}, JSON.stringify(payload))];
+                    return [4 /*yield*/, guard.submit(function (request) { return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
+                                    case 1:
+                                        _a.sent();
+                                        setSuccessMessage('Process instance modified successfully! The page will refresh to show updates.');
+                                        // The sent preview is cleared; keep the dry run disabled too until the view reloads.
+                                        setIsReloading(true);
+                                        setTimeout(function () {
+                                            reloadAngularRoute();
+                                        }, SUBMIT_FEEDBACK_DELAY_MS);
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); })];
                 case 1:
                     _a.sent();
-                    setSuccessMessage('Process instance modified successfully! The page will refresh to show updates.');
-                    setIsSubmitted(false);
-                    // Delay refresh to allow user to see success message
-                    setTimeout(function () {
-                        reloadAngularRoute();
-                    }, SUBMIT_FEEDBACK_DELAY_MS);
                     return [3 /*break*/, 3];
                 case 2:
                     err_1 = _a.sent();
                     console.error('Modification error:', err_1);
                     errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
                     setError("Failed to modify process instance: ".concat(errorMessage, ". Check console for details."));
-                    setIsSubmitted(false);
                     return [3 /*break*/, 3];
                 case 3: return [2 /*return*/];
             }
@@ -15284,10 +15792,15 @@ var ModifyForm = function (_a) {
                         append({ type: 'startBeforeActivity', activityId: '', variables: [] });
                     }, minWidth: 140 }, "Add Another Instruction")),
             React.createElement(ModifyFormOptions, null),
+            React.createElement("div", { className: "modify-form__actions" },
+                React.createElement(FormButton, { type: "button", variant: "secondary", onClick: function () {
+                        void handleSubmit(runDryRun)();
+                    }, disabled: isReloading, minWidth: 120 }, "Dry Run")),
+            React.createElement(DryRunResultPreview, { request: guard.previewedRequest }),
             React.createElement(WarningBox, null, "Process instance modification is a powerful operation that can lead to inconsistent process states. Use with extreme care and only if you understand the consequences."),
             error !== null && React.createElement(ErrorMessage, { message: error }),
             successMessage !== null && React.createElement(SuccessMessage, { message: successMessage }),
-            React.createElement(FormButton, { type: "submit", disabled: isSubmitted, variant: "primary", minWidth: 160 }, isSubmitted ? 'Modifying...' : 'Apply Modifications'))));
+            React.createElement(ConfirmSubmit, { guard: guard, submitLabel: "Apply Modifications", submittingLabel: "Modifying..." }))));
 };
 var ModifyTab = function (props) {
     return (React.createElement(Tabs, null,

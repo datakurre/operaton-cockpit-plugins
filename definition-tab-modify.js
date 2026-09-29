@@ -94,6 +94,16 @@ function __generator(thisArg, body) {
     }
 }
 
+function __spreadArray(to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+}
+
 typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
     var e = new Error(message);
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
@@ -3400,6 +3410,112 @@ function useForm(props = {}) {
     return _formControl.current;
 }
 
+/** Style configurations for each button variant */
+var VARIANT_STYLES = {
+    primary: { background: '#495057', disabledBackground: '#adb5bd' },
+    secondary: { background: '#6c757d', disabledBackground: '#adb5bd' },
+    danger: { background: '#dc3545', disabledBackground: '#e4606d' },
+    success: { background: '#28a745', disabledBackground: '#5dd879' },
+};
+/** Default minimum button width in pixels */
+var DEFAULT_MIN_WIDTH = 90;
+/**
+ * Reusable form button component with consistent styling across the plugin.
+ * Supports multiple variants and disabled state.
+ *
+ * @example
+ * ```tsx
+ * <FormButton variant="primary" type="submit">
+ *   Save Changes
+ * </FormButton>
+ *
+ * <FormButton variant="secondary" onClick={handleRemove}>
+ *   Remove
+ * </FormButton>
+ * ```
+ */
+var FormButton = function (_a) {
+    var children = _a.children, _b = _a.type, type = _b === void 0 ? 'button' : _b, onClick = _a.onClick, _c = _a.disabled, disabled = _c === void 0 ? false : _c, _d = _a.variant, variant = _d === void 0 ? 'primary' : _d, _e = _a.minWidth, minWidth = _e === void 0 ? DEFAULT_MIN_WIDTH : _e, className = _a.className, ariaLabel = _a["aria-label"];
+    var variantStyle = VARIANT_STYLES[variant];
+    var style = {
+        padding: '8px 16px',
+        backgroundColor: disabled ? variantStyle.disabledBackground : variantStyle.background,
+        color: 'white',
+        border: 'none',
+        borderRadius: '2px',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        fontSize: '14px',
+        minWidth: "".concat(minWidth, "px"),
+    };
+    return (React.createElement("button", { type: type, onClick: onClick, disabled: disabled, style: style, className: className, "aria-label": ariaLabel, "aria-disabled": disabled }, children));
+};
+
+/** Warning box styling constants */
+var WARNING_STYLES = {
+    padding: '10px',
+    backgroundColor: '#fff3cd',
+    border: '1px solid #ffc107',
+    borderRadius: '2px',
+    marginBottom: '15px',
+};
+/**
+ * Reusable warning box component for displaying cautionary messages.
+ * Uses Bootstrap-like warning colors (yellow/amber).
+ *
+ * @example
+ * ```tsx
+ * <WarningBox>
+ *   Process instance modification is a powerful operation that can lead to
+ *   inconsistent process states. Use with extreme care.
+ * </WarningBox>
+ *
+ * <WarningBox title="Danger Zone">
+ *   This action cannot be undone.
+ * </WarningBox>
+ * ```
+ */
+var WarningBox = function (_a) {
+    var children = _a.children, _b = _a.title, title = _b === void 0 ? 'Warning' : _b, className = _a.className;
+    return (React.createElement("div", { role: "alert", "aria-live": "polite", style: WARNING_STYLES, className: className },
+        React.createElement("strong", null,
+            "\u26A0\uFE0F ",
+            title,
+            ":"),
+        " ",
+        children));
+};
+
+/**
+ * Submit area of a guarded form: says why submit is disabled, asks for the
+ * acknowledgement, and renders the submit button.
+ *
+ * @module
+ */
+/**
+ * Renders the preview status, acknowledgement checkbox and submit button.
+ */
+var ConfirmSubmit = function (_a) {
+    var _b;
+    var guard = _a.guard, submitLabel = _a.submitLabel, submittingLabel = _a.submittingLabel, acknowledgement = _a.acknowledgement, children = _a.children;
+    var previewedRequest = guard.previewedRequest, isPreviewStale = guard.isPreviewStale, risk = guard.risk;
+    var blockedReason = risk === null || risk === void 0 ? void 0 : risk.blockedReason;
+    var acknowledgementText = (_b = acknowledgement !== null && acknowledgement !== void 0 ? acknowledgement : risk === null || risk === void 0 ? void 0 : risk.acknowledgement) !== null && _b !== void 0 ? _b : '';
+    return (React.createElement("div", { className: "modify-form__confirm" },
+        previewedRequest === null && (React.createElement("p", { className: "modify-form__hint" }, "Run a dry run to review the request before sending it.")),
+        isPreviewStale && (React.createElement(WarningBox, { title: "Preview out of date" }, "The form has changed since the dry run. Run the dry run again to review the request that would now be sent.")),
+        blockedReason !== undefined && React.createElement(WarningBox, { title: "Not allowed" }, blockedReason),
+        previewedRequest !== null && !isPreviewStale && blockedReason === undefined && (React.createElement("div", { className: "modify-form__field" },
+            React.createElement("label", { className: "modify-form__acknowledgement" },
+                React.createElement("input", { type: "checkbox", checked: guard.isAcknowledged, onChange: function (e) {
+                        guard.setAcknowledged(e.target.checked);
+                    } }),
+                ' ',
+                acknowledgementText))),
+        React.createElement("div", { className: "modify-form__actions" },
+            React.createElement(FormButton, { type: "submit", disabled: !guard.canSubmit, variant: "primary", minWidth: 160 }, guard.isSubmitting ? submittingLabel : submitLabel),
+            children)));
+};
+
 /**
  * Dry run preview for the batch operation forms.
  *
@@ -3457,45 +3573,149 @@ var ErrorMessage = function (_a) {
     return (React.createElement("div", { className: className, role: "alert", "aria-live": "assertive" }, message));
 };
 
-/** Style configurations for each button variant */
-var VARIANT_STYLES = {
-    primary: { background: '#495057', disabledBackground: '#adb5bd' },
-    secondary: { background: '#6c757d', disabledBackground: '#adb5bd' },
-    danger: { background: '#dc3545', disabledBackground: '#e4606d' },
-    success: { background: '#28a745', disabledBackground: '#5dd879' },
-};
-/** Default minimum button width in pixels */
-var DEFAULT_MIN_WIDTH = 90;
+___$insertStylesToHeader(".searchable-select__options {\n  position: absolute;\n  top: 100%;\n  left: 0;\n  right: 0;\n  z-index: 1000;\n  background: #fff;\n  border: 1px solid #ccc;\n  border-top: none;\n  max-height: 240px;\n  overflow-y: auto;\n  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n.searchable-select__option {\n  padding: 6px 10px;\n  cursor: pointer;\n  font-size: 13px;\n}\n.searchable-select__option:hover, .searchable-select__option--active {\n  background: #e8f4f8;\n}\n.searchable-select__option--placeholder {\n  color: #767676;\n  border-bottom: 1px solid #eee;\n}\n.searchable-select__option--hint {\n  cursor: default;\n  color: #888;\n  font-style: italic;\n}\n.searchable-select__option--hint:hover {\n  background: transparent;\n}");
+
+/** Options rendered before the list is truncated with a "keep typing" hint. */
+var MAX_VISIBLE_OPTIONS = 50;
 /**
- * Reusable form button component with consistent styling across the plugin.
- * Supports multiple variants and disabled state.
- *
- * @example
- * ```tsx
- * <FormButton variant="primary" type="submit">
- *   Save Changes
- * </FormButton>
- *
- * <FormButton variant="secondary" onClick={handleRemove}>
- *   Remove
- * </FormButton>
- * ```
+ * Filterable select. See module doc.
  */
-var FormButton = function (_a) {
-    var children = _a.children, _b = _a.type, type = _b === void 0 ? 'button' : _b, onClick = _a.onClick, _c = _a.disabled, disabled = _c === void 0 ? false : _c, _d = _a.variant, variant = _d === void 0 ? 'primary' : _d, _e = _a.minWidth, minWidth = _e === void 0 ? DEFAULT_MIN_WIDTH : _e, className = _a.className, ariaLabel = _a["aria-label"];
-    var variantStyle = VARIANT_STYLES[variant];
-    var style = {
-        padding: '8px 16px',
-        backgroundColor: disabled ? variantStyle.disabledBackground : variantStyle.background,
-        color: 'white',
-        border: 'none',
-        borderRadius: '2px',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        fontSize: '14px',
-        minWidth: "".concat(minWidth, "px"),
+/* eslint-disable max-lines-per-function, complexity -- Combobox with filtering and keyboard navigation */
+var SearchableSelect = function (_a) {
+    var _b;
+    var value = _a.value, onChange = _a.onChange, onBlur = _a.onBlur, options = _a.options, placeholder = _a.placeholder, id = _a.id, name = _a.name, _c = _a.required, required = _c === void 0 ? false : _c, _d = _a.disabled, disabled = _d === void 0 ? false : _d, _e = _a.className, className = _e === void 0 ? 'form-control' : _e, style = _a.style;
+    var selectedOption = options.find(function (o) { return o.value === value; });
+    var _f = reactExports.useState((_b = selectedOption === null || selectedOption === void 0 ? void 0 : selectedOption.label) !== null && _b !== void 0 ? _b : ''), text = _f[0], setText = _f[1];
+    var _g = reactExports.useState(false), isOpen = _g[0], setIsOpen = _g[1];
+    var _h = reactExports.useState(false), hasTyped = _h[0], setHasTyped = _h[1];
+    var _j = reactExports.useState(-1), activeIndex = _j[0], setActiveIndex = _j[1];
+    // Resync the displayed text with the selected option while the field isn't being edited
+    // (external value changes, options arriving after an initial empty load, ...).
+    reactExports.useEffect(function () {
+        var _a;
+        if (!isOpen) {
+            setText((_a = selectedOption === null || selectedOption === void 0 ? void 0 : selectedOption.label) !== null && _a !== void 0 ? _a : '');
+        }
+        // selectedOption is derived from value/options each render; only their identity matters here.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value, options]);
+    var clearOption = placeholder !== undefined ? { value: '', label: placeholder } : null;
+    // Once the user is actively narrowing the list by typing, a non-matching entry has no
+    // business anchoring the top of the results — that's also what lets a genuine "no matches"
+    // state surface instead of always showing at least the pinned placeholder.
+    var isFiltering = hasTyped && text.trim() !== '';
+    var matchedOptions = reactExports.useMemo(function () {
+        if (!isFiltering) {
+            return options;
+        }
+        var query = text.toLowerCase();
+        return options.filter(function (o) { return o.label.toLowerCase().includes(query); });
+    }, [isFiltering, text, options]);
+    var visibleMatches = matchedOptions.slice(0, MAX_VISIBLE_OPTIONS);
+    var hiddenCount = matchedOptions.length - visibleMatches.length;
+    var visibleOptions = clearOption && !isFiltering ? __spreadArray([clearOption], visibleMatches, true) : visibleMatches;
+    var inputId = id !== null && id !== void 0 ? id : "searchable-select-".concat(name !== null && name !== void 0 ? name : 'field');
+    var listboxId = "".concat(inputId, "-listbox");
+    var revertText = function () {
+        var _a;
+        setText((_a = selectedOption === null || selectedOption === void 0 ? void 0 : selectedOption.label) !== null && _a !== void 0 ? _a : '');
     };
-    return (React.createElement("button", { type: type, onClick: onClick, disabled: disabled, style: style, className: className, "aria-label": ariaLabel, "aria-disabled": disabled }, children));
+    var closeList = function () {
+        setIsOpen(false);
+        setHasTyped(false);
+        setActiveIndex(-1);
+    };
+    var selectOption = function (option) {
+        onChange(option.value);
+        setText(option.label);
+        closeList();
+    };
+    var handleFocus = function (e) {
+        setIsOpen(true);
+        setHasTyped(false);
+        setActiveIndex(-1);
+        e.target.select();
+    };
+    var handleChange = function (e) {
+        setText(e.target.value);
+        setHasTyped(true);
+        setIsOpen(true);
+        setActiveIndex(0);
+    };
+    var handleBlur = function () {
+        closeList();
+        revertText();
+        onBlur === null || onBlur === void 0 ? void 0 : onBlur();
+    };
+    var handleKeyDown = function (e) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setIsOpen(true);
+            setActiveIndex(function (prev) { return (prev < visibleOptions.length - 1 ? prev + 1 : prev); });
+        }
+        else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveIndex(function (prev) { return (prev > 0 ? prev - 1 : 0); });
+        }
+        else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (isOpen && activeIndex >= 0) {
+                var option = visibleOptions[activeIndex];
+                if (option) {
+                    selectOption(option);
+                }
+            }
+        }
+        else if (e.key === 'Escape') {
+            closeList();
+            revertText();
+        }
+    };
+    return (React.createElement("div", { className: "searchable-select", style: __assign({ position: 'relative' }, style) },
+        React.createElement("input", { id: inputId, name: name, type: "text", role: "combobox", className: className, style: { width: '100%' }, value: text, placeholder: placeholder, onFocus: handleFocus, onChange: handleChange, onBlur: handleBlur, onKeyDown: handleKeyDown, required: required, disabled: disabled, autoComplete: "off", "aria-autocomplete": "list", "aria-expanded": isOpen, "aria-controls": listboxId, "aria-activedescendant": activeIndex >= 0 ? "".concat(listboxId, "-option-").concat(activeIndex) : undefined, "aria-required": required, "aria-disabled": disabled }),
+        isOpen && (React.createElement("div", { id: listboxId, role: "listbox", className: "searchable-select__options" },
+            visibleOptions.length === 0 && (React.createElement("div", { className: "searchable-select__option searchable-select__option--hint" }, "No matches")),
+            visibleOptions.map(function (option, index) { return (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events -- keyboard navigation is handled by the input
+            React.createElement("div", { key: option.value || '__clear__', id: "".concat(listboxId, "-option-").concat(index), role: "option", "aria-selected": option.value === value, className: [
+                    'searchable-select__option',
+                    index === activeIndex ? 'searchable-select__option--active' : '',
+                    clearOption && index === 0 ? 'searchable-select__option--placeholder' : '',
+                ]
+                    .filter(Boolean)
+                    .join(' '), onMouseDown: function (e) {
+                    // Keep focus on the input so this click registers before any blur would fire.
+                    e.preventDefault();
+                }, onClick: function () {
+                    selectOption(option);
+                }, onMouseEnter: function () {
+                    setActiveIndex(index);
+                } }, option.label)); }),
+            hiddenCount > 0 && (React.createElement("div", { className: "searchable-select__option searchable-select__option--hint" },
+                hiddenCount,
+                " more \u2014 keep typing to narrow the list"))))));
 };
+
+/**
+ * Formatting utilities for dates and URLs
+ *
+ * @module utils/formatting
+ */
+/** Date format pattern for consistent display across the application */
+/**
+ * Format a display label for an id-bearing entity (BPMN element, activity
+ * instance, ...) that may or may not carry a human-readable name.
+ *
+ * Used everywhere a select list offers such entities, so an unlabeled one
+ * never renders as a blank or "undefined" option — its id is always visible,
+ * either alongside the name or on its own.
+ * @param name - Optional display name
+ * @param id - The entity id, always shown or used as the fallback label
+ * @returns "name (id)" when a name is present, otherwise just "id"
+ */
+function formatLabelWithId(name, id) {
+    return name ? "".concat(name, " (").concat(id, ")") : id;
+}
 
 /**
  * Renders the "select instances by" dropdown and the fields its modes need.
@@ -3517,15 +3737,13 @@ var InstanceSelectionFields = function (_a) {
         instanceSelectionMode === 'query' && (React.createElement(React.Fragment, null,
             React.createElement("div", { className: "modify-form__field" },
                 React.createElement("label", { htmlFor: "queryActivityId" }, "Filter by Activity (optional)"),
-                React.createElement("select", __assign({ id: "queryActivityId" }, register('queryActivityId'), { className: "modify-form__input" }),
-                    React.createElement("option", { value: "" }, "Any activity"),
-                    activities.map(function (a) {
-                        var _a;
-                        return (React.createElement("option", { key: a.id, value: a.id }, (_a = a.name) !== null && _a !== void 0 ? _a : a.id,
-                            " (",
-                            a.type,
-                            ")"));
-                    }))),
+                React.createElement(Controller, { name: "queryActivityId", control: control, render: function (_a) {
+                        var field = _a.field;
+                        return (React.createElement(SearchableSelect, { id: "queryActivityId", value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: activities.map(function (a) { return ({
+                                value: a.id,
+                                label: "".concat(formatLabelWithId(a.name, a.id), " \u2014 ").concat(a.type),
+                            }); }), placeholder: "Any activity", className: "modify-form__input" }));
+                    } })),
             React.createElement("div", { className: "modify-form__field" },
                 React.createElement("label", { htmlFor: "queryState" }, "Instance State"),
                 React.createElement("select", __assign({ id: "queryState" }, register('queryState'), { className: "modify-form__input" }),
@@ -3650,40 +3868,203 @@ var VariableBuilder = function (_a) {
             } }, "Add Variable")));
 };
 
-/** Warning box styling constants */
-var WARNING_STYLES = {
-    padding: '10px',
-    backgroundColor: '#fff3cd',
-    border: '1px solid #ffc107',
-    borderRadius: '2px',
-    marginBottom: '15px',
-};
+/** Instruction types that start something, as opposed to cancelling it. */
+var START_INSTRUCTION_TYPES = ['startBeforeActivity', 'startAfterActivity', 'startTransition'];
 /**
- * Reusable warning box component for displaying cautionary messages.
- * Uses Bootstrap-like warning colors (yellow/amber).
+ * Serialize a request for comparison.
  *
- * @example
- * ```tsx
- * <WarningBox>
- *   Process instance modification is a powerful operation that can lead to
- *   inconsistent process states. Use with extreme care.
- * </WarningBox>
- *
- * <WarningBox title="Danger Zone">
- *   This action cannot be undone.
- * </WarningBox>
- * ```
+ * The builders are deterministic, so two builds of the same form state serialize to the
+ * same string.
+ * @param request - The request, or null when the form cannot build one
+ * @returns The serialized request, or null
  */
-var WarningBox = function (_a) {
-    var children = _a.children, _b = _a.title, title = _b === void 0 ? 'Warning' : _b, className = _a.className;
-    return (React.createElement("div", { role: "alert", "aria-live": "polite", style: WARNING_STYLES, className: className },
-        React.createElement("strong", null,
-            "\u26A0\uFE0F ",
-            title,
-            ":"),
-        " ",
-        children));
-};
+function requestKey(request) {
+    if (!request) {
+        return null;
+    }
+    return JSON.stringify({ method: request.method, path: request.path, payload: request.payload });
+}
+/**
+ * Whether the previewed request is still the one submit would send.
+ * @param previewed - The request shown by the last dry run
+ * @param current - The request the form would send now
+ * @returns True when both exist and are identical
+ */
+function isPreviewCurrent(previewed, current) {
+    var previewedKey = requestKey(previewed);
+    return previewedKey !== null && previewedKey === requestKey(current);
+}
+/**
+ * Whether a set of modification instructions only cancels.
+ *
+ * Cancelling without starting anything removes tokens and can end every process instance
+ * whose only token was cancelled.
+ * @param instructions - The instructions of a modification request
+ * @returns True when there is a cancel instruction and no start instruction
+ */
+function isCancelOnly(instructions) {
+    var hasCancel = instructions.some(function (instruction) { return instruction.type === 'cancel'; });
+    var hasStart = instructions.some(function (instruction) { return START_INSTRUCTION_TYPES.includes(instruction.type); });
+    return hasCancel && !hasStart;
+}
+/**
+ * Read the instructions of a modification payload.
+ * @param payload - A request payload
+ * @returns The instructions, or an empty list
+ */
+function instructionsOf(payload) {
+    var instructions = payload['instructions'];
+    return Array.isArray(instructions) ? instructions : [];
+}
+/**
+ * Describe how many instances a mass request reaches.
+ * @param affectedCount - Instances found by the dry run, when known
+ * @returns A phrase naming the instances
+ */
+function describeTargets(affectedCount) {
+    if (affectedCount === undefined) {
+        return 'the selected process instances';
+    }
+    return "".concat(affectedCount, " process instance").concat(affectedCount === 1 ? '' : 's');
+}
+/**
+ * Describe the risk of a request, and whether it may be sent at all.
+ * @param request - The request the form would send
+ * @param affectedCount - Instances found by the dry run, for requests that target instances
+ * @returns The risk level and the statement the user must acknowledge
+ */
+function describeRisk(request, affectedCount) {
+    var path = request.path, payload = request.payload;
+    if (path === '/signal') {
+        return {
+            level: 'engine-wide',
+            acknowledgement: 'I understand this signal is delivered to every matching catch event in the engine, not only to this definition.',
+        };
+    }
+    if (path === '/modification/executeAsync') {
+        if (isCancelOnly(instructionsOf(payload))) {
+            return {
+                level: 'ends-instances',
+                acknowledgement: '',
+                blockedReason: 'A batch that only cancels removes tokens without starting new ones and can end every targeted process ' +
+                    'instance. Add a start instruction to move the tokens instead; cancelling instances in bulk is not ' +
+                    'offered here.',
+            };
+        }
+        return {
+            level: 'mass',
+            acknowledgement: "I have reviewed the request above and want to modify ".concat(describeTargets(affectedCount), "."),
+        };
+    }
+    if (path === '/process-instance/message-async') {
+        return {
+            level: 'mass',
+            acknowledgement: "I have reviewed the request above and want to correlate the message to ".concat(describeTargets(affectedCount), "."),
+        };
+    }
+    if (path === '/message' && payload['processInstanceId'] === undefined) {
+        return {
+            level: 'creates-instance',
+            acknowledgement: 'I understand this message starts a new process instance.',
+        };
+    }
+    if (path.endsWith('/restart')) {
+        return {
+            level: 'creates-instance',
+            acknowledgement: 'I understand this starts a new process instance from the history of this one.',
+        };
+    }
+    if (path.endsWith('/modification') && isCancelOnly(instructionsOf(payload))) {
+        return {
+            level: 'ends-instances',
+            acknowledgement: 'I understand that cancelling without starting anything ends this process instance if no other activity ' +
+                'stays active.',
+        };
+    }
+    return { level: 'single', acknowledgement: 'I have reviewed the request above.' };
+}
+/**
+ * Build a request, treating a builder failure as "nothing to send".
+ *
+ * Forms rebuild their request on every render to compare it with the preview, so a
+ * builder must never throw into rendering.
+ * @param build - The builder call
+ * @returns The request, or null when the builder cannot build one
+ */
+function tryBuild(build) {
+    try {
+        return build();
+    }
+    catch (_a) {
+        return null;
+    }
+}
+
+/**
+ * Guard a form's submit behind a current, acknowledged preview.
+ * @param currentRequest - The request the form would send right now
+ * @returns The guard's state and actions
+ */
+function useGuardedSubmit(currentRequest) {
+    var _this = this;
+    var _a = reactExports.useState(null), previewedRequest = _a[0], setPreviewedRequest = _a[1];
+    var _b = reactExports.useState(null), risk = _b[0], setRisk = _b[1];
+    var _c = reactExports.useState(false), isAcknowledged = _c[0], setAcknowledged = _c[1];
+    var _d = reactExports.useState(false), isSubmitting = _d[0], setIsSubmitting = _d[1];
+    // State updates land on the next render; a ref stops a double click in the same tick.
+    var inFlight = reactExports.useRef(false);
+    var isCurrent = isPreviewCurrent(previewedRequest, currentRequest);
+    var isBlocked = (risk === null || risk === void 0 ? void 0 : risk.blockedReason) !== undefined;
+    var canSubmit = isCurrent && isAcknowledged && !isBlocked && !isSubmitting;
+    var markPreviewed = reactExports.useCallback(function (request, affectedCount) {
+        setPreviewedRequest(request);
+        setRisk(describeRisk(request, affectedCount));
+        setAcknowledged(false);
+    }, []);
+    var clearPreview = reactExports.useCallback(function () {
+        setPreviewedRequest(null);
+        setRisk(null);
+        setAcknowledged(false);
+    }, []);
+    var submit = function (send) { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (inFlight.current || !canSubmit || !previewedRequest) {
+                        return [2 /*return*/];
+                    }
+                    inFlight.current = true;
+                    setIsSubmitting(true);
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, , 3, 4]);
+                    return [4 /*yield*/, send(previewedRequest)];
+                case 2:
+                    _a.sent();
+                    // Sent: the same request needs a fresh dry run and acknowledgement to go again.
+                    clearPreview();
+                    return [3 /*break*/, 4];
+                case 3:
+                    inFlight.current = false;
+                    setIsSubmitting(false);
+                    return [7 /*endfinally*/];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); };
+    return {
+        previewedRequest: previewedRequest,
+        isPreviewStale: previewedRequest !== null && !isCurrent,
+        risk: risk,
+        isAcknowledged: isAcknowledged,
+        setAcknowledged: setAcknowledged,
+        isSubmitting: isSubmitting,
+        canSubmit: canSubmit,
+        markPreviewed: markPreviewed,
+        clearPreview: clearPreview,
+        submit: submit,
+    };
+}
 
 const token = '%[a-f0-9]{2}';
 const singleMatcher = new RegExp('(' + token + ')|([^%]+?)', 'gi');
@@ -4775,7 +5156,9 @@ function getSelectedInstanceIds(selection) {
  */
 function buildInstanceQuery(selection, processDefinitionId) {
     if (selection.instanceSelectionMode === 'all') {
-        return { processDefinitionId: processDefinitionId };
+        // "All active instances": suspended instances cannot be modified or receive a message,
+        // so including them would only produce failed batch jobs.
+        return { processDefinitionId: processDefinitionId, active: true };
     }
     if (selection.instanceSelectionMode === 'query') {
         var query = { processDefinitionId: processDefinitionId };
@@ -4803,7 +5186,9 @@ function buildInstanceQuery(selection, processDefinitionId) {
 function buildInstanceLookupParams(selection, processDefinitionId) {
     var instanceIds = getSelectedInstanceIds(selection);
     if (instanceIds) {
-        return { processInstanceIds: instanceIds.join(',') };
+        // Scoped to the definition, so an id of another process is reported as not found
+        // rather than silently previewed; see findMissingInstanceIds().
+        return { processInstanceIds: instanceIds.join(','), processDefinitionId: processDefinitionId };
     }
     var query = buildInstanceQuery(selection, processDefinitionId);
     if (!query) {
@@ -4823,6 +5208,22 @@ function buildInstanceLookupParams(selection, processDefinitionId) {
         }
     }
     return params;
+}
+/**
+ * List the entered instance ids the dry run did not find under this definition.
+ *
+ * An id that is mistyped, already finished, or belongs to another process definition is
+ * not in the lookup result. The engine would still accept it in `processInstanceIds`, so
+ * the form refuses to send until the list is empty.
+ * @param selection - The form's instance selection
+ * @param foundIds - Ids returned by the dry run lookup
+ * @returns The entered ids that were not found, empty when not selecting by id
+ */
+function findMissingInstanceIds(selection, foundIds) {
+    var _a;
+    var instanceIds = (_a = getSelectedInstanceIds(selection)) !== null && _a !== void 0 ? _a : [];
+    var found = new Set(foundIds);
+    return instanceIds.filter(function (id) { return !found.has(id); });
 }
 /**
  * Add the selected instances to a payload that supports both targeting styles.
@@ -4873,9 +5274,8 @@ function toInstructionPayload(instruction) {
     if (instruction.type === 'cancel' && instruction.cancelCurrentActiveActivityInstances === true) {
         payload.cancelCurrentActiveActivityInstances = true;
     }
-    if (instruction.variables !== undefined && instruction.variables.length > 0) {
-        payload.variables = transformVariables(instruction.variables);
-    }
+    // No variables: the batch instruction (MultipleProcessInstanceModificationInstructionDto)
+    // has no such field, so the engine would not set them.
     return payload;
 }
 /**
@@ -14815,15 +15215,11 @@ function collectMessagesFromEvents(elements, allMessages, collected, insideEvent
  * @param collected - Array to push discovered activities into
  */
 function collectActivities(elements, collected) {
-    var _a, _b, _c;
+    var _a;
     for (var _i = 0, elements_2 = elements; _i < elements_2.length; _i++) {
         var el = elements_2[_i];
         if (isActivityType(el.$type)) {
-            collected.push({
-                id: (_a = el.id) !== null && _a !== void 0 ? _a : '',
-                name: (_c = (_b = el.name) !== null && _b !== void 0 ? _b : el.id) !== null && _c !== void 0 ? _c : '',
-                type: el.$type.replace('bpmn:', ''),
-            });
+            collected.push(__assign(__assign({ id: (_a = el.id) !== null && _a !== void 0 ? _a : '' }, (el.name !== undefined ? { name: el.name } : {})), { type: el.$type.replace('bpmn:', '') }));
         }
         if (el.flowElements !== undefined) {
             collectActivities(el.flowElements, collected);
@@ -14836,17 +15232,11 @@ function collectActivities(elements, collected) {
  * @param collected - Array to push discovered sequence flows into
  */
 function collectSequenceFlows(elements, collected) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c;
     for (var _i = 0, elements_3 = elements; _i < elements_3.length; _i++) {
         var el = elements_3[_i];
         if (el.$type === 'bpmn:SequenceFlow') {
-            collected.push({
-                id: (_a = el.id) !== null && _a !== void 0 ? _a : '',
-                name: (_c = (_b = el.name) !== null && _b !== void 0 ? _b : el.id) !== null && _c !== void 0 ? _c : '',
-                type: el.$type.replace('bpmn:', ''),
-                sourceRef: (_d = el.sourceRef) === null || _d === void 0 ? void 0 : _d.id,
-                targetRef: (_e = el.targetRef) === null || _e === void 0 ? void 0 : _e.id,
-            });
+            collected.push(__assign(__assign({ id: (_a = el.id) !== null && _a !== void 0 ? _a : '' }, (el.name !== undefined ? { name: el.name } : {})), { type: el.$type.replace('bpmn:', ''), sourceRef: (_b = el.sourceRef) === null || _b === void 0 ? void 0 : _b.id, targetRef: (_c = el.targetRef) === null || _c === void 0 ? void 0 : _c.id }));
         }
         if (el.flowElements !== undefined) {
             collectSequenceFlows(el.flowElements, collected);
@@ -14901,6 +15291,53 @@ var getBpmnElements = function (processDefinitionId, api) { return __awaiter(voi
     });
 }); };
 
+/**
+ * Read back the running instances a selection targets.
+ * @param api - The API configuration
+ * @param selection - The form's instance selection
+ * @param processDefinitionId - The definition the form is scoped to
+ * @returns The instances found, and the entered ids that were not
+ */
+function lookupTargetInstances(api, selection, processDefinitionId) {
+    return __awaiter(this, void 0, void 0, function () {
+        var params, instances, _a, foundIds, missingIds;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    params = buildInstanceLookupParams(selection, processDefinitionId);
+                    if (!params) return [3 /*break*/, 2];
+                    return [4 /*yield*/, get(api, '/process-instance', params)];
+                case 1:
+                    _a = (_b.sent());
+                    return [3 /*break*/, 3];
+                case 2:
+                    _a = [];
+                    _b.label = 3;
+                case 3:
+                    instances = _a;
+                    foundIds = instances.map(function (instance) { return instance.id; }).filter(function (id) { return typeof id === 'string'; });
+                    missingIds = findMissingInstanceIds(selection, foundIds);
+                    return [2 /*return*/, { instances: instances, missingIds: missingIds }];
+            }
+        });
+    });
+}
+/**
+ * Explain why a lookup result must not be sent, if it must not.
+ * @param lookup - The dry run lookup result
+ * @returns The problem to show, or null when the request may be sent
+ */
+function describeLookupProblem(lookup) {
+    if (lookup.missingIds.length > 0) {
+        return ("Not found as running instances of this process definition: ".concat(lookup.missingIds.join(', '), ". ") +
+            'Remove them or correct them before sending.');
+    }
+    if (lookup.instances.length === 0) {
+        return 'No instances found matching the selection criteria.';
+    }
+    return null;
+}
+
 /** Maximum number of instances to show in dry-run preview */
 var MAX_PREVIEW_INSTANCES$2 = 10;
 /** Radix used when deriving a business key from the clock */
@@ -14922,18 +15359,16 @@ function generateBusinessKey() {
 /**
  * Form for sending a BPMN message from a process definition.
  */
-// eslint-disable-next-line max-lines-per-function -- Two message paths with targeting, dry run and validation
+// eslint-disable-next-line max-lines-per-function, max-statements -- Two message paths with targeting, dry run and validation
 var BatchMessageForm = function (_a) {
     var api = _a.api, processDefinitionId = _a.processDefinitionId;
     var _b = reactExports.useState([]), messages = _b[0], setMessages = _b[1];
     var _c = reactExports.useState([]), activities = _c[0], setActivities = _c[1];
     var _d = reactExports.useState(true), isLoading = _d[0], setIsLoading = _d[1];
-    var _e = reactExports.useState(false), isSubmitting = _e[0], setIsSubmitting = _e[1];
-    var _f = reactExports.useState(false), isDryRun = _f[0], setIsDryRun = _f[1];
-    var _g = reactExports.useState(null), error = _g[0], setError = _g[1];
-    var _h = reactExports.useState(null), successMessage = _h[0], setSuccessMessage = _h[1];
-    var _j = reactExports.useState(null), dryRunResult = _j[0], setDryRunResult = _j[1];
-    var _k = reactExports.useState(null), dryRunRequest = _k[0], setDryRunRequest = _k[1];
+    var _e = reactExports.useState(false), isDryRun = _e[0], setIsDryRun = _e[1];
+    var _f = reactExports.useState(null), error = _f[0], setError = _f[1];
+    var _g = reactExports.useState(null), successMessage = _g[0], setSuccessMessage = _g[1];
+    var _h = reactExports.useState(null), dryRunResult = _h[0], setDryRunResult = _h[1];
     var methods = useForm({
         defaultValues: {
             messageName: '',
@@ -14950,6 +15385,9 @@ var BatchMessageForm = function (_a) {
     var selectedMessageName = watch('messageName');
     var selectedMessage = messages.find(function (m) { return m.name === selectedMessageName; });
     var isStartEvent = (selectedMessage === null || selectedMessage === void 0 ? void 0 : selectedMessage.isStartEvent) === true;
+    var formValues = watch();
+    var guard = useGuardedSubmit(tryBuild(function () { return buildMessageRequest(formValues, processDefinitionId); }));
+    var clearPreview = guard.clearPreview;
     reactExports.useEffect(function () {
         var loadDefinition = function () { return __awaiter(void 0, void 0, void 0, function () {
             var _a, allMessages, allActivities, _err_1, errorMessage;
@@ -14988,82 +15426,24 @@ var BatchMessageForm = function (_a) {
             setValue('businessKey', generateBusinessKey());
         }
         setDryRunResult(null);
-        setDryRunRequest(null);
-    }, [isStartEvent, setValue]);
+        clearPreview();
+    }, [isStartEvent, setValue, clearPreview]);
     /**
      * Preview the request, and for a correlation also the instances it would reach.
      *
-     * The request comes from the same builder onSubmit uses, so the preview cannot drift
-     * from what is actually posted.
+     * Only a dry run that found every targeted instance arms the submit.
      */
     var runDryRun = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var request, params, instances, _a, err_1, errorMessage;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    _b.trys.push([0, 4, 5, 6]);
-                    setIsDryRun(true);
-                    setError(null);
-                    setDryRunResult(null);
-                    setDryRunRequest(null);
-                    request = buildMessageRequest(data, processDefinitionId);
-                    if (!request) {
-                        setError(data.messageName === ''
-                            ? 'Please select a message to send.'
-                            : 'Please select the instances to correlate the message to.');
-                        return [2 /*return*/];
-                    }
-                    setDryRunRequest(request);
-                    // A start message creates an instance rather than targeting existing ones.
-                    if (data.isStartEvent) {
-                        return [2 /*return*/];
-                    }
-                    params = buildInstanceLookupParams(data, processDefinitionId);
-                    if (!params) return [3 /*break*/, 2];
-                    return [4 /*yield*/, get(api, '/process-instance', params)];
-                case 1:
-                    _a = (_b.sent());
-                    return [3 /*break*/, 3];
-                case 2:
-                    _a = [];
-                    _b.label = 3;
-                case 3:
-                    instances = _a;
-                    setDryRunResult({
-                        count: instances.length,
-                        instances: instances.slice(0, MAX_PREVIEW_INSTANCES$2),
-                    });
-                    if (instances.length === 0) {
-                        setError('No instances found matching the selection criteria.');
-                    }
-                    return [3 /*break*/, 6];
-                case 4:
-                    err_1 = _b.sent();
-                    console.error('Dry run error:', err_1);
-                    errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
-                    setError("Failed to query instances: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 6];
-                case 5:
-                    setIsDryRun(false);
-                    return [7 /*endfinally*/];
-                case 6: return [2 /*return*/];
-            }
-        });
-    }); };
-    /**
-     * Send the message.
-     */
-    var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var request, startedWith, err_2, errorMessage;
+        var request, lookup, problem, err_1, errorMessage;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, 3, 4]);
-                    setIsSubmitting(true);
+                    setIsDryRun(true);
                     setError(null);
                     setSuccessMessage(null);
                     setDryRunResult(null);
-                    setDryRunRequest(null);
+                    clearPreview();
                     request = buildMessageRequest(data, processDefinitionId);
                     if (!request) {
                         setError(data.messageName === ''
@@ -15071,28 +15451,79 @@ var BatchMessageForm = function (_a) {
                             : 'Please select the instances to correlate the message to.');
                         return [2 /*return*/];
                     }
-                    return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
+                    // A start message creates an instance rather than targeting existing ones.
+                    if (data.isStartEvent) {
+                        guard.markPreviewed(request);
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, lookupTargetInstances(api, data, processDefinitionId)];
+                case 1:
+                    lookup = _a.sent();
+                    setDryRunResult({
+                        count: lookup.instances.length,
+                        instances: lookup.instances.slice(0, MAX_PREVIEW_INSTANCES$2),
+                    });
+                    problem = describeLookupProblem(lookup);
+                    if (problem !== null) {
+                        setError(problem);
+                        return [2 /*return*/];
+                    }
+                    guard.markPreviewed(request, lookup.instances.length);
+                    return [3 /*break*/, 4];
+                case 2:
+                    err_1 = _a.sent();
+                    console.error('Dry run error:', err_1);
+                    errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
+                    setError("Failed to query instances: ".concat(errorMessage, ". Check console for details."));
+                    return [3 /*break*/, 4];
+                case 3:
+                    setIsDryRun(false);
+                    return [7 /*endfinally*/];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); };
+    /**
+     * Send the previewed message request.
+     */
+    var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+        var err_2, errorMessage;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    setError(null);
+                    setSuccessMessage(null);
+                    return [4 /*yield*/, guard.submit(function (request) { return __awaiter(void 0, void 0, void 0, function () {
+                            var startedWith;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
+                                    case 1:
+                                        _a.sent();
+                                        setDryRunResult(null);
+                                        if (data.isStartEvent) {
+                                            startedWith = data.businessKey !== '' ? " with business key \"".concat(data.businessKey, "\"") : '';
+                                            setSuccessMessage("Message \"".concat(data.messageName, "\" sent. A new process instance was started").concat(startedWith, "."));
+                                        }
+                                        else {
+                                            setSuccessMessage("Message \"".concat(data.messageName, "\" correlation submitted as a batch operation. ") +
+                                                "Check the batch operations view for progress.");
+                                        }
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); })];
                 case 1:
                     _a.sent();
-                    if (data.isStartEvent) {
-                        startedWith = data.businessKey !== '' ? " with business key \"".concat(data.businessKey, "\"") : '';
-                        setSuccessMessage("Message \"".concat(data.messageName, "\" sent. A new process instance was started").concat(startedWith, "."));
-                    }
-                    else {
-                        setSuccessMessage("Message \"".concat(data.messageName, "\" correlation submitted as a batch operation. ") +
-                            "Check the batch operations view for progress.");
-                    }
-                    return [3 /*break*/, 4];
+                    return [3 /*break*/, 3];
                 case 2:
                     err_2 = _a.sent();
                     console.error('Message correlation error:', err_2);
                     errorMessage = err_2 instanceof Error ? err_2.message : String(err_2);
                     setError("Failed to send message: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 4];
-                case 3:
-                    setIsSubmitting(false);
-                    return [7 /*endfinally*/];
-                case 4: return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     }); };
@@ -15104,7 +15535,7 @@ var BatchMessageForm = function (_a) {
         setError(null);
         setSuccessMessage(null);
         setDryRunResult(null);
-        setDryRunRequest(null);
+        clearPreview();
     };
     if (isLoading) {
         return (React.createElement("div", { className: "modify-form__loading" },
@@ -15144,17 +15575,29 @@ var BatchMessageForm = function (_a) {
                     React.createElement(FormButton, { type: "button", variant: "secondary", onClick: function () {
                             void handleSubmit(runDryRun)();
                         }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Dry Run')),
-                React.createElement(DryRunResultPreview, { result: dryRunResult, request: dryRunRequest, maxInstances: MAX_PREVIEW_INSTANCES$2, instanceLabel: "active instance" })),
+                React.createElement(DryRunResultPreview, { result: dryRunResult, request: guard.previewedRequest, maxInstances: MAX_PREVIEW_INSTANCES$2, instanceLabel: "active instance" })),
             React.createElement("h4", null, "Process Variables"),
             React.createElement(VariableBuilder, { name: "processVariables", showLocalFlag: false }),
             isStartEvent ? (React.createElement(WarningBox, null, "This message is configured on a start event. Sending it will start a new process instance.")) : (React.createElement(WarningBox, null, "The message will be correlated asynchronously, as a batch operation, to every instance matching the selection above. Run a dry run first and check both the instance list and the request.")),
             error !== null && React.createElement(ErrorMessage, { message: error }),
             successMessage !== null && React.createElement(SuccessMessage, { message: successMessage }),
-            React.createElement("div", { className: "modify-form__actions" },
-                React.createElement(FormButton, { type: "submit", disabled: isSubmitting, variant: "primary", minWidth: 160 }, isSubmitting ? 'Sending...' : submitLabel),
+            React.createElement(ConfirmSubmit, { guard: guard, submitLabel: submitLabel, submittingLabel: "Sending..." },
                 React.createElement(FormButton, { type: "button", variant: "secondary", onClick: handleReset, minWidth: 100 }, "Reset")))));
 };
 
+/**
+ * Instruction field components for process modification form.
+ * These components render type-specific form fields for each modification instruction type.
+ */
+/**
+ * Format a select option label for an active activity instance: the
+ * activity's name (or its id, when unlabeled), followed by the instance id.
+ * @param inst - The active activity instance
+ * @returns Display label showing both the activity and the instance id
+ */
+function formatActivityInstanceLabel(inst) {
+    return "".concat(formatLabelWithId(inst.activityName, inst.activityId), " (ID: ").concat(inst.id, ")");
+}
 /**
  * Renders fields for starting a transition (sequence flow).
  * Allows selecting a sequence flow and optionally an ancestor activity instance.
@@ -15162,33 +15605,29 @@ var BatchMessageForm = function (_a) {
 var TransitionFields = function (_a) {
     var index = _a.index, sequenceFlows = _a.sequenceFlows, activities = _a.activities, activeInstances = _a.activeInstances;
     var control = useFormContext().control;
+    var sequenceFlowOptions = sequenceFlows.map(function (flow) {
+        var _a, _b, _c, _d, _e, _f, _g;
+        var sourceName = (_c = (_b = (_a = activities.find(function (a) { return a.id === flow.sourceRef; })) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : flow.sourceRef) !== null && _c !== void 0 ? _c : 'unknown';
+        var targetName = (_f = (_e = (_d = activities.find(function (a) { return a.id === flow.targetRef; })) === null || _d === void 0 ? void 0 : _d.name) !== null && _e !== void 0 ? _e : flow.targetRef) !== null && _f !== void 0 ? _f : 'unknown';
+        var label = (_g = flow.name) !== null && _g !== void 0 ? _g : "".concat(sourceName, " \u2192 ").concat(targetName);
+        return { value: flow.id, label: formatLabelWithId(label, flow.id) };
+    });
+    var ancestorOptions = activeInstances.map(function (inst) { return ({
+        value: inst.id,
+        label: formatActivityInstanceLabel(inst),
+    }); });
     return (React.createElement(React.Fragment, null,
         React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Sequence Flow (Transition): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".transitionId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- Select Sequence Flow --"),
-                        sequenceFlows.map(function (flow) {
-                            var _a, _b, _c, _d, _e, _f, _g;
-                            var sourceName = (_c = (_b = (_a = activities.find(function (a) { return a.id === flow.sourceRef; })) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : flow.sourceRef) !== null && _c !== void 0 ? _c : 'unknown';
-                            var targetName = (_f = (_e = (_d = activities.find(function (a) { return a.id === flow.targetRef; })) === null || _d === void 0 ? void 0 : _d.name) !== null && _e !== void 0 ? _e : flow.targetRef) !== null && _f !== void 0 ? _f : 'unknown';
-                            return (React.createElement("option", { key: flow.id, value: flow.id }, (_g = flow.name) !== null && _g !== void 0 ? _g : "".concat(sourceName, " \u2192 ").concat(targetName)));
-                        })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: sequenceFlowOptions, placeholder: "-- Select Sequence Flow --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } })),
         React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Ancestor Activity Instance (optional): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".ancestorActivityInstanceId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- None (default scope) --"),
-                        activeInstances.map(function (inst) {
-                            var _a;
-                            return (React.createElement("option", { key: inst.id, value: inst.id }, (_a = inst.activityName) !== null && _a !== void 0 ? _a : inst.activityId,
-                                " (ID: ",
-                                inst.id,
-                                ")"));
-                        })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: ancestorOptions, placeholder: "-- None (default scope) --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } }))));
 };
 /**
@@ -15221,33 +15660,24 @@ var CancelActivityFields = function (_a) {
             React.createElement("label", null, "Activity (cancel all instances): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- Select Active Activity --"),
-                        activities
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: activities
                             .filter(function (activity) { return activityCounts.has(activity.id); })
                             .map(function (activity) {
                             var _a;
-                            return (React.createElement("option", { key: activity.id, value: activity.id },
-                                activity.name,
-                                " (",
-                                activity.type,
-                                ") - ", (_a = activityCounts.get(activity.id)) !== null && _a !== void 0 ? _a : 0,
-                                " active"));
-                        })));
+                            return ({
+                                value: activity.id,
+                                label: "".concat(formatLabelWithId(activity.name, activity.id), " \u2014 ").concat(activity.type, " \u2014 ").concat((_a = activityCounts.get(activity.id)) !== null && _a !== void 0 ? _a : 0, " active"),
+                            });
+                        }), placeholder: "-- Select Active Activity --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } }))),
         currentMethod === 'activityInstance' && (React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Activity Instance (cancel specific): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityInstanceId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- Select Activity Instance --"),
-                        activeInstances.map(function (inst) {
-                            var _a;
-                            return (React.createElement("option", { key: inst.id, value: inst.id }, (_a = inst.activityName) !== null && _a !== void 0 ? _a : inst.activityId,
-                                " (ID: ",
-                                inst.id,
-                                ")"));
-                        })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: activeInstances.map(function (inst) { return ({
+                            value: inst.id,
+                            label: formatActivityInstanceLabel(inst),
+                        }); }), placeholder: "-- Select Activity Instance --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } })))));
 };
 /**
@@ -15255,43 +15685,37 @@ var CancelActivityFields = function (_a) {
  * Includes activity selection, optional ancestor, and variable configuration.
  */
 var StartActivityFields = function (_a) {
-    var index = _a.index, activities = _a.activities, activeInstances = _a.activeInstances;
+    var index = _a.index, activities = _a.activities, activeInstances = _a.activeInstances, _b = _a.showVariables, showVariables = _b === void 0 ? true : _b;
     var control = useFormContext().control;
     var potentialAncestors = activeInstances.filter(function (inst) {
         var _a, _b;
         var activity = activities.find(function (a) { return a.id === inst.activityId; });
         return ((_a = activity === null || activity === void 0 ? void 0 : activity.type.includes('SubProcess')) !== null && _a !== void 0 ? _a : false) || ((_b = activity === null || activity === void 0 ? void 0 : activity.type.includes('Process')) !== null && _b !== void 0 ? _b : false);
     });
+    var activityOptions = activities.map(function (activity) { return ({
+        value: activity.id,
+        label: "".concat(formatLabelWithId(activity.name, activity.id), " \u2014 ").concat(activity.type),
+    }); });
+    var ancestorOptions = potentialAncestors.map(function (inst) { return ({
+        value: inst.id,
+        label: formatActivityInstanceLabel(inst),
+    }); });
     return (React.createElement(React.Fragment, null,
         React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Activity: "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- Select Activity --"),
-                        activities.map(function (activity) { return (React.createElement("option", { key: activity.id, value: activity.id },
-                            activity.name,
-                            " (",
-                            activity.type,
-                            ")")); })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: activityOptions, placeholder: "-- Select Activity --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } })),
         React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Ancestor Activity Instance (optional): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".ancestorActivityInstanceId"), control: control, render: function (_a) {
                     var field = _a.field;
-                    return (React.createElement("select", __assign({}, field, { className: "form-control", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }),
-                        React.createElement("option", { value: "" }, "-- None (default scope) --"),
-                        potentialAncestors.map(function (inst) {
-                            var _a;
-                            return (React.createElement("option", { key: inst.id, value: inst.id }, (_a = inst.activityName) !== null && _a !== void 0 ? _a : inst.activityId,
-                                " (ID: ",
-                                inst.id,
-                                ")"));
-                        })));
+                    return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: ancestorOptions, placeholder: "-- None (default scope) --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } })),
-        React.createElement("div", { style: { marginBottom: '10px' } },
+        showVariables && (React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("h5", null, "Variables"),
-            React.createElement(VariableBuilder, { name: "instructions.".concat(index, ".variables"), showLocalFlag: true }))));
+            React.createElement(VariableBuilder, { name: "instructions.".concat(index, ".variables"), showLocalFlag: true })))));
 };
 
 /**
@@ -15299,8 +15723,8 @@ var StartActivityFields = function (_a) {
  * Includes type selector and type-specific fields for the instruction.
  */
 var InstructionCard = function (_a) {
-    var fieldId = _a.fieldId, index = _a.index, showRemove = _a.showRemove, onRemove = _a.onRemove, activities = _a.activities, sequenceFlows = _a.sequenceFlows, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods;
-    var _b = useFormContext(), control = _b.control, watch = _b.watch;
+    var fieldId = _a.fieldId, index = _a.index, showRemove = _a.showRemove, onRemove = _a.onRemove, activities = _a.activities, sequenceFlows = _a.sequenceFlows, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _b = _a.showVariables, showVariables = _b === void 0 ? true : _b;
+    var _c = useFormContext(), control = _c.control, watch = _c.watch;
     var instructionType = watch("instructions.".concat(index, ".type"));
     var renderInstructionFields = function () {
         if (instructionType === 'startTransition') {
@@ -15310,7 +15734,7 @@ var InstructionCard = function (_a) {
             return (React.createElement(CancelActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, cancelMethods: cancelMethods, setCancelMethods: setCancelMethods }));
         }
         // Default: startBeforeActivity or startAfterActivity
-        return (React.createElement(StartActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts }));
+        return (React.createElement(StartActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, showVariables: showVariables }));
     };
     return (React.createElement("div", { key: fieldId, style: {
             marginBottom: '15px',
@@ -15355,6 +15779,191 @@ var ModifyFormOptions = function () {
                 " Skip I/O Mappings"))));
 };
 
+/**
+ * History service abstraction for testability.
+ * Provides a single point for history-related API calls.
+ * @module services/HistoryService
+ */
+/**
+ * Default implementation of the history service
+ */
+var HistoryService = /** @class */ (function () {
+    /**
+     * Creates a new HistoryService instance
+     * @param api - The API configuration object
+     */
+    function HistoryService(api) {
+        this.api = api;
+    }
+    /**
+     * Gets historic activity instances for a process instance
+     * @param instanceId - The process instance ID
+     * @param params - Optional query parameters
+     * @returns Promise resolving to array of historic activities
+     */
+    HistoryService.prototype.getActivities = function (instanceId_1) {
+        return __awaiter(this, arguments, void 0, function (instanceId, params) {
+            var result;
+            if (params === void 0) { params = {}; }
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, get(this.api, '/history/activity-instance', __assign({ processInstanceId: instanceId }, params))];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, Array.isArray(result) ? result : []];
+                }
+            });
+        });
+    };
+    /**
+     * Gets historic activity instances for a process definition.
+     * Used for statistics overlays on process definition diagrams.
+     * @param processDefinitionId - The process definition ID
+     * @param params - Optional query parameters (supports all FilterBox query params)
+     * @returns Promise resolving to array of historic activities
+     */
+    HistoryService.prototype.getActivitiesByDefinition = function (processDefinitionId_1) {
+        return __awaiter(this, arguments, void 0, function (processDefinitionId, params) {
+            var cleanedParams, _i, _a, _b, key, value, result;
+            if (params === void 0) { params = {}; }
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        cleanedParams = { processDefinitionId: processDefinitionId };
+                        for (_i = 0, _a = Object.entries(params); _i < _a.length; _i++) {
+                            _b = _a[_i], key = _b[0], value = _b[1];
+                            if (value !== undefined && value !== null) {
+                                cleanedParams[key] = typeof value === 'boolean' ? String(value) : value;
+                            }
+                        }
+                        return [4 /*yield*/, get(this.api, '/history/activity-instance', cleanedParams)];
+                    case 1:
+                        result = _c.sent();
+                        return [2 /*return*/, Array.isArray(result) ? result : []];
+                }
+            });
+        });
+    };
+    /**
+     * Gets historic variable instances for a process instance
+     * @param instanceId - The process instance ID
+     * @param params - Optional query parameters
+     * @returns Promise resolving to array of historic variables
+     */
+    HistoryService.prototype.getVariables = function (instanceId_1) {
+        return __awaiter(this, arguments, void 0, function (instanceId, params) {
+            var result;
+            if (params === void 0) { params = {}; }
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, get(this.api, '/history/variable-instance', __assign({ processInstanceId: instanceId }, params))];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, Array.isArray(result) ? result : []];
+                }
+            });
+        });
+    };
+    /**
+     * Gets historic decision instances for a process instance
+     * @param instanceId - The process instance ID
+     * @param params - Optional query parameters
+     * @returns Promise resolving to array of historic decisions
+     */
+    HistoryService.prototype.getDecisions = function (instanceId_1) {
+        return __awaiter(this, arguments, void 0, function (instanceId, params) {
+            var result;
+            if (params === void 0) { params = {}; }
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, get(this.api, '/history/decision-instance', __assign({ processInstanceId: instanceId }, params))];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, Array.isArray(result) ? result : []];
+                }
+            });
+        });
+    };
+    /**
+     * Gets activity statistics for a process definition
+     * @param processDefinitionId - The process definition ID
+     * @param params - Optional query parameters
+     * @returns Promise resolving to array of activity statistics
+     */
+    HistoryService.prototype.getActivityStatistics = function (processDefinitionId_1) {
+        return __awaiter(this, arguments, void 0, function (processDefinitionId, params) {
+            var result;
+            if (params === void 0) { params = {}; }
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, get(this.api, "/process-definition/".concat(processDefinitionId, "/statistics"), params)];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, Array.isArray(result) ? result : []];
+                }
+            });
+        });
+    };
+    /**
+     * Query historic process instances using POST endpoint.
+     * Supports complex filters like variable values.
+     * @param query - Query parameters for filtering
+     * @param pagination - Optional pagination parameters
+     * @returns Promise resolving to array of historic process instances
+     */
+    HistoryService.prototype.queryProcessInstances = function (query, pagination) {
+        return __awaiter(this, void 0, void 0, function () {
+            var queryParams, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        queryParams = {};
+                        if ((pagination === null || pagination === void 0 ? void 0 : pagination.maxResults) !== undefined) {
+                            queryParams['maxResults'] = String(pagination.maxResults);
+                        }
+                        if ((pagination === null || pagination === void 0 ? void 0 : pagination.firstResult) !== undefined) {
+                            queryParams['firstResult'] = String(pagination.firstResult);
+                        }
+                        return [4 /*yield*/, post(this.api, '/history/process-instance', queryParams, JSON.stringify(query))];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, Array.isArray(result) ? result : []];
+                }
+            });
+        });
+    };
+    /**
+     * Count historic process instances matching a query.
+     * @param query - Query parameters for filtering
+     * @returns Promise resolving to the count
+     */
+    HistoryService.prototype.countProcessInstances = function (query) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, post(this.api, '/history/process-instance/count', {}, JSON.stringify(query))];
+                    case 1:
+                        result = _a.sent();
+                        if (result && typeof result === 'object' && 'count' in result) {
+                            return [2 /*return*/, result.count];
+                        }
+                        return [2 /*return*/, 0];
+                }
+            });
+        });
+    };
+    return HistoryService;
+}());
+/**
+ * Creates a new HistoryService instance
+ * @param api - The API configuration object
+ * @returns A new HistoryService instance
+ */
+function createHistoryService(api) {
+    return new HistoryService(api);
+}
+
 /** Maximum number of instances to show in dry-run preview */
 var MAX_PREVIEW_INSTANCES$1 = 10;
 /**
@@ -15366,13 +15975,12 @@ var BatchModifyForm = function (_a) {
     var api = _a.api, processDefinitionId = _a.processDefinitionId;
     var _b = reactExports.useState([]), activities = _b[0], setActivities = _b[1];
     var _c = reactExports.useState([]), sequenceFlows = _c[0], setSequenceFlows = _c[1];
-    var _d = reactExports.useState(true), isLoading = _d[0], setIsLoading = _d[1];
-    var _e = reactExports.useState(false), isSubmitting = _e[0], setIsSubmitting = _e[1];
+    var _d = reactExports.useState(new Map()), activityCounts = _d[0], setActivityCounts = _d[1];
+    var _e = reactExports.useState(true), isLoading = _e[0], setIsLoading = _e[1];
     var _f = reactExports.useState(false), isDryRun = _f[0], setIsDryRun = _f[1];
     var _g = reactExports.useState(null), error = _g[0], setError = _g[1];
     var _h = reactExports.useState(null), successMessage = _h[0], setSuccessMessage = _h[1];
     var _j = reactExports.useState(null), dryRunResult = _j[0], setDryRunResult = _j[1];
-    var _k = reactExports.useState(null), dryRunRequest = _k[0], setDryRunRequest = _k[1];
     var methods = useForm({
         defaultValues: {
             instructions: [{ type: 'startBeforeActivity', activityId: '', variables: [] }],
@@ -15385,18 +15993,20 @@ var BatchModifyForm = function (_a) {
             queryState: 'active',
         },
     });
-    var control = methods.control, handleSubmit = methods.handleSubmit, reset = methods.reset;
-    var _l = useFieldArray({
+    var control = methods.control, handleSubmit = methods.handleSubmit, reset = methods.reset, watch = methods.watch;
+    var formValues = watch();
+    var guard = useGuardedSubmit(tryBuild(function () { return buildModificationRequest(formValues, processDefinitionId); }));
+    var _k = useFieldArray({
         control: control,
         name: 'instructions',
-    }), fields = _l.fields, append = _l.append, remove = _l.remove;
+    }), fields = _k.fields, append = _k.append, remove = _k.remove;
     reactExports.useEffect(function () {
         var loadActivities = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var _a, activities_1, sequenceFlows_1, _err_1, errorMessage;
+            var _a, activities_1, sequenceFlows_1, stats, counts, _i, stats_1, stat, statsErr_1, _err_1, errorMessage;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 2, 3, 4]);
+                        _b.trys.push([0, 6, 7, 8]);
                         setIsLoading(true);
                         return [4 /*yield*/, getBpmnElements(processDefinitionId, api)];
                     case 1:
@@ -15404,17 +16014,36 @@ var BatchModifyForm = function (_a) {
                         setActivities(activities_1);
                         setSequenceFlows(sequenceFlows_1);
                         setError(null);
-                        return [3 /*break*/, 4];
+                        _b.label = 2;
                     case 2:
+                        _b.trys.push([2, 4, , 5]);
+                        return [4 /*yield*/, createHistoryService(api).getActivityStatistics(processDefinitionId)];
+                    case 3:
+                        stats = _b.sent();
+                        counts = new Map();
+                        for (_i = 0, stats_1 = stats; _i < stats_1.length; _i++) {
+                            stat = stats_1[_i];
+                            if (stat.id !== undefined && stat.instances !== undefined) {
+                                counts.set(stat.id, stat.instances);
+                            }
+                        }
+                        setActivityCounts(counts);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        statsErr_1 = _b.sent();
+                        console.error('Error loading activity statistics:', statsErr_1);
+                        return [3 /*break*/, 5];
+                    case 5: return [3 /*break*/, 8];
+                    case 6:
                         _err_1 = _b.sent();
                         console.error('Error loading activities:', _err_1);
                         errorMessage = _err_1 instanceof Error ? _err_1.message : 'Unknown error';
                         setError("Failed to load process activities: ".concat(errorMessage, ". Check console for details."));
-                        return [3 /*break*/, 4];
-                    case 3:
+                        return [3 /*break*/, 8];
+                    case 7:
                         setIsLoading(false);
                         return [7 /*endfinally*/];
-                    case 4: return [2 /*return*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         }); };
@@ -15422,93 +16051,85 @@ var BatchModifyForm = function (_a) {
     }, [api, processDefinitionId]);
     /**
      * Run a dry run: read back the targeted instances and show the request that a real
-     * run would send. Both use the same builders as onSubmit, so the preview cannot drift
-     * from what is actually posted.
+     * run would send. Only a dry run that found every targeted instance arms the submit.
      */
     var runDryRun = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var request, params, instances, _a, err_1, errorMessage;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    _b.trys.push([0, 4, 5, 6]);
-                    setIsDryRun(true);
-                    setError(null);
-                    setDryRunResult(null);
-                    setDryRunRequest(null);
-                    request = buildModificationRequest(data, processDefinitionId);
-                    if (!request) {
-                        setError('Please select instances to modify.');
-                        return [2 /*return*/];
-                    }
-                    setDryRunRequest(request);
-                    params = buildInstanceLookupParams(data, processDefinitionId);
-                    if (!params) return [3 /*break*/, 2];
-                    return [4 /*yield*/, get(api, '/process-instance', params)];
-                case 1:
-                    _a = (_b.sent());
-                    return [3 /*break*/, 3];
-                case 2:
-                    _a = [];
-                    _b.label = 3;
-                case 3:
-                    instances = _a;
-                    setDryRunResult({
-                        count: instances.length,
-                        instances: instances.slice(0, MAX_PREVIEW_INSTANCES$1),
-                    });
-                    if (instances.length === 0) {
-                        setError('No instances found matching the selection criteria.');
-                    }
-                    return [3 /*break*/, 6];
-                case 4:
-                    err_1 = _b.sent();
-                    console.error('Dry run error:', err_1);
-                    errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
-                    setError("Failed to query instances: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 6];
-                case 5:
-                    setIsDryRun(false);
-                    return [7 /*endfinally*/];
-                case 6: return [2 /*return*/];
-            }
-        });
-    }); };
-    /**
-     * Submit the batch modification request
-     */
-    var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var request, err_2, errorMessage;
+        var request, lookup, problem, err_1, errorMessage;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, 3, 4]);
-                    setIsSubmitting(true);
+                    setIsDryRun(true);
                     setError(null);
                     setSuccessMessage(null);
                     setDryRunResult(null);
-                    setDryRunRequest(null);
+                    guard.clearPreview();
                     request = buildModificationRequest(data, processDefinitionId);
                     if (!request) {
                         setError('Please select instances to modify.');
-                        setIsSubmitting(false);
                         return [2 /*return*/];
                     }
-                    return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
+                    return [4 /*yield*/, lookupTargetInstances(api, data, processDefinitionId)];
+                case 1:
+                    lookup = _a.sent();
+                    setDryRunResult({
+                        count: lookup.instances.length,
+                        instances: lookup.instances.slice(0, MAX_PREVIEW_INSTANCES$1),
+                    });
+                    problem = describeLookupProblem(lookup);
+                    if (problem !== null) {
+                        setError(problem);
+                        return [2 /*return*/];
+                    }
+                    guard.markPreviewed(request, lookup.instances.length);
+                    return [3 /*break*/, 4];
+                case 2:
+                    err_1 = _a.sent();
+                    console.error('Dry run error:', err_1);
+                    errorMessage = err_1 instanceof Error ? err_1.message : String(err_1);
+                    setError("Failed to query instances: ".concat(errorMessage, ". Check console for details."));
+                    return [3 /*break*/, 4];
+                case 3:
+                    setIsDryRun(false);
+                    return [7 /*endfinally*/];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); };
+    /**
+     * Submit the previewed batch modification request
+     */
+    var onSubmit = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var err_2, errorMessage;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    setError(null);
+                    setSuccessMessage(null);
+                    return [4 /*yield*/, guard.submit(function (request) { return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
+                                    case 1:
+                                        _a.sent();
+                                        setDryRunResult(null);
+                                        setSuccessMessage("Batch modification submitted successfully! The modification will be executed asynchronously. " +
+                                            "Check the batch operations view for progress.");
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); })];
                 case 1:
                     _a.sent();
-                    setSuccessMessage("Batch modification submitted successfully! The modification will be executed asynchronously. " +
-                        "Check the batch operations view for progress.");
-                    return [3 /*break*/, 4];
+                    return [3 /*break*/, 3];
                 case 2:
                     err_2 = _a.sent();
                     console.error('Modification error:', err_2);
                     errorMessage = err_2 instanceof Error ? err_2.message : String(err_2);
                     setError("Failed to execute batch modification: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 4];
-                case 3:
-                    setIsSubmitting(false);
-                    return [7 /*endfinally*/];
-                case 4: return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     }); };
@@ -15520,7 +16141,7 @@ var BatchModifyForm = function (_a) {
         setError(null);
         setSuccessMessage(null);
         setDryRunResult(null);
-        setDryRunRequest(null);
+        guard.clearPreview();
     };
     if (isLoading) {
         return (React.createElement("div", { className: "modify-form__loading" },
@@ -15547,22 +16168,21 @@ var BatchModifyForm = function (_a) {
                     React.createElement(FormButton, { type: "button", variant: "secondary", onClick: function () {
                             void handleSubmit(runDryRun)();
                         }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Dry Run')),
-                React.createElement(DryRunResultPreview, { result: dryRunResult, request: dryRunRequest, maxInstances: MAX_PREVIEW_INSTANCES$1 })),
+                React.createElement(DryRunResultPreview, { result: dryRunResult, request: guard.previewedRequest, maxInstances: MAX_PREVIEW_INSTANCES$1 })),
             fields.map(function (field, index) { return (React.createElement(InstructionCard, { key: field.id, fieldId: field.id, index: index, showRemove: fields.length > 1, onRemove: function () {
                     remove(index);
-                }, activities: activities, sequenceFlows: sequenceFlows, activeInstances: [], activityCounts: new Map(), cancelMethods: new Map(), setCancelMethods: function () {
+                }, activities: activities, sequenceFlows: sequenceFlows, activeInstances: [], activityCounts: activityCounts, cancelMethods: new Map(), setCancelMethods: function () {
                     /* no-op for batch modification */
-                } })); }),
+                }, showVariables: false })); }),
             React.createElement("div", { className: "modify-form__add-instruction" },
                 React.createElement(FormButton, { variant: "secondary", onClick: function () {
                         append({ type: 'startBeforeActivity', activityId: '', variables: [] });
                     }, minWidth: 140 }, "Add Another Instruction")),
             React.createElement(ModifyFormOptions, null),
-            React.createElement(WarningBox, null, "Batch modification is a powerful operation that affects multiple process instances simultaneously. Always use dry-run mode first to verify the affected instances. The operation will be executed asynchronously as a batch job."),
+            React.createElement(WarningBox, null, "Batch modification is a powerful operation that affects multiple process instances simultaneously. Run the dry run first to review the affected instances and the request; submit stays disabled until you have. The operation will be executed asynchronously as a batch job. Batches that only cancel are refused, because they can end every targeted instance."),
             error && React.createElement(ErrorMessage, { message: error }),
             successMessage && React.createElement(SuccessMessage, { message: successMessage }),
-            React.createElement("div", { className: "modify-form__actions" },
-                React.createElement(FormButton, { type: "submit", disabled: isSubmitting, variant: "primary", minWidth: 160 }, isSubmitting ? 'Submitting...' : 'Execute Batch Modification'),
+            React.createElement(ConfirmSubmit, { guard: guard, submitLabel: "Execute Batch Modification", submittingLabel: "Submitting..." },
                 React.createElement(FormButton, { type: "button", variant: "secondary", onClick: handleReset, minWidth: 100 }, "Reset")))));
 };
 
@@ -15572,21 +16192,22 @@ var MAX_PREVIEW_INSTANCES = 10;
  * Batch signal broadcast form component.
  * Allows broadcasting signals to multiple process instances.
  */
+// eslint-disable-next-line max-lines-per-function -- Form with dry run, guarded submit and variables
 var BatchSignalForm = function (_a) {
     var api = _a.api, processDefinitionId = _a.processDefinitionId;
-    var _b = reactExports.useState(false), isSubmitting = _b[0], setIsSubmitting = _b[1];
-    var _c = reactExports.useState(false), isDryRun = _c[0], setIsDryRun = _c[1];
-    var _d = reactExports.useState(null), error = _d[0], setError = _d[1];
-    var _e = reactExports.useState(null), successMessage = _e[0], setSuccessMessage = _e[1];
-    var _f = reactExports.useState(null), dryRunResult = _f[0], setDryRunResult = _f[1];
-    var _g = reactExports.useState(null), dryRunRequest = _g[0], setDryRunRequest = _g[1];
+    var _b = reactExports.useState(false), isDryRun = _b[0], setIsDryRun = _b[1];
+    var _c = reactExports.useState(null), error = _c[0], setError = _c[1];
+    var _d = reactExports.useState(null), successMessage = _d[0], setSuccessMessage = _d[1];
+    var _e = reactExports.useState(null), dryRunResult = _e[0], setDryRunResult = _e[1];
     var methods = useForm({
         defaultValues: {
             signalName: '',
             processVariables: [],
         },
     });
-    var handleSubmit = methods.handleSubmit, reset = methods.reset;
+    var handleSubmit = methods.handleSubmit, reset = methods.reset, watch = methods.watch;
+    var formValues = watch();
+    var guard = useGuardedSubmit(tryBuild(function () { return buildSignalRequest(formValues); }));
     /**
      * Preview the broadcast: the request it would send, and the instances of *this*
      * definition, which is only part of what a signal reaches.
@@ -15599,26 +16220,25 @@ var BatchSignalForm = function (_a) {
                     _a.trys.push([0, 2, 3, 4]);
                     setIsDryRun(true);
                     setError(null);
+                    setSuccessMessage(null);
                     setDryRunResult(null);
-                    setDryRunRequest(null);
+                    guard.clearPreview();
                     request = buildSignalRequest(data);
                     if (!request) {
                         setError('Please enter a signal name.');
                         return [2 /*return*/];
                     }
-                    setDryRunRequest(request);
                     return [4 /*yield*/, get(api, '/process-instance', {
                             processDefinitionId: processDefinitionId,
                         })];
                 case 1:
                     instances = (_a.sent());
+                    // Zero instances here does not mean zero reach: the signal may be caught elsewhere.
                     setDryRunResult({
                         count: instances.length,
                         instances: instances.slice(0, MAX_PREVIEW_INSTANCES),
                     });
-                    if (instances.length === 0) {
-                        setError('No active instances found for this definition.');
-                    }
+                    guard.markPreviewed(request);
                     return [3 /*break*/, 4];
                 case 2:
                     err_1 = _a.sent();
@@ -15634,40 +16254,38 @@ var BatchSignalForm = function (_a) {
         });
     }); };
     /**
-     * Submit the signal broadcast request
+     * Broadcast the previewed signal
      */
     var onSubmit = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-        var request, err_2, errorMessage;
+        var err_2, errorMessage;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, 3, 4]);
-                    setIsSubmitting(true);
+                    _a.trys.push([0, 2, , 3]);
                     setError(null);
                     setSuccessMessage(null);
-                    setDryRunResult(null);
-                    setDryRunRequest(null);
-                    request = buildSignalRequest(data);
-                    if (!request) {
-                        setError('Please enter a signal name.');
-                        setIsSubmitting(false);
-                        return [2 /*return*/];
-                    }
-                    return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
+                    return [4 /*yield*/, guard.submit(function (request) { return __awaiter(void 0, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, post(api, request.path, {}, JSON.stringify(request.payload))];
+                                    case 1:
+                                        _a.sent();
+                                        setDryRunResult(null);
+                                        setSuccessMessage("Signal \"".concat(data.signalName, "\" broadcast engine-wide. All matching signal catch events across all process definitions have been triggered."));
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); })];
                 case 1:
                     _a.sent();
-                    setSuccessMessage("Signal \"".concat(data.signalName, "\" broadcast engine-wide. All matching signal catch events across all process definitions have been triggered."));
-                    return [3 /*break*/, 4];
+                    return [3 /*break*/, 3];
                 case 2:
                     err_2 = _a.sent();
                     console.error('Signal broadcast error:', err_2);
                     errorMessage = err_2 instanceof Error ? err_2.message : String(err_2);
                     setError("Failed to broadcast signal: ".concat(errorMessage, ". Check console for details."));
-                    return [3 /*break*/, 4];
-                case 3:
-                    setIsSubmitting(false);
-                    return [7 /*endfinally*/];
-                case 4: return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     }); };
@@ -15679,7 +16297,7 @@ var BatchSignalForm = function (_a) {
         setError(null);
         setSuccessMessage(null);
         setDryRunResult(null);
-        setDryRunRequest(null);
+        guard.clearPreview();
     };
     return (React.createElement(FormProvider, __assign({}, methods),
         React.createElement("form", { onSubmit: function (e) {
@@ -15696,14 +16314,13 @@ var BatchSignalForm = function (_a) {
                     React.createElement(FormButton, { type: "button", variant: "secondary", onClick: function () {
                             void handleSubmit(runDryRun)();
                         }, disabled: isDryRun, minWidth: 120 }, isDryRun ? 'Querying...' : 'Dry Run')),
-                React.createElement(DryRunResultPreview, { result: dryRunResult, request: dryRunRequest, maxInstances: MAX_PREVIEW_INSTANCES, instanceLabel: "active instance of this definition", instanceNote: 'This list covers this definition only. The broadcast reaches every matching signal catch event ' +
+                React.createElement(DryRunResultPreview, { result: dryRunResult, request: guard.previewedRequest, maxInstances: MAX_PREVIEW_INSTANCES, instanceLabel: "active instance of this definition", instanceNote: 'This list covers this definition only. The broadcast reaches every matching signal catch event ' +
                         'in every deployed definition, so the real reach is wider than shown.' })),
             React.createElement("h4", null, "Variables"),
             React.createElement(VariableBuilder, { name: "processVariables", showLocalFlag: false }),
             error && React.createElement(ErrorMessage, { message: error }),
             successMessage && React.createElement(SuccessMessage, { message: successMessage }),
-            React.createElement("div", { className: "modify-form__actions" },
-                React.createElement(FormButton, { type: "submit", disabled: isSubmitting, variant: "primary", minWidth: 160 }, isSubmitting ? 'Broadcasting...' : 'Broadcast Signal'),
+            React.createElement(ConfirmSubmit, { guard: guard, submitLabel: "Broadcast Signal", submittingLabel: "Broadcasting..." },
                 React.createElement(FormButton, { type: "button", variant: "secondary", onClick: handleReset, minWidth: 100 }, "Reset")))));
 };
 
