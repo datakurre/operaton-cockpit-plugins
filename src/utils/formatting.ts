@@ -108,3 +108,18 @@ export function buildDecisionInstanceUrl(basePath: string, decisionInstanceId: s
 
 /** Export the date format pattern for components that use moment.js */
 export const DISPLAY_DATE_FORMAT = DATE_FORMAT;
+
+/**
+ * Format a display label for an id-bearing entity (BPMN element, activity
+ * instance, ...) that may or may not carry a human-readable name.
+ *
+ * Used everywhere a select list offers such entities, so an unlabeled one
+ * never renders as a blank or "undefined" option — its id is always visible,
+ * either alongside the name or on its own.
+ * @param name - Optional display name
+ * @param id - The entity id, always shown or used as the fallback label
+ * @returns "name (id)" when a name is present, otherwise just "id"
+ */
+export function formatLabelWithId(name: string | undefined, id: string): string {
+  return name ? `${name} (${id})` : id;
+}

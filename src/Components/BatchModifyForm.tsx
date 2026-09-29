@@ -26,6 +26,7 @@ import {
   type ModificationRequestInput,
 } from '../utils/batchOperations';
 import { getBpmnElements, BpmnElement } from '../utils/bpmnParsing';
+import { createHistoryService } from '../services/HistoryService';
 
 /** Maximum number of instances to show in dry-run preview */
 const MAX_PREVIEW_INSTANCES = 10;
@@ -45,6 +46,7 @@ interface BatchModifyFormProps {
 const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitionId }) => {
   const [activities, setActivities] = useState<BpmnElement[]>([]);
   const [sequenceFlows, setSequenceFlows] = useState<BpmnElement[]>([]);
+  const [activityCounts, setActivityCounts] = useState<Map<string, number>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDryRun, setIsDryRun] = useState(false);
@@ -81,6 +83,21 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
         setActivities(activities);
         setSequenceFlows(sequenceFlows);
         setError(null);
+
+        // Non-fatal: this only feeds the "cancel all instances of activity" picker's
+        // per-activity counts. A failure here shouldn't block the rest of the form.
+        try {
+          const stats = await createHistoryService(api).getActivityStatistics(processDefinitionId);
+          const counts = new Map<string, number>();
+          for (const stat of stats) {
+            if (stat.id !== undefined && stat.instances !== undefined) {
+              counts.set(stat.id, stat.instances);
+            }
+          }
+          setActivityCounts(counts);
+        } catch (statsErr) {
+          console.error('Error loading activity statistics:', statsErr);
+        }
       } catch (_err) {
         console.error('Error loading activities:', _err);
         const errorMessage = _err instanceof Error ? _err.message : 'Unknown error';
@@ -242,7 +259,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
             activities={activities}
             sequenceFlows={sequenceFlows}
             activeInstances={[]}
-            activityCounts={new Map()}
+            activityCounts={activityCounts}
             cancelMethods={new Map()}
             setCancelMethods={() => {
               /* no-op for batch modification */

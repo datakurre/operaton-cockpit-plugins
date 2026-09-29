@@ -10,6 +10,7 @@ import {
   buildHistoryUrl,
   buildProcessInstanceUrl,
   buildDecisionInstanceUrl,
+  formatLabelWithId,
 } from '../formatting';
 
 describe('formatDateTime', () => {
@@ -114,5 +115,19 @@ describe('buildDecisionInstanceUrl', () => {
   it('builds decision instance URL', () => {
     const result = buildDecisionInstanceUrl('http://localhost:8080/app/cockpit/', 'dec-123');
     expect(result).toBe('http://localhost:8080/app/cockpit/#/decision-instance/dec-123');
+  });
+});
+
+describe('formatLabelWithId', () => {
+  it('shows "name (id)" when a name is present', () => {
+    expect(formatLabelWithId('Review Request', 'task_1')).toBe('Review Request (task_1)');
+  });
+
+  it('falls back to the id alone when no name is set', () => {
+    expect(formatLabelWithId(undefined, 'task_1')).toBe('task_1');
+  });
+
+  it('falls back to the id alone when the name is an empty string', () => {
+    expect(formatLabelWithId('', 'task_1')).toBe('task_1');
   });
 });

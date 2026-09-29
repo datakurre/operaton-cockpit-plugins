@@ -82,6 +82,19 @@ export interface HistoricDecision {
 }
 
 /**
+ * Runtime instance-count statistics for one activity of a process definition, aggregated
+ * across every running instance of that definition (not scoped to any particular selection).
+ */
+export interface ActivityStatistics {
+  /** The activity id the counts are aggregated for. */
+  id?: string;
+  /** Number of running instances currently at this activity. */
+  instances?: number;
+  /** Number of failed jobs for those instances, present only when requested via params. */
+  failedJobs?: number;
+}
+
+/**
  * Represents a historic process instance
  */
 export interface HistoricProcessInstance {
@@ -189,7 +202,7 @@ export interface IHistoryService {
   ): Promise<HistoricActivity[]>;
   getVariables(instanceId: string, params?: Record<string, string>): Promise<HistoricVariable[]>;
   getDecisions(instanceId: string, params?: Record<string, string>): Promise<HistoricDecision[]>;
-  getActivityStatistics(processDefinitionId: string, params?: Record<string, string>): Promise<unknown[]>;
+  getActivityStatistics(processDefinitionId: string, params?: Record<string, string>): Promise<ActivityStatistics[]>;
   /**
    * Query historic process instances using POST endpoint.
    * Supports complex filters like variable values.
@@ -288,9 +301,12 @@ export class HistoryService implements IHistoryService {
    * @param params - Optional query parameters
    * @returns Promise resolving to array of activity statistics
    */
-  async getActivityStatistics(processDefinitionId: string, params: Record<string, string> = {}): Promise<unknown[]> {
+  async getActivityStatistics(
+    processDefinitionId: string,
+    params: Record<string, string> = {}
+  ): Promise<ActivityStatistics[]> {
     const result: unknown = await apiGet(this.api, `/process-definition/${processDefinitionId}/statistics`, params);
-    return Array.isArray(result) ? (result as unknown[]) : [];
+    return Array.isArray(result) ? (result as ActivityStatistics[]) : [];
   }
 
   /**

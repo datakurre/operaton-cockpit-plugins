@@ -7,9 +7,11 @@
  * @module
  */
 import React from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
+import SearchableSelect from './SearchableSelect';
 import type { BpmnElement } from '../utils/bpmnParsing';
+import { formatLabelWithId } from '../utils/formatting';
 
 interface InstanceSelectionFieldsProps {
   /** Activities of the process definition, offered as query filters */
@@ -56,14 +58,25 @@ const InstanceSelectionFields: React.FC<InstanceSelectionFieldsProps> = ({
         <>
           <div className="modify-form__field">
             <label htmlFor="queryActivityId">Filter by Activity (optional)</label>
-            <select id="queryActivityId" {...register('queryActivityId')} className="modify-form__input">
-              <option value="">Any activity</option>
-              {activities.map(a => (
-                <option key={a.id} value={a.id}>
-                  {a.name ?? a.id} ({a.type})
-                </option>
-              ))}
-            </select>
+            <Controller
+              name="queryActivityId"
+              control={control}
+              render={({ field }) => (
+                <SearchableSelect
+                  id="queryActivityId"
+                  value={field.value as string}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  options={activities.map(a => ({
+                    value: a.id,
+                    label: `${formatLabelWithId(a.name, a.id)} — ${a.type}`,
+                  }))}
+                  placeholder="Any activity"
+                  className="modify-form__input"
+                />
+              )}
+            />
           </div>
           <div className="modify-form__field">
             <label htmlFor="queryState">Instance State</label>

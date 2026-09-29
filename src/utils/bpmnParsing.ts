@@ -203,7 +203,7 @@ function collectActivities(elements: ModdleElement[], collected: BpmnElement[]):
     if (isActivityType(el.$type)) {
       collected.push({
         id: el.id ?? '',
-        name: el.name ?? el.id ?? '',
+        ...(el.name !== undefined ? { name: el.name } : {}),
         type: el.$type.replace('bpmn:', ''),
       });
     }
@@ -223,7 +223,7 @@ function collectSequenceFlows(elements: ModdleElement[], collected: BpmnElement[
     if (el.$type === 'bpmn:SequenceFlow') {
       collected.push({
         id: el.id ?? '',
-        name: el.name ?? el.id ?? '',
+        ...(el.name !== undefined ? { name: el.name } : {}),
         type: el.$type.replace('bpmn:', ''),
         sourceRef: el.sourceRef?.id,
         targetRef: el.targetRef?.id,

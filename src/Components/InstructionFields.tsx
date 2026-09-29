@@ -4,7 +4,9 @@
  */
 import React from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import SearchableSelect from './SearchableSelect';
 import VariableBuilder from './VariableBuilder';
+import { formatLabelWithId } from '../utils/formatting';
 
 /** An activity instance currently active in the process. */
 export interface ActiveActivityInstance {
@@ -56,6 +58,16 @@ interface CancelActivityFieldsProps extends InstructionFieldsProps {
 }
 
 /**
+ * Format a select option label for an active activity instance: the
+ * activity's name (or its id, when unlabeled), followed by the instance id.
+ * @param inst - The active activity instance
+ * @returns Display label showing both the activity and the instance id
+ */
+function formatActivityInstanceLabel(inst: ActiveActivityInstance): string {
+  return `${formatLabelWithId(inst.activityName, inst.activityId)} (ID: ${inst.id})`;
+}
+
+/**
  * Renders fields for starting a transition (sequence flow).
  * Allows selecting a sequence flow and optionally an ancestor activity instance.
  */
@@ -67,6 +79,18 @@ export const TransitionFields: React.FC<TransitionFieldsProps> = ({
 }) => {
   const { control } = useFormContext();
 
+  const sequenceFlowOptions = sequenceFlows.map(flow => {
+    const sourceName = activities.find(a => a.id === flow.sourceRef)?.name ?? flow.sourceRef ?? 'unknown';
+    const targetName = activities.find(a => a.id === flow.targetRef)?.name ?? flow.targetRef ?? 'unknown';
+    const label = flow.name ?? `${sourceName} → ${targetName}`;
+    return { value: flow.id, label: formatLabelWithId(label, flow.id) };
+  });
+
+  const ancestorOptions = activeInstances.map(inst => ({
+    value: inst.id,
+    label: formatActivityInstanceLabel(inst),
+  }));
+
   return (
     <>
       <div style={{ marginBottom: '10px' }}>
@@ -75,22 +99,15 @@ export const TransitionFields: React.FC<TransitionFieldsProps> = ({
           name={`instructions.${index}.transitionId`}
           control={control}
           render={({ field }) => (
-            <select
-              {...field}
-              className="form-control"
+            <SearchableSelect
+              value={field.value as string}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              name={field.name}
+              options={sequenceFlowOptions}
+              placeholder="-- Select Sequence Flow --"
               style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
-            >
-              <option value="">-- Select Sequence Flow --</option>
-              {sequenceFlows.map(flow => {
-                const sourceName = activities.find(a => a.id === flow.sourceRef)?.name ?? flow.sourceRef ?? 'unknown';
-                const targetName = activities.find(a => a.id === flow.targetRef)?.name ?? flow.targetRef ?? 'unknown';
-                return (
-                  <option key={flow.id} value={flow.id}>
-                    {flow.name ?? `${sourceName} → ${targetName}`}
-                  </option>
-                );
-              })}
-            </select>
+            />
           )}
         />
       </div>
@@ -100,18 +117,15 @@ export const TransitionFields: React.FC<TransitionFieldsProps> = ({
           name={`instructions.${index}.ancestorActivityInstanceId`}
           control={control}
           render={({ field }) => (
-            <select
-              {...field}
-              className="form-control"
+            <SearchableSelect
+              value={field.value as string}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              name={field.name}
+              options={ancestorOptions}
+              placeholder="-- None (default scope) --"
               style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
-            >
-              <option value="">-- None (default scope) --</option>
-              {activeInstances.map(inst => (
-                <option key={inst.id} value={inst.id}>
-                  {inst.activityName ?? inst.activityId} (ID: {inst.id})
-                </option>
-              ))}
-            </select>
+            />
           )}
         />
       </div>
@@ -167,20 +181,20 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
             name={`instructions.${index}.activityId`}
             control={control}
             render={({ field }) => (
-              <select
-                {...field}
-                className="form-control"
-                style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
-              >
-                <option value="">-- Select Active Activity --</option>
-                {activities
+              <SearchableSelect
+                value={field.value as string}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                name={field.name}
+                options={activities
                   .filter(activity => activityCounts.has(activity.id))
-                  .map(activity => (
-                    <option key={activity.id} value={activity.id}>
-                      {activity.name} ({activity.type}) - {activityCounts.get(activity.id) ?? 0} active
-                    </option>
-                  ))}
-              </select>
+                  .map(activity => ({
+                    value: activity.id,
+                    label: `${formatLabelWithId(activity.name, activity.id)} — ${activity.type} — ${activityCounts.get(activity.id) ?? 0} active`,
+                  }))}
+                placeholder="-- Select Active Activity --"
+                style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
+              />
             )}
           />
         </div>
@@ -193,18 +207,18 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
             name={`instructions.${index}.activityInstanceId`}
             control={control}
             render={({ field }) => (
-              <select
-                {...field}
-                className="form-control"
+              <SearchableSelect
+                value={field.value as string}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                name={field.name}
+                options={activeInstances.map(inst => ({
+                  value: inst.id,
+                  label: formatActivityInstanceLabel(inst),
+                }))}
+                placeholder="-- Select Activity Instance --"
                 style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
-              >
-                <option value="">-- Select Activity Instance --</option>
-                {activeInstances.map(inst => (
-                  <option key={inst.id} value={inst.id}>
-                    {inst.activityName ?? inst.activityId} (ID: {inst.id})
-                  </option>
-                ))}
-              </select>
+              />
             )}
           />
         </div>
@@ -225,6 +239,16 @@ export const StartActivityFields: React.FC<InstructionFieldsProps> = ({ index, a
     return (activity?.type.includes('SubProcess') ?? false) || (activity?.type.includes('Process') ?? false);
   });
 
+  const activityOptions = activities.map(activity => ({
+    value: activity.id,
+    label: `${formatLabelWithId(activity.name, activity.id)} — ${activity.type}`,
+  }));
+
+  const ancestorOptions = potentialAncestors.map(inst => ({
+    value: inst.id,
+    label: formatActivityInstanceLabel(inst),
+  }));
+
   return (
     <>
       <div style={{ marginBottom: '10px' }}>
@@ -233,18 +257,15 @@ export const StartActivityFields: React.FC<InstructionFieldsProps> = ({ index, a
           name={`instructions.${index}.activityId`}
           control={control}
           render={({ field }) => (
-            <select
-              {...field}
-              className="form-control"
+            <SearchableSelect
+              value={field.value as string}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              name={field.name}
+              options={activityOptions}
+              placeholder="-- Select Activity --"
               style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
-            >
-              <option value="">-- Select Activity --</option>
-              {activities.map(activity => (
-                <option key={activity.id} value={activity.id}>
-                  {activity.name} ({activity.type})
-                </option>
-              ))}
-            </select>
+            />
           )}
         />
       </div>
@@ -254,18 +275,15 @@ export const StartActivityFields: React.FC<InstructionFieldsProps> = ({ index, a
           name={`instructions.${index}.ancestorActivityInstanceId`}
           control={control}
           render={({ field }) => (
-            <select
-              {...field}
-              className="form-control"
+            <SearchableSelect
+              value={field.value as string}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              name={field.name}
+              options={ancestorOptions}
+              placeholder="-- None (default scope) --"
               style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
-            >
-              <option value="">-- None (default scope) --</option>
-              {potentialAncestors.map(inst => (
-                <option key={inst.id} value={inst.id}>
-                  {inst.activityName ?? inst.activityId} (ID: {inst.id})
-                </option>
-              ))}
-            </select>
+            />
           )}
         />
       </div>

@@ -10,13 +10,13 @@ import React, { useEffect, useState } from 'react';
 
 import ErrorMessage from './ErrorMessage';
 import FormButton from './FormButton';
-import SelectField from './SelectField';
+import SearchableSelect from './SearchableSelect';
 import SuccessMessage from './SuccessMessage';
 import WarningBox from './WarningBox';
 import { get, post } from '../utils/api';
 import { getBpmnElements, type BpmnElement } from '../utils/bpmnParsing';
 import { SUBMIT_FEEDBACK_DELAY_MS } from '../utils/constants';
-import { buildProcessInstanceUrl } from '../utils/formatting';
+import { buildProcessInstanceUrl, formatLabelWithId } from '../utils/formatting';
 import type { API } from '../types';
 
 /** Historic process instance from API */
@@ -269,9 +269,10 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
       <p>Select a terminated or completed instance and the activity to restart from.</p>
 
       {!isSingleInstanceMode && (
-        <div className="form-group">
-          <SelectField
-            label="Terminated or Completed Instance"
+        <div className="form-group" style={{ marginBottom: '10px' }}>
+          <label htmlFor="restart-instance-select">Terminated or Completed Instance: </label>
+          <SearchableSelect
+            id="restart-instance-select"
             value={selectedInstance ? selectedInstance.id : ''}
             onChange={value => {
               const instance = terminatedInstances.find(i => i.id === value);
@@ -293,21 +294,24 @@ const RestartProcessForm: React.FC<RestartProcessFormProps> = ({
                 label: `[${statusLabel}] ${baseLabel} (ended ${endTimeStr})`,
               };
             })}
+            style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
           />
         </div>
       )}
 
-      <div className="form-group">
-        <SelectField
-          label="Starting Activity"
+      <div className="form-group" style={{ marginBottom: '10px' }}>
+        <label htmlFor="restart-activity-select">Starting Activity: </label>
+        <SearchableSelect
+          id="restart-activity-select"
           value={selectedActivity}
           onChange={value => {
             setSelectedActivity(value);
           }}
           options={activities.map(act => ({
             value: act.id,
-            label: act.name ? `${act.name} (${act.id})` : act.id,
+            label: formatLabelWithId(act.name, act.id),
           }))}
+          style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
         />
       </div>
 

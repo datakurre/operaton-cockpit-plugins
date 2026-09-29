@@ -1,0 +1,41 @@
+.searchable-select {
+  &__options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    max-height: 240px;
+    overflow-y: auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &__option {
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 13px;
+
+    &:hover,
+    &--active {
+      background: #e8f4f8;
+    }
+
+    &--placeholder {
+      color: #767676;
+      border-bottom: 1px solid #eee;
+    }
+
+    &--hint {
+      cursor: default;
+      color: #888;
+      font-style: italic;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+}

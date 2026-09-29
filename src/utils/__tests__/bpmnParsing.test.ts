@@ -244,7 +244,7 @@ describe('utils/bpmnParsing', () => {
       expect(messages).toEqual([]);
     });
 
-    it('should handle activity without name', async () => {
+    it('should leave name unset for an activity without a name, rather than defaulting it to the id', async () => {
       const bpmnNoName = `<?xml version="1.0" encoding="UTF-8"?>
         <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
                           id="Definitions_1"
@@ -258,14 +258,11 @@ describe('utils/bpmnParsing', () => {
 
       const { activities } = await getBpmnElements('def-123', mockApi);
 
-      // Name should fallback to id
-      expect(activities).toContainEqual(
-        expect.objectContaining({
-          id: 'StartEvent_1',
-          name: 'StartEvent_1',
-          type: 'StartEvent',
-        })
-      );
+      // The id-as-name fallback belongs to display formatting (formatLabelWithId), not
+      // parsing — a synthesized name here would make "name (id)" render as "id (id)".
+      const startEvent = activities.find(a => a.id === 'StartEvent_1');
+      expect(startEvent).toEqual(expect.objectContaining({ id: 'StartEvent_1', type: 'StartEvent' }));
+      expect(startEvent?.name).toBeUndefined();
     });
 
     it('should call API with correct process definition ID', async () => {

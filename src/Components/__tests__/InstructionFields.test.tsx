@@ -60,19 +60,36 @@ describe('StartActivityFields', () => {
     );
 
     expect(screen.getByText(/^activity:$/i)).toBeInTheDocument();
-    expect(screen.getByText('-- Select Activity --')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('-- Select Activity --')).toBeInTheDocument();
   });
 
-  it('should render all activities in the dropdown', () => {
+  it('should render all activities in the dropdown, showing name and id', () => {
     render(
       <FormWrapper>
         <StartActivityFields {...defaultProps} />
       </FormWrapper>
     );
 
-    expect(screen.getByText('User Task 1 (userTask)')).toBeInTheDocument();
-    expect(screen.getByText('Service Task 2 (serviceTask)')).toBeInTheDocument();
-    expect(screen.getByText('Sub Process (subProcess)')).toBeInTheDocument();
+    // Opening the combobox reveals its option list
+    fireEvent.focus(screen.getAllByRole('combobox')[0] as HTMLElement);
+
+    expect(screen.getByText('User Task 1 (task1) — userTask')).toBeInTheDocument();
+    expect(screen.getByText('Service Task 2 (task2) — serviceTask')).toBeInTheDocument();
+    expect(screen.getByText('Sub Process (subprocess1) — subProcess')).toBeInTheDocument();
+  });
+
+  it('should fall back to the id alone for an unlabeled activity', () => {
+    const unlabeledActivities = [{ id: 'task9', type: 'userTask' }];
+    render(
+      <FormWrapper>
+        <StartActivityFields {...defaultProps} activities={unlabeledActivities} />
+      </FormWrapper>
+    );
+
+    fireEvent.focus(screen.getAllByRole('combobox')[0] as HTMLElement);
+
+    expect(screen.getByText('task9 — userTask')).toBeInTheDocument();
+    expect(screen.queryByText(/undefined/)).not.toBeInTheDocument();
   });
 
   it('should render ancestor activity instance selector', () => {
@@ -83,7 +100,7 @@ describe('StartActivityFields', () => {
     );
 
     expect(screen.getByText(/ancestor activity instance/i)).toBeInTheDocument();
-    expect(screen.getByText('-- None (default scope) --')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('-- None (default scope) --')).toBeInTheDocument();
   });
 
   it('should filter ancestors to subprocess types only', () => {
@@ -95,9 +112,9 @@ describe('StartActivityFields', () => {
 
     // SubProcess instance should be available as ancestor
     // Other instances should not be (userTask, serviceTask are not subprocess)
-    const ancestorSelect = screen.getAllByRole('combobox')[1] as HTMLSelectElement;
-    // Only subprocess1 should appear (plus the "None" option)
-    expect(ancestorSelect.options.length).toBe(2);
+    fireEvent.focus(screen.getAllByRole('combobox')[1] as HTMLElement);
+    // Only the placeholder ("None") plus subprocess1 should appear
+    expect(screen.getAllByRole('option')).toHaveLength(2);
   });
 
   it('should render variables section', () => {
@@ -139,29 +156,33 @@ describe('TransitionFields', () => {
 
     // Multiple matches for "sequence flow" text, use getAllByText
     expect(screen.getAllByText(/sequence flow/i).length).toBeGreaterThan(0);
-    expect(screen.getByText('-- Select Sequence Flow --')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('-- Select Sequence Flow --')).toBeInTheDocument();
   });
 
-  it('should render sequence flows with names when available', () => {
+  it('should render sequence flows with names and id when available', () => {
     render(
       <FormWrapper>
         <TransitionFields {...defaultProps} />
       </FormWrapper>
     );
 
-    // flow1 has a name
-    expect(screen.getByText('Flow 1')).toBeInTheDocument();
+    fireEvent.focus(screen.getAllByRole('combobox')[0] as HTMLElement);
+
+    // flow1 has a name; its id is still shown for disambiguation
+    expect(screen.getByText('Flow 1 (flow1)')).toBeInTheDocument();
   });
 
-  it('should render sequence flows with source/target when no name', () => {
+  it('should render sequence flows with source/target and id when no name', () => {
     render(
       <FormWrapper>
         <TransitionFields {...defaultProps} />
       </FormWrapper>
     );
 
-    // flow2 has no name, should show "sourceActivityName → targetActivityName"
-    expect(screen.getByText('Service Task 2 → Sub Process')).toBeInTheDocument();
+    fireEvent.focus(screen.getAllByRole('combobox')[0] as HTMLElement);
+
+    // flow2 has no name, should show "sourceActivityName → targetActivityName (id)"
+    expect(screen.getByText('Service Task 2 → Sub Process (flow2)')).toBeInTheDocument();
   });
 
   it('should render ancestor activity instance selector', () => {
@@ -181,9 +202,11 @@ describe('TransitionFields', () => {
       </FormWrapper>
     );
 
+    fireEvent.focus(screen.getAllByRole('combobox')[1] as HTMLElement);
+
     // All instances should be available as ancestors
-    expect(screen.getByText(/User Task 1 \(ID: instance1\)/)).toBeInTheDocument();
-    expect(screen.getByText(/Service Task 2 \(ID: instance2\)/)).toBeInTheDocument();
+    expect(screen.getByText(/User Task 1 \(task1\) \(ID: instance1\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Service Task 2 \(task2\) \(ID: instance2\)/)).toBeInTheDocument();
   });
 });
 
@@ -232,16 +255,18 @@ describe('CancelActivityFields', () => {
     expect(screen.getByText(/cancel all instances/i)).toBeInTheDocument();
   });
 
-  it('should only show activities with active instances', () => {
+  it('should only show activities with active instances, with name, id and count', () => {
     render(
       <FormWrapper>
         <CancelActivityFields {...defaultProps} />
       </FormWrapper>
     );
 
-    // Only task1 and task2 have entries in activityCounts
-    expect(screen.getByText(/User Task 1.*1 active/)).toBeInTheDocument();
-    expect(screen.getByText(/Service Task 2.*2 active/)).toBeInTheDocument();
+    // The activity combobox is the second one (after "Cancel Method")
+    fireEvent.focus(screen.getAllByRole('combobox')[1] as HTMLElement);
+
+    expect(screen.getByText(/User Task 1 \(task1\).*1 active/)).toBeInTheDocument();
+    expect(screen.getByText(/Service Task 2 \(task2\).*2 active/)).toBeInTheDocument();
     // subprocess1 is not in activityCounts, so it should not appear
     expect(screen.queryByText(/Sub Process/)).not.toBeInTheDocument();
   });
@@ -265,7 +290,7 @@ describe('CancelActivityFields', () => {
       </FormWrapper>
     );
 
-    // Get the cancel method select (first one)
+    // Get the cancel method select (first one, still a native select)
     const selects = screen.getAllByRole('combobox');
     const methodSelect = selects[0] as HTMLSelectElement;
     fireEvent.change(methodSelect, { target: { value: 'activityInstance' } });
@@ -281,8 +306,11 @@ describe('CancelActivityFields', () => {
       </FormWrapper>
     );
 
-    expect(screen.getByText(/User Task 1 \(ID: instance1\)/)).toBeInTheDocument();
-    expect(screen.getByText(/Service Task 2 \(ID: instance2\)/)).toBeInTheDocument();
-    expect(screen.getByText(/Sub Process \(ID: subprocess-instance\)/)).toBeInTheDocument();
+    // The activity instance combobox is the second one (after "Cancel Method")
+    fireEvent.focus(screen.getAllByRole('combobox')[1] as HTMLElement);
+
+    expect(screen.getByText(/User Task 1 \(task1\) \(ID: instance1\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Service Task 2 \(task2\) \(ID: instance2\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Sub Process \(subprocess1\) \(ID: subprocess-instance\)/)).toBeInTheDocument();
   });
 });

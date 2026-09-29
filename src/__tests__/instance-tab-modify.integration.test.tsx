@@ -232,8 +232,8 @@ describe('instance-tab-modify integration', () => {
       const typeSelect = container.querySelector('select[name="instructions.0.type"]');
       expect(typeSelect).not.toBeNull();
 
-      // The form should have activity selector
-      const activitySelect = container.querySelector('select[name="instructions.0.activityId"]');
+      // The form should have an activity selector (a searchable combobox, not a native select)
+      const activitySelect = container.querySelector('input[name="instructions.0.activityId"]');
       expect(activitySelect).not.toBeNull();
 
       // Submit button should be present
