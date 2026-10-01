@@ -30,10 +30,42 @@ import { buildInstanceModificationRequest, type InstanceModificationInput } from
 import { tryBuild } from './utils/submitGuard';
 
 // Types
-import { InstancePluginParams } from './types';
+import type { ActivityInstance, InstancePluginParams } from './types';
 import type { ActiveActivityInstance } from './Components/InstructionFields';
 
 type ModifyFormData = InstanceModificationInput;
+
+/**
+ * Flatten the runtime activity-instance tree into the selectable instances.
+ * @param tree - Runtime activity-instance tree returned by the engine
+ * @returns Activity instances accepted by modification instructions
+ */
+function collectActiveActivityInstances(tree: ActivityInstance): ActiveActivityInstance[] {
+  const instances: ActiveActivityInstance[] = [];
+  const visit = (activityInstance: ActivityInstance): void => {
+    if (activityInstance.id && activityInstance.activityId) {
+      const instance: ActiveActivityInstance = {
+        id: activityInstance.id,
+        activityId: activityInstance.activityId,
+      };
+      const activityName = activityInstance.activityName ?? activityInstance.name;
+      if (activityName !== null && activityName !== undefined) {
+        instance.activityName = activityName;
+      }
+      if (
+        activityInstance.parentActivityInstanceId !== null &&
+        activityInstance.parentActivityInstanceId !== undefined
+      ) {
+        instance.parentActivityInstanceId = activityInstance.parentActivityInstanceId;
+      }
+      instances.push(instance);
+    }
+    activityInstance.childActivityInstances?.forEach(visit);
+  };
+
+  visit(tree);
+  return instances;
+}
 
 /**
  * Process modification form component.
@@ -92,29 +124,11 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
         setActivities(activities);
         setSequenceFlows(sequenceFlows);
 
-        const unfinishedActivityInstances = (await get(api, '/history/activity-instance', {
-          processInstanceId,
-          unfinished: 'true',
-        })) as {
-          id: string;
-          activityId: string;
-          activityName?: string | null;
-          parentActivityInstanceId?: string | null;
-        }[];
-
-        const allActiveInstances: ActiveActivityInstance[] = unfinishedActivityInstances.map(inst => {
-          const result: ActiveActivityInstance = {
-            id: inst.id,
-            activityId: inst.activityId,
-          };
-          if (inst.activityName !== null && inst.activityName !== undefined) {
-            result.activityName = inst.activityName;
-          }
-          if (inst.parentActivityInstanceId !== null && inst.parentActivityInstanceId !== undefined) {
-            result.parentActivityInstanceId = inst.parentActivityInstanceId;
-          }
-          return result;
-        });
+        const activityInstanceTree = (await get(
+          api,
+          `/process-instance/${processInstanceId}/activity-instances`
+        )) as ActivityInstance;
+        const allActiveInstances = collectActiveActivityInstances(activityInstanceTree);
 
         const counts = new Map<string, number>();
         allActiveInstances.forEach(inst => {

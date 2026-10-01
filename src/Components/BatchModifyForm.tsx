@@ -257,6 +257,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
               /* no-op for batch modification */
             }}
             showVariables={false}
+            allowActivityInstanceCancel={false}
           />
         ))}
 

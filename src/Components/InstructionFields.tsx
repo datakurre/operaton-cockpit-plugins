@@ -55,6 +55,8 @@ interface CancelActivityFieldsProps extends InstructionFieldsProps {
   cancelMethods: Map<number, string>;
   /** Callback to update the cancel methods map. */
   setCancelMethods: (methods: Map<number, string>) => void;
+  /** Whether this form's API supports canceling one specific activity instance. */
+  allowActivityInstanceCancel?: boolean;
 }
 
 /**
@@ -144,6 +146,7 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
   activityCounts,
   cancelMethods,
   setCancelMethods,
+  allowActivityInstanceCancel = true,
 }) => {
   const { control, setValue } = useFormContext();
   const currentMethod = cancelMethods.get(index) ?? 'activity';
@@ -170,7 +173,7 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
           }}
         >
           <option value="activity">All instances of activity</option>
-          <option value="activityInstance">Specific activity instance</option>
+          {allowActivityInstanceCancel && <option value="activityInstance">Specific activity instance</option>}
         </select>
       </div>
 
@@ -200,7 +203,7 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
         </div>
       )}
 
-      {currentMethod === 'activityInstance' && (
+      {allowActivityInstanceCancel && currentMethod === 'activityInstance' && (
         <div style={{ marginBottom: '10px' }}>
           <label>Activity Instance (cancel specific): </label>
           <Controller

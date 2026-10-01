@@ -116,6 +116,30 @@ describe('BatchModifyForm activity statistics', () => {
     });
     expect(screen.getByPlaceholderText('-- Select Activity --')).toBeInTheDocument();
   });
+
+  it('does not offer a specific activity-instance cancel that the batch API cannot represent', async () => {
+    mockFetch.mockImplementation(async (url: string) => {
+      const json = (body: unknown) => ({
+        ok: true,
+        status: 200,
+        headers: new Headers({ 'Content-Type': 'application/json' }),
+        json: async () => body,
+      });
+      if (url.includes('/xml')) {
+        return json({ id: processDefinitionId, bpmn20Xml: simpleBpmnXml });
+      }
+      if (url.includes('/statistics')) {
+        return json([{ id: 'Task_1', instances: 2 }]);
+      }
+      return json({});
+    });
+
+    render(<BatchModifyForm api={mockApi} processDefinitionId={processDefinitionId} />);
+    await openCancelActivityPicker();
+
+    expect(screen.getByText('All instances of activity')).toBeInTheDocument();
+    expect(screen.queryByText('Specific activity instance')).not.toBeInTheDocument();
+  });
 });
 
 describe('BatchModifyForm guarded submit', () => {

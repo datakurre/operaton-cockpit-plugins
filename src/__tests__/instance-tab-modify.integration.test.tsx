@@ -72,12 +72,22 @@ describe('instance-tab-modify integration', () => {
         };
       }
 
-      if (urlStr.includes('/history/activity-instance')) {
+      if (urlStr.includes('/activity-instances')) {
         return {
           ok: true,
           status: 200,
           headers: new Headers({ 'Content-Type': 'application/json' }),
-          json: async () => activeInstances,
+          json: async () => ({
+            id: 'root-instance',
+            activityId: 'process',
+            activityType: 'processDefinition',
+            childActivityInstances: activeInstances.map(instance => ({
+              ...instance,
+              parentActivityInstanceId: 'root-instance',
+              childActivityInstances: [],
+            })),
+            childTransitionInstances: [],
+          }),
         };
       }
 
@@ -179,6 +189,76 @@ describe('instance-tab-modify integration', () => {
       expect(screen.getByText('Correlate Message')).toBeInTheDocument();
     });
 
+    it('loads valid cancel targets from the runtime activity-instance tree', async () => {
+      let requestedRuntimeTree = false;
+      mockFetch.mockImplementation(async (url: string) => {
+        const json = (body: unknown) => ({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
+          json: async () => body,
+        });
+        if (url.includes('/xml')) {
+          return json({ id: processDefinitionId, bpmn20Xml: simpleBpmnXml });
+        }
+        if (url.endsWith(`/process-instance/${processInstanceId}/activity-instances`)) {
+          requestedRuntimeTree = true;
+          return json({
+            id: 'root-instance',
+            activityId: 'process',
+            activityType: 'processDefinition',
+            childActivityInstances: [
+              {
+                id: 'subprocess-instance',
+                activityId: 'SubProcess_1',
+                activityName: 'Review Subprocess',
+                parentActivityInstanceId: 'root-instance',
+                childActivityInstances: [
+                  {
+                    id: 'runtime-task-instance',
+                    activityId: 'Task_1',
+                    activityName: 'Review Document',
+                    parentActivityInstanceId: 'subprocess-instance',
+                    childActivityInstances: [],
+                  },
+                ],
+              },
+            ],
+            childTransitionInstances: [],
+          });
+        }
+        return json({});
+      });
+
+      const container = await renderPlugin();
+      const typeSelect = await waitFor(() => {
+        const element = container.querySelector('select[name="instructions.0.type"]');
+        expect(element).not.toBeNull();
+        return element as HTMLSelectElement;
+      });
+      fireEvent.change(typeSelect, { target: { value: 'cancel' } });
+      const cancelMethodSelect = container.querySelectorAll('select')[1];
+      expect(cancelMethodSelect).toBeDefined();
+      fireEvent.change(cancelMethodSelect as HTMLSelectElement, { target: { value: 'activityInstance' } });
+
+      const activityInput = await screen.findByPlaceholderText('-- Select Activity Instance --');
+      fireEvent.focus(activityInput);
+
+      expect(requestedRuntimeTree).toBe(true);
+      expect(
+        screen.getByRole('option', { name: /Review Document \(Task_1\) \(ID: runtime-task-instance\)/ })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('option', { name: /Review Subprocess \(SubProcess_1\) \(ID: subprocess-instance\)/ })
+      ).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('option', { name: /Review Document \(Task_1\) \(ID: runtime-task-instance\)/ }));
+      fireEvent.click(screen.getByRole('button', { name: 'Dry Run' }));
+
+      expect(await screen.findByLabelText('Request preview')).toHaveTextContent(
+        '"activityInstanceId": "runtime-task-instance"'
+      );
+    });
+
     it('should call API when modification form is submitted', async () => {
       let modificationCalled = false;
 
@@ -195,12 +275,18 @@ describe('instance-tab-modify integration', () => {
           };
         }
 
-        if (urlStr.includes('/history/activity-instance')) {
+        if (urlStr.includes('/activity-instances')) {
           return {
             ok: true,
             status: 200,
             headers: new Headers({ 'Content-Type': 'application/json' }),
-            json: async () => [{ id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' }],
+            json: async () => ({
+              id: 'root-instance',
+              activityId: 'process',
+              childActivityInstances: [
+                { id: 'act-1', activityId: 'Task_1', activityName: 'Review Document', childActivityInstances: [] },
+              ],
+            }),
           };
         }
 
@@ -256,8 +342,14 @@ describe('instance-tab-modify integration', () => {
         if (url.includes('/xml')) {
           return json({ id: processDefinitionId, bpmn20Xml: simpleBpmnXml });
         }
-        if (url.includes('/history/activity-instance')) {
-          return json([{ id: 'act-1', activityId: 'Task_1', activityName: 'Review Document' }]);
+        if (url.includes('/activity-instances')) {
+          return json({
+            id: 'root-instance',
+            activityId: 'process',
+            childActivityInstances: [
+              { id: 'act-1', activityId: 'Task_1', activityName: 'Review Document', childActivityInstances: [] },
+            ],
+          });
         }
         if (init?.method?.toUpperCase() === 'POST') {
           posted.push(url);
