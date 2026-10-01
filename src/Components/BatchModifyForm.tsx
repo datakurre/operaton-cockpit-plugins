@@ -251,6 +251,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
             activities={activities}
             sequenceFlows={sequenceFlows}
             activeInstances={[]}
+            activeTransitionInstances={[]}
             activityCounts={activityCounts}
             cancelMethods={new Map()}
             setCancelMethods={() => {
@@ -258,6 +259,7 @@ const BatchModifyForm: React.FC<BatchModifyFormProps> = ({ api, processDefinitio
             }}
             showVariables={false}
             allowActivityInstanceCancel={false}
+            allowTransitionInstanceCancel={false}
           />
         ))}
 

@@ -633,7 +633,7 @@ const IntegrationsTable: React.FC<IntegrationsTableProps> = ({ api }) => {
                       if (hasIncident) {
                         return (
                           <button
-                            className="btn btn-xs btn-default"
+                            className="btn btn-xs btn-default dashboard-integrations__retry-button"
                             onClick={() => {
                               void handleRetry(taskId);
                             }}

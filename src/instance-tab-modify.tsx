@@ -31,17 +31,22 @@ import { tryBuild } from './utils/submitGuard';
 
 // Types
 import type { ActivityInstance, InstancePluginParams } from './types';
-import type { ActiveActivityInstance } from './Components/InstructionFields';
+import type { ActiveActivityInstance, ActiveTransitionInstance } from './Components/InstructionFields';
 
 type ModifyFormData = InstanceModificationInput;
 
+interface RuntimeInstanceTargets {
+  activities: ActiveActivityInstance[];
+  transitions: ActiveTransitionInstance[];
+}
+
 /**
- * Flatten the runtime activity-instance tree into the selectable instances.
+ * Flatten the runtime activity-instance tree into selectable activities and transitions.
  * @param tree - Runtime activity-instance tree returned by the engine
- * @returns Activity instances accepted by modification instructions
+ * @returns Activity and transition instances accepted by modification instructions
  */
-function collectActiveActivityInstances(tree: ActivityInstance): ActiveActivityInstance[] {
-  const instances: ActiveActivityInstance[] = [];
+function collectRuntimeInstanceTargets(tree: ActivityInstance): RuntimeInstanceTargets {
+  const targets: RuntimeInstanceTargets = { activities: [], transitions: [] };
   const visit = (activityInstance: ActivityInstance): void => {
     if (activityInstance.id && activityInstance.activityId) {
       const instance: ActiveActivityInstance = {
@@ -58,13 +63,30 @@ function collectActiveActivityInstances(tree: ActivityInstance): ActiveActivityI
       ) {
         instance.parentActivityInstanceId = activityInstance.parentActivityInstanceId;
       }
-      instances.push(instance);
+      targets.activities.push(instance);
     }
+    activityInstance.childTransitionInstances?.forEach(transition => {
+      if (!transition.id || !transition.activityId) {
+        return;
+      }
+      const instance: ActiveTransitionInstance = {
+        id: transition.id,
+        activityId: transition.activityId,
+        hasIncident: (transition.incidentIds?.length ?? 0) > 0,
+      };
+      if (transition.activityName !== null && transition.activityName !== undefined) {
+        instance.activityName = transition.activityName;
+      }
+      if (transition.parentActivityInstanceId !== null && transition.parentActivityInstanceId !== undefined) {
+        instance.parentActivityInstanceId = transition.parentActivityInstanceId;
+      }
+      targets.transitions.push(instance);
+    });
     activityInstance.childActivityInstances?.forEach(visit);
   };
 
   visit(tree);
-  return instances;
+  return targets;
 }
 
 /**
@@ -76,6 +98,7 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
   const [activities, setActivities] = useState<BpmnElement[]>([]);
   const [sequenceFlows, setSequenceFlows] = useState<BpmnElement[]>([]);
   const [activeInstances, setActiveInstances] = useState<ActiveActivityInstance[]>([]);
+  const [activeTransitionInstances, setActiveTransitionInstances] = useState<ActiveTransitionInstance[]>([]);
   const [activityCounts, setActivityCounts] = useState<Map<string, number>>(new Map());
   const [cancelMethods, setCancelMethods] = useState<Map<number, string>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
@@ -128,14 +151,15 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
           api,
           `/process-instance/${processInstanceId}/activity-instances`
         )) as ActivityInstance;
-        const allActiveInstances = collectActiveActivityInstances(activityInstanceTree);
+        const runtimeTargets = collectRuntimeInstanceTargets(activityInstanceTree);
 
         const counts = new Map<string, number>();
-        allActiveInstances.forEach(inst => {
+        runtimeTargets.activities.forEach(inst => {
           counts.set(inst.activityId, (counts.get(inst.activityId) ?? 0) + 1);
         });
 
-        setActiveInstances(allActiveInstances);
+        setActiveInstances(runtimeTargets.activities);
+        setActiveTransitionInstances(runtimeTargets.transitions);
         setActivityCounts(counts);
         setError(null);
       } catch (_err) {
@@ -224,6 +248,7 @@ const ModifyForm: React.FC<InstancePluginParams> = ({ api, processInstanceId, pr
             activities={activities}
             sequenceFlows={sequenceFlows}
             activeInstances={activeInstances}
+            activeTransitionInstances={activeTransitionInstances}
             activityCounts={activityCounts}
             cancelMethods={cancelMethods}
             setCancelMethods={setCancelMethods}

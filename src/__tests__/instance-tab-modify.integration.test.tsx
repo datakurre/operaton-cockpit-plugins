@@ -190,7 +190,7 @@ describe('instance-tab-modify integration', () => {
     });
 
     it('loads valid cancel targets from the runtime activity-instance tree', async () => {
-      let requestedRuntimeTree = false;
+      let didRequestRuntimeTree = false;
       mockFetch.mockImplementation(async (url: string) => {
         const json = (body: unknown) => ({
           ok: true,
@@ -202,7 +202,7 @@ describe('instance-tab-modify integration', () => {
           return json({ id: processDefinitionId, bpmn20Xml: simpleBpmnXml });
         }
         if (url.endsWith(`/process-instance/${processInstanceId}/activity-instances`)) {
-          requestedRuntimeTree = true;
+          didRequestRuntimeTree = true;
           return json({
             id: 'root-instance',
             activityId: 'process',
@@ -244,7 +244,7 @@ describe('instance-tab-modify integration', () => {
       const activityInput = await screen.findByPlaceholderText('-- Select Activity Instance --');
       fireEvent.focus(activityInput);
 
-      expect(requestedRuntimeTree).toBe(true);
+      expect(didRequestRuntimeTree).toBe(true);
       expect(
         screen.getByRole('option', { name: /Review Document \(Task_1\) \(ID: runtime-task-instance\)/ })
       ).toBeInTheDocument();
@@ -259,8 +259,80 @@ describe('instance-tab-modify integration', () => {
       );
     });
 
+    it('offers and submits cancellation for an incident on an async-after transition', async () => {
+      const posted: { url: string; body: Record<string, unknown> }[] = [];
+      mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
+        const json = (body: unknown) => ({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'Content-Type': 'application/json' }),
+          json: async () => body,
+        });
+        if (url.includes('/xml')) {
+          return json({ id: processDefinitionId, bpmn20Xml: simpleBpmnXml });
+        }
+        if (url.endsWith(`/process-instance/${processInstanceId}/activity-instances`)) {
+          return json({
+            id: processInstanceId,
+            activityId: 'Process_1',
+            activityType: 'processDefinition',
+            childActivityInstances: [],
+            childTransitionInstances: [
+              {
+                id: 'async-after-transition',
+                activityId: 'Task_1',
+                activityName: 'Review Document',
+                activityType: 'userTask',
+                processInstanceId,
+                executionId: 'execution-1',
+                incidentIds: ['incident-1'],
+              },
+            ],
+          });
+        }
+        if (init?.method?.toUpperCase() === 'POST') {
+          posted.push({ url, body: JSON.parse(String(init.body)) as Record<string, unknown> });
+          return json({});
+        }
+        return json({});
+      });
+
+      const container = await renderPlugin();
+      const typeSelect = await waitFor(() => {
+        const element = container.querySelector('select[name="instructions.0.type"]');
+        expect(element).not.toBeNull();
+        return element as HTMLSelectElement;
+      });
+      fireEvent.change(typeSelect, { target: { value: 'cancel' } });
+      fireEvent.change(container.querySelectorAll('select')[1] as HTMLSelectElement, {
+        target: { value: 'transitionInstance' },
+      });
+
+      const transitionInput = await screen.findByPlaceholderText('-- Select Transition Instance --');
+      fireEvent.focus(transitionInput);
+      fireEvent.click(
+        await screen.findByRole('option', {
+          name: 'Review Document (Task_1) (transition ID: async-after-transition) — Incident',
+        })
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Dry Run' }));
+
+      const preview = await screen.findByLabelText('Request preview');
+      expect(preview).toHaveTextContent('"transitionInstanceId": "async-after-transition"');
+      fireEvent.click(screen.getByRole('checkbox', { name: /I understand that cancelling/i }));
+      fireEvent.click(screen.getByRole('button', { name: 'Apply Modifications' }));
+
+      await waitFor(() => {
+        expect(posted).toHaveLength(1);
+      });
+      expect(posted[0]?.url).toContain(`/process-instance/${processInstanceId}/modification`);
+      expect(posted[0]?.body['instructions']).toEqual([
+        { type: 'cancel', transitionInstanceId: 'async-after-transition' },
+      ]);
+    });
+
     it('should call API when modification form is submitted', async () => {
-      let modificationCalled = false;
+      let didCallModification = false;
 
       // Override the modification mock to track if it was called
       mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
@@ -291,7 +363,7 @@ describe('instance-tab-modify integration', () => {
         }
 
         if (urlStr.includes('/modification') && init?.method === 'POST') {
-          modificationCalled = true;
+          didCallModification = true;
           return {
             ok: true,
             status: 204,

@@ -139,6 +139,7 @@ describe('BatchModifyForm activity statistics', () => {
 
     expect(screen.getByText('All instances of activity')).toBeInTheDocument();
     expect(screen.queryByText('Specific activity instance')).not.toBeInTheDocument();
+    expect(screen.queryByText('Specific transition instance')).not.toBeInTheDocument();
   });
 });
 

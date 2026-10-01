@@ -52,6 +52,7 @@ describe('InstructionCard', () => {
     activities: mockActivities,
     sequenceFlows: mockSequenceFlows,
     activeInstances: mockActiveInstances,
+    activeTransitionInstances: [],
     activityCounts: mockActivityCounts,
     cancelMethods: new Map<number, string>(),
     setCancelMethods: jest.fn(),

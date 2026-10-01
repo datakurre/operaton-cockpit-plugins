@@ -24,6 +24,8 @@ export interface InstanceInstructionInput {
   transitionId?: string;
   /** Activity instance to cancel */
   activityInstanceId?: string;
+  /** Async continuation to cancel */
+  transitionInstanceId?: string;
   /** Activity instance to start the new one under */
   ancestorActivityInstanceId?: string;
   /** Variables to set with the instruction */
@@ -36,6 +38,7 @@ interface InstanceInstructionPayload {
   activityId?: string;
   transitionId?: string;
   activityInstanceId?: string;
+  transitionInstanceId?: string;
   ancestorActivityInstanceId?: string;
   variables?: Record<string, { value: unknown; type: string }>;
 }
@@ -58,32 +61,67 @@ export interface InstanceModificationInput {
  * @returns True when the instruction is complete
  */
 function isComplete(instruction: InstanceInstructionInput): boolean {
+  if (instruction.type === 'cancel') {
+    return (
+      (instruction.activityId !== undefined && instruction.activityId !== '') ||
+      (instruction.activityInstanceId !== undefined && instruction.activityInstanceId !== '') ||
+      (instruction.transitionInstanceId !== undefined && instruction.transitionInstanceId !== '')
+    );
+  }
   if (instruction.type === 'startTransition') {
     return instruction.transitionId !== undefined && instruction.transitionId !== '';
-  }
-  const hasActivityInstance = instruction.activityInstanceId !== undefined && instruction.activityInstanceId !== '';
-  if (instruction.type === 'cancel' && hasActivityInstance) {
-    return true;
   }
   return instruction.activityId !== undefined && instruction.activityId !== '';
 }
 
 /**
- * Copy the non-empty string fields of an instruction.
+ * Add the selected cancellation target to an API instruction.
+ * @param payload - API instruction being built
+ * @param instruction - Instruction held in form state
+ */
+function addCancelTarget(payload: InstanceInstructionPayload, instruction: InstanceInstructionInput): void {
+  if (instruction.transitionInstanceId !== undefined && instruction.transitionInstanceId !== '') {
+    payload.transitionInstanceId = instruction.transitionInstanceId;
+  } else if (instruction.activityInstanceId !== undefined && instruction.activityInstanceId !== '') {
+    payload.activityInstanceId = instruction.activityInstanceId;
+  } else if (instruction.activityId !== undefined && instruction.activityId !== '') {
+    payload.activityId = instruction.activityId;
+  }
+}
+
+/**
+ * Add the target and optional execution settings for a start instruction.
+ * @param payload - API instruction being built
+ * @param instruction - Instruction held in form state
+ */
+function addStartTarget(payload: InstanceInstructionPayload, instruction: InstanceInstructionInput): void {
+  const target = instruction.type === 'startTransition' ? instruction.transitionId : instruction.activityId;
+  if (target !== undefined && target !== '') {
+    if (instruction.type === 'startTransition') {
+      payload.transitionId = target;
+    } else {
+      payload.activityId = target;
+    }
+  }
+  if (instruction.ancestorActivityInstanceId !== undefined && instruction.ancestorActivityInstanceId !== '') {
+    payload.ancestorActivityInstanceId = instruction.ancestorActivityInstanceId;
+  }
+  if (instruction.variables !== undefined && instruction.variables.length > 0) {
+    payload.variables = transformVariablesUtil(instruction.variables, true);
+  }
+}
+
+/**
+ * Convert one form instruction into its API representation.
  * @param instruction - Instruction held in form state
  * @returns The instruction as the engine expects it
  */
 function toInstructionPayload(instruction: InstanceInstructionInput): InstanceInstructionPayload {
   const payload: InstanceInstructionPayload = { type: instruction.type };
-  const fields = ['activityId', 'transitionId', 'activityInstanceId', 'ancestorActivityInstanceId'] as const;
-  for (const field of fields) {
-    const value = instruction[field];
-    if (value !== undefined && value !== '') {
-      payload[field] = value;
-    }
-  }
-  if (instruction.variables !== undefined && instruction.variables.length > 0) {
-    payload.variables = transformVariablesUtil(instruction.variables, true);
+  if (instruction.type === 'cancel') {
+    addCancelTarget(payload, instruction);
+  } else {
+    addStartTarget(payload, instruction);
   }
   return payload;
 }

@@ -16,6 +16,15 @@ export interface ActiveActivityInstance {
   parentActivityInstanceId?: string;
 }
 
+/** An async continuation currently waiting between activities in the process. */
+export interface ActiveTransitionInstance {
+  id: string;
+  activityId: string;
+  activityName?: string;
+  parentActivityInstanceId?: string;
+  hasIncident: boolean;
+}
+
 /** A BPMN element from the process definition. */
 export interface BpmnActivityElement {
   id: string;
@@ -51,12 +60,16 @@ interface TransitionFieldsProps extends InstructionFieldsProps {
 
 /** Props for CancelActivityFields component. */
 interface CancelActivityFieldsProps extends InstructionFieldsProps {
+  /** Current async continuations that can be canceled. */
+  activeTransitionInstances: ActiveTransitionInstance[];
   /** Map of instruction index to cancel method ('activity' or 'activityInstance'). */
   cancelMethods: Map<number, string>;
   /** Callback to update the cancel methods map. */
   setCancelMethods: (methods: Map<number, string>) => void;
   /** Whether this form's API supports canceling one specific activity instance. */
   allowActivityInstanceCancel?: boolean;
+  /** Whether this form's API supports canceling one specific transition instance. */
+  allowTransitionInstanceCancel?: boolean;
 }
 
 /**
@@ -68,6 +81,48 @@ interface CancelActivityFieldsProps extends InstructionFieldsProps {
 function formatActivityInstanceLabel(inst: ActiveActivityInstance): string {
   return `${formatLabelWithId(inst.activityName, inst.activityId)} (ID: ${inst.id})`;
 }
+
+/** Props for the async-continuation cancellation picker. */
+interface TransitionInstanceCancelFieldProps {
+  index: number;
+  activeTransitionInstances: ActiveTransitionInstance[];
+}
+
+/**
+ * Renders the picker for canceling a specific async continuation.
+ */
+const TransitionInstanceCancelField: React.FC<TransitionInstanceCancelFieldProps> = ({
+  index,
+  activeTransitionInstances,
+}) => {
+  const { control } = useFormContext();
+
+  return (
+    <div style={{ marginBottom: '10px' }}>
+      <label>Transition Instance (cancel async continuation): </label>
+      <Controller
+        name={`instructions.${index}.transitionInstanceId`}
+        control={control}
+        render={({ field }) => (
+          <SearchableSelect
+            value={field.value as string}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            name={field.name}
+            options={activeTransitionInstances.map(inst => ({
+              value: inst.id,
+              label:
+                `${formatLabelWithId(inst.activityName, inst.activityId)} ` +
+                `(transition ID: ${inst.id})${inst.hasIncident ? ' — Incident' : ''}`,
+            }))}
+            placeholder="-- Select Transition Instance --"
+            style={{ width: '400px', display: 'inline-block', marginLeft: '10px' }}
+          />
+        )}
+      />
+    </div>
+  );
+};
 
 /**
  * Renders fields for starting a transition (sequence flow).
@@ -144,9 +199,11 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
   activities,
   activeInstances,
   activityCounts,
+  activeTransitionInstances,
   cancelMethods,
   setCancelMethods,
   allowActivityInstanceCancel = true,
+  allowTransitionInstanceCancel = true,
 }) => {
   const { control, setValue } = useFormContext();
   const currentMethod = cancelMethods.get(index) ?? 'activity';
@@ -155,8 +212,13 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
     setCancelMethods(new Map(cancelMethods.set(index, method)));
     if (method === 'activity') {
       setValue(`instructions.${index}.activityInstanceId`, '');
+      setValue(`instructions.${index}.transitionInstanceId`, '');
     } else if (method === 'activityInstance') {
       setValue(`instructions.${index}.activityId`, '');
+      setValue(`instructions.${index}.transitionInstanceId`, '');
+    } else if (method === 'transitionInstance') {
+      setValue(`instructions.${index}.activityId`, '');
+      setValue(`instructions.${index}.activityInstanceId`, '');
     }
   };
 
@@ -174,6 +236,7 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
         >
           <option value="activity">All instances of activity</option>
           {allowActivityInstanceCancel && <option value="activityInstance">Specific activity instance</option>}
+          {allowTransitionInstanceCancel && <option value="transitionInstance">Specific transition instance</option>}
         </select>
       </div>
 
@@ -225,6 +288,10 @@ export const CancelActivityFields: React.FC<CancelActivityFieldsProps> = ({
             )}
           />
         </div>
+      )}
+
+      {allowTransitionInstanceCancel && currentMethod === 'transitionInstance' && (
+        <TransitionInstanceCancelField index={index} activeTransitionInstances={activeTransitionInstances} />
       )}
     </>
   );

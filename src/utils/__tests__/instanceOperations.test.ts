@@ -86,6 +86,39 @@ describe('buildInstanceModificationRequest', () => {
     expect(instruction?.variables).toEqual({ amount: { value: 10, type: 'Integer' } });
   });
 
+  it('cancels a transition instance for an async continuation', () => {
+    const request = buildInstanceModificationRequest(
+      modifyData({
+        instructions: [{ type: 'cancel', transitionInstanceId: 'ti-1' }],
+      }),
+      'pi-1'
+    );
+
+    expect(request?.payload['instructions']).toEqual([{ type: 'cancel', transitionInstanceId: 'ti-1' }]);
+  });
+
+  it('only serializes cancellation targets on cancel instructions', () => {
+    const request = buildInstanceModificationRequest(
+      modifyData({
+        instructions: [
+          { type: 'startBeforeActivity', activityId: 'Task_1', transitionInstanceId: 'stale-ti' },
+          {
+            type: 'cancel',
+            activityId: 'Task_1',
+            activityInstanceId: 'stale-ai',
+            transitionInstanceId: 'ti-1',
+          },
+        ],
+      }),
+      'pi-1'
+    );
+
+    expect(request?.payload['instructions']).toEqual([
+      { type: 'startBeforeActivity', activityId: 'Task_1' },
+      { type: 'cancel', transitionInstanceId: 'ti-1' },
+    ]);
+  });
+
   it('returns null when no instruction is complete', () => {
     expect(
       buildInstanceModificationRequest(modifyData({ instructions: [{ type: 'startBeforeActivity' }] }), 'pi-1')

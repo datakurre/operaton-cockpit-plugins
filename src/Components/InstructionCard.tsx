@@ -10,6 +10,7 @@ import {
   CancelActivityFields,
   TransitionFields,
   type ActiveActivityInstance,
+  type ActiveTransitionInstance,
   type BpmnActivityElement,
   type SequenceFlowElement,
 } from './InstructionFields';
@@ -30,6 +31,8 @@ interface InstructionCardProps {
   sequenceFlows: SequenceFlowElement[];
   /** Currently active activity instances. */
   activeInstances: ActiveActivityInstance[];
+  /** Currently waiting async continuations. */
+  activeTransitionInstances: ActiveTransitionInstance[];
   /** Count of active instances per activity ID. */
   activityCounts: Map<string, number>;
   /** Map of instruction index to cancel method. */
@@ -40,6 +43,8 @@ interface InstructionCardProps {
   showVariables?: boolean;
   /** Whether this form's API supports canceling one specific activity instance. */
   allowActivityInstanceCancel?: boolean;
+  /** Whether this form's API supports canceling one specific transition instance. */
+  allowTransitionInstanceCancel?: boolean;
 }
 
 /**
@@ -54,11 +59,13 @@ const InstructionCard: React.FC<InstructionCardProps> = ({
   activities,
   sequenceFlows,
   activeInstances,
+  activeTransitionInstances,
   activityCounts,
   cancelMethods,
   setCancelMethods,
   showVariables = true,
   allowActivityInstanceCancel = true,
+  allowTransitionInstanceCancel = true,
 }) => {
   const { control, watch } = useFormContext();
   const instructionType = watch(`instructions.${index}.type`) as string;
@@ -83,9 +90,11 @@ const InstructionCard: React.FC<InstructionCardProps> = ({
           activities={activities}
           activeInstances={activeInstances}
           activityCounts={activityCounts}
+          activeTransitionInstances={activeTransitionInstances}
           cancelMethods={cancelMethods}
           setCancelMethods={setCancelMethods}
           allowActivityInstanceCancel={allowActivityInstanceCancel}
+          allowTransitionInstanceCancel={allowTransitionInstanceCancel}
         />
       );
     }

@@ -215,6 +215,14 @@ describe('CancelActivityFields', () => {
     index: 0,
     activities: mockActivities,
     activeInstances: mockActiveInstances,
+    activeTransitionInstances: [
+      {
+        id: 'transition-1',
+        activityId: 'task1',
+        activityName: 'User Task 1',
+        hasIncident: true,
+      },
+    ],
     activityCounts: mockActivityCounts,
     cancelMethods: new Map<number, string>(),
     setCancelMethods: jest.fn(),
@@ -243,6 +251,7 @@ describe('CancelActivityFields', () => {
 
     expect(screen.getByText('All instances of activity')).toBeInTheDocument();
     expect(screen.getByText('Specific activity instance')).toBeInTheDocument();
+    expect(screen.getByText('Specific transition instance')).toBeInTheDocument();
   });
 
   it('should show activity selector when method is "activity" (default)', () => {
@@ -312,5 +321,22 @@ describe('CancelActivityFields', () => {
     expect(screen.getByText(/User Task 1 \(task1\) \(ID: instance1\)/)).toBeInTheDocument();
     expect(screen.getByText(/Service Task 2 \(task2\) \(ID: instance2\)/)).toBeInTheDocument();
     expect(screen.getByText(/Sub Process \(subprocess1\) \(ID: subprocess-instance\)/)).toBeInTheDocument();
+  });
+
+  it('should show async continuations and identify those with incidents', () => {
+    const cancelMethods = new Map<number, string>([[0, 'transitionInstance']]);
+    render(
+      <FormWrapper>
+        <CancelActivityFields {...defaultProps} cancelMethods={cancelMethods} />
+      </FormWrapper>
+    );
+
+    fireEvent.focus(screen.getByPlaceholderText('-- Select Transition Instance --'));
+
+    expect(
+      screen.getByRole('option', {
+        name: 'User Task 1 (task1) (transition ID: transition-1) — Incident',
+      })
+    ).toBeInTheDocument();
   });
 });
