@@ -15599,6 +15599,23 @@ function formatActivityInstanceLabel(inst) {
     return "".concat(formatLabelWithId(inst.activityName, inst.activityId), " (ID: ").concat(inst.id, ")");
 }
 /**
+ * Renders the picker for canceling a specific async continuation.
+ */
+var TransitionInstanceCancelField = function (_a) {
+    var index = _a.index, activeTransitionInstances = _a.activeTransitionInstances;
+    var control = useFormContext().control;
+    return (React.createElement("div", { style: { marginBottom: '10px' } },
+        React.createElement("label", null, "Transition Instance (cancel async continuation): "),
+        React.createElement(Controller, { name: "instructions.".concat(index, ".transitionInstanceId"), control: control, render: function (_a) {
+                var field = _a.field;
+                return (React.createElement(SearchableSelect, { value: field.value, onChange: field.onChange, onBlur: field.onBlur, name: field.name, options: activeTransitionInstances.map(function (inst) { return ({
+                        value: inst.id,
+                        label: "".concat(formatLabelWithId(inst.activityName, inst.activityId), " ") +
+                            "(transition ID: ".concat(inst.id, ")").concat(inst.hasIncident ? ' — Incident' : ''),
+                    }); }), placeholder: "-- Select Transition Instance --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
+            } })));
+};
+/**
  * Renders fields for starting a transition (sequence flow).
  * Allows selecting a sequence flow and optionally an ancestor activity instance.
  */
@@ -15636,16 +15653,22 @@ var TransitionFields = function (_a) {
  */
 var CancelActivityFields = function (_a) {
     var _b;
-    var index = _a.index, activities = _a.activities, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _c = _a.allowActivityInstanceCancel, allowActivityInstanceCancel = _c === void 0 ? true : _c;
-    var _d = useFormContext(), control = _d.control, setValue = _d.setValue;
+    var index = _a.index, activities = _a.activities, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, activeTransitionInstances = _a.activeTransitionInstances, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _c = _a.allowActivityInstanceCancel, allowActivityInstanceCancel = _c === void 0 ? true : _c, _d = _a.allowTransitionInstanceCancel, allowTransitionInstanceCancel = _d === void 0 ? true : _d;
+    var _e = useFormContext(), control = _e.control, setValue = _e.setValue;
     var currentMethod = (_b = cancelMethods.get(index)) !== null && _b !== void 0 ? _b : 'activity';
     var handleMethodChange = function (method) {
         setCancelMethods(new Map(cancelMethods.set(index, method)));
         if (method === 'activity') {
             setValue("instructions.".concat(index, ".activityInstanceId"), '');
+            setValue("instructions.".concat(index, ".transitionInstanceId"), '');
         }
         else if (method === 'activityInstance') {
             setValue("instructions.".concat(index, ".activityId"), '');
+            setValue("instructions.".concat(index, ".transitionInstanceId"), '');
+        }
+        else if (method === 'transitionInstance') {
+            setValue("instructions.".concat(index, ".activityId"), '');
+            setValue("instructions.".concat(index, ".activityInstanceId"), '');
         }
     };
     return (React.createElement(React.Fragment, null,
@@ -15655,7 +15678,8 @@ var CancelActivityFields = function (_a) {
                     handleMethodChange(e.target.value);
                 } },
                 React.createElement("option", { value: "activity" }, "All instances of activity"),
-                allowActivityInstanceCancel && React.createElement("option", { value: "activityInstance" }, "Specific activity instance"))),
+                allowActivityInstanceCancel && React.createElement("option", { value: "activityInstance" }, "Specific activity instance"),
+                allowTransitionInstanceCancel && React.createElement("option", { value: "transitionInstance" }, "Specific transition instance"))),
         currentMethod === 'activity' && (React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Activity (cancel all instances): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityId"), control: control, render: function (_a) {
@@ -15678,7 +15702,8 @@ var CancelActivityFields = function (_a) {
                             value: inst.id,
                             label: formatActivityInstanceLabel(inst),
                         }); }), placeholder: "-- Select Activity Instance --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
-                } })))));
+                } }))),
+        allowTransitionInstanceCancel && currentMethod === 'transitionInstance' && (React.createElement(TransitionInstanceCancelField, { index: index, activeTransitionInstances: activeTransitionInstances }))));
 };
 /**
  * Renders fields for starting before or after an activity.
@@ -15723,15 +15748,15 @@ var StartActivityFields = function (_a) {
  * Includes type selector and type-specific fields for the instruction.
  */
 var InstructionCard = function (_a) {
-    var fieldId = _a.fieldId, index = _a.index, showRemove = _a.showRemove, onRemove = _a.onRemove, activities = _a.activities, sequenceFlows = _a.sequenceFlows, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _b = _a.showVariables, showVariables = _b === void 0 ? true : _b, _c = _a.allowActivityInstanceCancel, allowActivityInstanceCancel = _c === void 0 ? true : _c;
-    var _d = useFormContext(), control = _d.control, watch = _d.watch;
+    var fieldId = _a.fieldId, index = _a.index, showRemove = _a.showRemove, onRemove = _a.onRemove, activities = _a.activities, sequenceFlows = _a.sequenceFlows, activeInstances = _a.activeInstances, activeTransitionInstances = _a.activeTransitionInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _b = _a.showVariables, showVariables = _b === void 0 ? true : _b, _c = _a.allowActivityInstanceCancel, allowActivityInstanceCancel = _c === void 0 ? true : _c, _d = _a.allowTransitionInstanceCancel, allowTransitionInstanceCancel = _d === void 0 ? true : _d;
+    var _e = useFormContext(), control = _e.control, watch = _e.watch;
     var instructionType = watch("instructions.".concat(index, ".type"));
     var renderInstructionFields = function () {
         if (instructionType === 'startTransition') {
             return (React.createElement(TransitionFields, { index: index, sequenceFlows: sequenceFlows, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts }));
         }
         if (instructionType === 'cancel') {
-            return (React.createElement(CancelActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, cancelMethods: cancelMethods, setCancelMethods: setCancelMethods, allowActivityInstanceCancel: allowActivityInstanceCancel }));
+            return (React.createElement(CancelActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, activeTransitionInstances: activeTransitionInstances, cancelMethods: cancelMethods, setCancelMethods: setCancelMethods, allowActivityInstanceCancel: allowActivityInstanceCancel, allowTransitionInstanceCancel: allowTransitionInstanceCancel }));
         }
         // Default: startBeforeActivity or startAfterActivity
         return (React.createElement(StartActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, showVariables: showVariables }));
@@ -16171,9 +16196,9 @@ var BatchModifyForm = function (_a) {
                 React.createElement(DryRunResultPreview, { result: dryRunResult, request: guard.previewedRequest, maxInstances: MAX_PREVIEW_INSTANCES$1 })),
             fields.map(function (field, index) { return (React.createElement(InstructionCard, { key: field.id, fieldId: field.id, index: index, showRemove: fields.length > 1, onRemove: function () {
                     remove(index);
-                }, activities: activities, sequenceFlows: sequenceFlows, activeInstances: [], activityCounts: activityCounts, cancelMethods: new Map(), setCancelMethods: function () {
+                }, activities: activities, sequenceFlows: sequenceFlows, activeInstances: [], activeTransitionInstances: [], activityCounts: activityCounts, cancelMethods: new Map(), setCancelMethods: function () {
                     /* no-op for batch modification */
-                }, showVariables: false, allowActivityInstanceCancel: false })); }),
+                }, showVariables: false, allowActivityInstanceCancel: false, allowTransitionInstanceCancel: false })); }),
             React.createElement("div", { className: "modify-form__add-instruction" },
                 React.createElement(FormButton, { variant: "secondary", onClick: function () {
                         append({ type: 'startBeforeActivity', activityId: '', variables: [] });

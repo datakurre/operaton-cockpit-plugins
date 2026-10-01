@@ -2333,7 +2333,7 @@ var IntegrationsTable = function (_a) {
                     React.createElement("td", null,
                         React.createElement("div", { style: { display: 'flex', gap: '5px' } }, (function () {
                             if (hasIncident) {
-                                return (React.createElement("button", { className: "btn btn-xs btn-default", onClick: function () {
+                                return (React.createElement("button", { className: "btn btn-xs btn-default dashboard-integrations__retry-button", onClick: function () {
                                         void handleRetry(taskId);
                                     }, disabled: loading, title: "Set retries to 1" }, loading ? '...' : 'Retry'));
                             }
