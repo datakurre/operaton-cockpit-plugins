@@ -3854,8 +3854,8 @@ var TransitionFields = function (_a) {
  */
 var CancelActivityFields = function (_a) {
     var _b;
-    var index = _a.index, activities = _a.activities, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods;
-    var _c = useFormContext(), control = _c.control, setValue = _c.setValue;
+    var index = _a.index, activities = _a.activities, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _c = _a.allowActivityInstanceCancel, allowActivityInstanceCancel = _c === void 0 ? true : _c;
+    var _d = useFormContext(), control = _d.control, setValue = _d.setValue;
     var currentMethod = (_b = cancelMethods.get(index)) !== null && _b !== void 0 ? _b : 'activity';
     var handleMethodChange = function (method) {
         setCancelMethods(new Map(cancelMethods.set(index, method)));
@@ -3873,7 +3873,7 @@ var CancelActivityFields = function (_a) {
                     handleMethodChange(e.target.value);
                 } },
                 React.createElement("option", { value: "activity" }, "All instances of activity"),
-                React.createElement("option", { value: "activityInstance" }, "Specific activity instance"))),
+                allowActivityInstanceCancel && React.createElement("option", { value: "activityInstance" }, "Specific activity instance"))),
         currentMethod === 'activity' && (React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Activity (cancel all instances): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityId"), control: control, render: function (_a) {
@@ -3888,7 +3888,7 @@ var CancelActivityFields = function (_a) {
                             });
                         }), placeholder: "-- Select Active Activity --", style: { width: '400px', display: 'inline-block', marginLeft: '10px' } }));
                 } }))),
-        currentMethod === 'activityInstance' && (React.createElement("div", { style: { marginBottom: '10px' } },
+        allowActivityInstanceCancel && currentMethod === 'activityInstance' && (React.createElement("div", { style: { marginBottom: '10px' } },
             React.createElement("label", null, "Activity Instance (cancel specific): "),
             React.createElement(Controller, { name: "instructions.".concat(index, ".activityInstanceId"), control: control, render: function (_a) {
                     var field = _a.field;
@@ -3941,15 +3941,15 @@ var StartActivityFields = function (_a) {
  * Includes type selector and type-specific fields for the instruction.
  */
 var InstructionCard = function (_a) {
-    var fieldId = _a.fieldId, index = _a.index, showRemove = _a.showRemove, onRemove = _a.onRemove, activities = _a.activities, sequenceFlows = _a.sequenceFlows, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _b = _a.showVariables, showVariables = _b === void 0 ? true : _b;
-    var _c = useFormContext(), control = _c.control, watch = _c.watch;
+    var fieldId = _a.fieldId, index = _a.index, showRemove = _a.showRemove, onRemove = _a.onRemove, activities = _a.activities, sequenceFlows = _a.sequenceFlows, activeInstances = _a.activeInstances, activityCounts = _a.activityCounts, cancelMethods = _a.cancelMethods, setCancelMethods = _a.setCancelMethods, _b = _a.showVariables, showVariables = _b === void 0 ? true : _b, _c = _a.allowActivityInstanceCancel, allowActivityInstanceCancel = _c === void 0 ? true : _c;
+    var _d = useFormContext(), control = _d.control, watch = _d.watch;
     var instructionType = watch("instructions.".concat(index, ".type"));
     var renderInstructionFields = function () {
         if (instructionType === 'startTransition') {
             return (React.createElement(TransitionFields, { index: index, sequenceFlows: sequenceFlows, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts }));
         }
         if (instructionType === 'cancel') {
-            return (React.createElement(CancelActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, cancelMethods: cancelMethods, setCancelMethods: setCancelMethods }));
+            return (React.createElement(CancelActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, cancelMethods: cancelMethods, setCancelMethods: setCancelMethods, allowActivityInstanceCancel: allowActivityInstanceCancel }));
         }
         // Default: startBeforeActivity or startAfterActivity
         return (React.createElement(StartActivityFields, { index: index, activities: activities, activeInstances: activeInstances, activityCounts: activityCounts, showVariables: showVariables }));
@@ -15613,6 +15613,35 @@ var Tabs = function (_a) {
 };
 
 /**
+ * Flatten the runtime activity-instance tree into the selectable instances.
+ * @param tree - Runtime activity-instance tree returned by the engine
+ * @returns Activity instances accepted by modification instructions
+ */
+function collectActiveActivityInstances(tree) {
+    var instances = [];
+    var visit = function (activityInstance) {
+        var _a, _b;
+        if (activityInstance.id && activityInstance.activityId) {
+            var instance = {
+                id: activityInstance.id,
+                activityId: activityInstance.activityId,
+            };
+            var activityName = (_a = activityInstance.activityName) !== null && _a !== void 0 ? _a : activityInstance.name;
+            if (activityName !== null && activityName !== undefined) {
+                instance.activityName = activityName;
+            }
+            if (activityInstance.parentActivityInstanceId !== null &&
+                activityInstance.parentActivityInstanceId !== undefined) {
+                instance.parentActivityInstanceId = activityInstance.parentActivityInstanceId;
+            }
+            instances.push(instance);
+        }
+        (_b = activityInstance.childActivityInstances) === null || _b === void 0 ? void 0 : _b.forEach(visit);
+    };
+    visit(tree);
+    return instances;
+}
+/**
  * Process modification form component.
  * Allows adding/removing modification instructions and submitting to the API.
  */
@@ -15646,7 +15675,7 @@ var ModifyForm = function (_a) {
     }), fields = _m.fields, append = _m.append, remove = _m.remove;
     reactExports.useEffect(function () {
         var loadActivities = function () { return __awaiter(void 0, void 0, void 0, function () {
-            var defId, instanceData, _a, activities_1, sequenceFlows_1, unfinishedActivityInstances, allActiveInstances, counts_1, _err_1, errorMessage;
+            var defId, instanceData, _a, activities_1, sequenceFlows_1, activityInstanceTree, allActiveInstances, counts_1, _err_1, errorMessage;
             var _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -15670,25 +15699,10 @@ var ModifyForm = function (_a) {
                         _a = _c.sent(), activities_1 = _a.activities, sequenceFlows_1 = _a.sequenceFlows;
                         setActivities(activities_1);
                         setSequenceFlows(sequenceFlows_1);
-                        return [4 /*yield*/, get(api, '/history/activity-instance', {
-                                processInstanceId: processInstanceId,
-                                unfinished: 'true',
-                            })];
+                        return [4 /*yield*/, get(api, "/process-instance/".concat(processInstanceId, "/activity-instances"))];
                     case 4:
-                        unfinishedActivityInstances = (_c.sent());
-                        allActiveInstances = unfinishedActivityInstances.map(function (inst) {
-                            var result = {
-                                id: inst.id,
-                                activityId: inst.activityId,
-                            };
-                            if (inst.activityName !== null && inst.activityName !== undefined) {
-                                result.activityName = inst.activityName;
-                            }
-                            if (inst.parentActivityInstanceId !== null && inst.parentActivityInstanceId !== undefined) {
-                                result.parentActivityInstanceId = inst.parentActivityInstanceId;
-                            }
-                            return result;
-                        });
+                        activityInstanceTree = (_c.sent());
+                        allActiveInstances = collectActiveActivityInstances(activityInstanceTree);
                         counts_1 = new Map();
                         allActiveInstances.forEach(function (inst) {
                             var _a;
