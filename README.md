@@ -90,10 +90,10 @@ With Operaton (build image without needing any context directory):
 
 ```bash
 # Build directly from GitHub without cloning:
-curl -fsSL https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile | docker build -t operaton-with-plugins -
+curl -fsSL https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile | docker build --no-cache -t operaton-with-plugins -
 
 # Or build from a local clone without build context:
-docker build -t operaton-with-plugins - < Dockerfile
+docker build --no-cache -t operaton-with-plugins - < Dockerfile
 
 # Run the container:
 docker run --rm -p 8080:8080 operaton-with-plugins
@@ -136,18 +136,22 @@ Because all assets are fetched during the build stage, no local context director
 
 **Build directly from GitHub:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile | docker build -t operaton-with-plugins -
+curl -fsSL https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile | docker build --no-cache -t operaton-with-plugins -
 ```
-*(or `docker build -t operaton-with-plugins https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile`)*
+*(or `docker build --no-cache -t operaton-with-plugins https://raw.githubusercontent.com/datakurre/operaton-cockpit-plugins/main/Dockerfile`)*
+
+Use `--no-cache` when rebuilding from `main`: the Dockerfile fetches the plugin archive during the
+build, and Docker cannot detect changes to that remote archive when reusing the fetch layer.
 
 **Build from local file without context:**
 ```bash
-docker build -t operaton-with-plugins - < Dockerfile
+docker build --no-cache -t operaton-with-plugins - < Dockerfile
 ```
 
 **Customizing build arguments:**
 ```bash
 docker build \
+  --no-cache \
   --build-arg OPERATON_IMAGE=operaton/operaton:latest \
   --build-arg PLUGINS_REF=main \
   -t operaton-with-plugins - < Dockerfile
