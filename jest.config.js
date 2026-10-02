@@ -43,12 +43,11 @@ module.exports = {
       statements: 75,
     },
   },
-  // bpmn-moddle and its dependency chain (moddle, moddle-xml, saxen, a nested min-dash)
-  // are ESM-only, so they must be transformed rather than ignored. Note the pattern is
-  // unanchored: a nested path such as bpmn-moddle/node_modules/min-dash is only transformed
-  // when *every* "node_modules/" segment in it is followed by an allowed package name.
+  // ESM-only packages and their dependency chains must be transformed rather than ignored.
+  // The pattern is unanchored: nested dependencies are transformed only when every
+  // "node_modules/" segment is followed by an allowed package name.
   transformIgnorePatterns: [
-    '/node_modules/(?!(bpmn-js|bpmn-moddle|diagram-js|min-dash|min-dom|moddle-xml|moddle|saxen|msw|@mswjs|until-async)/)',
+    '/node_modules/(?!(bpmn-js|bpmn-moddle|diagram-js|min-dash|min-dom|moddle-xml|moddle|saxen|msw|@mswjs|until-async|@bpmn-io/element-template-icon-renderer|tiny-svg)/)',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   // Handle ESM modules - transform both TS/TSX and JS files from ESM packages

@@ -26,6 +26,7 @@
     }
   },
   "dependencies": {
+    "@bpmn-io/element-template-icon-renderer": "^1.0.0",
     "allotment": "^1.20.4",
     "bpmn-js": "^18.16.1",
     "camunda-bpmn-js-behaviors": "^1.15.0",

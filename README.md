@@ -35,6 +35,7 @@ deploy them without running the build.
 | `instance-historic-activities.js` | Instance tab *Audit Log* + diagram | Audit log for the instance, activity overlays and executed sequence-flow highlighting. Flows taken more than once are drawn heavier, and hovering one names the exact traversal count |
 | `instance-route-history.js` | Definition tab *History*, instance diagram toggle, and the route `#/history/process-instance/:id` | Filterable, paginated list of historic instances, and a full history view with BPMN viewer, audit log and variables. The diagram carries its own toggles for the executed path and for a time heatmap of where that one instance spent its time |
 | `instance-tab-modify.js` | Instance tab *Modify* | Modify a single running instance (start/cancel activities, transitions) and correlate a message to it |
+| `element-template-icon-renderer.js` | `bpmnJs.additionalModules` | Renders element-template icons on BPMN activities and events |
 | `cockpit-custom-styles.js` | — | Injects [src/cockpit-custom-styles.scss](src/cockpit-custom-styles.scss); no JavaScript behaviour. Also backfills Bootstrap 3 `col-xs-*` classes that Operaton omits |
 | `robot-module.js` | `bpmnJs.additionalModules` | Draws a Robot Framework icon on service tasks whose id matches `/robot/i` |
 
@@ -186,6 +187,7 @@ src/main/resources/
                     │       ├── instance-historic-activities.js
                     │       ├── instance-route-history.js
                     │       ├── instance-tab-modify.js
+                    │       ├── element-template-icon-renderer.js
                     │       └── robot-module.js
                     ├── admin
                     │   └── scripts
@@ -226,7 +228,7 @@ repository ships one configuration file per webapp:
 
 | File | Webapp | Loads |
 |------|--------|-------|
-| [config.js](config.js) | Cockpit | the ten Cockpit plugins plus `robot-module.js` as a `bpmnJs.additionalModules` entry |
+| [config.js](config.js) | Cockpit | the ten Cockpit plugins plus `robot-module.js` and `element-template-icon-renderer.js` as `bpmnJs.additionalModules` entries |
 | [admin-config.js](admin-config.js) | Admin | `admin-route-authorization.js`, `admin-custom-styles.js` |
 | [tasklist-config.js](tasklist-config.js) | Tasklist | `tasklist-audit-log.js`, `tasklist-custom-styles.js` |
 | [welcome-config.js](welcome-config.js) | Welcome | `welcome-custom-styles.js` |
@@ -250,7 +252,8 @@ export default {
   ],
   bpmnJs: {
     additionalModules: [
-      'scripts/robot-module.js'
+      'scripts/robot-module.js',
+      'scripts/element-template-icon-renderer.js'
     ],
   },
   disableWelcomeMessage: true,

@@ -1,5 +1,6 @@
 import ModelingModule from 'bpmn-js/lib/features/modeling';
 import BpmnViewer from 'bpmn-js/lib/NavigatedViewer';
+import ElementTemplateIconRenderer from '@bpmn-io/element-template-icon-renderer';
 import camundaPlatformBehaviors from 'camunda-bpmn-js-behaviors/lib/camunda-platform';
 import camundaModdle from 'camunda-bpmn-moddle/resources/camunda.json';
 import tooltips from 'diagram-js/lib/features/tooltips';
@@ -46,6 +47,7 @@ export const createBPMNViewer = async (diagram: string): Promise<BpmnViewerInsta
   const additionalModules: ModuleDeclaration[] = [
     camundaPlatformBehaviors as ModuleDeclaration,
     RobotModule as ModuleDeclaration,
+    ElementTemplateIconRenderer as ModuleDeclaration,
     tooltips as ModuleDeclaration,
     ModelingModule as ModuleDeclaration,
   ];

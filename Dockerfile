@@ -32,6 +32,7 @@ RUN mkdir -p cockpit/scripts admin/scripts tasklist/scripts welcome/scripts && \
        /tmp/plugins-src/instance-historic-activities.js \
        /tmp/plugins-src/instance-route-history.js \
        /tmp/plugins-src/instance-tab-modify.js \
+       /tmp/plugins-src/element-template-icon-renderer.js \
        /tmp/plugins-src/robot-module.js \
        cockpit/scripts/ && \
     cp /tmp/plugins-src/admin-route-authorization.js \

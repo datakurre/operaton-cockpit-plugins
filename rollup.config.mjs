@@ -46,6 +46,14 @@ const plugins = [
 // All available plugin configurations
 const allConfigs = [
   {
+    input: "src/ElementTemplateIconRenderer/index.ts",
+    output: {
+      file: "element-template-icon-renderer.js",
+      sourcemap: isDevelopment,
+    },
+    plugins,
+  },
+  {
     input: "src/RobotModule/index.ts",
     output: {
       file: "robot-module.js",

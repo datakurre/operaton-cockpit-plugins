@@ -13,7 +13,8 @@ export default {
      ],
      bpmnJs: {
        additionalModules: [
-         'scripts/robot-module.js'
+         'scripts/robot-module.js',
+         'scripts/element-template-icon-renderer.js'
        ],
      },
      disableWelcomeMessage: true,
