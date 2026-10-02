@@ -3518,7 +3518,7 @@ function extract(input) {
 	return input.slice(queryStart + 1);
 }
 
-function parse$3(query, options) {
+function parse$4(query, options) {
 	options = {
 		decode: true,
 		sort: true,
@@ -3687,7 +3687,7 @@ function parseUrl(url, options) {
 
 	return {
 		url: url_?.split('?')?.[0] ?? '',
-		query: parse$3(extract(url), options),
+		query: parse$4(extract(url), options),
 		...(options && options.parseFragmentIdentifier && hash ? {fragmentIdentifier: decode(hash, options)} : {}),
 	};
 }
@@ -3704,7 +3704,7 @@ function stringifyUrl(object, options) {
 	const queryFromUrl = extract(object.url);
 
 	const query = {
-		...parse$3(queryFromUrl, {sort: false, ...options}),
+		...parse$4(queryFromUrl, {sort: false, ...options}),
 		...object.query,
 	};
 
@@ -3747,7 +3747,7 @@ var queryString = /*#__PURE__*/Object.freeze({
     __proto__: null,
     exclude: exclude,
     extract: extract,
-    parse: parse$3,
+    parse: parse$4,
     parseUrl: parseUrl,
     pick: pick$3,
     stringify: stringify,
@@ -10805,7 +10805,7 @@ const unescapedLatinCharacterRegExp = /[a-zA-Z]/;
  * })
  * //=> Sun Feb 28 2010 00:00:00
  */
-function parse$2(dateStr, formatStr, referenceDate, options) {
+function parse$3(dateStr, formatStr, referenceDate, options) {
   const invalidDate = () => constructFrom(options?.in || referenceDate, NaN);
   const defaultOptions = getDefaultOptions();
   const locale = options?.locale ?? defaultOptions.locale ?? enUS;
@@ -14165,7 +14165,7 @@ function parseDate(value, dateFormat, locale, strictParsing, refDate) {
     var formats = Array.isArray(dateFormat) ? dateFormat : [dateFormat];
     for (var _i = 0, formats_1 = formats; _i < formats_1.length; _i++) {
         var format_1 = formats_1[_i];
-        var parsedDate = parse$2(value, format_1, refDate, {
+        var parsedDate = parse$3(value, format_1, refDate, {
             locale: localeObject});
         if (isValid(parsedDate) &&
             (!strictParsing || value === formatDate$1(parsedDate, format_1, locale))) {
@@ -26742,7 +26742,7 @@ function copyObject(src1, src2) {
  * @typedef {import('../../../model/Types').Element} Element
  */
 
-var HIGH_PRIORITY$g = 1500;
+var HIGH_PRIORITY$h = 1500;
 
 /**
  * A behavior that ensures that visually enclosed artifacts are affected
@@ -26763,7 +26763,7 @@ function ArtifactBehavior(
   injector.invoke(CommandInterceptor, this);
 
   // enclosed artifacts are deleted with a container element
-  this.preExecute('elements.delete', HIGH_PRIORITY$g, function(event) {
+  this.preExecute('elements.delete', HIGH_PRIORITY$h, function(event) {
     var context = event.context,
         elements = context.elements;
 
@@ -27520,7 +27520,7 @@ var HORIZONTAL_PARTICIPANT_PADDING = 20,
 
 var PARTICIPANT_BORDER_WIDTH = 30;
 
-var HIGH_PRIORITY$f = 2000;
+var HIGH_PRIORITY$g = 2000;
 
 
 /**
@@ -27537,7 +27537,7 @@ function CreateParticipantBehavior(canvas, eventBus, modeling) {
   eventBus.on([
     'create.start',
     'shape.move.start'
-  ], HIGH_PRIORITY$f, function(event) {
+  ], HIGH_PRIORITY$g, function(event) {
     var context = event.context,
         shape = context.shape,
         rootElement = canvas.getRootElement();
@@ -27572,7 +27572,7 @@ function CreateParticipantBehavior(canvas, eventBus, modeling) {
   });
 
   // force hovering process when creating first participant
-  eventBus.on('create.start', HIGH_PRIORITY$f, function(event) {
+  eventBus.on('create.start', HIGH_PRIORITY$g, function(event) {
     var context = event.context,
         shape = context.shape,
         rootElement = canvas.getRootElement(),
@@ -27584,7 +27584,7 @@ function CreateParticipantBehavior(canvas, eventBus, modeling) {
     }
 
     if (is$1(shape, 'bpmn:Participant') && is$1(rootElement, 'bpmn:Process')) {
-      eventBus.on('element.hover', HIGH_PRIORITY$f, ensureHoveringProcess);
+      eventBus.on('element.hover', HIGH_PRIORITY$g, ensureHoveringProcess);
 
       eventBus.once('create.cleanup', function() {
         eventBus.off('element.hover', ensureHoveringProcess);
@@ -27605,7 +27605,7 @@ function CreateParticipantBehavior(canvas, eventBus, modeling) {
 
   // when creating mutliple elements through `elements.create` parent must be set to collaboration
   // and passed to `shape.create` as hint
-  this.preExecute('elements.create', HIGH_PRIORITY$f, function(context) {
+  this.preExecute('elements.create', HIGH_PRIORITY$g, function(context) {
     var elements = context.elements,
         parent = context.parent,
         participant = findParticipant(elements),
@@ -29208,7 +29208,7 @@ function isSequenceFlow(connection) {
  * @typedef {import('diagram-js/lib/core/Canvas').default} Canvas
  */
 
-var HIGH_PRIORITY$e = 1500;
+var HIGH_PRIORITY$f = 1500;
 var HIGHEST_PRIORITY = 2000;
 
 
@@ -29230,7 +29230,7 @@ function FixHoverBehavior(elementRegistry, eventBus, canvas) {
     'shape.move.move',
     'shape.move.out',
     'shape.move.end'
-  ], HIGH_PRIORITY$e, function(event) {
+  ], HIGH_PRIORITY$f, function(event) {
     var context = event.context,
         shape = context.shape || event.shape,
         hover = event.hover;
@@ -29261,7 +29261,7 @@ function FixHoverBehavior(elementRegistry, eventBus, canvas) {
     'global-connect.out',
     'global-connect.end',
     'global-connect.cleanup'
-  ], HIGH_PRIORITY$e, function(event) {
+  ], HIGH_PRIORITY$f, function(event) {
     var hover = event.hover;
 
     // ensure connections start/end on bpmn:Participant,
@@ -29275,7 +29275,7 @@ function FixHoverBehavior(elementRegistry, eventBus, canvas) {
 
   eventBus.on([
     'bendpoint.move.hover'
-  ], HIGH_PRIORITY$e, function(event) {
+  ], HIGH_PRIORITY$f, function(event) {
     var context = event.context,
         hover = event.hover,
         type = context.type;
@@ -29291,7 +29291,7 @@ function FixHoverBehavior(elementRegistry, eventBus, canvas) {
 
   eventBus.on([
     'connect.start'
-  ], HIGH_PRIORITY$e, function(event) {
+  ], HIGH_PRIORITY$f, function(event) {
     var context = event.context,
         start = context.start;
 
@@ -31911,7 +31911,7 @@ ReplaceElementBehaviour.$inject = [
   'selection'
 ];
 
-var HIGH_PRIORITY$d = 1500;
+var HIGH_PRIORITY$e = 1500;
 
 /**
  * @typedef {import('diagram-js/lib/core/EventBus').default} EventBus
@@ -31964,7 +31964,7 @@ var TEXT_ANNOTATION_MIN_DIMENSIONS = { width: 100, height: 40 };
  * @param {EventBus} eventBus
  */
 function ResizeBehavior(eventBus) {
-  eventBus.on('resize.start', HIGH_PRIORITY$d, function(event) {
+  eventBus.on('resize.start', HIGH_PRIORITY$e, function(event) {
     var context = event.context,
         shape = context.shape,
         direction = context.direction,
@@ -32852,7 +32852,7 @@ function removePlaneSuffix(id) {
  */
 
 var LOW_PRIORITY$g = 400;
-var HIGH_PRIORITY$c = 600;
+var HIGH_PRIORITY$d = 600;
 
 var DEFAULT_POSITION$1 = {
   x: 180,
@@ -33161,7 +33161,7 @@ function SubProcessPlaneBehavior(
   }, true);
 
   // move elements between planes
-  this.postExecuted('shape.toggleCollapse', HIGH_PRIORITY$c, function(context) {
+  this.postExecuted('shape.toggleCollapse', HIGH_PRIORITY$d, function(context) {
     var shape = context.shape;
 
     if (!is$1(shape, 'bpmn:SubProcess')) {
@@ -33963,7 +33963,7 @@ function isDefaultFlow(connection, source) {
  */
 
 var LOW_PRIORITY$e = 500,
-    HIGH_PRIORITY$b = 5000;
+    HIGH_PRIORITY$c = 5000;
 
 
 /**
@@ -34036,7 +34036,7 @@ function UpdateFlowNodeRefsBehavior(eventBus, modeling) {
 
   // listen to a lot of stuff to group lane updates
 
-  this.preExecute(laneRefUpdateEvents, HIGH_PRIORITY$b, function(event) {
+  this.preExecute(laneRefUpdateEvents, HIGH_PRIORITY$c, function(event) {
     initContext();
   });
 
@@ -35610,7 +35610,7 @@ var RulesModule = {
  * @typedef {import('diagram-js/lib/core/Canvas').default} Canvas
  */
 
-var HIGH_PRIORITY$a = 2000;
+var HIGH_PRIORITY$b = 2000;
 
 /**
  * @param {EventBus} eventBus
@@ -35618,7 +35618,7 @@ var HIGH_PRIORITY$a = 2000;
  */
 function BpmnDiOrdering(eventBus, canvas) {
 
-  eventBus.on('saveXML.start', HIGH_PRIORITY$a, orderDi);
+  eventBus.on('saveXML.start', HIGH_PRIORITY$b, orderDi);
 
   function orderDi() {
     var rootElements = canvas.getRootElements();
@@ -36176,7 +36176,7 @@ function assign$4(element, ...styleSources) {
  * @param {String} [val]
  * @api public
  */
-function attr$2(el, name, val) {
+function attr$3(el, name, val) {
 
   // get
   if (arguments.length == 2) {
@@ -36509,7 +36509,7 @@ function remove$1(el) {
  * @typedef {import('../../core/EventBus').default} EventBus
  */
 
-var HIGH_PRIORITY$9 = 1500;
+var HIGH_PRIORITY$a = 1500;
 
 
 /**
@@ -36577,7 +36577,7 @@ function HoverFix(elementRegistry, eventBus, injector) {
      */
     eventBus.on('drag.start', function(event) {
 
-      eventBus.once('drag.move', HIGH_PRIORITY$9, function(event) {
+      eventBus.once('drag.move', HIGH_PRIORITY$a, function(event) {
 
         ensureHover(event);
 
@@ -36608,7 +36608,7 @@ function HoverFix(elementRegistry, eventBus, injector) {
       hover = event.element;
     });
 
-    eventBus.on('element.hover', HIGH_PRIORITY$9, function(event) {
+    eventBus.on('element.hover', HIGH_PRIORITY$a, function(event) {
 
       // (3) am I on an element still?
       if (hover) {
@@ -36672,7 +36672,7 @@ var HoverFixModule = {
   hoverFix: [ 'type', HoverFix ],
 };
 
-function ensureImported(element, target) {
+function ensureImported$1(element, target) {
 
   if (element.ownerDocument !== target.ownerDocument) {
     try {
@@ -36701,8 +36701,8 @@ function ensureImported(element, target) {
  *
  * @return {SVGElement} the appended node
  */
-function appendTo(element, target) {
-  return target.appendChild(ensureImported(element, target));
+function appendTo$1(element, target) {
+  return target.appendChild(ensureImported$1(element, target));
 }
 
 /**
@@ -36718,8 +36718,8 @@ function appendTo(element, target) {
  *
  * @return {SVGElement} the element
  */
-function append(target, node) {
-  appendTo(node, target);
+function append$1(target, node) {
+  appendTo$1(node, target);
   return target;
 }
 
@@ -36727,9 +36727,9 @@ function append(target, node) {
  * attribute accessor utility
  */
 
-var LENGTH_ATTR$1 = 2;
+var LENGTH_ATTR$2 = 2;
 
-var CSS_PROPERTIES$1 = {
+var CSS_PROPERTIES$2 = {
   'alignment-baseline': 1,
   'baseline-shift': 1,
   'clip': 1,
@@ -36753,7 +36753,7 @@ var CSS_PROPERTIES$1 = {
   'flood-opacity': 1,
   'font': 1,
   'font-family': 1,
-  'font-size': LENGTH_ATTR$1,
+  'font-size': LENGTH_ATTR$2,
   'font-size-adjust': 1,
   'font-stretch': 1,
   'font-style': 1,
@@ -36783,7 +36783,7 @@ var CSS_PROPERTIES$1 = {
   'stroke-linejoin': 1,
   'stroke-miterlimit': 1,
   'stroke-opacity': 1,
-  'stroke-width': LENGTH_ATTR$1,
+  'stroke-width': LENGTH_ATTR$2,
   'text-anchor': 1,
   'text-decoration': 1,
   'text-rendering': 1,
@@ -36794,23 +36794,23 @@ var CSS_PROPERTIES$1 = {
 };
 
 
-function getAttribute$1(node, name) {
-  if (CSS_PROPERTIES$1[name]) {
+function getAttribute$2(node, name) {
+  if (CSS_PROPERTIES$2[name]) {
     return node.style[name];
   } else {
     return node.getAttributeNS(null, name);
   }
 }
 
-function setAttribute$1(node, name, value) {
+function setAttribute$2(node, name, value) {
   var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 
-  var type = CSS_PROPERTIES$1[hyphenated];
+  var type = CSS_PROPERTIES$2[hyphenated];
 
   if (type) {
 
     // append pixel unit, unless present
-    if (type === LENGTH_ATTR$1 && typeof value === 'number') {
+    if (type === LENGTH_ATTR$2 && typeof value === 'number') {
       value = String(value) + 'px';
     }
 
@@ -36820,12 +36820,12 @@ function setAttribute$1(node, name, value) {
   }
 }
 
-function setAttributes$1(node, attrs) {
+function setAttributes$2(node, attrs) {
 
   var names = Object.keys(attrs), i, name;
 
   for (i = 0, name; (name = names[i]); i++) {
-    setAttribute$1(node, name, attrs[name]);
+    setAttribute$2(node, name, attrs[name]);
   }
 }
 
@@ -36839,15 +36839,15 @@ function setAttributes$1(node, attrs) {
  *
  * @return {String}
  */
-function attr$1(node, name, value) {
+function attr$2(node, name, value) {
   if (typeof name === 'string') {
     if (value !== undefined) {
-      setAttribute$1(node, name, value);
+      setAttribute$2(node, name, value);
     } else {
-      return getAttribute$1(node, name);
+      return getAttribute$2(node, name);
     }
   } else {
-    setAttributes$1(node, name);
+    setAttributes$2(node, name);
   }
 
   return node;
@@ -36986,7 +36986,7 @@ function clone(element) {
   return element.cloneNode(true);
 }
 
-var ns$1 = {
+var ns$2 = {
   svg: 'http://www.w3.org/2000/svg'
 };
 
@@ -36995,25 +36995,25 @@ var ns$1 = {
  */
 
 
-var SVG_START$1 = '<svg xmlns="' + ns$1.svg + '"';
+var SVG_START$2 = '<svg xmlns="' + ns$2.svg + '"';
 
-function parse$1(svg) {
+function parse$2(svg) {
 
   var unwrap = false;
 
   // ensure we import a valid svg document
   if (svg.substring(0, 4) === '<svg') {
-    if (svg.indexOf(ns$1.svg) === -1) {
-      svg = SVG_START$1 + svg.substring(4);
+    if (svg.indexOf(ns$2.svg) === -1) {
+      svg = SVG_START$2 + svg.substring(4);
     }
   } else {
 
     // namespace svg
-    svg = SVG_START$1 + '>' + svg + '</svg>';
+    svg = SVG_START$2 + '>' + svg + '</svg>';
     unwrap = true;
   }
 
-  var parsed = parseDocument$1(svg);
+  var parsed = parseDocument$2(svg);
 
   if (!unwrap) {
     return parsed;
@@ -37030,7 +37030,7 @@ function parse$1(svg) {
   return fragment;
 }
 
-function parseDocument$1(svg) {
+function parseDocument$2(svg) {
 
   var parser;
 
@@ -37055,20 +37055,20 @@ function parseDocument$1(svg) {
  *
  * @returns {SVGElement}
  */
-function create$2(name, attrs) {
+function create$3(name, attrs) {
   var element;
 
   name = name.trim();
 
   if (name.charAt(0) === '<') {
-    element = parse$1(name).firstChild;
+    element = parse$2(name).firstChild;
     element = document.importNode(element, true);
   } else {
-    element = document.createElementNS(ns$1.svg, name);
+    element = document.createElementNS(ns$2.svg, name);
   }
 
   if (attrs) {
-    attr$1(element, attrs);
+    attr$2(element, attrs);
   }
 
   return element;
@@ -37084,7 +37084,7 @@ var node = null;
 
 function getNode() {
   if (node === null) {
-    node = create$2('svg');
+    node = create$3('svg');
   }
 
   return node;
@@ -37417,7 +37417,7 @@ function createLine(points, attrs, radius) {
     attrs = {};
   }
 
-  const line = create$2('path', attrs);
+  const line = create$3('path', attrs);
 
   if (isNumber$1(radius)) {
     line.dataset.cornerRadius = String(radius);
@@ -37436,7 +37436,7 @@ function updateLine(gfx, points) {
 
   const cornerRadius = parseInt(gfx.dataset.cornerRadius, 10) || 0;
 
-  attr$1(gfx, {
+  attr$2(gfx, {
     d: componentsToPath(drawPath(points, cornerRadius))
   });
 
@@ -37717,13 +37717,13 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
       throw new Error('invalid hit type <' + type + '>');
     }
 
-    attr$1(hit, attrs);
+    attr$2(hit, attrs);
 
     return hit;
   }
 
   function appendHit(gfx, hit) {
-    append(gfx, hit);
+    append$1(gfx, hit);
   }
 
 
@@ -37801,11 +37801,11 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
       y: 0
     }, attrs);
 
-    var hit = create$2('rect');
+    var hit = create$3('rect');
 
     applyStyle(hit, type);
 
-    attr$1(hit, attrs);
+    attr$2(hit, attrs);
 
     appendHit(gfx, hit);
 
@@ -37831,7 +37831,7 @@ function InteractionEvents(eventBus, elementRegistry, styles) {
     if (element.waypoints) {
       updateLine(hit, element.waypoints);
     } else {
-      attr$1(hit, {
+      attr$2(hit, {
         width: element.width,
         height: element.height
       });
@@ -39111,14 +39111,14 @@ PreviewSupport.prototype.addDragger = function(element, group, gfx, className = 
 
   this._cloneMarkers(getVisual(dragger), className);
 
-  attr$1(dragger, this._styles.cls(className, [], {
+  attr$2(dragger, this._styles.cls(className, [], {
     x: bbox.top,
     y: bbox.left
   }));
 
-  append(group, dragger);
+  append$1(group, dragger);
 
-  attr$1(dragger, 'data-preview-support-element-id', element.id);
+  attr$2(dragger, 'data-preview-support-element-id', element.id);
 
   return dragger;
 };
@@ -39133,7 +39133,7 @@ PreviewSupport.prototype.addDragger = function(element, group, gfx, className = 
  */
 PreviewSupport.prototype.addFrame = function(shape, group) {
 
-  var frame = create$2('rect', {
+  var frame = create$3('rect', {
     class: 'djs-resize-overlay',
     width:  shape.width,
     height: shape.height,
@@ -39141,9 +39141,9 @@ PreviewSupport.prototype.addFrame = function(shape, group) {
     y: shape.y
   });
 
-  append(group, frame);
+  append$1(group, frame);
 
-  attr$1(frame, 'data-preview-support-element-id', shape.id);
+  attr$2(frame, 'data-preview-support-element-id', shape.id);
 
   return frame;
 };
@@ -39170,7 +39170,7 @@ PreviewSupport.prototype._cloneMarkers = function(gfx, className = 'djs-dragger'
   }
 
   MARKER_TYPES.forEach(function(markerType) {
-    if (attr$1(gfx, markerType)) {
+    if (attr$2(gfx, markerType)) {
       var marker = getMarker(gfx, markerType, self._canvas.getContainer());
 
       // Only clone marker if it is already present on the DOM
@@ -39206,16 +39206,16 @@ PreviewSupport.prototype._cloneMarker = function(parentGfx, gfx, marker, markerT
   var defs = query(':scope > defs', parentGfx);
 
   if (!defs) {
-    defs = create$2('defs');
+    defs = create$3('defs');
 
-    append(parentGfx, defs);
+    append$1(parentGfx, defs);
   }
 
-  append(defs, clonedMarker);
+  append$1(defs, clonedMarker);
 
   var reference = idToReference(clonedMarker.id);
 
-  attr$1(gfx, markerType, reference);
+  attr$2(gfx, markerType, reference);
 };
 
 // helpers //////////
@@ -39230,7 +39230,7 @@ PreviewSupport.prototype._cloneMarker = function(parentGfx, gfx, marker, markerT
  * @param {HTMLElement}
  */
 function getMarker(node, markerType, parentNode) {
-  var id = referenceToId(attr$1(node, markerType));
+  var id = referenceToId(attr$2(node, markerType));
 
   return query('marker#' + id, parentNode || document);
 }
@@ -39297,7 +39297,7 @@ var MARKER_OK = 'drop-ok',
 
 var PREFIX = 'create';
 
-var HIGH_PRIORITY$8 = 2000;
+var HIGH_PRIORITY$9 = 2000;
 
 
 /**
@@ -39525,7 +39525,7 @@ function Create(
   eventBus.on('create.init', function() {
     eventBus.on('elements.changed', cancel);
 
-    eventBus.once([ 'create.cancel', 'create.end' ], HIGH_PRIORITY$8, function() {
+    eventBus.once([ 'create.cancel', 'create.end' ], HIGH_PRIORITY$9, function() {
       eventBus.off('elements.changed', cancel);
     });
   });
@@ -39713,11 +39713,11 @@ function CreatePreview(
     styles
 ) {
   function createDragGroup(elements) {
-    var dragGroup = create$2('g');
+    var dragGroup = create$3('g');
 
-    attr$1(dragGroup, styles.cls('djs-drag-group', [ 'no-events' ]));
+    attr$2(dragGroup, styles.cls('djs-drag-group', [ 'no-events' ]));
 
-    var childrenGfx = create$2('g');
+    var childrenGfx = create$3('g');
 
     elements.forEach(function(element) {
 
@@ -39765,7 +39765,7 @@ function CreatePreview(
       if (!dragGroup.parentNode) {
         activeLayer = canvas.getActiveLayer();
 
-        append(activeLayer, dragGroup);
+        append$1(activeLayer, dragGroup);
       }
 
       translate$1(dragGroup, event.x, event.y);
@@ -39951,7 +39951,7 @@ var MouseModule = {
  */
 
 
-var HIGH_PRIORITY$7 = 2000;
+var HIGH_PRIORITY$8 = 2000;
 
 /**
  * Copy and paste elements.
@@ -40038,7 +40038,7 @@ function CopyPaste(
 
   });
 
-  eventBus.on('copyPaste.elementsCopied', HIGH_PRIORITY$7, function(context) {
+  eventBus.on('copyPaste.elementsCopied', HIGH_PRIORITY$8, function(context) {
 
     if (context.hints?.clip !== false) {
 
@@ -40048,7 +40048,7 @@ function CopyPaste(
     }
   });
 
-  eventBus.on('copyPaste.pasteElements', HIGH_PRIORITY$7, function(context) {
+  eventBus.on('copyPaste.pasteElements', HIGH_PRIORITY$8, function(context) {
     if (!context.tree) {
       context.tree = clipboard.get();
     }
@@ -41865,7 +41865,7 @@ var DIRECTION_TO_TRBL = {
   e: 'right'
 };
 
-var HIGH_PRIORITY$6 = 1500;
+var HIGH_PRIORITY$7 = 1500;
 
 var DIRECTION_TO_OPPOSITE = {
   n: 's',
@@ -41914,7 +41914,7 @@ function SpaceTool(
     });
   });
 
-  eventBus.on('spaceTool.move', HIGH_PRIORITY$6 , function(event) {
+  eventBus.on('spaceTool.move', HIGH_PRIORITY$7 , function(event) {
     var context = event.context,
         initialized = context.initialized;
 
@@ -42485,24 +42485,24 @@ function SpaceToolPreview(
       y: 'M -10000,0 L 10000,0'
     };
 
-    var crosshairGroup = create$2('g');
-    attr$1(crosshairGroup, styles.cls('djs-crosshair-group', [ 'no-events' ]));
+    var crosshairGroup = create$3('g');
+    attr$2(crosshairGroup, styles.cls('djs-crosshair-group', [ 'no-events' ]));
 
-    append(space, crosshairGroup);
+    append$1(space, crosshairGroup);
 
     // horizontal path
-    var pathX = create$2('path');
-    attr$1(pathX, 'd', orientation.x);
+    var pathX = create$3('path');
+    attr$2(pathX, 'd', orientation.x);
     classes(pathX).add('djs-crosshair');
 
-    append(crosshairGroup, pathX);
+    append$1(crosshairGroup, pathX);
 
     // vertical path
-    var pathY = create$2('path');
-    attr$1(pathY, 'd', orientation.y);
+    var pathY = create$3('path');
+    attr$2(pathY, 'd', orientation.y);
     classes(pathY).add('djs-crosshair');
 
-    append(crosshairGroup, pathY);
+    append$1(crosshairGroup, pathY);
 
     context.crosshairGroup = crosshairGroup;
   });
@@ -42540,18 +42540,18 @@ function SpaceToolPreview(
     if (!context.dragGroup) {
       var spaceLayer = canvas.getLayer('space');
 
-      line = create$2('path');
-      attr$1(line, 'd', 'M0,0 L0,0');
+      line = create$3('path');
+      attr$2(line, 'd', 'M0,0 L0,0');
       classes(line).add('djs-crosshair');
 
-      append(spaceLayer, line);
+      append$1(spaceLayer, line);
 
       context.line = line;
 
-      var dragGroup = create$2('g');
-      attr$1(dragGroup, styles.cls('djs-drag-group', [ 'no-events' ]));
+      var dragGroup = create$3('g');
+      attr$2(dragGroup, styles.cls('djs-drag-group', [ 'no-events' ]));
 
-      append(canvas.getActiveLayer(), dragGroup);
+      append$1(canvas.getActiveLayer(), dragGroup);
 
       // shapes
       addPreviewGfx(movingShapes, dragGroup);
@@ -42610,10 +42610,10 @@ function SpaceToolPreview(
     }
 
     if (!context.frameGroup) {
-      var frameGroup = create$2('g');
-      attr$1(frameGroup, styles.cls('djs-frame-group', [ 'no-events' ]));
+      var frameGroup = create$3('g');
+      attr$2(frameGroup, styles.cls('djs-frame-group', [ 'no-events' ]));
 
-      append(canvas.getActiveLayer(), frameGroup);
+      append$1(canvas.getActiveLayer(), frameGroup);
 
       var frames = [];
 
@@ -42639,7 +42639,7 @@ function SpaceToolPreview(
       y: 'M -10000, ' + event.y + ' L 10000, ' + event.y
     };
 
-    attr$1(line, { d: orientation[ axis ] });
+    attr$2(line, { d: orientation[ axis ] });
 
     var opposite = { x: 'y', y: 'x' };
     var delta = { x: event.dx, y: event.dy };
@@ -42656,26 +42656,26 @@ function SpaceToolPreview(
           height;
 
       if (context.direction === 'e') {
-        attr$1(element, {
+        attr$2(element, {
           width: max(initialBounds.width + delta.x, 5)
         });
       } else {
         width = max(initialBounds.width - delta.x, 5);
 
-        attr$1(element, {
+        attr$2(element, {
           width: width,
           x: initialBounds.x + initialBounds.width - width
         });
       }
 
       if (context.direction === 's') {
-        attr$1(element, {
+        attr$2(element, {
           height: max(initialBounds.height + delta.y, 5)
         });
       } else {
         height = max(initialBounds.height - delta.y, 5);
 
-        attr$1(element, {
+        attr$2(element, {
           height: height,
           y: initialBounds.y + initialBounds.height - height
         });
@@ -43430,7 +43430,7 @@ function saveClear(collection, removeFn) {
 }
 
 var LOW_PRIORITY$8 = 250,
-    HIGH_PRIORITY$5 = 1400;
+    HIGH_PRIORITY$6 = 1400;
 
 /**
  * @typedef {import('../../model/Types').Element} Element
@@ -43457,7 +43457,7 @@ function LabelSupport(injector, eventBus, modeling) {
 
   // remove labels from the collection that are being
   // moved with other elements anyway
-  eventBus.on('shape.move.start', HIGH_PRIORITY$5, function(e) {
+  eventBus.on('shape.move.start', HIGH_PRIORITY$6, function(e) {
 
     var context = e.context,
         shapes = context.shapes,
@@ -43496,7 +43496,7 @@ function LabelSupport(injector, eventBus, modeling) {
   });
 
   // add all labels to move closure
-  this.preExecuted('elements.move', HIGH_PRIORITY$5, function(e) {
+  this.preExecuted('elements.move', HIGH_PRIORITY$6, function(e) {
     var context = e.context,
         closure = context.closure,
         enclosedElements = closure.enclosedElements;
@@ -43612,7 +43612,7 @@ var LabelSupportModule = {
  */
 
 var LOW_PRIORITY$7 = 251,
-    HIGH_PRIORITY$4 = 1401;
+    HIGH_PRIORITY$5 = 1401;
 
 var MARKER_ATTACH = 'attach-ok';
 
@@ -43641,7 +43641,7 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
 
   // remove all the attached elements from the shapes to be validated
   // add all the attached shapes to the overall list of moved shapes
-  eventBus.on('shape.move.start', HIGH_PRIORITY$4, function(e) {
+  eventBus.on('shape.move.start', HIGH_PRIORITY$5, function(e) {
 
     var context = e.context,
         shapes = context.shapes,
@@ -43694,7 +43694,7 @@ function AttachSupport(injector, eventBus, canvas, rules, modeling) {
   });
 
   // add all attachers to move closure
-  this.preExecuted('elements.move', HIGH_PRIORITY$4, function(e) {
+  this.preExecuted('elements.move', HIGH_PRIORITY$5, function(e) {
     var context = e.context,
         closure = context.closure,
         shapes = context.shapes,
@@ -45542,7 +45542,7 @@ var types$7 = {
  *
  * @return {Label}
  */
-function create$1(type, attrs) {
+function create$2(type, attrs) {
   var Type = types$7[type];
   if (!Type) {
     throw new Error('unknown type: <' + type + '>');
@@ -45664,7 +45664,7 @@ ElementFactory$1.prototype.create = function(type, attrs) {
     attrs.id = type + '_' + (this._uid++);
   }
 
-  return create$1(type, attrs);
+  return create$2(type, attrs);
 };
 
 /**
@@ -52442,7 +52442,7 @@ function BpmnRenderer(
       parentGfx = canvas._svg
     } = options;
 
-    var marker = create$2('marker', {
+    var marker = create$3('marker', {
       id: id,
       viewBox: '0 0 20 20',
       refX: ref.x,
@@ -52452,17 +52452,17 @@ function BpmnRenderer(
       orient: 'auto'
     });
 
-    append(marker, element);
+    append$1(marker, element);
 
     var defs = query(':scope > defs', parentGfx);
 
     if (!defs) {
-      defs = create$2('defs');
+      defs = create$3('defs');
 
-      append(parentGfx, defs);
+      append$1(parentGfx, defs);
     }
 
-    append(defs, marker);
+    append$1(defs, marker);
   }
 
   function marker(parentGfx, type, fill, stroke) {
@@ -52478,7 +52478,7 @@ function BpmnRenderer(
   function createMarker(parentGfx, id, type, fill, stroke) {
 
     if (type === 'sequenceflow-end') {
-      var sequenceflowEnd = create$2('path', {
+      var sequenceflowEnd = create$3('path', {
         d: 'M 1 5 L 11 10 L 1 15 Z',
         ...shapeStyle({
           fill: stroke,
@@ -52496,7 +52496,7 @@ function BpmnRenderer(
     }
 
     if (type === 'messageflow-start') {
-      var messageflowStart = create$2('circle', {
+      var messageflowStart = create$3('circle', {
         cx: 6,
         cy: 6,
         r: 3.5,
@@ -52519,7 +52519,7 @@ function BpmnRenderer(
     }
 
     if (type === 'messageflow-end') {
-      var messageflowEnd = create$2('path', {
+      var messageflowEnd = create$3('path', {
         d: 'm 1 5 l 0 -3 l 7 3 l -7 3 z',
         ...shapeStyle({
           fill,
@@ -52540,7 +52540,7 @@ function BpmnRenderer(
     }
 
     if (type === 'association-start') {
-      var associationStart = create$2('path', {
+      var associationStart = create$3('path', {
         d: 'M 11 5 L 1 10 L 11 15',
         ...lineStyle({
           fill: 'none',
@@ -52562,7 +52562,7 @@ function BpmnRenderer(
     }
 
     if (type === 'association-end') {
-      var associationEnd = create$2('path', {
+      var associationEnd = create$3('path', {
         d: 'M 1 5 L 11 10 L 1 15',
         ...lineStyle({
           fill: 'none',
@@ -52584,7 +52584,7 @@ function BpmnRenderer(
     }
 
     if (type === 'conditional-flow-marker') {
-      var conditionalFlowMarker = create$2('path', {
+      var conditionalFlowMarker = create$3('path', {
         d: 'M 0 10 L 8 6 L 16 10 L 8 14 Z',
         ...shapeStyle({
           fill,
@@ -52601,7 +52601,7 @@ function BpmnRenderer(
     }
 
     if (type === 'conditional-default-flow-marker') {
-      var defaultFlowMarker = create$2('path', {
+      var defaultFlowMarker = create$3('path', {
         d: 'M 6 4 L 10 16',
         ...shapeStyle({
           stroke: stroke,
@@ -52632,14 +52632,14 @@ function BpmnRenderer(
     var cx = width / 2,
         cy = height / 2;
 
-    var circle = create$2('circle', {
+    var circle = create$3('circle', {
       cx: cx,
       cy: cy,
       r: Math.round((width + height) / 4 - offset),
       ...attrs
     });
 
-    append(parentGfx, circle);
+    append$1(parentGfx, circle);
 
     return circle;
   }
@@ -52655,7 +52655,7 @@ function BpmnRenderer(
 
     attrs = shapeStyle(attrs);
 
-    var rect = create$2('rect', {
+    var rect = create$3('rect', {
       x: offset,
       y: offset,
       width: width - offset * 2,
@@ -52665,7 +52665,7 @@ function BpmnRenderer(
       ...attrs
     });
 
-    append(parentGfx, rect);
+    append$1(parentGfx, rect);
 
     return rect;
   }
@@ -52688,12 +52688,12 @@ function BpmnRenderer(
 
     attrs = shapeStyle(attrs);
 
-    var polygon = create$2('polygon', {
+    var polygon = create$3('polygon', {
       ...attrs,
       points: pointsString
     });
 
-    append(parentGfx, polygon);
+    append$1(parentGfx, polygon);
 
     return polygon;
   }
@@ -52711,7 +52711,7 @@ function BpmnRenderer(
 
     var line = createLine(waypoints, attrs, radius);
 
-    append(parentGfx, line);
+    append$1(parentGfx, line);
 
     return line;
   }
@@ -52730,12 +52730,12 @@ function BpmnRenderer(
   function drawPath(parentGfx, d, attrs) {
     attrs = lineStyle(attrs);
 
-    var path = create$2('path', {
+    var path = create$3('path', {
       ...attrs,
       d
     });
 
-    append(parentGfx, path);
+    append$1(parentGfx, path);
 
     return path;
   }
@@ -53344,7 +53344,7 @@ function BpmnRenderer(
 
     classes(text).add('djs-label');
 
-    append(parentGfx, text);
+    append$1(parentGfx, text);
 
     return text;
   }
@@ -53537,7 +53537,7 @@ function BpmnRenderer(
     var expanded = isExpanded(element);
 
     if (isEventSubProcess(element)) {
-      attr$1(activity, {
+      attr$2(activity, {
         strokeDasharray: '0, 5.5',
         strokeWidth: 2.5
       });
@@ -53684,7 +53684,7 @@ function BpmnRenderer(
 
       var businessPath = drawPath(parentGfx, headerData);
 
-      attr$1(businessPath, {
+      attr$2(businessPath, {
         fill: getFillColor(element, defaultFillColor, attrs.fill),
         stroke: getStrokeColor(element, defaultStrokeColor, attrs.stroke),
         strokeWidth: 1
@@ -53699,7 +53699,7 @@ function BpmnRenderer(
 
       var businessHeaderPath = drawPath(parentGfx, headerPathData);
 
-      attr$1(businessHeaderPath, {
+      attr$2(businessHeaderPath, {
         fill: getStrokeColor(element, defaultStrokeColor, attrs.stroke),
         stroke: getStrokeColor(element, defaultStrokeColor, attrs.stroke),
         strokeWidth: 1
@@ -54345,7 +54345,7 @@ function BpmnRenderer(
 
         // conditional flow marker
         if (semantic.get('conditionExpression') && is$1(sourceSemantic, 'bpmn:Activity')) {
-          attr$1(connection, {
+          attr$2(connection, {
             markerStart: marker(parentGfx, 'conditional-flow-marker', fill, stroke)
           });
         }
@@ -54353,7 +54353,7 @@ function BpmnRenderer(
         // default marker
         if (sourceSemantic.get('default') && (is$1(sourceSemantic, 'bpmn:Gateway') || is$1(sourceSemantic, 'bpmn:Activity')) &&
             sourceSemantic.get('default') === semantic) {
-          attr$1(connection, {
+          attr$2(connection, {
             markerStart: marker(parentGfx, 'conditional-default-flow-marker', fill, stroke)
           });
         }
@@ -55112,9 +55112,9 @@ Text.prototype.layoutText = function(text, options) {
   y -= (lineHeight || layouted[0].height) / 4;
 
 
-  var textElement = create$2('text');
+  var textElement = create$3('text');
 
-  attr$1(textElement, style);
+  attr$2(textElement, style);
 
   // layout each line taking into account that parent
   // shape might resize to fit text size
@@ -55141,12 +55141,12 @@ Text.prototype.layoutText = function(text, options) {
         - line.width) / 2 + padding.left), 0);
     }
 
-    var tspan = create$2('tspan');
-    attr$1(tspan, { x: x, y: y });
+    var tspan = create$3('tspan');
+    attr$2(tspan, { x: x, y: y });
 
     tspan.textContent = line.text;
 
-    append(textElement, tspan);
+    append$1(textElement, tspan);
   });
 
   var dimensions = {
@@ -56581,7 +56581,7 @@ Overlays.prototype._updateOverlayContainer = function(container) {
 
   setPosition$1(html, x, y);
 
-  attr$2(container.html, 'data-container-id', element.id);
+  attr$3(container.html, 'data-container-id', element.id);
 };
 
 
@@ -58279,9 +58279,9 @@ DefaultRenderer.prototype.canRender = function() {
  * @private
  */
 DefaultRenderer.prototype.drawShape = function drawShape(visuals, element, attrs) {
-  var rect = create$2('rect');
+  var rect = create$3('rect');
 
-  attr$1(rect, {
+  attr$2(rect, {
     x: 0,
     y: 0,
     width: element.width || 0,
@@ -58289,12 +58289,12 @@ DefaultRenderer.prototype.drawShape = function drawShape(visuals, element, attrs
   });
 
   if (isFrameElement$1(element)) {
-    attr$1(rect, assign$6({}, this.FRAME_STYLE, attrs || {}));
+    attr$2(rect, assign$6({}, this.FRAME_STYLE, attrs || {}));
   } else {
-    attr$1(rect, assign$6({}, this.SHAPE_STYLE, attrs || {}));
+    attr$2(rect, assign$6({}, this.SHAPE_STYLE, attrs || {}));
   }
 
-  append(visuals, rect);
+  append$1(visuals, rect);
 
   return rect;
 };
@@ -58305,7 +58305,7 @@ DefaultRenderer.prototype.drawShape = function drawShape(visuals, element, attrs
 DefaultRenderer.prototype.drawConnection = function drawConnection(visuals, connection, attrs) {
 
   var line = createLine(connection.waypoints, assign$6({}, this.CONNECTION_STYLE, attrs || {}));
-  append(visuals, line);
+  append$1(visuals, line);
 
   return line;
 };
@@ -58533,7 +58533,7 @@ function createContainer(options) {
 }
 
 function createGroup(parent, cls, childIndex) {
-  const group = create$2('g');
+  const group = create$3('g');
   classes(group).add(cls);
 
   const index = childIndex !== undefined ? childIndex : parent.childNodes.length - 1;
@@ -58631,14 +58631,14 @@ Canvas.prototype._init = function(config) {
   // html container
   const container = this._container = createContainer(config);
 
-  const svg = this._svg = create$2('svg');
+  const svg = this._svg = create$3('svg');
 
-  attr$1(svg, {
+  attr$2(svg, {
     width: '100%',
     height: '100%'
   });
 
-  attr$2(svg, 'tabindex', 0);
+  attr$3(svg, 'tabindex', 0);
 
   config.autoFocus && eventBus.on('element.hover', () => {
     this.restoreFocus();
@@ -58664,7 +58664,7 @@ Canvas.prototype._init = function(config) {
     this._eventBus.fire('canvas.mouseout');
   });
 
-  append(container, svg);
+  append$1(container, svg);
 
   const viewport = this._viewport = createGroup(svg, 'viewport');
 
@@ -60044,10 +60044,10 @@ ElementRegistry.prototype.add = function(element, gfx, secondaryGfx) {
   this._validateId(id);
 
   // associate dom node with element
-  attr$1(gfx, ELEMENT_ID, id);
+  attr$2(gfx, ELEMENT_ID, id);
 
   if (secondaryGfx) {
-    attr$1(secondaryGfx, ELEMENT_ID, id);
+    attr$2(secondaryGfx, ELEMENT_ID, id);
   }
 
   this._elements[id] = { element: element, gfx: gfx, secondaryGfx: secondaryGfx };
@@ -60066,10 +60066,10 @@ ElementRegistry.prototype.remove = function(element) {
   if (container) {
 
     // unset element id on gfx
-    attr$1(container.gfx, ELEMENT_ID, '');
+    attr$2(container.gfx, ELEMENT_ID, '');
 
     if (container.secondaryGfx) {
-      attr$1(container.secondaryGfx, ELEMENT_ID, '');
+      attr$2(container.secondaryGfx, ELEMENT_ID, '');
     }
 
     delete elements[id];
@@ -60124,7 +60124,7 @@ ElementRegistry.prototype.updateGraphics = function(filter, gfx, secondary) {
   }
 
   if (gfx) {
-    attr$1(gfx, ELEMENT_ID, id);
+    attr$2(gfx, ELEMENT_ID, id);
   }
 
   return gfx;
@@ -60151,7 +60151,7 @@ ElementRegistry.prototype.get = function(filter) {
   if (typeof filter === 'string') {
     id = filter;
   } else {
-    id = filter && attr$1(filter, ELEMENT_ID);
+    id = filter && attr$2(filter, ELEMENT_ID);
   }
 
   var container = this._elements[id];
@@ -60916,10 +60916,10 @@ GraphicsFactory.prototype._getChildrenContainer = function(element) {
   } else {
     childrenGfx = getChildren(gfx);
     if (!childrenGfx) {
-      childrenGfx = create$2('g');
+      childrenGfx = create$3('g');
       classes(childrenGfx).add('djs-children');
 
-      append(gfx.parentNode, childrenGfx);
+      append$1(gfx.parentNode, childrenGfx);
     }
   }
 
@@ -60968,17 +60968,17 @@ GraphicsFactory.prototype._clear = function(gfx) {
 GraphicsFactory.prototype._createContainer = function(
     type, childrenGfx, parentIndex, isFrame
 ) {
-  var outerGfx = create$2('g');
+  var outerGfx = create$3('g');
   classes(outerGfx).add('djs-group');
 
   // insert node at position
   if (typeof parentIndex !== 'undefined') {
     prependTo(outerGfx, childrenGfx, childrenGfx.childNodes[parentIndex]);
   } else {
-    append(childrenGfx, outerGfx);
+    append$1(childrenGfx, outerGfx);
   }
 
-  var gfx = create$2('g');
+  var gfx = create$3('g');
   classes(gfx).add('djs-element');
   classes(gfx).add('djs-' + type);
 
@@ -60986,13 +60986,13 @@ GraphicsFactory.prototype._createContainer = function(
     classes(gfx).add('djs-frame');
   }
 
-  append(outerGfx, gfx);
+  append$1(outerGfx, gfx);
 
   // create visual
-  var visual = create$2('g');
+  var visual = create$3('g');
   classes(visual).add('djs-visual');
 
-  append(gfx, visual);
+  append$1(gfx, visual);
 
   return gfx;
 };
@@ -61136,9 +61136,9 @@ GraphicsFactory.prototype.update = function(type, element, gfx) {
   }
 
   if (element.hidden) {
-    attr$1(gfx, 'display', 'none');
+    attr$2(gfx, 'display', 'none');
   } else {
-    attr$1(gfx, 'display', 'block');
+    attr$2(gfx, 'display', 'block');
   }
 };
 
@@ -72614,6 +72614,372 @@ NavigatedViewer.prototype._modules = [].concat(
   NavigatedViewer.prototype._navigationModules
 );
 
+function ensureImported(element, target) {
+
+  if (element.ownerDocument !== target.ownerDocument) {
+    try {
+
+      // may fail on webkit
+      return target.ownerDocument.importNode(element, true);
+    } catch (e) {
+
+      // ignore
+    }
+  }
+
+  return element;
+}
+
+/**
+ * appendTo utility
+ */
+
+
+/**
+ * Append a node to a target element and return the appended node.
+ *
+ * @param  {SVGElement} element
+ * @param  {SVGElement} target
+ *
+ * @return {SVGElement} the appended node
+ */
+function appendTo(element, target) {
+  return target.appendChild(ensureImported(element, target));
+}
+
+/**
+ * append utility
+ */
+
+
+/**
+ * Append a node to an element
+ *
+ * @param  {SVGElement} element
+ * @param  {SVGElement} node
+ *
+ * @return {SVGElement} the element
+ */
+function append(target, node) {
+  appendTo(node, target);
+  return target;
+}
+
+/**
+ * attribute accessor utility
+ */
+
+var LENGTH_ATTR$1 = 2;
+
+var CSS_PROPERTIES$1 = {
+  'alignment-baseline': 1,
+  'baseline-shift': 1,
+  'clip': 1,
+  'clip-path': 1,
+  'clip-rule': 1,
+  'color': 1,
+  'color-interpolation': 1,
+  'color-interpolation-filters': 1,
+  'color-profile': 1,
+  'color-rendering': 1,
+  'cursor': 1,
+  'direction': 1,
+  'display': 1,
+  'dominant-baseline': 1,
+  'enable-background': 1,
+  'fill': 1,
+  'fill-opacity': 1,
+  'fill-rule': 1,
+  'filter': 1,
+  'flood-color': 1,
+  'flood-opacity': 1,
+  'font': 1,
+  'font-family': 1,
+  'font-size': LENGTH_ATTR$1,
+  'font-size-adjust': 1,
+  'font-stretch': 1,
+  'font-style': 1,
+  'font-variant': 1,
+  'font-weight': 1,
+  'glyph-orientation-horizontal': 1,
+  'glyph-orientation-vertical': 1,
+  'image-rendering': 1,
+  'kerning': 1,
+  'letter-spacing': 1,
+  'lighting-color': 1,
+  'marker': 1,
+  'marker-end': 1,
+  'marker-mid': 1,
+  'marker-start': 1,
+  'mask': 1,
+  'opacity': 1,
+  'overflow': 1,
+  'pointer-events': 1,
+  'shape-rendering': 1,
+  'stop-color': 1,
+  'stop-opacity': 1,
+  'stroke': 1,
+  'stroke-dasharray': 1,
+  'stroke-dashoffset': 1,
+  'stroke-linecap': 1,
+  'stroke-linejoin': 1,
+  'stroke-miterlimit': 1,
+  'stroke-opacity': 1,
+  'stroke-width': LENGTH_ATTR$1,
+  'text-anchor': 1,
+  'text-decoration': 1,
+  'text-rendering': 1,
+  'unicode-bidi': 1,
+  'visibility': 1,
+  'word-spacing': 1,
+  'writing-mode': 1
+};
+
+
+function getAttribute$1(node, name) {
+  if (CSS_PROPERTIES$1[name]) {
+    return node.style[name];
+  } else {
+    return node.getAttributeNS(null, name);
+  }
+}
+
+function setAttribute$1(node, name, value) {
+  var hyphenated = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+  var type = CSS_PROPERTIES$1[hyphenated];
+
+  if (type) {
+
+    // append pixel unit, unless present
+    if (type === LENGTH_ATTR$1 && typeof value === 'number') {
+      value = String(value) + 'px';
+    }
+
+    node.style[hyphenated] = value;
+  } else {
+    node.setAttributeNS(null, name, value);
+  }
+}
+
+function setAttributes$1(node, attrs) {
+
+  var names = Object.keys(attrs), i, name;
+
+  for (i = 0, name; (name = names[i]); i++) {
+    setAttribute$1(node, name, attrs[name]);
+  }
+}
+
+/**
+ * Gets or sets raw attributes on a node.
+ *
+ * @param  {SVGElement} node
+ * @param  {Object} [attrs]
+ * @param  {String} [name]
+ * @param  {String} [value]
+ *
+ * @return {String}
+ */
+function attr$1(node, name, value) {
+  if (typeof name === 'string') {
+    {
+      return getAttribute$1(node, name);
+    }
+  } else {
+    setAttributes$1(node, name);
+  }
+
+  return node;
+}
+
+var ns$1 = {
+  svg: 'http://www.w3.org/2000/svg'
+};
+
+/**
+ * DOM parsing utility
+ */
+
+
+var SVG_START$1 = '<svg xmlns="' + ns$1.svg + '"';
+
+function parse$1(svg) {
+
+  var unwrap = false;
+
+  // ensure we import a valid svg document
+  if (svg.substring(0, 4) === '<svg') {
+    if (svg.indexOf(ns$1.svg) === -1) {
+      svg = SVG_START$1 + svg.substring(4);
+    }
+  } else {
+
+    // namespace svg
+    svg = SVG_START$1 + '>' + svg + '</svg>';
+    unwrap = true;
+  }
+
+  var parsed = parseDocument$1(svg);
+
+  if (!unwrap) {
+    return parsed;
+  }
+
+  var fragment = document.createDocumentFragment();
+
+  var parent = parsed.firstChild;
+
+  while (parent.firstChild) {
+    fragment.appendChild(parent.firstChild);
+  }
+
+  return fragment;
+}
+
+function parseDocument$1(svg) {
+
+  var parser;
+
+  // parse
+  parser = new DOMParser();
+  parser.async = false;
+
+  return parser.parseFromString(svg, 'text/xml');
+}
+
+/**
+ * Create utility for SVG elements
+ */
+
+
+
+/**
+ * Create a specific type from name or SVG markup.
+ *
+ * @param {String} name the name or markup of the element
+ * @param {Object} [attrs] attributes to set on the element
+ *
+ * @returns {SVGElement}
+ */
+function create$1(name, attrs) {
+  var element;
+
+  name = name.trim();
+
+  if (name.charAt(0) === '<') {
+    element = parse$1(name).firstChild;
+    element = document.importNode(element, true);
+  } else {
+    element = document.createElementNS(ns$1.svg, name);
+  }
+
+  return element;
+}
+
+/**
+ * Get icon defined on a moddle element.
+ *
+ * @param { ModdleElement } element
+ * @param { string } iconProperty
+ *
+ * @return { string }
+ */
+function getModelerTemplateIcon(element, iconProperty) {
+  iconProperty = iconProperty || 'zeebe:modelerTemplateIcon';
+
+  return getBusinessObject(element).get(iconProperty);
+}
+
+var HIGH_PRIORITY$4 = 1250;
+
+
+function ElementTemplateIconRenderer$1(
+    config,
+    bpmnRenderer,
+    eventBus) {
+
+  this._bpmnRenderer = bpmnRenderer;
+
+  this._iconProperty = config && config.iconProperty;
+
+  BaseRenderer.call(this, eventBus, HIGH_PRIORITY$4);
+}
+
+e(ElementTemplateIconRenderer$1, BaseRenderer);
+
+ElementTemplateIconRenderer$1.prototype.canRender = function(element) {
+
+  if (isLabel(element)) {
+    return false;
+  }
+
+  return !!(
+    isAny(element, [ 'bpmn:Activity', 'bpmn:Event' ]) && this._getIcon(element)
+  );
+};
+
+ElementTemplateIconRenderer$1.prototype._getIcon = function(element) {
+  return getModelerTemplateIcon(element, this._iconProperty);
+};
+
+ElementTemplateIconRenderer$1.prototype.drawShape = function(parentGfx, element, attrs = {}) {
+
+  var renderer = this._bpmnRenderer.handlers[
+    [
+      'bpmn:BoundaryEvent',
+      'bpmn:CallActivity',
+      'bpmn:EndEvent',
+      'bpmn:IntermediateCatchEvent',
+      'bpmn:IntermediateThrowEvent',
+      'bpmn:StartEvent',
+      'bpmn:Task',
+
+      // specialized subprocess before general
+      'bpmn:AdHocSubProcess',
+      'bpmn:Transaction',
+      'bpmn:SubProcess'
+    ].find(t => is$1(element, t))
+  ];
+
+  var gfx = renderer(parentGfx, element, { ...attrs, renderIcon: false });
+
+  var icon = this._getIcon(element);
+
+  var size = 18;
+
+  var padding = is$1(element, 'bpmn:Activity') ? {
+    x: 5,
+    y: 5
+  } : {
+    x: (element.width - size) / 2,
+    y: (element.height - size) / 2
+  };
+
+  var img = create$1('image');
+  attr$1(img, {
+    href: icon,
+    width: size,
+    height: size,
+    ...padding
+  });
+
+  append(parentGfx, img);
+
+  return gfx;
+};
+
+ElementTemplateIconRenderer$1.$inject = [
+  'config.elementTemplateIconRenderer',
+  'bpmnRenderer',
+  'eventBus'
+];
+
+var ElementTemplateIconRenderer = {
+  __init__: [ 'elementTemplateIconRenderer' ],
+  elementTemplateIconRenderer: [ 'type', ElementTemplateIconRenderer$1 ]
+};
+
 /**
  * Flatten array, one level deep.
  *
@@ -75360,7 +75726,7 @@ Tooltips.prototype.trigger = function(action, event) {
 
   var node = event.delegateTarget || event.target;
 
-  var tooltip = this.get(attr$2(node, 'data-tooltip-id'));
+  var tooltip = this.get(attr$3(node, 'data-tooltip-id'));
 
   if (!tooltip) {
     return;
@@ -75665,14 +76031,14 @@ var RobotTaskRenderer = /** @class */ (function () {
     RobotTaskRenderer.prototype.drawShape = function (parent, element) {
         var _a, _b;
         (_b = (_a = this.bpmnRenderer.handlers)['bpmn:Task']) === null || _b === void 0 ? void 0 : _b.call(_a, parent, element);
-        var gfx = create$2('image', {
+        var gfx = create$3('image', {
             x: -1,
             y: -1,
             width: 32, // element.width,
             height: 32, //  element.height,
             href: img,
         });
-        append(parent, gfx);
+        append$1(parent, gfx);
         return gfx;
     };
     return RobotTaskRenderer;
@@ -76619,14 +76985,14 @@ var getStrokeWidth = function (count) {
  *   every count a lower bound rather than the real figure
  */
 function appendTraversalTitle(path, count, truncated) {
-    var title = create$2('title');
+    var title = create$3('title');
     if (truncated) {
         title.textContent = count === 1 ? 'Executed at least once' : "Executed at least ".concat(count, " times");
     }
     else {
         title.textContent = count === 1 ? 'Executed once' : "Executed ".concat(count, " times");
     }
-    append(path, title);
+    append$1(path, title);
 }
 /**
  * Creates and appends the arrow marker definition to the SVG defs element.
@@ -76635,12 +77001,12 @@ function appendTraversalTitle(path, count, truncated) {
  * @returns The created marker element
  */
 function createArrowMarker(defs, id) {
-    var marker = create$2('marker');
-    var path = create$2('path');
-    attr$1(marker, __assign(__assign({}, MARKER_ATTRS), { id: id }));
-    attr$1(path, ARROW_PATH_ATTRS);
-    append(marker, path);
-    append(defs, marker);
+    var marker = create$3('marker');
+    var path = create$3('path');
+    attr$2(marker, __assign(__assign({}, MARKER_ATTRS), { id: id }));
+    attr$2(path, ARROW_PATH_ATTRS);
+    append$1(marker, path);
+    append$1(defs, marker);
     return marker;
 }
 /**
@@ -76655,8 +77021,8 @@ function resolveDefs(canvas) {
     if (existing !== null) {
         return existing;
     }
-    var defs = create$2('defs');
-    append(canvas._svg, defs);
+    var defs = create$3('defs');
+    append$1(canvas._svg, defs);
     return defs;
 }
 /**
@@ -76687,9 +77053,9 @@ var renderSequenceFlow = function (viewer, activities, options) {
             stroke: FILL,
             strokeWidth: getStrokeWidth(count),
         });
-        attr$1(curve, { class: EXECUTED_PATH_CLASS });
+        attr$2(curve, { class: EXECUTED_PATH_CLASS });
         appendTraversalTitle(curve, count, isTruncated);
-        append(layer, curve);
+        append$1(layer, curve);
         paths.push(curve);
     }
     var dottedConnections = getDottedConnections(connections);
@@ -76701,9 +77067,9 @@ var renderSequenceFlow = function (viewer, activities, options) {
             stroke: FILL,
             strokeWidth: getStrokeWidth(count),
         });
-        attr$1(curve, { class: EXECUTED_PATH_CLASS });
+        attr$2(curve, { class: EXECUTED_PATH_CLASS });
         appendTraversalTitle(curve, count, isTruncated);
-        append(layer, curve);
+        append$1(layer, curve);
         paths.push(curve);
     }
     return paths;
@@ -76893,8 +77259,8 @@ function getIntensity(totalMillis, maxMillis) {
  */
 function createHeatFilter(defs, id) {
     var _a;
-    var filterEl = create$2('filter');
-    attr$1(filterEl, {
+    var filterEl = create$3('filter');
+    attr$2(filterEl, {
         id: id,
         x: '-25%',
         y: '-25%',
@@ -76903,19 +77269,19 @@ function createHeatFilter(defs, id) {
         // Without this the browser interpolates in linearRGB and the ramp washes out.
         'color-interpolation-filters': 'sRGB',
     });
-    var blur = create$2('feGaussianBlur');
-    attr$1(blur, { in: 'SourceGraphic', stdDeviation: HEATMAP_BLUR, result: 'density' });
-    append(filterEl, blur);
+    var blur = create$3('feGaussianBlur');
+    attr$2(blur, { in: 'SourceGraphic', stdDeviation: HEATMAP_BLUR, result: 'density' });
+    append$1(filterEl, blur);
     // Copy the density (alpha) into R, G and B so the transfer tables below all read it.
-    var spread = create$2('feColorMatrix');
-    attr$1(spread, {
+    var spread = create$3('feColorMatrix');
+    attr$2(spread, {
         in: 'density',
         type: 'matrix',
         // The gain in every row lifts the blurred peak back to the top of the ramp.
         values: "0 0 0 ".concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0  0 0 0 ").concat(HEATMAP_DENSITY_GAIN, " 0"),
         result: 'grey',
     });
-    append(filterEl, spread);
+    append$1(filterEl, spread);
     var channels = [[], [], []];
     var alphas = [];
     for (var sample = 0; sample < HEATMAP_RAMP_SAMPLES; sample++) {
@@ -76927,18 +77293,18 @@ function createHeatFilter(defs, id) {
         // Cold density fades out rather than hazing blue across the whole canvas.
         alphas.push(Math.min(1, Math.pow(along, HEATMAP_ALPHA_EXPONENT) * HEATMAP_ALPHA_SLOPE));
     }
-    var transfer = create$2('feComponentTransfer');
-    attr$1(transfer, { in: 'grey' });
+    var transfer = create$3('feComponentTransfer');
+    attr$2(transfer, { in: 'grey' });
     ['feFuncR', 'feFuncG', 'feFuncB'].forEach(function (name, channel) {
-        var func = create$2(name);
-        attr$1(func, { type: 'table', tableValues: channels[channel].join(' ') });
-        append(transfer, func);
+        var func = create$3(name);
+        attr$2(func, { type: 'table', tableValues: channels[channel].join(' ') });
+        append$1(transfer, func);
     });
-    var funcA = create$2('feFuncA');
-    attr$1(funcA, { type: 'table', tableValues: alphas.join(' ') });
-    append(transfer, funcA);
-    append(filterEl, transfer);
-    append(defs, filterEl);
+    var funcA = create$3('feFuncA');
+    attr$2(funcA, { type: 'table', tableValues: alphas.join(' ') });
+    append$1(transfer, funcA);
+    append$1(filterEl, transfer);
+    append$1(defs, filterEl);
     return filterEl;
 }
 /**
@@ -76947,15 +77313,15 @@ function createHeatFilter(defs, id) {
  * is carried by the blob's own opacity, not by its colour.
  */
 function createDensityGradient(defs, id) {
-    var gradient = create$2('radialGradient');
-    attr$1(gradient, { id: id });
-    var inner = create$2('stop');
-    attr$1(inner, { offset: '0%', 'stop-color': 'white', 'stop-opacity': 1 });
-    var outer = create$2('stop');
-    attr$1(outer, { offset: '100%', 'stop-color': 'white', 'stop-opacity': 0 });
-    append(gradient, inner);
-    append(gradient, outer);
-    append(defs, gradient);
+    var gradient = create$3('radialGradient');
+    attr$2(gradient, { id: id });
+    var inner = create$3('stop');
+    attr$2(inner, { offset: '0%', 'stop-color': 'white', 'stop-opacity': 1 });
+    var outer = create$3('stop');
+    attr$2(outer, { offset: '100%', 'stop-color': 'white', 'stop-opacity': 0 });
+    append$1(gradient, inner);
+    append$1(gradient, outer);
+    append$1(defs, gradient);
     return gradient;
 }
 /** Largest value of an RGB channel, for normalising ramp samples into transfer tables. */
@@ -76971,8 +77337,8 @@ function densityOf(intensity) {
  * The gradient fading a flow from its source's density to its target's.
  */
 function createFlowGradient(defs, id, smear) {
-    var gradient = create$2('linearGradient');
-    attr$1(gradient, {
+    var gradient = create$3('linearGradient');
+    attr$2(gradient, {
         id: id,
         gradientUnits: 'userSpaceOnUse',
         x1: smear.start.x,
@@ -76980,21 +77346,21 @@ function createFlowGradient(defs, id, smear) {
         x2: smear.end.x,
         y2: smear.end.y,
     });
-    var first = create$2('stop');
-    attr$1(first, { offset: '0%', 'stop-color': 'white', 'stop-opacity': smear.from });
-    var last = create$2('stop');
-    attr$1(last, { offset: '100%', 'stop-color': 'white', 'stop-opacity': smear.to });
-    append(gradient, first);
-    append(gradient, last);
-    append(defs, gradient);
+    var first = create$3('stop');
+    attr$2(first, { offset: '0%', 'stop-color': 'white', 'stop-opacity': smear.from });
+    var last = create$3('stop');
+    attr$2(last, { offset: '100%', 'stop-color': 'white', 'stop-opacity': smear.to });
+    append$1(gradient, first);
+    append$1(gradient, last);
+    append$1(defs, gradient);
     return gradient;
 }
 /**
  * The thick soft stroke that carries a flow's density along its waypoints.
  */
 function createFlowSmear(waypoints, gradientId) {
-    var line = create$2('path');
-    attr$1(line, {
+    var line = create$3('path');
+    attr$2(line, {
         d: waypoints.map(function (point, at) { return "".concat(at === 0 ? 'M' : 'L', " ").concat(point.x, " ").concat(point.y); }).join(' '),
         fill: 'none',
         stroke: "url(#".concat(gradientId, ")"),
@@ -77038,7 +77404,7 @@ function appendFlowDensity(group, defs, registry, density, sequence) {
             }
             var gradientId = "history-heatmap-flow-".concat(sequence, "-").concat(index++);
             created.push(createFlowGradient(defs, gradientId, { start: start, end: end, from: from, to: to }));
-            append(group, createFlowSmear(waypoints, gradientId));
+            append$1(group, createFlowSmear(waypoints, gradientId));
         }
     }
     return created;
@@ -77058,8 +77424,8 @@ function createDensityBlob(registry, cell, maxMillis, gradientId) {
     // Hot spots bloom a little wider as well as denser, so they read first.
     var spread = 1 - HEATMAP_BLOOM + HEATMAP_BLOOM * intensity;
     var radius = Math.max(HEATMAP_MIN_RADIUS, (Math.max(width, height) / 2) * HEATMAP_RADIUS_SCALE) * spread;
-    var blob = create$2('ellipse');
-    attr$1(blob, {
+    var blob = create$3('ellipse');
+    attr$2(blob, {
         cx: ((_a = element.x) !== null && _a !== void 0 ? _a : 0) + width / 2,
         cy: ((_b = element.y) !== null && _b !== void 0 ? _b : 0) + height / 2,
         rx: radius,
@@ -77125,13 +77491,13 @@ var renderHeatmap = function (viewer, activities) {
         .map(function (element) { return "[data-element-id=\"".concat(escapeCssId(element.id), "\"] > .djs-visual > rect"); })
         .join(', ');
     if (containerSelectors.length > 0) {
-        var style = create$2('style');
+        var style = create$3('style');
         style.textContent = "".concat(containerSelectors, " { fill-opacity: 0 !important; }");
-        append(defs, style);
+        append$1(defs, style);
         added.push(style);
     }
-    var group = create$2('g');
-    attr$1(group, {
+    var group = create$3('g');
+    attr$2(group, {
         class: 'history-heatmap',
         filter: "url(#".concat(filterId, ")"),
         opacity: HEATMAP_OPACITY,
@@ -77148,10 +77514,10 @@ var renderHeatmap = function (viewer, activities) {
         var cell = cells_2[_d];
         var blob = createDensityBlob(registry, cell, maxMillis, gradientId);
         if (blob) {
-            append(group, blob);
+            append$1(group, blob);
         }
     }
-    append(canvas.getLayer('historyHeatmap', HEATMAP_LAYER_INDEX), group);
+    append$1(canvas.getLayer('historyHeatmap', HEATMAP_LAYER_INDEX), group);
     added.push(group);
     return added;
 };
@@ -77507,6 +77873,7 @@ var createBPMNViewer = function (diagram) { return __awaiter(void 0, void 0, voi
                 additionalModules = [
                     camundaPlatformBehaviors,
                     RobotModule,
+                    ElementTemplateIconRenderer,
                     tooltips,
                     ModelingModule,
                 ];
