@@ -83551,7 +83551,7 @@ var HistoryViewLayout = function (_a) {
                     setInfoPaneSize(newLeftSize);
                     saveSettings(__assign(__assign({}, loadSettings()), { leftPaneSize: newLeftSize }));
                 } },
-                React.createElement(Ve.Pane, { preferredSize: (_b = settings.leftPaneSize) !== null && _b !== void 0 ? _b : '33%', minSize: MIN_PANE_SIZE },
+                React.createElement(Ve.Pane, { preferredSize: (_b = settings.leftPaneSize) !== null && _b !== void 0 ? _b : '20%', minSize: MIN_PANE_SIZE },
                     React.createElement("div", { style: { height: '100%', position: 'relative' } },
                         React.createElement(ProcessInfoPanel, { instance: instance, definition: definition }),
                         React.createElement("button", { type: "button", onClick: toggleInfoPanel, style: {
