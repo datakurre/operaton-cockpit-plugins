@@ -176,7 +176,7 @@ const HistoryViewLayout: React.FC<HistoryViewLayoutProps> = ({
             });
           }}
         >
-          <Allotment.Pane preferredSize={settings.leftPaneSize ?? '33%'} minSize={MIN_PANE_SIZE}>
+          <Allotment.Pane preferredSize={settings.leftPaneSize ?? '20%'} minSize={MIN_PANE_SIZE}>
             <div style={{ height: '100%', position: 'relative' }}>
               <ProcessInfoPanel instance={instance} definition={definition} />
               {/* Chevron to collapse/expand info panel */}
