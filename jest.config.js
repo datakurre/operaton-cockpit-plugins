@@ -47,7 +47,7 @@ module.exports = {
   // The pattern is unanchored: nested dependencies are transformed only when every
   // "node_modules/" segment is followed by an allowed package name.
   transformIgnorePatterns: [
-    '/node_modules/(?!(bpmn-js|bpmn-moddle|diagram-js|min-dash|min-dom|moddle-xml|moddle|saxen|msw|@mswjs|until-async|@bpmn-io/element-template-icon-renderer|tiny-svg)/)',
+    '/node_modules/(?!(bpmn-js|bpmn-moddle|diagram-js|min-dash|min-dom|moddle-xml|moddle|saxen|msw|@mswjs|until-async|tiny-svg)/)',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   // Handle ESM modules - transform both TS/TSX and JS files from ESM packages

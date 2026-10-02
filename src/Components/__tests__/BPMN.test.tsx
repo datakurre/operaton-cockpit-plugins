@@ -60,6 +60,7 @@ jest.mock('camunda-bpmn-js-behaviors/lib/camunda-platform', () => ({}));
 jest.mock('camunda-bpmn-moddle/resources/camunda.json', () => ({}), { virtual: true });
 jest.mock('diagram-js/lib/features/tooltips', () => ({}));
 jest.mock('../../RobotModule', () => ({}));
+jest.mock('../../ElementTemplateIconRenderer', () => ({}));
 
 // Mock sequence flow and overlay utilities
 const mockRenderSequenceFlow = jest.fn().mockReturnValue([]);

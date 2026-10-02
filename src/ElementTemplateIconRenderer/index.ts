@@ -1,3 +1,6 @@
-import ElementTemplateIconRenderer from '@bpmn-io/element-template-icon-renderer';
+import ElementTemplateIconRenderer from './ElementTemplateIconRenderer';
 
-export default ElementTemplateIconRenderer;
+export default {
+  __init__: ['elementTemplateIconRenderer'],
+  elementTemplateIconRenderer: ['type', ElementTemplateIconRenderer],
+};

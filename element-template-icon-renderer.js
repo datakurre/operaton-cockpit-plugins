@@ -14,101 +14,38 @@ function ___$insertStylesToHeader(css) {
   return css
 }
 
-function e(e,t){t&&(e.super_=t,e.prototype=Object.create(t.prototype,{constructor:{value:e,enumerable:false,writable:true,configurable:true}}));}
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
 
-var DEFAULT_RENDER_PRIORITY = 1000;
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
 
-/**
- * @typedef {import('../core/Types').ElementLike} Element
- * @typedef {import('../core/Types').ConnectionLike} Connection
- * @typedef {import('../core/Types').ShapeLike} Shape
- *
- * @typedef {import('../core/EventBus').default} EventBus
- */
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
-/**
- * The base implementation of shape and connection renderers.
- *
- * @param {EventBus} eventBus
- * @param {number} [renderPriority=1000]
- */
-function BaseRenderer(eventBus, renderPriority) {
-  var self = this;
 
-  renderPriority = renderPriority || DEFAULT_RENDER_PRIORITY;
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 
-  eventBus.on([ 'render.shape', 'render.connection' ], renderPriority, function(evt, context) {
-    var type = evt.type,
-        element = context.element,
-        visuals = context.gfx,
-        attrs = context.attrs;
-
-    if (self.canRender(element)) {
-      if (type === 'render.shape') {
-        return self.drawShape(visuals, element, attrs);
-      } else {
-        return self.drawConnection(visuals, element, attrs);
-      }
-    }
-  });
-
-  eventBus.on([ 'render.getShapePath', 'render.getConnectionPath' ], renderPriority, function(evt, element) {
-    if (self.canRender(element)) {
-      if (evt.type === 'render.getShapePath') {
-        return self.getShapePath(element);
-      } else {
-        return self.getConnectionPath(element);
-      }
-    }
-  });
-}
-
-/**
- * Checks whether an element can be rendered.
- *
- * @param {Element} element The element to be rendered.
- *
- * @return {boolean} Whether the element can be rendered.
- */
-BaseRenderer.prototype.canRender = function(element) {};
-
-/**
- * Draws a shape.
- *
- * @param {SVGElement} visuals The SVG element to draw the shape into.
- * @param {Shape} shape The shape to be drawn.
- *
- * @return {SVGElement} The SVG element of the shape drawn.
- */
-BaseRenderer.prototype.drawShape = function(visuals, shape) {};
-
-/**
- * Draws a connection.
- *
- * @param {SVGElement} visuals The SVG element to draw the connection into.
- * @param {Connection} connection The connection to be drawn.
- *
- * @return {SVGElement} The SVG element of the connection drawn.
- */
-BaseRenderer.prototype.drawConnection = function(visuals, connection) {};
-
-/**
- * Gets the SVG path of the graphical representation of a shape.
- *
- * @param {Shape} shape The shape.
- *
- * @return {string} The SVG path of the shape.
- */
-BaseRenderer.prototype.getShapePath = function(shape) {};
-
-/**
- * Gets the SVG path of the graphical representation of a connection.
- *
- * @param {Connection} connection The connection.
- *
- * @return {string} The SVG path of the connection.
- */
-BaseRenderer.prototype.getConnectionPath = function(connection) {};
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
 
 /**
  * Flatten array, one level deep.
@@ -404,6 +341,102 @@ function isLabel(value) {
   return isObject(value) && has(value, 'labelTarget');
 }
 
+var DEFAULT_RENDER_PRIORITY = 1000;
+
+/**
+ * @typedef {import('../core/Types').ElementLike} Element
+ * @typedef {import('../core/Types').ConnectionLike} Connection
+ * @typedef {import('../core/Types').ShapeLike} Shape
+ *
+ * @typedef {import('../core/EventBus').default} EventBus
+ */
+
+/**
+ * The base implementation of shape and connection renderers.
+ *
+ * @param {EventBus} eventBus
+ * @param {number} [renderPriority=1000]
+ */
+function BaseRenderer(eventBus, renderPriority) {
+  var self = this;
+
+  renderPriority = renderPriority || DEFAULT_RENDER_PRIORITY;
+
+  eventBus.on([ 'render.shape', 'render.connection' ], renderPriority, function(evt, context) {
+    var type = evt.type,
+        element = context.element,
+        visuals = context.gfx,
+        attrs = context.attrs;
+
+    if (self.canRender(element)) {
+      if (type === 'render.shape') {
+        return self.drawShape(visuals, element, attrs);
+      } else {
+        return self.drawConnection(visuals, element, attrs);
+      }
+    }
+  });
+
+  eventBus.on([ 'render.getShapePath', 'render.getConnectionPath' ], renderPriority, function(evt, element) {
+    if (self.canRender(element)) {
+      if (evt.type === 'render.getShapePath') {
+        return self.getShapePath(element);
+      } else {
+        return self.getConnectionPath(element);
+      }
+    }
+  });
+}
+
+/**
+ * Checks whether an element can be rendered.
+ *
+ * @param {Element} element The element to be rendered.
+ *
+ * @return {boolean} Whether the element can be rendered.
+ */
+BaseRenderer.prototype.canRender = function(element) {};
+
+/**
+ * Draws a shape.
+ *
+ * @param {SVGElement} visuals The SVG element to draw the shape into.
+ * @param {Shape} shape The shape to be drawn.
+ *
+ * @return {SVGElement} The SVG element of the shape drawn.
+ */
+BaseRenderer.prototype.drawShape = function(visuals, shape) {};
+
+/**
+ * Draws a connection.
+ *
+ * @param {SVGElement} visuals The SVG element to draw the connection into.
+ * @param {Connection} connection The connection to be drawn.
+ *
+ * @return {SVGElement} The SVG element of the connection drawn.
+ */
+BaseRenderer.prototype.drawConnection = function(visuals, connection) {};
+
+/**
+ * Gets the SVG path of the graphical representation of a shape.
+ *
+ * @param {Shape} shape The shape.
+ *
+ * @return {string} The SVG path of the shape.
+ */
+BaseRenderer.prototype.getShapePath = function(shape) {};
+
+/**
+ * Gets the SVG path of the graphical representation of a connection.
+ *
+ * @param {Connection} connection The connection.
+ *
+ * @return {string} The SVG path of the connection.
+ */
+BaseRenderer.prototype.getConnectionPath = function(connection) {};
+
+function e(e,t){t&&(e.super_=t,e.prototype=Object.create(t.prototype,{constructor:{value:e,enumerable:false,writable:true,configurable:true}}));}
+
 function ensureImported(element, target) {
 
   if (element.ownerDocument !== target.ownerDocument) {
@@ -667,107 +700,81 @@ function create(name, attrs) {
   return element;
 }
 
-/**
- * Get icon defined on a moddle element.
- *
- * @param { ModdleElement } element
- * @param { string } iconProperty
- *
- * @return { string }
- */
-function getModelerTemplateIcon(element, iconProperty) {
-  iconProperty = iconProperty || 'zeebe:modelerTemplateIcon';
-
-  return getBusinessObject(element).get(iconProperty);
-}
-
 var HIGH_PRIORITY = 1250;
-
-
-function ElementTemplateIconRenderer$1(
-    config,
-    bpmnRenderer,
-    eventBus) {
-
-  this._bpmnRenderer = bpmnRenderer;
-
-  this._iconProperty = config && config.iconProperty;
-
-  BaseRenderer.call(this, eventBus, HIGH_PRIORITY);
+var ICON_SIZE = 18;
+var ACTIVITY_ICON_PADDING = 5;
+/**
+ * Attributes camunda (Camunda 7) and operaton (Operaton) modelers write element-template icons
+ * to, checked in this order. zeebe:modelerTemplateIcon (Camunda 8) is intentionally not
+ * supported here.
+ */
+var ICON_PROPERTIES = ['camunda:modelerTemplateIcon', 'operaton:modelerTemplateIcon'];
+var ICON_SHAPE_TYPES = [
+    'bpmn:BoundaryEvent',
+    'bpmn:CallActivity',
+    'bpmn:EndEvent',
+    'bpmn:IntermediateCatchEvent',
+    'bpmn:IntermediateThrowEvent',
+    'bpmn:StartEvent',
+    'bpmn:Task',
+    // specialized subprocess types must be matched before the general bpmn:SubProcess
+    'bpmn:AdHocSubProcess',
+    'bpmn:Transaction',
+    'bpmn:SubProcess',
+];
+/**
+ * bpmn-js renderer drawing element-template icons from camunda:modelerTemplateIcon or
+ * operaton:modelerTemplateIcon, falling back to the underlying bpmn-js shape otherwise.
+ */
+var ElementTemplateIconRenderer = /** @class */ (function () {
+    function ElementTemplateIconRenderer(eventBus, bpmnRenderer) {
+        this.$inject = [];
+        this.bpmnRenderer = bpmnRenderer;
+        /* @ts-expect-error BaseRenderer is a constructor-like function that requires this binding */
+        BaseRenderer.call(this, eventBus, HIGH_PRIORITY);
+    }
+    ElementTemplateIconRenderer.prototype.canRender = function (element) {
+        if (isLabel(element)) {
+            return false;
+        }
+        return isAny(element, ['bpmn:Activity', 'bpmn:Event']) && !!this.getIcon(element);
+    };
+    ElementTemplateIconRenderer.prototype.getIcon = function (element) {
+        var businessObject = getBusinessObject(element);
+        return ICON_PROPERTIES.map(function (property) { return businessObject.get(property); }).find(Boolean);
+    };
+    ElementTemplateIconRenderer.prototype.drawShape = function (parentGfx, element, attrs) {
+        if (attrs === void 0) { attrs = {}; }
+        var type = ICON_SHAPE_TYPES.find(function (shapeType) { return is(element, shapeType); });
+        var handler = type ? this.bpmnRenderer.handlers[type] : undefined;
+        var gfx = handler === null || handler === void 0 ? void 0 : handler(parentGfx, element, __assign(__assign({}, attrs), { renderIcon: false }));
+        var icon = this.getIcon(element);
+        var padding = is(element, 'bpmn:Activity')
+            ? { x: ACTIVITY_ICON_PADDING, y: ACTIVITY_ICON_PADDING }
+            : { x: (element.width - ICON_SIZE) / 2, y: (element.height - ICON_SIZE) / 2 };
+        var img = create('image');
+        attr(img, __assign({ href: icon, width: ICON_SIZE, height: ICON_SIZE }, padding));
+        append(parentGfx, img);
+        return gfx;
+    };
+    return ElementTemplateIconRenderer;
+}());
+/**
+ * Factory function to create ElementTemplateIconRenderer instances.
+ * @param eventBus - The diagram event bus
+ * @param bpmnRenderer - The BPMN renderer instance, used to draw the underlying shape
+ * @returns A configured ElementTemplateIconRenderer instance
+ */
+function factory(eventBus, bpmnRenderer) {
+    var instance = new ElementTemplateIconRenderer(eventBus, bpmnRenderer);
+    e(instance, BaseRenderer);
+    instance.$inject = ['eventBus', 'bpmnRenderer'];
+    return instance;
 }
 
-e(ElementTemplateIconRenderer$1, BaseRenderer);
-
-ElementTemplateIconRenderer$1.prototype.canRender = function(element) {
-
-  if (isLabel(element)) {
-    return false;
-  }
-
-  return !!(
-    isAny(element, [ 'bpmn:Activity', 'bpmn:Event' ]) && this._getIcon(element)
-  );
+var index = {
+    __init__: ['elementTemplateIconRenderer'],
+    elementTemplateIconRenderer: ['type', factory],
 };
 
-ElementTemplateIconRenderer$1.prototype._getIcon = function(element) {
-  return getModelerTemplateIcon(element, this._iconProperty);
-};
-
-ElementTemplateIconRenderer$1.prototype.drawShape = function(parentGfx, element, attrs = {}) {
-
-  var renderer = this._bpmnRenderer.handlers[
-    [
-      'bpmn:BoundaryEvent',
-      'bpmn:CallActivity',
-      'bpmn:EndEvent',
-      'bpmn:IntermediateCatchEvent',
-      'bpmn:IntermediateThrowEvent',
-      'bpmn:StartEvent',
-      'bpmn:Task',
-
-      // specialized subprocess before general
-      'bpmn:AdHocSubProcess',
-      'bpmn:Transaction',
-      'bpmn:SubProcess'
-    ].find(t => is(element, t))
-  ];
-
-  var gfx = renderer(parentGfx, element, { ...attrs, renderIcon: false });
-
-  var icon = this._getIcon(element);
-
-  var size = 18;
-
-  var padding = is(element, 'bpmn:Activity') ? {
-    x: 5,
-    y: 5
-  } : {
-    x: (element.width - size) / 2,
-    y: (element.height - size) / 2
-  };
-
-  var img = create('image');
-  attr(img, {
-    href: icon,
-    width: size,
-    height: size,
-    ...padding
-  });
-
-  append(parentGfx, img);
-
-  return gfx;
-};
-
-ElementTemplateIconRenderer$1.$inject = [
-  'config.elementTemplateIconRenderer',
-  'bpmnRenderer',
-  'eventBus'
-];
-
-var ElementTemplateIconRenderer = {
-  __init__: [ 'elementTemplateIconRenderer' ],
-  elementTemplateIconRenderer: [ 'type', ElementTemplateIconRenderer$1 ]
-};
-
-export { ElementTemplateIconRenderer as default };
+export { index as default };

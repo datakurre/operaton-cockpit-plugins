@@ -44,7 +44,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - `decisions-dashboard.js` – **abandoned** DMN decision simulator (see [Abandoned plugins](#abandoned-plugins))
 - `definition-historic-activities.js` – Process definition statistics overlay
 - `definition-tab-modify.js` – Process definition modification template builder
-- `element-template-icon-renderer.js` – BPMN module that renders element-template icons
+- `element-template-icon-renderer.js` – BPMN module that renders element-template icons from `camunda:modelerTemplateIcon` or `operaton:modelerTemplateIcon`
 - `instance-action-unlock.js` – External task unlock action
 - `instance-auto-refresh.js` – Auto-refresh toggle for instance views
 - `instance-historic-activities.js` – Process instance audit log and overlays
@@ -71,7 +71,7 @@ A source file existing under `src/` does **not** mean the plugin is shipped — 
 - [src/definition-tab-modify.tsx](src/definition-tab-modify.tsx): Process definition "Modify" tab hosting three batch operations against a definition: `BatchModifyForm` (Batch Modify), `BatchMessageForm` (Message) and `BatchSignalForm` (Signal). All three target instances through the shared helpers in
 [src/utils/batchOperations.ts](src/utils/batchOperations.ts) and preview the request they would send — see
 [Dangerous operations and dry runs](#dangerous-operations-and-dry-runs).
-- [src/ElementTemplateIconRenderer/index.ts](src/ElementTemplateIconRenderer/index.ts): bpmn-js module entrypoint for `@bpmn-io/element-template-icon-renderer`, bundled as `element-template-icon-renderer.js`.
+- [src/ElementTemplateIconRenderer/index.ts](src/ElementTemplateIconRenderer/index.ts): bpmn-js module entrypoint, bundled as `element-template-icon-renderer.js`. [ElementTemplateIconRenderer.ts](src/ElementTemplateIconRenderer/ElementTemplateIconRenderer.ts) is a renderer vendored from (and no longer depending on) the `@bpmn-io/element-template-icon-renderer` npm package, because that package only ever reads one configurable attribute, defaulting to `zeebe:modelerTemplateIcon`. The vendored version instead checks `camunda:modelerTemplateIcon` then `operaton:modelerTemplateIcon`, first match wins; `zeebe:modelerTemplateIcon` (Camunda 8) is deliberately not checked.
 - [src/instance-action-unlock.tsx](src/instance-action-unlock.tsx): Process instance action button that provides a dialog for unlocking external tasks that are locked by workers, with batch selection and individual retry capabilities.
 - [src/instance-auto-refresh.tsx](src/instance-auto-refresh.tsx): Diagram plugin exposing a toggle for auto-refresh on an instance view.
 - [src/instance-historic-activities.tsx](src/instance-historic-activities.tsx): Adds audit-log tab and diagram overlays for a process instance, including sequence-flow highlighting.
@@ -505,10 +505,10 @@ Coverage thresholds are enforced in [jest.config.js](jest.config.js):
   mapping: the CJS build is `module.exports = SimpleBpmnModdle`, which a named import cannot read, and
   it requires the ESM-only `moddle` and `moddle-xml` anyway. Jest loads the same ESM entry rollup does,
   which is why `transformIgnorePatterns` in [jest.config.js](jest.config.js) allowlists the whole chain
-  (`bpmn-moddle`, `moddle`, `moddle-xml`, `saxen`, `min-dash`), as well as
-  `@bpmn-io/element-template-icon-renderer` and its nested `tiny-svg`. That pattern is unanchored, so a
-  nested path is only transformed when *every* `node_modules/` segment in it is followed by an allowlisted
-  name. Drop a dependency from that list and its nested copy silently stops being transformed.
+  (`bpmn-moddle`, `moddle`, `moddle-xml`, `saxen`, `min-dash`), as well as `tiny-svg`. That pattern is
+  unanchored, so a nested path is only transformed when *every* `node_modules/` segment in it is followed
+  by an allowlisted name. Drop a dependency from that list and its nested copy silently stops being
+  transformed.
 
 - **`BatchSignalForm`'s instance preview cannot show the full blast radius.** `POST /signal` reaches every
   matching signal catch event in every deployed definition, but the engine offers no way to query that
